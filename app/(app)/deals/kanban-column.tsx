@@ -15,7 +15,7 @@ export default function KanbanColumn({
 
   return (
     <div
-      className={`flex w-60 flex-none flex-col rounded-xl border transition-colors ${
+      className={`flex w-[min(80vw,320px)] flex-none snap-start flex-col rounded-xl border transition-colors ${
         over
           ? "border-indigo-500/40 bg-indigo-950/20"
           : "border-neutral-800 bg-neutral-900"

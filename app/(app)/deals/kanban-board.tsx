@@ -61,11 +61,9 @@ export default function KanbanBoard({
   ) as Record<StageKey, DealWithContact[]>;
 
   return (
-    <div className="overflow-x-auto pb-4">
-      <div
-        className="flex gap-4"
-        style={{ minWidth: `${STAGES.length * 260}px` }}
-      >
+    <div className="@container">
+      <div className="overflow-x-auto snap-x snap-mandatory pb-4">
+      <div className="flex gap-4">
         {STAGES.map((stage) => {
           const cards = dealsByStage[stage.key] ?? [];
           const stageTotal = cards
@@ -121,6 +119,7 @@ export default function KanbanBoard({
             </KanbanColumn>
           );
         })}
+      </div>
       </div>
     </div>
   );
