@@ -1,3 +1,4 @@
+import { inArray } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 
 export interface CrmSettings {
@@ -17,7 +18,16 @@ export async function getCrmSettings(): Promise<CrmSettings> {
   if (!db) return { ...CRM_SETTINGS_DEFAULTS };
 
   try {
-    const rows = await db.select().from(schema.appSettings);
+    const rows = await db
+      .select()
+      .from(schema.appSettings)
+      .where(
+        inArray(schema.appSettings.key, [
+          "displayName",
+          "defaultCurrency",
+          "defaultDealStage",
+        ]),
+      );
     const result: CrmSettings = { ...CRM_SETTINGS_DEFAULTS };
     for (const row of rows) {
       if (
