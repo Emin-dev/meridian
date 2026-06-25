@@ -1,9 +1,11 @@
 "use server";
 
 import { chat } from "@/lib/ai";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb, schema } from "@/db";
+
+const DIGEST_CACHE_TTL_MS = 4 * 60 * 60 * 1000; // 4 hours
 
 type StageData = { stage: string; count: number; value: number };
 
@@ -22,7 +24,10 @@ type DigestInput = {
   topContacts: { name: string; leadScore: number }[];
 };
 
-type DigestResult = { digest: string } | { error: string } | { noKey: true };
+type DigestResult =
+  | { digest: string; cachedAt: string }
+  | { error: string }
+  | { noKey: true };
 
 export async function completeAgendaItem(id: number): Promise<void> {
   const db = getDb();
@@ -36,8 +41,31 @@ export async function completeAgendaItem(id: number): Promise<void> {
 }
 
 export async function generateDailyDigest(
-  input: DigestInput
+  input: DigestInput,
+  force = false
 ): Promise<DigestResult> {
+  const db = getDb();
+
+  // Serve from cache if fresh and not forced
+  if (!force && db) {
+    try {
+      const rows = await db
+        .select()
+        .from(schema.appSettings)
+        .where(inArray(schema.appSettings.key, ["digestCache", "digestCachedAt"]));
+      const cacheMap: Record<string, string> = {};
+      for (const row of rows) cacheMap[row.key] = row.value;
+      if (cacheMap.digestCache && cacheMap.digestCachedAt) {
+        const age = Date.now() - new Date(cacheMap.digestCachedAt).getTime();
+        if (age < DIGEST_CACHE_TTL_MS) {
+          return { digest: cacheMap.digestCache, cachedAt: cacheMap.digestCachedAt };
+        }
+      }
+    } catch {
+      // Fall through to regenerate
+    }
+  }
+
   try {
     const stagesSummary = input.dealsByStage
       .filter((s) => s.count > 0)
@@ -87,7 +115,32 @@ What are my top priorities today to move deals forward and avoid anything slippi
       },
     ]);
 
-    return { digest };
+    const cachedAt = new Date().toISOString();
+
+    // Persist to cache
+    if (db) {
+      try {
+        const now = new Date();
+        await db
+          .insert(schema.appSettings)
+          .values({ key: "digestCache", value: digest })
+          .onConflictDoUpdate({
+            target: schema.appSettings.key,
+            set: { value: digest, updatedAt: now },
+          });
+        await db
+          .insert(schema.appSettings)
+          .values({ key: "digestCachedAt", value: cachedAt })
+          .onConflictDoUpdate({
+            target: schema.appSettings.key,
+            set: { value: cachedAt, updatedAt: now },
+          });
+      } catch {
+        // Non-fatal: digest still returned even if caching fails
+      }
+    }
+
+    return { digest, cachedAt };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     if (message.includes("DEEPSEEK_API_KEY")) return { noKey: true };

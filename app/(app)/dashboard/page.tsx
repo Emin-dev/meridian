@@ -97,6 +97,8 @@ export default async function DashboardPage() {
     totalSteps: number;
     nextStepDueDate: Date;
   }> = [];
+  let initialDigestBullets: string[] | undefined;
+  let initialDigestCachedAt: string | undefined;
 
   if (db) {
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
@@ -270,6 +272,28 @@ export default async function DashboardPage() {
         .sort((a, b) => a.nextStepDueDate.getTime() - b.nextStepDueDate.getTime())
         .slice(0, 5);
     }
+
+    // Read cached AI digest (serve without AI call if under 4 hours old)
+    try {
+      const digestRows = await db
+        .select()
+        .from(schema.appSettings)
+        .where(inArray(schema.appSettings.key, ["digestCache", "digestCachedAt"]));
+      const cacheMap: Record<string, string> = {};
+      for (const row of digestRows) cacheMap[row.key] = row.value;
+      if (cacheMap.digestCache && cacheMap.digestCachedAt) {
+        const age = Date.now() - new Date(cacheMap.digestCachedAt).getTime();
+        if (age < 4 * 60 * 60 * 1000) {
+          initialDigestBullets = cacheMap.digestCache
+            .split("\n")
+            .map((line) => line.replace(/^[•\-\*]\s*/, "").trim())
+            .filter(Boolean);
+          initialDigestCachedAt = cacheMap.digestCachedAt;
+        }
+      }
+    } catch {
+      // Non-fatal
+    }
   }
 
   return (
@@ -339,6 +363,8 @@ export default async function DashboardPage() {
                 dealsByStage={dealsByStage}
                 overdueCount={overdueCount}
                 topContacts={topContacts}
+                initialBullets={initialDigestBullets}
+                initialCachedAt={initialDigestCachedAt}
               />
             </div>
           </div>

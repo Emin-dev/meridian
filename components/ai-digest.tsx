@@ -18,25 +18,43 @@ type Props = {
   dealsByStage: StageData[];
   overdueCount: number;
   topContacts: { name: string; leadScore: number }[];
+  initialBullets?: string[];
+  initialCachedAt?: string;
 };
 
-export default function AiDigest(props: Props) {
-  const [bullets, setBullets] = useState<string[]>([]);
+function formatAge(iso: string): string {
+  const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  return `${hrs}h ago`;
+}
+
+export default function AiDigest({
+  initialBullets = [],
+  initialCachedAt,
+  ...digestProps
+}: Props) {
+  const [bullets, setBullets] = useState<string[]>(initialBullets);
+  const [cachedAt, setCachedAt] = useState<string | null>(
+    initialCachedAt ?? null
+  );
   const [error, setError] = useState<string | null>(null);
   const [noKey, setNoKey] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  function generate() {
+  function generate(force = false) {
     setError(null);
     setNoKey(false);
     startTransition(async () => {
-      const res = await generateDailyDigest(props);
+      const res = await generateDailyDigest(digestProps, force);
       if ("digest" in res) {
         const parsed = res.digest
           .split("\n")
           .map((line) => line.replace(/^[•\-\*]\s*/, "").trim())
           .filter(Boolean);
         setBullets(parsed);
+        setCachedAt(res.cachedAt);
       } else if ("noKey" in res) {
         setNoKey(true);
       } else {
@@ -54,15 +72,42 @@ export default function AiDigest(props: Props) {
           <p className="text-sm font-medium text-neutral-300">
             What should I do today?
           </p>
-          <p className="mt-0.5 text-xs text-neutral-500">AI daily digest</p>
+          <p className="mt-0.5 text-xs text-neutral-500">
+            {cachedAt ? `Updated ${formatAge(cachedAt)}` : "AI daily digest"}
+          </p>
         </div>
-        <button
-          onClick={generate}
-          disabled={isPending}
-          className="shrink-0 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
-        >
-          {isPending ? "Generating…" : hasDigest ? "Refresh" : "Generate"}
-        </button>
+        <div className="flex shrink-0 items-center gap-2">
+          {hasDigest && (
+            <button
+              onClick={() => generate(true)}
+              disabled={isPending}
+              title="Refresh digest"
+              className="rounded-lg p-1.5 text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-neutral-200 disabled:opacity-50"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                className={`h-4 w-4 ${isPending ? "animate-spin" : ""}`}
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M15.312 11.424a5.5 5.5 0 0 1-9.201 2.466l-.312-.311h2.433a.75.75 0 0 0 0-1.5H5.498a.75.75 0 0 0-.75.75v3.635a.75.75 0 0 0 1.5 0v-2.033l.31.31a7 7 0 0 0 11.712-3.138.75.75 0 0 0-1.449-.39Zm1.23-3.723a.75.75 0 0 0 .219-.53V3.536a.75.75 0 0 0-1.5 0v2.033l-.31-.31a7 7 0 0 0-11.712 3.138.75.75 0 1 0 1.449.39a5.5 5.5 0 0 1 9.201-2.466l.312.311H12.43a.75.75 0 0 0 0 1.5h3.168a.75.75 0 0 0 .53-.219Z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+          )}
+          {!hasDigest && (
+            <button
+              onClick={() => generate(false)}
+              disabled={isPending}
+              className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
+            >
+              {isPending ? "Generating…" : "Generate"}
+            </button>
+          )}
+        </div>
       </div>
 
       {!hasDigest && !isPending && !noKey && !error && (
@@ -72,7 +117,7 @@ export default function AiDigest(props: Props) {
         </p>
       )}
 
-      {isPending && (
+      {!hasDigest && isPending && (
         <div className="mt-4 space-y-2">
           {[80, 65, 72].map((w, i) => (
             <div
