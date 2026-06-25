@@ -2,8 +2,7 @@ import Link from "next/link";
 import { getDb } from "@/db";
 import DealModal from "./deal-modal";
 import DealsTable from "./deals-table";
-import KanbanCard from "./kanban-card";
-import KanbanColumn from "./kanban-column";
+import KanbanBoard from "./kanban-board";
 import DealsExportCsvButton from "./export-csv-button";
 import OwnerFilter from "./owner-filter";
 import { DealsViewSwitcher } from "./deals-view-switcher";
@@ -74,10 +73,6 @@ export default async function DealsPage({
     (d) =>
       (!ownerFilter || d.owner === ownerFilter) &&
       (!stageMatch || d.stage === stageMatch.key)
-  );
-
-  const byStage = Object.fromEntries(
-    STAGES.map((s) => [s.key, visibleDeals.filter((d) => d.stage === s.key)])
   );
 
   const openDeals = visibleDeals.filter((d) => d.stage !== "lost");
@@ -214,62 +209,7 @@ export default async function DealsPage({
             />
           </div>
         ) : (
-          <div className="overflow-x-auto pb-4">
-            <div
-              className="flex gap-4"
-              style={{ minWidth: `${STAGES.length * 260}px` }}
-            >
-              {STAGES.map((stage) => {
-                const cards = byStage[stage.key] ?? [];
-                const stageTotal = cards
-                  .filter((d) => d.value)
-                  .reduce((sum, d) => sum + parseFloat(d.value!), 0);
-
-                return (
-                  <KanbanColumn key={stage.key} stageKey={stage.key}>
-                    {/* Column header */}
-                    <div className="flex items-center justify-between border-b border-neutral-800 px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <span className={`h-2 w-2 rounded-full ${stage.dot}`} />
-                        <span className="text-xs font-medium uppercase tracking-wide text-neutral-400">
-                          {stage.label}
-                        </span>
-                      </div>
-                      <span className="rounded-full bg-neutral-800 px-2 py-0.5 text-xs text-neutral-400">
-                        {cards.length}
-                      </span>
-                    </div>
-
-                    {/* Stage value */}
-                    {stageTotal > 0 && (
-                      <div className="border-b border-neutral-800 px-4 py-2">
-                        <p className="text-xs text-neutral-500">
-                          {new Intl.NumberFormat("en-US", {
-                            style: "currency",
-                            currency: "USD",
-                            maximumFractionDigits: 0,
-                          }).format(stageTotal)}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Cards */}
-                    <div className="flex flex-1 flex-col gap-3 p-3">
-                      {cards.length === 0 ? (
-                        <p className="py-6 text-center text-xs text-neutral-700">
-                          No deals
-                        </p>
-                      ) : (
-                        cards.map((deal) => (
-                          <KanbanCard key={deal.id} deal={deal} />
-                        ))
-                      )}
-                    </div>
-                  </KanbanColumn>
-                );
-              })}
-            </div>
-          </div>
+          <KanbanBoard initialDeals={visibleDeals} />
         )
       )}
 

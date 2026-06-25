@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useTransition, useState } from "react";
-import { moveDealStage } from "./actions";
+import { useState } from "react";
 import type { Deal, Contact } from "@/db/schema";
 
 type DealWithContact = Deal & { contact: Contact | null };
@@ -35,8 +34,13 @@ function ageBadgeClass(days: number): string {
   return "bg-red-500/15 text-red-400";
 }
 
-export default function KanbanCard({ deal }: { deal: DealWithContact }) {
-  const [pending, startTransition] = useTransition();
+export default function KanbanCard({
+  deal,
+  onMove,
+}: {
+  deal: DealWithContact;
+  onMove: (dealId: number, stage: string, reason?: string) => void;
+}) {
   const [pendingTerminal, setPendingTerminal] = useState<StageValue | null>(null);
   const [reason, setReason] = useState("");
 
@@ -51,9 +55,7 @@ export default function KanbanCard({ deal }: { deal: DealWithContact }) {
       setPendingTerminal(newStage);
       setReason("");
     } else {
-      startTransition(async () => {
-        await moveDealStage(deal.id, newStage);
-      });
+      onMove(deal.id, newStage);
     }
   }
 
@@ -63,9 +65,7 @@ export default function KanbanCard({ deal }: { deal: DealWithContact }) {
     const r = reason;
     setPendingTerminal(null);
     setReason("");
-    startTransition(async () => {
-      await moveDealStage(deal.id, stage, r);
-    });
+    onMove(deal.id, stage, r);
   }
 
   return (
@@ -75,9 +75,7 @@ export default function KanbanCard({ deal }: { deal: DealWithContact }) {
         e.dataTransfer.effectAllowed = "move";
         e.dataTransfer.setData("dealId", String(deal.id));
       }}
-      className={`rounded-lg border border-neutral-800 bg-neutral-800/50 transition-colors hover:border-neutral-700 hover:bg-neutral-800 cursor-grab active:cursor-grabbing ${
-        pending ? "opacity-60 pointer-events-none" : ""
-      }`}
+      className="rounded-lg border border-neutral-800 bg-neutral-800/50 transition-colors hover:border-neutral-700 hover:bg-neutral-800 cursor-grab active:cursor-grabbing"
     >
       {/* Clickable card body → deal detail */}
       <Link href={`/deals/${deal.id}`} className="block p-3" draggable={false}>
@@ -182,8 +180,7 @@ export default function KanbanCard({ deal }: { deal: DealWithContact }) {
           <select
             defaultValue={deal.stage}
             onChange={handleStageChange}
-            disabled={pending}
-            className="w-full rounded border border-neutral-700 bg-neutral-900 px-2 py-1 text-xs text-neutral-300 focus:border-neutral-500 focus:outline-none disabled:opacity-50 cursor-pointer"
+            className="w-full rounded border border-neutral-700 bg-neutral-900 px-2 py-1 text-xs text-neutral-300 focus:border-neutral-500 focus:outline-none cursor-pointer"
             aria-label="Move to stage"
           >
             {STAGES.map((s) => (

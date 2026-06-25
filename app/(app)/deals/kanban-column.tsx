@@ -1,17 +1,17 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { moveDealStage } from "./actions";
+import { useState } from "react";
 
 export default function KanbanColumn({
   stageKey,
+  onDrop,
   children,
 }: {
   stageKey: string;
+  onDrop: (dealId: number) => void;
   children: React.ReactNode;
 }) {
   const [over, setOver] = useState(false);
-  const [, startTransition] = useTransition();
 
   return (
     <div
@@ -33,11 +33,10 @@ export default function KanbanColumn({
       onDrop={(e) => {
         e.preventDefault();
         setOver(false);
-        const id = e.dataTransfer.getData("dealId");
-        if (!id) return;
-        startTransition(() => {
-          void moveDealStage(parseInt(id, 10), stageKey);
-        });
+        const raw = e.dataTransfer.getData("dealId");
+        if (!raw) return;
+        const id = parseInt(raw, 10);
+        if (!isNaN(id)) onDrop(id);
       }}
     >
       {children}
