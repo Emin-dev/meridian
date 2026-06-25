@@ -1,6 +1,7 @@
 import { desc, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import AddActivityForm from "./add-activity-form";
+import ActivityToggle from "./activity-toggle";
 
 type ActivityType = "call" | "email" | "meeting" | "note" | "task";
 
@@ -97,9 +98,18 @@ export default async function ActivityPage() {
             {rows.map(({ activity, contactName, dealTitle }) => {
               const meta = TYPE_META[activity.type as ActivityType];
               const date = activity.createdAt.toISOString().slice(0, 10);
+              const isCompleted = !!activity.completedAt;
+              const now = new Date();
+              const isOverdue = !!activity.dueAt && !isCompleted && activity.dueAt < now;
               return (
                 <li key={activity.id} className="flex gap-4 px-5 py-4">
-                  <div className="mt-0.5 shrink-0">
+                  <ActivityToggle
+                    activityId={activity.id}
+                    isCompleted={isCompleted}
+                    contactId={activity.contactId}
+                    dealId={activity.dealId}
+                  />
+                  <div className={`mt-0.5 shrink-0 ${isCompleted ? "opacity-40" : ""}`}>
                     <span
                       className={`inline-block rounded-full ${meta.bg} px-2 py-0.5 text-xs font-medium ${meta.color}`}
                     >
@@ -107,16 +117,24 @@ export default async function ActivityPage() {
                     </span>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-neutral-200">
+                    <p className={`text-sm font-medium ${isCompleted ? "text-neutral-500 line-through" : "text-neutral-200"}`}>
                       {activity.subject}
                     </p>
                     {activity.body && (
-                      <p className="mt-0.5 line-clamp-2 text-xs text-neutral-400">
+                      <p className={`mt-0.5 line-clamp-2 text-xs ${isCompleted ? "text-neutral-600" : "text-neutral-400"}`}>
                         {activity.body}
                       </p>
                     )}
                     <div className="mt-1 flex items-center gap-2 text-xs text-neutral-600">
                       <span>{date}</span>
+                      {activity.dueAt && (
+                        <>
+                          <span aria-hidden>·</span>
+                          <span className={isOverdue ? "text-amber-400" : "text-neutral-500"}>
+                            Due {activity.dueAt.toISOString().slice(0, 10)}
+                          </span>
+                        </>
+                      )}
                       {contactName && (
                         <>
                           <span aria-hidden>·</span>

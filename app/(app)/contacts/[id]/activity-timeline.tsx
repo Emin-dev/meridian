@@ -2,6 +2,7 @@ import { eq, desc } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import type { Activity } from "@/db/schema";
 import AddActivityForm from "@/app/(app)/activity/add-activity-form";
+import ActivityToggle from "@/app/(app)/activity/activity-toggle";
 
 type ActivityType = Activity["type"];
 
@@ -52,12 +53,21 @@ export default async function ActivityTimeline({ contactId }: Props) {
           {activities.map((a) => {
             const meta = TYPE_META[a.type];
             const date = a.createdAt.toISOString().slice(0, 10);
+            const isCompleted = !!a.completedAt;
+            const now = new Date();
+            const isOverdue = !!a.dueAt && !isCompleted && a.dueAt < now;
             return (
               <li
                 key={a.id}
                 className="flex gap-3 rounded-lg border border-neutral-800 bg-neutral-900/50 px-4 py-3"
               >
-                <div className="mt-0.5 shrink-0">
+                <ActivityToggle
+                  activityId={a.id}
+                  isCompleted={isCompleted}
+                  contactId={a.contactId}
+                  dealId={a.dealId}
+                />
+                <div className={`mt-0.5 shrink-0 ${isCompleted ? "opacity-40" : ""}`}>
                   <span
                     className={`inline-block rounded-full ${meta.bg} px-2 py-0.5 text-xs font-medium ${meta.color}`}
                   >
@@ -65,13 +75,25 @@ export default async function ActivityTimeline({ contactId }: Props) {
                   </span>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-neutral-200">{a.subject}</p>
+                  <p className={`text-sm font-medium ${isCompleted ? "text-neutral-500 line-through" : "text-neutral-200"}`}>
+                    {a.subject}
+                  </p>
                   {a.body && (
-                    <p className="mt-0.5 line-clamp-2 text-xs text-neutral-400">
+                    <p className={`mt-0.5 line-clamp-2 text-xs ${isCompleted ? "text-neutral-600" : "text-neutral-400"}`}>
                       {a.body}
                     </p>
                   )}
-                  <p className="mt-1 text-xs text-neutral-600">{date}</p>
+                  <div className="mt-1 flex items-center gap-2 text-xs text-neutral-600">
+                    <span>{date}</span>
+                    {a.dueAt && (
+                      <>
+                        <span aria-hidden>·</span>
+                        <span className={isOverdue ? "text-amber-400" : "text-neutral-500"}>
+                          Due {a.dueAt.toISOString().slice(0, 10)}
+                        </span>
+                      </>
+                    )}
+                  </div>
                 </div>
               </li>
             );

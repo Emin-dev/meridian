@@ -1,6 +1,7 @@
 "use server";
 
 import { z } from "zod";
+import { eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { revalidatePath } from "next/cache";
 
@@ -68,4 +69,28 @@ export async function addActivity(
   }
 
   return { success: true };
+}
+
+export async function toggleActivityComplete(
+  activityId: number,
+  isCompleted: boolean,
+  contactId: number | null,
+  dealId: number | null,
+): Promise<{ error?: string }> {
+  const db = getDb();
+  if (!db) return { error: "No database" };
+
+  await db
+    .update(schema.activities)
+    .set({
+      completedAt: isCompleted ? null : new Date(),
+      updatedAt: new Date(),
+    })
+    .where(eq(schema.activities.id, activityId));
+
+  revalidatePath("/activity");
+  if (contactId) revalidatePath(`/contacts/${contactId}`);
+  if (dealId) revalidatePath(`/deals/${dealId}`);
+
+  return {};
 }
