@@ -150,18 +150,27 @@ function SendStepModal({
           </div>
         </div>
 
+        {/* Note */}
+        <div className="border-t border-neutral-800 px-5 py-3">
+          <p className="text-xs text-neutral-500">
+            Meridian tracks sequence steps but does not send email directly. Use the link below to open your email client, then log the step once sent.
+          </p>
+        </div>
+
         {/* Footer */}
         <div className="flex items-center justify-between border-t border-neutral-800 px-5 py-4">
           <div>
-            {mailtoHref && (
+            {mailtoHref ? (
               <a
                 href={mailtoHref}
                 target="_blank"
                 rel="noreferrer"
-                className="text-xs text-indigo-400 transition-colors hover:text-indigo-300"
+                className="inline-flex items-center gap-1.5 rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-indigo-500"
               >
                 Open in email client ↗
               </a>
+            ) : (
+              <span className="text-xs text-neutral-600">No email address on file</span>
             )}
           </div>
           <div className="flex items-center gap-3">
@@ -177,7 +186,7 @@ function SendStepModal({
               disabled={isPending}
               className="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
             >
-              {isPending ? "Marking…" : "Mark Sent"}
+              {isPending ? "Logging…" : "Log as Sent"}
             </button>
           </div>
         </div>

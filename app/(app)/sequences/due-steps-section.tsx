@@ -65,8 +65,8 @@ export function DueStepsSection({ dueEnrollments, defaultOwnerName }: Props) {
           className="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
         >
           {isPending
-            ? "Sending…"
-            : `Send All Due (${dueEnrollments.length})`}
+            ? "Logging…"
+            : `Log All as Sent (${dueEnrollments.length})`}
         </button>
       </div>
 
@@ -77,7 +77,7 @@ export function DueStepsSection({ dueEnrollments, defaultOwnerName }: Props) {
       )}
       {batchDone !== null && (
         <p className="border-b border-neutral-800 px-5 py-2 text-xs text-emerald-400">
-          Marked {batchDone} {batchDone === 1 ? "step" : "steps"} as sent.
+          Logged {batchDone} {batchDone === 1 ? "step" : "steps"} as sent.
         </p>
       )}
 
