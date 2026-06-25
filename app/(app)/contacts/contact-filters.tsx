@@ -26,6 +26,8 @@ interface Props {
   initialMinScore: string;
   initialSource: string;
   initialTag: string;
+  initialSort?: string;
+  initialDir?: string;
 }
 
 export default function ContactFilters({
@@ -34,6 +36,8 @@ export default function ContactFilters({
   initialMinScore,
   initialSource,
   initialTag,
+  initialSort,
+  initialDir,
 }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -53,6 +57,8 @@ export default function ContactFilters({
     if (minScore) params.set("minScore", minScore);
     if (source) params.set("source", source);
     if (tag.trim()) params.set("tag", tag.trim());
+    if (initialSort) params.set("sort", initialSort);
+    if (initialDir) params.set("dir", initialDir);
     const qs = params.toString();
     startTransition(() => {
       router.push(qs ? `/contacts?${qs}` : "/contacts");

@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { Contact, Sequence } from "@/db/schema";
 import type { LastContactedMap } from "./page";
 import LeadScoreBadge from "./lead-score-badge";
@@ -52,15 +53,69 @@ const STATUSES = [
 
 type ContactStatus = (typeof STATUSES)[number]["value"];
 
+function SortableHeader({
+  col,
+  label,
+  currentSort,
+  currentDir,
+  allSearchParams,
+}: {
+  col: string;
+  label: string;
+  currentSort: string;
+  currentDir: string;
+  allSearchParams: Record<string, string>;
+}) {
+  const router = useRouter();
+  const isActive = currentSort === col;
+  const nextDir = isActive && currentDir === "asc" ? "desc" : "asc";
+
+  function handleClick() {
+    const params = new URLSearchParams(allSearchParams);
+    params.set("sort", col);
+    params.set("dir", nextDir);
+    router.push(`/contacts?${params.toString()}`);
+  }
+
+  return (
+    <th
+      onClick={handleClick}
+      className="cursor-pointer select-none px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500 hover:text-neutral-300 whitespace-nowrap"
+    >
+      <span className="flex items-center gap-1">
+        {label}
+        {isActive ? (
+          currentDir === "asc" ? (
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-indigo-400">
+              <path d="M12 19V5M5 12l7-7 7 7" />
+            </svg>
+          ) : (
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-indigo-400">
+              <path d="M12 5v14M5 12l7 7 7-7" />
+            </svg>
+          )
+        ) : (
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-30">
+            <path d="M8 9l4-4 4 4M16 15l-4 4-4-4" />
+          </svg>
+        )}
+      </span>
+    </th>
+  );
+}
+
 type Props = {
   contacts: Contact[];
   sequences: Sequence[];
   hasActiveFilters: boolean;
   lastContactedMap: LastContactedMap;
   hasDb: boolean;
+  sort: string;
+  dir: string;
+  allSearchParams: Record<string, string>;
 };
 
-export default function ContactsTable({ contacts, sequences, hasActiveFilters, lastContactedMap, hasDb }: Props) {
+export default function ContactsTable({ contacts, sequences, hasActiveFilters, lastContactedMap, hasDb, sort, dir, allSearchParams }: Props) {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [tagInput, setTagInput] = useState("");
   const [statusSelect, setStatusSelect] = useState<ContactStatus>("lead");
@@ -257,21 +312,15 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
                     className="h-4 w-4 cursor-pointer rounded border-neutral-600 accent-indigo-500"
                   />
                 </th>
-                <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
-                  Name
-                </th>
-                <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
-                  Status
-                </th>
+                <SortableHeader col="name" label="Name" currentSort={sort} currentDir={dir} allSearchParams={allSearchParams} />
+                <SortableHeader col="status" label="Status" currentSort={sort} currentDir={dir} allSearchParams={allSearchParams} />
                 <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
                   Email
                 </th>
                 <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
                   Phone
                 </th>
-                <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
-                  Company
-                </th>
+                <SortableHeader col="company" label="Company" currentSort={sort} currentDir={dir} allSearchParams={allSearchParams} />
                 <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
                   Title
                 </th>
@@ -281,9 +330,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
                 <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
                   Owner
                 </th>
-                <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
-                  Score
-                </th>
+                <SortableHeader col="leadScore" label="Score" currentSort={sort} currentDir={dir} allSearchParams={allSearchParams} />
                 <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
                   Tags
                 </th>
@@ -292,6 +339,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
                     Last contact
                   </th>
                 )}
+                <SortableHeader col="createdAt" label="Created" currentSort={sort} currentDir={dir} allSearchParams={allSearchParams} />
               </tr>
             </thead>
             <tbody>
@@ -379,6 +427,11 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
                         </td>
                       );
                     })()}
+                    <td className="px-5 py-3 whitespace-nowrap text-xs text-neutral-500">
+                      {c.createdAt
+                        ? new Date(c.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+                        : "—"}
+                    </td>
                   </tr>
                 );
               })}

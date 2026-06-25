@@ -1,4 +1,4 @@
-﻿import { and, eq, ilike, gte, isNull, sql } from "drizzle-orm";
+﻿import { and, eq, ilike, gte, isNull, sql, asc, desc } from "drizzle-orm";
 import type { SQL } from "drizzle-orm";
 import Link from "next/link";
 import { getDb, schema } from "@/db";
@@ -36,12 +36,15 @@ type ContactSource = (typeof VALID_SOURCES)[number];
 const VALID_STATUSES = ["lead", "active", "inactive", "churned"] as const;
 type ContactStatus = (typeof VALID_STATUSES)[number];
 
+const VALID_SORT_COLS = ["name", "company", "leadScore", "status", "createdAt"] as const;
+type SortColKey = (typeof VALID_SORT_COLS)[number];
+
 export default async function ContactsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; company?: string; minScore?: string; source?: string; tag?: string; unscored?: string; noActivity?: string }>;
+  searchParams: Promise<{ status?: string; company?: string; minScore?: string; source?: string; tag?: string; unscored?: string; noActivity?: string; sort?: string; dir?: string }>;
 }) {
-  const { status, company, minScore, source, tag, unscored, noActivity } = await searchParams;
+  const { status, company, minScore, source, tag, unscored, noActivity, sort, dir } = await searchParams;
 
   const statusFilter =
     status && (VALID_STATUSES as readonly string[]).includes(status)
@@ -58,6 +61,12 @@ export default async function ContactsPage({
   const unscoredFilter = unscored === "1";
   const noActivityDays =
     noActivity && !isNaN(parseInt(noActivity)) ? parseInt(noActivity) : undefined;
+
+  const sortColKey: SortColKey =
+    sort && (VALID_SORT_COLS as readonly string[]).includes(sort)
+      ? (sort as SortColKey)
+      : "createdAt";
+  const sortDir = dir === "desc" ? "desc" : "asc";
 
   const db = getDb();
 
@@ -86,12 +95,21 @@ export default async function ContactsPage({
     ];
     const whereClause = and(...conditions);
 
+    const sortColExpr = {
+      name: schema.contacts.name,
+      company: schema.contacts.company,
+      leadScore: schema.contacts.leadScore,
+      status: schema.contacts.status,
+      createdAt: schema.contacts.createdAt,
+    }[sortColKey];
+    const orderByExpr = sortDir === "desc" ? desc(sortColExpr) : asc(sortColExpr);
+
     const [contactRows, sequenceRows, activityRows] = await Promise.all([
       db
         .select()
         .from(schema.contacts)
         .where(whereClause)
-        .orderBy(schema.contacts.createdAt),
+        .orderBy(orderByExpr),
       db
         .select()
         .from(schema.sequences)
@@ -170,6 +188,8 @@ export default async function ContactsPage({
         initialMinScore={minScore ?? ""}
         initialSource={source ?? ""}
         initialTag={tag ?? ""}
+        initialSort={sortColKey}
+        initialDir={sortDir}
       />
 
       {contacts.length === 0 ? (
@@ -223,6 +243,17 @@ export default async function ContactsPage({
           hasActiveFilters={hasActiveFilters}
           lastContactedMap={lastContactedMap}
           hasDb
+          sort={sortColKey}
+          dir={sortDir}
+          allSearchParams={{
+            ...(status ? { status } : {}),
+            ...(company ? { company } : {}),
+            ...(minScore ? { minScore } : {}),
+            ...(source ? { source } : {}),
+            ...(tag ? { tag } : {}),
+            ...(unscored ? { unscored } : {}),
+            ...(noActivity ? { noActivity } : {}),
+          }}
         />
       )}
     </div>
