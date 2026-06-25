@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import EditNotesForm from "./edit-notes-form";
+import EditDealForm from "./edit-deal-form";
 import DeleteDealButton from "./delete-deal-button";
 import DealActivityTimeline from "./deal-activity-timeline";
 import DealSummarizePanel from "./deal-summarize-panel";
@@ -136,34 +137,11 @@ export default async function DealDetailPage({ params }: Props) {
         <DeleteDealButton dealId={deal.id} />
       </div>
 
-      {/* Deal metadata */}
+      {/* Edit deal details */}
       <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-5">
         <h3 className="mb-4 text-sm font-medium text-neutral-300">Details</h3>
-        <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm sm:grid-cols-3">
-          <div>
-            <dt className="text-xs text-neutral-500">Stage</dt>
-            <dd className="mt-0.5 text-neutral-200">{stageMeta.label}</dd>
-          </div>
-          <div>
-            <dt className="text-xs text-neutral-500">Value</dt>
-            <dd className="mt-0.5 text-neutral-200">{formatted ?? "—"}</dd>
-          </div>
-          <div>
-            <dt className="text-xs text-neutral-500">Currency</dt>
-            <dd className="mt-0.5 text-neutral-200">{deal.currency}</dd>
-          </div>
-          <div>
-            <dt className="text-xs text-neutral-500">Expected close</dt>
-            <dd className="mt-0.5 text-neutral-200">
-              {deal.expectedCloseDate
-                ? new Date(deal.expectedCloseDate).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })
-                : "—"}
-            </dd>
-          </div>
+        <EditDealForm deal={deal} />
+        <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 border-t border-neutral-800 pt-4 text-sm sm:grid-cols-2">
           <div>
             <dt className="text-xs text-neutral-500">Created</dt>
             <dd className="mt-0.5 text-neutral-200">

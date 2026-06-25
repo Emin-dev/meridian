@@ -1,10 +1,84 @@
 "use server";
 
+import { z } from "zod";
 import { eq, desc } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { chat } from "@/lib/ai";
+
+// ─── Update deal details (title, stage, value, close date) ───────────────────
+
+const DEAL_STAGES = [
+  "lead",
+  "qualified",
+  "proposal",
+  "negotiation",
+  "won",
+  "lost",
+] as const;
+
+const DealDetailsSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  stage: z.enum(DEAL_STAGES),
+  value: z.string().nullable(),
+  expectedCloseDate: z.string().nullable(),
+});
+
+export type DealDetailsState = {
+  error?: string;
+  fieldErrors?: Partial<
+    Record<"title" | "stage" | "value" | "expectedCloseDate", string[]>
+  >;
+  success?: boolean;
+  noDb?: boolean;
+};
+
+export async function updateDealDetails(
+  id: number,
+  _prev: DealDetailsState,
+  formData: FormData
+): Promise<DealDetailsState> {
+  const valueRaw = String(formData.get("value") ?? "").trim();
+  const dateRaw = String(formData.get("expectedCloseDate") ?? "").trim();
+
+  const raw = {
+    title: String(formData.get("title") ?? "").trim(),
+    stage: String(formData.get("stage") ?? "lead"),
+    value: valueRaw === "" ? null : valueRaw,
+    expectedCloseDate: dateRaw === "" ? null : dateRaw,
+  };
+
+  const parsed = DealDetailsSchema.safeParse(raw);
+  if (!parsed.success) {
+    return {
+      fieldErrors: parsed.error.flatten()
+        .fieldErrors as DealDetailsState["fieldErrors"],
+    };
+  }
+
+  const db = getDb();
+  if (!db) return { noDb: true };
+
+  await db
+    .update(schema.deals)
+    .set({
+      title: parsed.data.title,
+      stage: parsed.data.stage,
+      value: parsed.data.value,
+      expectedCloseDate: parsed.data.expectedCloseDate
+        ? new Date(parsed.data.expectedCloseDate)
+        : null,
+      updatedAt: new Date(),
+    })
+    .where(eq(schema.deals.id, id));
+
+  revalidatePath(`/deals/${id}`);
+  revalidatePath("/deals");
+  return { success: true };
+}
+
+// ─── Notes ───────────────────────────────────────────────────────────────────
 
 export type UpdateNotesState = {
   error?: string;
