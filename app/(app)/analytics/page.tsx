@@ -115,6 +115,25 @@ export default async function AnalyticsPage() {
         }, 0) / wonDeals.length
       : null;
 
+  // ── Won deals per month (last 6 months) ──────────────────────────────────────
+  const now = new Date();
+  const monthBuckets = Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
+    return {
+      year: d.getFullYear(),
+      month: d.getMonth(),
+      label: d.toLocaleString("en-US", { month: "short", year: "numeric" }),
+      count: 0,
+    };
+  });
+  for (const deal of wonDeals) {
+    const y = deal.updatedAt.getFullYear();
+    const m = deal.updatedAt.getMonth();
+    const bucket = monthBuckets.find((b) => b.year === y && b.month === m);
+    if (bucket) bucket.count++;
+  }
+  const maxMonthCount = Math.max(...monthBuckets.map((b) => b.count), 1);
+
   // ── Stage funnel ─────────────────────────────────────────────────────────────
   const stageRows = STAGES.map((stage) => {
     const stageDeals = deals.filter((d) => d.stage === stage.key);
@@ -333,6 +352,53 @@ export default async function AnalyticsPage() {
                   </p>
                 </div>
               </>
+            )}
+          </div>
+
+          {/* Won deals per month */}
+          <div className="rounded-xl border border-neutral-800 bg-neutral-900">
+            <div className="border-b border-neutral-800 px-6 py-4">
+              <h3 className="text-sm font-semibold text-neutral-100">
+                Deals Closed Per Month
+              </h3>
+              <p className="mt-0.5 text-xs text-neutral-500">
+                Won deals over the last 6 months
+              </p>
+            </div>
+
+            {wonDeals.length === 0 ? (
+              <div className="px-6 py-12 text-center text-sm text-neutral-600">
+                No won deals yet.
+              </div>
+            ) : (
+              <div className="divide-y divide-neutral-800">
+                {monthBuckets.map((bucket) => (
+                  <div
+                    key={`${bucket.year}-${bucket.month}`}
+                    className="flex items-center gap-4 px-6 py-3"
+                  >
+                    <div className="w-24 shrink-0 text-sm text-neutral-400">
+                      {bucket.label}
+                    </div>
+                    <div className="flex-1">
+                      <div className="h-1.5 rounded-full bg-neutral-800">
+                        <div
+                          className="h-1.5 rounded-full bg-green-500 opacity-60 transition-all duration-300"
+                          style={{
+                            width:
+                              bucket.count > 0
+                                ? `${(bucket.count / maxMonthCount) * 100}%`
+                                : "0%",
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div className="w-8 shrink-0 text-right text-sm font-semibold text-neutral-200">
+                      {bucket.count}
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
 
