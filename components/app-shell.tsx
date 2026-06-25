@@ -83,7 +83,7 @@ const NAV = [
   },
 ];
 
-export default function AppShell({ children }: { children: React.ReactNode }) {
+export default function AppShell({ children, overdueCount = 0 }: { children: React.ReactNode; overdueCount?: number }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const pathname = usePathname();
@@ -131,6 +131,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-0.5">
           {NAV.map((item) => {
             const active = pathname === item.href || pathname.startsWith(item.href + "/");
+            const badge = item.href === "/activity" && overdueCount > 0 ? overdueCount : 0;
             return (
               <Link
                 key={item.href}
@@ -145,6 +146,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               >
                 <span className="shrink-0">{item.icon}</span>
                 {item.label}
+                {badge > 0 && (
+                  <span className="ml-auto inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-red-600 px-1 text-xs font-semibold text-white">
+                    {badge > 99 ? "99+" : badge}
+                  </span>
+                )}
               </Link>
             );
           })}

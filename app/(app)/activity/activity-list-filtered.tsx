@@ -110,19 +110,27 @@ export default function ActivityListFiltered({ rows }: Props) {
             const isOverdue =
               !!activity.dueAt && !isCompleted && new Date(activity.dueAt) < now;
             return (
-              <li key={activity.id} className="flex gap-4 px-5 py-4">
+              <li
+                key={activity.id}
+                className={`flex gap-4 px-5 py-4 ${isOverdue ? "bg-red-950/20" : ""}`}
+              >
                 <ActivityToggle
                   activityId={activity.id}
                   isCompleted={isCompleted}
                   contactId={activity.contactId}
                   dealId={activity.dealId}
                 />
-                <div className={`mt-0.5 shrink-0 ${isCompleted ? "opacity-40" : ""}`}>
+                <div className={`mt-0.5 shrink-0 flex flex-wrap gap-1.5 items-start ${isCompleted ? "opacity-40" : ""}`}>
                   <span
                     className={`inline-block rounded-full ${meta.bg} px-2 py-0.5 text-xs font-medium ${meta.color}`}
                   >
                     {meta.label}
                   </span>
+                  {isOverdue && (
+                    <span className="inline-block rounded-full bg-red-900/30 px-2 py-0.5 text-xs font-medium text-red-400">
+                      Overdue
+                    </span>
+                  )}
                 </div>
                 <div className="min-w-0 flex-1">
                   <p
@@ -146,7 +154,7 @@ export default function ActivityListFiltered({ rows }: Props) {
                     {activity.dueAt && (
                       <>
                         <span aria-hidden>·</span>
-                        <span className={isOverdue ? "text-amber-400" : "text-neutral-500"}>
+                        <span className={isOverdue ? "text-red-400" : "text-neutral-500"}>
                           Due {activity.dueAt.slice(0, 10)}
                         </span>
                       </>

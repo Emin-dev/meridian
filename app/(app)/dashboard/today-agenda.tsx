@@ -195,6 +195,9 @@ export default async function TodayAgenda() {
                       >
                         {meta.label}
                       </span>
+                      <span className="shrink-0 inline-block rounded-full bg-red-900/30 px-2 py-0.5 text-xs font-medium text-red-400">
+                        Overdue
+                      </span>
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm text-neutral-200">
                           {item.subject}
