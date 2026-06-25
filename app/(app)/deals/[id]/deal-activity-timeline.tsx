@@ -3,6 +3,13 @@ import { getDb, schema } from "@/db";
 import type { Activity } from "@/db/schema";
 import InlineActivityForm from "@/app/(app)/contacts/[id]/inline-activity-form";
 import ActivityToggle from "@/app/(app)/activity/activity-toggle";
+import ActivityUndoButton from "@/app/(app)/activity/activity-undo-button";
+
+function formatCompletedAt(date: Date): string {
+  const dateStr = date.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+  const timeStr = date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  return `${dateStr} at ${timeStr}`;
+}
 
 type ActivityType = Activity["type"];
 
@@ -99,6 +106,20 @@ export default async function DealActivityTimeline({ dealId }: Props) {
                         <span className={isOverdue ? "text-amber-400" : "text-neutral-500"}>
                           Due {a.dueAt.toISOString().slice(0, 10)}
                         </span>
+                      </>
+                    )}
+                    {isCompleted && a.completedAt && (
+                      <>
+                        <span aria-hidden>·</span>
+                        <span className="text-neutral-500">
+                          Completed {formatCompletedAt(a.completedAt)}
+                        </span>
+                        <span aria-hidden>·</span>
+                        <ActivityUndoButton
+                          activityId={a.id}
+                          contactId={a.contactId}
+                          dealId={a.dealId}
+                        />
                       </>
                     )}
                   </div>

@@ -3,6 +3,14 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import ActivityToggle from "./activity-toggle";
+import ActivityUndoButton from "./activity-undo-button";
+
+function formatCompletedAt(isoString: string): string {
+  const d = new Date(isoString);
+  const dateStr = d.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+  const timeStr = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  return `${dateStr} at ${timeStr}`;
+}
 
 type ActivityType = "call" | "email" | "meeting" | "note" | "task";
 
@@ -247,6 +255,20 @@ export default function ActivityListFiltered({ rows, currentType, currentRange }
                       <>
                         <span aria-hidden>·</span>
                         <span>{dealTitle}</span>
+                      </>
+                    )}
+                    {isCompleted && activity.completedAt && (
+                      <>
+                        <span aria-hidden>·</span>
+                        <span className="text-neutral-500">
+                          Completed {formatCompletedAt(activity.completedAt)}
+                        </span>
+                        <span aria-hidden>·</span>
+                        <ActivityUndoButton
+                          activityId={activity.id}
+                          contactId={activity.contactId}
+                          dealId={activity.dealId}
+                        />
                       </>
                     )}
                   </div>
