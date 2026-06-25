@@ -4,6 +4,7 @@ import DealModal from "./deal-modal";
 import DealsTable from "./deals-table";
 import KanbanCard from "./kanban-card";
 import DealsExportCsvButton from "./export-csv-button";
+import OwnerFilter from "./owner-filter";
 import { getCrmSettings } from "@/lib/settings";
 
 const STAGES = [
@@ -18,9 +19,9 @@ const STAGES = [
 export default async function DealsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ view?: string }>;
+  searchParams: Promise<{ view?: string; owner?: string }>;
 }) {
-  const { view = "kanban" } = await searchParams;
+  const { view = "kanban", owner: ownerFilter = "" } = await searchParams;
   const isTable = view === "table";
 
   const db = getDb();
@@ -41,11 +42,21 @@ export default async function DealsPage({
     getCrmSettings(),
   ]);
 
+  // Collect unique owners for the filter dropdown (from all deals).
+  const uniqueOwners = Array.from(
+    new Set(allDeals.map((d) => d.owner).filter((o): o is string => !!o))
+  ).sort();
+
+  // Apply owner filter.
+  const visibleDeals = ownerFilter
+    ? allDeals.filter((d) => d.owner === ownerFilter)
+    : allDeals;
+
   const byStage = Object.fromEntries(
-    STAGES.map((s) => [s.key, allDeals.filter((d) => d.stage === s.key)])
+    STAGES.map((s) => [s.key, visibleDeals.filter((d) => d.stage === s.key)])
   );
 
-  const openDeals = allDeals.filter((d) => d.stage !== "lost");
+  const openDeals = visibleDeals.filter((d) => d.stage !== "lost");
 
   const totalValue = openDeals
     .filter((d) => d.value)
@@ -89,6 +100,8 @@ export default async function DealsPage({
               </span>
             </div>
           )}
+
+          <OwnerFilter owners={uniqueOwners} selected={ownerFilter} />
 
           {/* View toggle */}
           <div className="flex items-center rounded-lg border border-neutral-700 bg-neutral-900 p-0.5">
@@ -214,7 +227,7 @@ export default async function DealsPage({
       )}
 
       {/* Table view */}
-      {db && isTable && <DealsTable deals={allDeals} />}
+      {db && isTable && <DealsTable deals={visibleDeals} />}
     </div>
   );
 }

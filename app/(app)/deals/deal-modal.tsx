@@ -348,6 +348,24 @@ export default function DealModal({ hasDb, contacts, deal, defaultCurrency = "US
               </select>
             </div>
 
+            {/* Owner */}
+            <div>
+              <label
+                htmlFor="dm-owner"
+                className="mb-1 block text-xs font-medium text-neutral-400"
+              >
+                Owner
+              </label>
+              <input
+                id="dm-owner"
+                name="owner"
+                type="text"
+                placeholder="Assigned rep"
+                defaultValue={deal?.owner ?? ""}
+                className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none"
+              />
+            </div>
+
             {/* Notes */}
             <div>
               <label

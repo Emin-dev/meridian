@@ -99,6 +99,7 @@ export const deals = pgTable("deals", {
   expectedCloseDate: timestamp("expected_close_date", { withTimezone: true }),
   notes: text("notes"),
   closeReason: text("close_reason"),
+  owner: text("owner"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });

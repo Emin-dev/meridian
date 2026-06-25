@@ -103,6 +103,16 @@ export default function KanbanCard({ deal }: { deal: DealWithContact }) {
             <span className="truncate">{deal.contact.name}</span>
           </div>
         )}
+
+        {deal.owner && (
+          <div className="mt-1 flex items-center gap-1 text-xs text-neutral-600">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+            <span className="truncate">{deal.owner}</span>
+          </div>
+        )}
       </Link>
 
       {/* Stage controls — outside the link */}

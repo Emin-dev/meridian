@@ -24,7 +24,7 @@ const STAGE_COLORS: Record<string, string> = {
   lost: "text-red-400",
 };
 
-type SortKey = "title" | "contact" | "stage" | "value" | "closeDate" | "age";
+type SortKey = "title" | "contact" | "stage" | "value" | "closeDate" | "age" | "owner";
 type SortDir = "asc" | "desc";
 
 function stageAgeInDays(updatedAt: Date): number {
@@ -94,6 +94,9 @@ export default function DealsTable({ deals }: { deals: DealWithContact[] }) {
       case "age":
         cmp = stageAgeInDays(a.updatedAt) - stageAgeInDays(b.updatedAt);
         break;
+      case "owner":
+        cmp = (a.owner ?? "").localeCompare(b.owner ?? "");
+        break;
     }
     return sortDir === "asc" ? cmp : -cmp;
   });
@@ -126,6 +129,9 @@ export default function DealsTable({ deals }: { deals: DealWithContact[] }) {
             </th>
             <th className={thClass} onClick={() => handleSort("closeDate")}>
               Close Date <SortIcon active={sortKey === "closeDate"} dir={sortDir} />
+            </th>
+            <th className={thClass} onClick={() => handleSort("owner")}>
+              Owner <SortIcon active={sortKey === "owner"} dir={sortDir} />
             </th>
             <th className={thClass} onClick={() => handleSort("age")}>
               In Stage <SortIcon active={sortKey === "age"} dir={sortDir} />
@@ -181,6 +187,7 @@ export default function DealsTable({ deals }: { deals: DealWithContact[] }) {
                 </td>
                 <td className="px-4 py-3 tabular-nums text-neutral-300">{value}</td>
                 <td className="px-4 py-3 tabular-nums text-neutral-300">{closeDate}</td>
+                <td className="px-4 py-3 text-neutral-400">{deal.owner ?? "—"}</td>
                 <td className="px-4 py-3 tabular-nums">
                   <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${ageBadgeClass(age)}`}>
                     {age}d

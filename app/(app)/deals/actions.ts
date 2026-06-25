@@ -31,6 +31,7 @@ const DealSchema = z.object({
   expectedCloseDate: z.string().nullable(),
   contactId: z.number().int().nullable(),
   notes: z.string().nullable(),
+  owner: z.string().transform((v) => (v === "" ? null : v)),
 });
 
 export type DealFormState = {
@@ -43,7 +44,8 @@ export type DealFormState = {
       | "currency"
       | "expectedCloseDate"
       | "contactId"
-      | "notes",
+      | "notes"
+      | "owner",
       string[]
     >
   >;
@@ -66,6 +68,7 @@ function parseFormData(formData: FormData) {
     expectedCloseDate: dateRaw === "" ? null : dateRaw,
     contactId: contactIdRaw === "" ? null : parseInt(contactIdRaw, 10),
     notes: notesRaw === "" ? null : notesRaw,
+    owner: String(formData.get("owner") ?? "").trim(),
   };
 }
 
@@ -86,7 +89,7 @@ export async function createDeal(
   const db = getDb();
   if (!db) return { noDb: true };
 
-  const { title, stage, value, currency, expectedCloseDate, contactId, notes } =
+  const { title, stage, value, currency, expectedCloseDate, contactId, notes, owner } =
     parsed.data;
 
   await db.insert(schema.deals).values({
@@ -98,6 +101,7 @@ export async function createDeal(
     expectedCloseDate: expectedCloseDate ? new Date(expectedCloseDate) : undefined,
     contactId: contactId ?? undefined,
     notes: notes ?? undefined,
+    owner: owner ?? undefined,
   });
 
   revalidatePath("/deals");
@@ -150,7 +154,7 @@ export async function updateDeal(
   const db = getDb();
   if (!db) return { noDb: true };
 
-  const { title, stage, value, currency, expectedCloseDate, contactId, notes } =
+  const { title, stage, value, currency, expectedCloseDate, contactId, notes, owner } =
     parsed.data;
 
   await db
@@ -163,6 +167,7 @@ export async function updateDeal(
       expectedCloseDate: expectedCloseDate ? new Date(expectedCloseDate) : null,
       contactId: contactId,
       notes: notes,
+      owner: owner,
       updatedAt: new Date(),
     })
     .where(eq(schema.deals.id, id));
