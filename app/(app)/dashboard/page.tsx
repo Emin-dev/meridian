@@ -3,6 +3,7 @@ import { getDb, schema } from "@/db";
 import AiDigest from "@/components/ai-digest";
 import PipelineChart from "@/components/pipeline-chart-wrapper";
 import { OnboardingBanner } from "@/components/onboarding-banner";
+import TodayAgenda from "./today-agenda";
 
 const STAGES = [
   "lead",
@@ -235,6 +236,9 @@ export default async function DashboardPage() {
               value={weekActivityCount.toString()}
             />
           </div>
+
+          {/* Today's agenda */}
+          <TodayAgenda />
 
           {/* Pipeline chart + AI digest */}
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">

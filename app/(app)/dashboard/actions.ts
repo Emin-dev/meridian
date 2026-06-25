@@ -1,6 +1,9 @@
 "use server";
 
 import { chat } from "@/lib/ai";
+import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
+import { getDb, schema } from "@/db";
 
 type StageData = { stage: string; count: number; value: number };
 
@@ -20,6 +23,17 @@ type DigestInput = {
 };
 
 type DigestResult = { digest: string } | { error: string } | { noKey: true };
+
+export async function completeAgendaItem(id: number): Promise<void> {
+  const db = getDb();
+  if (!db) return;
+  const now = new Date();
+  await db
+    .update(schema.activities)
+    .set({ completedAt: now, updatedAt: now })
+    .where(eq(schema.activities.id, id));
+  revalidatePath("/dashboard");
+}
 
 export async function generateDailyDigest(
   input: DigestInput
