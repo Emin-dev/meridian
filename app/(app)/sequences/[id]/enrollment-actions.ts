@@ -31,6 +31,16 @@ export async function markStepSent(
   const db = getDb();
   if (!db) return { error: "No database" };
 
+  const [sequence] = await db
+    .select({ status: schema.sequences.status })
+    .from(schema.sequences)
+    .where(eq(schema.sequences.id, sequenceId))
+    .limit(1);
+
+  if (!sequence || sequence.status !== "active") {
+    return { error: "Sequence is paused" };
+  }
+
   const isCompleted = newStepPosition >= totalSteps;
 
   await db.insert(schema.activities).values({
