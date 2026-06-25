@@ -69,6 +69,8 @@ export default async function AnalyticsPage() {
         columns: {
           stage: true,
           value: true,
+          probability: true,
+          expectedCloseDate: true,
           createdAt: true,
           updatedAt: true,
         },
@@ -104,6 +106,32 @@ export default async function AnalyticsPage() {
     .filter((d) => d.value !== null && d.value !== undefined)
     .reduce((sum, d) => sum + parseFloat(d.value!), 0);
 
+  // ── Pipeline forecast (next 6 months by expectedCloseDate) ─────────────────
+  const now = new Date();
+  const forecastMonths = Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    return {
+      year: d.getFullYear(),
+      month: d.getMonth(),
+      label: d.toLocaleString("en-US", { month: "short", year: "2-digit" }),
+      raw: 0,
+      weighted: 0,
+    };
+  });
+  for (const deal of activeDeals) {
+    if (!deal.expectedCloseDate || deal.value === null || deal.value === undefined)
+      continue;
+    const y = deal.expectedCloseDate.getFullYear();
+    const m = deal.expectedCloseDate.getMonth();
+    const bucket = forecastMonths.find((b) => b.year === y && b.month === m);
+    if (!bucket) continue;
+    const val = parseFloat(deal.value);
+    bucket.raw += val;
+    bucket.weighted += val * ((deal.probability ?? 10) / 100);
+  }
+  const maxForecastVal = Math.max(...forecastMonths.map((b) => b.raw), 1);
+  const hasForecastData = forecastMonths.some((b) => b.raw > 0);
+
   // Average days to close: createdAt → updatedAt for won deals
   const MS_PER_DAY = 1000 * 60 * 60 * 24;
   const avgDaysToClose =
@@ -116,7 +144,6 @@ export default async function AnalyticsPage() {
       : null;
 
   // ── Won deals per month (last 6 months) ──────────────────────────────────────
-  const now = new Date();
   const monthBuckets = Array.from({ length: 6 }, (_, i) => {
     const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
     return {
@@ -399,6 +426,107 @@ export default async function AnalyticsPage() {
                   </div>
                 ))}
               </div>
+            )}
+          </div>
+
+          {/* ── Expected Revenue Forecast ──────────────────────────────────── */}
+          <div>
+            <h2 className="text-xl font-semibold text-neutral-100">
+              Expected Revenue
+            </h2>
+            <p className="mt-1 text-sm text-neutral-400">
+              Open-deal value grouped by expected close month for the next 6
+              months.
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-neutral-800 bg-neutral-900">
+            <div className="border-b border-neutral-800 px-6 py-4">
+              <h3 className="text-sm font-semibold text-neutral-100">
+                Pipeline Forecast
+              </h3>
+              <p className="mt-0.5 text-xs text-neutral-500">
+                Raw and probability-weighted deal value by expected close month
+              </p>
+            </div>
+
+            {!hasForecastData ? (
+              <div className="px-6 py-12 text-center text-sm text-neutral-600">
+                No open deals with expected close dates in the next 6 months.
+              </div>
+            ) : (
+              <>
+                {/* Legend */}
+                <div className="flex items-center gap-6 px-6 pt-4">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-block h-2.5 w-4 rounded-sm bg-violet-500 opacity-80" />
+                    <span className="text-xs text-neutral-400">Raw value</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="inline-block h-2.5 w-4 rounded-sm bg-blue-500 opacity-80" />
+                    <span className="text-xs text-neutral-400">
+                      Weighted (× probability)
+                    </span>
+                  </div>
+                </div>
+
+                {/* Bar chart */}
+                <div className="flex items-end gap-2 px-6 pb-4 pt-6 sm:gap-4">
+                  {forecastMonths.map((bucket) => (
+                    <div
+                      key={`${bucket.year}-${bucket.month}`}
+                      className="flex flex-1 flex-col items-center gap-1"
+                    >
+                      {/* Dual bars */}
+                      <div className="flex h-32 w-full items-end justify-center gap-1">
+                        <div className="relative flex h-full flex-1 items-end">
+                          <div
+                            className="w-full rounded-t bg-violet-500 opacity-80 transition-all duration-300"
+                            style={{
+                              height:
+                                bucket.raw > 0
+                                  ? `${(bucket.raw / maxForecastVal) * 100}%`
+                                  : "2px",
+                            }}
+                          />
+                        </div>
+                        <div className="relative flex h-full flex-1 items-end">
+                          <div
+                            className="w-full rounded-t bg-blue-500 opacity-80 transition-all duration-300"
+                            style={{
+                              height:
+                                bucket.weighted > 0
+                                  ? `${(bucket.weighted / maxForecastVal) * 100}%`
+                                  : "2px",
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Value labels */}
+                      <div className="w-full text-center">
+                        {bucket.raw > 0 ? (
+                          <>
+                            <p className="truncate text-[10px] font-medium text-neutral-300">
+                              {fmtUSD(bucket.raw)}
+                            </p>
+                            <p className="truncate text-[10px] text-neutral-500">
+                              {fmtUSD(bucket.weighted)}
+                            </p>
+                          </>
+                        ) : (
+                          <p className="text-[10px] text-neutral-700">—</p>
+                        )}
+                      </div>
+
+                      {/* Month label */}
+                      <p className="text-[10px] text-neutral-500 sm:text-xs">
+                        {bucket.label}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
           </div>
 
