@@ -43,9 +43,21 @@ export default async function DealsPage({
     STAGES.map((s) => [s.key, allDeals.filter((d) => d.stage === s.key)])
   );
 
-  const totalValue = allDeals
-    .filter((d) => d.stage !== "lost" && d.value)
+  const openDeals = allDeals.filter((d) => d.stage !== "lost");
+
+  const totalValue = openDeals
+    .filter((d) => d.value)
     .reduce((sum, d) => sum + parseFloat(d.value!), 0);
+
+  const weightedValue = openDeals
+    .filter((d) => d.value)
+    .reduce((sum, d) => sum + parseFloat(d.value!) * ((d.probability ?? 0) / 100), 0);
+
+  const fmtCurrency = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  });
 
   return (
     <div className="space-y-6">
@@ -59,16 +71,21 @@ export default async function DealsPage({
         </div>
         <div className="flex items-center gap-4">
           {allDeals.length > 0 && (
-            <span className="text-sm text-neutral-400">
-              Pipeline:{" "}
-              <span className="font-semibold text-neutral-100">
-                {new Intl.NumberFormat("en-US", {
-                  style: "currency",
-                  currency: "USD",
-                  maximumFractionDigits: 0,
-                }).format(totalValue)}
+            <div className="flex items-center gap-4 text-sm text-neutral-400">
+              <span>
+                Pipeline:{" "}
+                <span className="font-semibold text-neutral-100">
+                  {fmtCurrency.format(totalValue)}
+                </span>
               </span>
-            </span>
+              <span aria-hidden className="text-neutral-700">|</span>
+              <span>
+                Weighted:{" "}
+                <span className="font-semibold text-indigo-300">
+                  {fmtCurrency.format(weightedValue)}
+                </span>
+              </span>
+            </div>
           )}
 
           {/* View toggle */}
