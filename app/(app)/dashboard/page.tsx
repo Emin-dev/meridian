@@ -1,4 +1,5 @@
-import { and, desc, eq, gte, isNotNull, isNull, lt, sql } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, isNotNull, isNull, lt, sql } from "drizzle-orm";
+import Link from "next/link";
 import { getDb, schema } from "@/db";
 import AiDigest from "@/components/ai-digest";
 import PipelineChart from "@/components/pipeline-chart-wrapper";
@@ -86,12 +87,22 @@ export default async function DashboardPage() {
     dueAt: Date;
     contactName: string | null;
   }> = [];
+  let sequencesDue: Array<{
+    enrollmentId: number;
+    contactId: number;
+    sequenceId: number;
+    contactName: string;
+    sequenceName: string;
+    stepNum: number;
+    totalSteps: number;
+    nextStepDueDate: Date;
+  }> = [];
 
   if (db) {
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     const now = new Date();
 
-    const [contactRows, allDeals, activityRows, weekRows, overdueRows, topContactRows, overdueActivityRows] = await Promise.all([
+    const [contactRows, allDeals, activityRows, weekRows, overdueRows, topContactRows, overdueActivityRows, activeEnrollmentRows] = await Promise.all([
       db
         .select({ value: sql<number>`count(*)` })
         .from(schema.contacts),
@@ -156,6 +167,20 @@ export default async function DashboardPage() {
         )
         .orderBy(schema.activities.dueAt)
         .limit(5),
+      db
+        .select({
+          enrollmentId: schema.contactSequenceEnrollments.id,
+          contactId: schema.contactSequenceEnrollments.contactId,
+          sequenceId: schema.contactSequenceEnrollments.sequenceId,
+          enrolledAt: schema.contactSequenceEnrollments.enrolledAt,
+          currentStepPosition: schema.contactSequenceEnrollments.currentStepPosition,
+          contactName: schema.contacts.name,
+          sequenceName: schema.sequences.name,
+        })
+        .from(schema.contactSequenceEnrollments)
+        .innerJoin(schema.contacts, eq(schema.contactSequenceEnrollments.contactId, schema.contacts.id))
+        .innerJoin(schema.sequences, eq(schema.contactSequenceEnrollments.sequenceId, schema.sequences.id))
+        .where(eq(schema.contactSequenceEnrollments.status, "active")),
     ]);
 
     totalContacts = Number(contactRows[0]?.value ?? 0);
@@ -191,6 +216,60 @@ export default async function DashboardPage() {
         .filter((d) => d.stage === stage && d.value)
         .reduce((sum, d) => sum + parseFloat(d.value!), 0),
     }));
+
+    if (activeEnrollmentRows.length > 0) {
+      const seqIds = [...new Set(activeEnrollmentRows.map((e) => e.sequenceId))];
+      const stepRows = await db
+        .select({
+          sequenceId: schema.sequenceSteps.sequenceId,
+          position: schema.sequenceSteps.position,
+          delayDays: schema.sequenceSteps.delayDays,
+        })
+        .from(schema.sequenceSteps)
+        .where(inArray(schema.sequenceSteps.sequenceId, seqIds));
+
+      const stepsBySeq = new Map<number, { position: number; delayDays: number }[]>();
+      for (const step of stepRows) {
+        const arr = stepsBySeq.get(step.sequenceId) ?? [];
+        arr.push({ position: step.position, delayDays: step.delayDays });
+        stepsBySeq.set(step.sequenceId, arr);
+      }
+
+      sequencesDue = activeEnrollmentRows
+        .map((e) => {
+          const steps = stepsBySeq.get(e.sequenceId) ?? [];
+          const sorted = [...steps].sort((a, b) => a.position - b.position);
+          const totalSteps = sorted.length;
+          const cumulativeDelays = sorted.reduce<number[]>((acc, step) => {
+            acc.push((acc.at(-1) ?? 0) + step.delayDays);
+            return acc;
+          }, []);
+          if (
+            totalSteps === 0 ||
+            e.currentStepPosition >= totalSteps ||
+            e.currentStepPosition >= cumulativeDelays.length
+          ) {
+            return null;
+          }
+          const nextStepDueDate = new Date(
+            e.enrolledAt.getTime() + cumulativeDelays[e.currentStepPosition] * 86_400_000
+          );
+          if (nextStepDueDate > now) return null;
+          return {
+            enrollmentId: e.enrollmentId,
+            contactId: e.contactId,
+            sequenceId: e.sequenceId,
+            contactName: e.contactName,
+            sequenceName: e.sequenceName,
+            stepNum: e.currentStepPosition + 1,
+            totalSteps,
+            nextStepDueDate,
+          };
+        })
+        .filter((e): e is NonNullable<typeof e> => e !== null)
+        .sort((a, b) => a.nextStepDueDate.getTime() - b.nextStepDueDate.getTime())
+        .slice(0, 5);
+    }
   }
 
   return (
@@ -330,6 +409,62 @@ export default async function DashboardPage() {
                             ? "1 day overdue"
                             : `${daysOverdue} days overdue`}
                         </span>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+
+          {/* Sequences due */}
+          {sequencesDue.length > 0 && (
+            <div className="rounded-xl border border-amber-800/60 bg-amber-950/20">
+              <div className="flex items-center gap-2 border-b border-amber-800/60 px-5 py-3">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  className="h-4 w-4 shrink-0 text-amber-400"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-13a.75.75 0 00-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 000-1.5h-3.25V5z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <p className="text-xs font-medium uppercase tracking-wide text-amber-400">
+                  Sequences Due
+                </p>
+              </div>
+              <ul className="divide-y divide-amber-900/30">
+                {sequencesDue.map((item) => {
+                  const msOverdue = Date.now() - item.nextStepDueDate.getTime();
+                  const daysOverdue = Math.floor(msOverdue / (1000 * 60 * 60 * 24));
+                  return (
+                    <li key={item.enrollmentId} className="flex items-center gap-4 px-5 py-4">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-neutral-200">
+                          {item.contactName}
+                        </p>
+                        <p className="mt-0.5 text-xs text-neutral-500">
+                          {item.sequenceName} · Step {item.stepNum} of {item.totalSteps}
+                        </p>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-3">
+                        <span className="text-xs font-semibold text-amber-400">
+                          {daysOverdue === 0
+                            ? "Due today"
+                            : daysOverdue === 1
+                            ? "1 day overdue"
+                            : `${daysOverdue} days overdue`}
+                        </span>
+                        <Link
+                          href={`/sequences/${item.sequenceId}`}
+                          className="text-xs text-amber-400 hover:text-amber-300 hover:underline"
+                        >
+                          View →
+                        </Link>
                       </div>
                     </li>
                   );
