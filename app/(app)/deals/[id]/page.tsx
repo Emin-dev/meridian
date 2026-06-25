@@ -7,6 +7,7 @@ import EditDealForm from "./edit-deal-form";
 import DeleteDealButton from "./delete-deal-button";
 import DealActivityTimeline from "./deal-activity-timeline";
 import DealSummarizePanel from "./deal-summarize-panel";
+import DealWinProbabilityPanel from "./deal-win-probability-panel";
 import DealNextActionPanel from "./deal-next-action-panel";
 import StageControl from "../stage-control";
 import WinLossInsightCallout from "./win-loss-insight-callout";
@@ -224,6 +225,11 @@ export default async function DealDetailPage({ params }: Props) {
       <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-5">
         <h3 className="mb-4 text-sm font-medium text-neutral-300">Notes</h3>
         <EditNotesForm dealId={deal.id} initialNotes={extractUserNotes(deal.notes)} />
+      </div>
+
+      {/* AI win-probability score */}
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-5">
+        <DealWinProbabilityPanel dealId={deal.id} initialScore={deal.probability} />
       </div>
 
       {/* AI deal brief */}

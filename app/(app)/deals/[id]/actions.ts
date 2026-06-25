@@ -309,6 +309,112 @@ export async function deleteDeal(id: number): Promise<void> {
   redirect("/deals");
 }
 
+// ─── AI: Win-probability score ───────────────────────────────────────────────
+
+export type DealScoreState = {
+  score?: number;
+  reasoning?: string;
+  error?: string;
+  noDb?: boolean;
+  noKey?: boolean;
+};
+
+export async function scoreDeal(dealId: number): Promise<DealScoreState> {
+  const db = getDb();
+  if (!db) return { noDb: true };
+
+  const [deal] = await db
+    .select()
+    .from(schema.deals)
+    .where(eq(schema.deals.id, dealId))
+    .limit(1);
+
+  if (!deal) return { error: "Deal not found." };
+
+  if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
+
+  let contactInfo: string | null = null;
+  if (deal.contactId) {
+    const [c] = await db
+      .select({
+        name: schema.contacts.name,
+        title: schema.contacts.title,
+        company: schema.contacts.company,
+        status: schema.contacts.status,
+        leadScore: schema.contacts.leadScore,
+      })
+      .from(schema.contacts)
+      .where(eq(schema.contacts.id, deal.contactId))
+      .limit(1);
+    if (c) {
+      const parts = [
+        c.name,
+        c.title && c.company
+          ? `${c.title} at ${c.company}`
+          : (c.company ?? c.title),
+        c.status ? `status: ${c.status}` : null,
+        c.leadScore != null ? `lead score: ${c.leadScore}` : null,
+      ].filter(Boolean);
+      contactInfo = parts.join(", ");
+    }
+  }
+
+  const userNotes = extractUserNotes(deal.notes ?? null);
+
+  const lines: string[] = [
+    `Deal: ${deal.title}`,
+    `Stage: ${deal.stage}`,
+    deal.value ? `Value: ${deal.value} ${deal.currency}` : null,
+    deal.expectedCloseDate
+      ? `Expected close: ${deal.expectedCloseDate.toISOString().slice(0, 10)}`
+      : null,
+    contactInfo ? `Contact: ${contactInfo}` : null,
+    userNotes ? `\nNotes:\n${userNotes}` : null,
+  ].filter(Boolean) as string[];
+
+  try {
+    const raw = await chat(
+      [
+        {
+          role: "system",
+          content:
+            'You are a sales analytics expert. Estimate the probability (0–100) that this deal will close as WON, based on stage, value, close date, contact profile, and notes. 0 = almost certainly lost, 100 = certain win. Return JSON with exactly two keys: "score" (integer 0–100) and "reasoning" (one paragraph, max 100 words, explaining the score). No other text.',
+        },
+        {
+          role: "user",
+          content: `Score the win probability of this deal:\n\n${lines.join("\n")}`,
+        },
+      ],
+      { json: true }
+    );
+
+    const parsed = JSON.parse(raw) as { score: unknown; reasoning: unknown };
+    const score = Math.round(Number(parsed.score));
+    const reasoning = String(parsed.reasoning ?? "").trim();
+
+    if (!Number.isFinite(score) || score < 0 || score > 100) {
+      return { error: "AI returned an invalid score." };
+    }
+
+    try {
+      await db
+        .update(schema.deals)
+        .set({ probability: score, updatedAt: new Date() })
+        .where(eq(schema.deals.id, dealId));
+      revalidatePath(`/deals/${dealId}`);
+      revalidatePath("/deals");
+    } catch {
+      // Non-critical — don't fail if the DB update errors
+    }
+
+    return { score, reasoning };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown AI error.";
+    if (message.includes("DEEPSEEK_API_KEY")) return { noKey: true };
+    return { error: message };
+  }
+}
+
 // ─── AI: Summarize deal ───────────────────────────────────────────────────────
 
 export type DealSummarizeState = {
