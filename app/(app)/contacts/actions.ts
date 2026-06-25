@@ -117,10 +117,23 @@ export async function bulkImportContacts(
   const db = getDb();
   if (!db) return { count: 0, skipped: [], error: "Database not connected" };
 
+  const MAX_IMPORT_ROWS = 1000;
+
   const skipped: ImportSkippedRow[] = [];
   const valid: Array<{ rowIndex: number; data: z.infer<typeof CsvRowSchema> }> = [];
 
-  for (const r of rows) {
+  // Cap the batch so an oversized single insert can't exceed Postgres/Neon
+  // parameter limits and fail the whole import. Rows beyond the cap are skipped.
+  const rowsToProcess = rows.slice(0, MAX_IMPORT_ROWS);
+  for (const r of rows.slice(MAX_IMPORT_ROWS)) {
+    skipped.push({
+      row: r.rowIndex,
+      name: r.name || "(empty)",
+      reason: "Exceeds import limit (max 1000 per batch)",
+    });
+  }
+
+  for (const r of rowsToProcess) {
     const result = CsvRowSchema.safeParse(r);
     if (!result.success) {
       const firstIssue = result.error.issues[0];
