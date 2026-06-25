@@ -6,8 +6,10 @@ const COOKIE = "session";
 
 export async function middleware(req: NextRequest) {
   const authSecret = process.env.AUTH_SECRET;
-  // No secret configured → allow through (app is not in auth mode)
-  if (!authSecret) return NextResponse.next();
+  // Auth needs BOTH a secret and a database (for accounts). Until the DB is
+  // connected, keep every route open so the app stays usable/demoable — never
+  // wall it off behind a login that nobody can pass.
+  if (!authSecret || !process.env.DATABASE_URL) return NextResponse.next();
 
   const token = req.cookies.get(COOKIE)?.value;
   if (!token) {
