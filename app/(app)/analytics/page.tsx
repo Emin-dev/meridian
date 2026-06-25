@@ -1,4 +1,8 @@
-import { getDb } from "@/db";
+import { gte } from "drizzle-orm";
+import { getDb, schema } from "@/db";
+import { TimeRangeFilter } from "./time-range-filter";
+
+const VALID_DAYS = ["7", "30", "90"] as const;
 
 const CONTACT_STATUSES = [
   { key: "lead" as const, label: "Lead", dot: "bg-blue-500" },
@@ -61,7 +65,19 @@ function StatCard({
   );
 }
 
-export default async function AnalyticsPage() {
+export default async function AnalyticsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ days?: string }>;
+}) {
+  const { days } = await searchParams;
+  const validDays =
+    days && (VALID_DAYS as readonly string[]).includes(days) ? days : "";
+
+  const since: Date | null = validDays
+    ? new Date(Date.now() - parseInt(validDays, 10) * 24 * 60 * 60 * 1000)
+    : null;
+
   const db = getDb();
 
   const deals = db
@@ -74,12 +90,14 @@ export default async function AnalyticsPage() {
           createdAt: true,
           updatedAt: true,
         },
+        where: since ? gte(schema.deals.createdAt, since) : undefined,
       })
     : [];
 
   const contacts = db
     ? await db.query.contacts.findMany({
         columns: { status: true, source: true },
+        where: since ? gte(schema.contacts.createdAt, since) : undefined,
       })
     : [];
 
@@ -199,11 +217,14 @@ export default async function AnalyticsPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h2 className="text-xl font-semibold text-neutral-100">Analytics</h2>
-        <p className="mt-1 text-sm text-neutral-400">
-          Pipeline performance and deal conversion metrics.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="text-xl font-semibold text-neutral-100">Analytics</h2>
+          <p className="mt-1 text-sm text-neutral-400">
+            Pipeline performance and deal conversion metrics.
+          </p>
+        </div>
+        <TimeRangeFilter current={validDays} />
       </div>
 
       {/* No DB state */}
