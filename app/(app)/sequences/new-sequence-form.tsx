@@ -225,7 +225,7 @@ export default function NewSequenceForm() {
                   <input
                     name={`step_${i}_subject`}
                     type="text"
-                    placeholder="Hi {{first_name}}, quick question…"
+                    placeholder="Hi {{firstName}}, quick question…"
                     value={step.subjectTemplate}
                     onChange={(e) => updateStep(i, "subjectTemplate", e.target.value)}
                     className="tap w-full rounded-[--r-md] border border-[--line-1] bg-[--surface-1] px-3 text-body text-[--ink-1] placeholder-[--ink-3] focus:border-[--accent] focus:outline-none"
@@ -245,7 +245,7 @@ export default function NewSequenceForm() {
                   <textarea
                     name={`step_${i}_body`}
                     rows={4}
-                    placeholder={`Hi {{first_name}},\n\n`}
+                    placeholder={`Hi {{firstName}},\n\n`}
                     value={step.bodyTemplate}
                     onChange={(e) => updateStep(i, "bodyTemplate", e.target.value)}
                     className="w-full resize-y rounded-[--r-md] border border-[--line-1] bg-[--surface-1] px-3 py-2 text-body text-[--ink-1] placeholder-[--ink-3] focus:border-[--accent] focus:outline-none"

@@ -165,7 +165,7 @@ export async function draftStepContent(
         {
           role: "system",
           content:
-            "You are a sales email copywriter. Output valid JSON only with keys subjectTemplate and bodyTemplate. Use {{first_name}} and {{company}} as merge fields where natural. Keep emails brief and conversational.",
+            "You are a sales email copywriter. Output valid JSON only with keys subjectTemplate and bodyTemplate. Use {{firstName}} and {{company}} as merge fields where natural. Keep emails brief and conversational.",
         },
         {
           role: "user",

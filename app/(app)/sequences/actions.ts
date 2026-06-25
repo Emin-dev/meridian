@@ -93,12 +93,12 @@ export async function generateSequenceWithAI(goal: string): Promise<AIDraftResul
   "steps": [
     {
       "delayDays": 0,
-      "subjectTemplate": "subject using {{first_name}} where natural",
-      "bodyTemplate": "email body using {{first_name}} and {{company}} as merge fields"
+      "subjectTemplate": "subject using {{firstName}} where natural",
+      "bodyTemplate": "email body using {{firstName}} and {{company}} as merge fields"
     }
   ]
 }
-Rules: max 5 steps, use {{first_name}} and {{company}} as merge fields, keep emails brief and conversational, first step has delayDays 0, subsequent steps spaced 3-7 days apart.`,
+Rules: max 5 steps, use {{firstName}} and {{company}} as merge fields, keep emails brief and conversational, first step has delayDays 0, subsequent steps spaced 3-7 days apart.`,
         },
         {
           role: "user",

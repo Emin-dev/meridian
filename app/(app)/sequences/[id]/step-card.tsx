@@ -300,7 +300,7 @@ export function AddStepForm({
             name="subjectTemplate"
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
-            placeholder="e.g. Quick question, {{first_name}}"
+            placeholder="e.g. Quick question, {{firstName}}"
             className="tap w-full rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-3 text-body text-[--ink-1] placeholder-[--ink-3] focus:border-[--accent] focus:outline-none"
           />
           {state.fieldErrors?.subjectTemplate && (
@@ -318,7 +318,7 @@ export function AddStepForm({
             rows={4}
             value={body}
             onChange={(e) => setBody(e.target.value)}
-            placeholder={"Hi {{first_name}},\n\n…"}
+            placeholder={"Hi {{firstName}},\n\n…"}
             className="w-full resize-none rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-3 py-2 text-body text-[--ink-1] placeholder-[--ink-3] focus:border-[--accent] focus:outline-none"
           />
           {state.fieldErrors?.bodyTemplate && (
