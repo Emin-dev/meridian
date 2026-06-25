@@ -759,6 +759,23 @@ export async function bulkAddTag(
   return { success: true, count: updated };
 }
 
+export async function bulkChangeOwner(
+  ids: number[],
+  owner: string
+): Promise<BulkActionState> {
+  const db = getDb();
+  if (!db) return { noDb: true };
+  if (ids.length === 0) return { count: 0 };
+
+  await db
+    .update(schema.contacts)
+    .set({ owner: owner.trim() || null, updatedAt: new Date() })
+    .where(inArray(schema.contacts.id, ids));
+
+  revalidatePath("/contacts");
+  return { success: true, count: ids.length };
+}
+
 export async function bulkEnrollInSequence(
   ids: number[],
   sequenceId: number

@@ -7,7 +7,7 @@ import type { Contact, Sequence } from "@/db/schema";
 import type { LastContactedMap } from "./page";
 import LeadScoreBadge from "./lead-score-badge";
 import { tagColor } from "./tag-color";
-import { bulkChangeStatus, bulkAddTag, bulkEnrollInSequence } from "./actions";
+import { bulkChangeStatus, bulkAddTag, bulkEnrollInSequence, bulkChangeOwner } from "./actions";
 
 function getLastContactedMeta(dateStr: string | null): { text: string; dotClass: string } | null {
   if (!dateStr) return null;
@@ -120,6 +120,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
   const [tagInput, setTagInput] = useState("");
   const [statusSelect, setStatusSelect] = useState<ContactStatus>("lead");
   const [sequenceSelect, setSequenceSelect] = useState("");
+  const [ownerInput, setOwnerInput] = useState("");
   const [feedback, setFeedback] = useState<{ msg: string; ok: boolean } | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -165,6 +166,16 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
       if (result.error) flash(result.error, false);
       else flash(`Added tag to ${result.count} contact(s).`);
       setTagInput("");
+      setSelectedIds(new Set());
+    });
+  }
+
+  function handleChangeOwner() {
+    startTransition(async () => {
+      const result = await bulkChangeOwner(Array.from(selectedIds), ownerInput);
+      if (result.error) flash(result.error, false);
+      else flash(`Updated owner for ${result.count} contact(s).`);
+      setOwnerInput("");
       setSelectedIds(new Set());
     });
   }
@@ -233,6 +244,26 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
               className="rounded bg-neutral-700 px-2.5 py-1 text-xs font-medium text-neutral-200 hover:bg-neutral-600 disabled:opacity-50"
             >
               Add tag
+            </button>
+          </div>
+
+          <div className="h-4 w-px bg-neutral-700" />
+
+          {/* Change owner */}
+          <div className="flex items-center gap-1.5">
+            <input
+              value={ownerInput}
+              onChange={(e) => setOwnerInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleChangeOwner()}
+              placeholder="Owner name"
+              className="w-28 rounded border border-neutral-700 bg-neutral-900 px-2 py-1 text-xs text-neutral-200 placeholder-neutral-600 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            />
+            <button
+              onClick={handleChangeOwner}
+              disabled={isPending}
+              className="rounded bg-neutral-700 px-2.5 py-1 text-xs font-medium text-neutral-200 hover:bg-neutral-600 disabled:opacity-50"
+            >
+              Set owner
             </button>
           </div>
 
