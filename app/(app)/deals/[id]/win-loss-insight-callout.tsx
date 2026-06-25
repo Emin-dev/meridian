@@ -1,0 +1,72 @@
+"use client";
+
+import { useState, useTransition } from "react";
+import { triggerWinLossAnalysis } from "./actions";
+
+interface Props {
+  insight: string;
+  stage: "won" | "lost";
+  dealId: number;
+}
+
+export default function WinLossInsightCallout({ insight, stage, dealId }: Props) {
+  const isWon = stage === "won";
+  const [currentInsight, setCurrentInsight] = useState(insight);
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  const borderColor = isWon ? "border-green-700/60" : "border-red-700/60";
+  const bgColor = isWon ? "bg-green-950/40" : "bg-red-950/40";
+  const iconColor = isWon ? "text-green-400" : "text-red-400";
+  const labelColor = isWon ? "text-green-300" : "text-red-300";
+  const textColor = isWon ? "text-green-100" : "text-red-100";
+  const badgeBg = isWon ? "bg-green-900/50 text-green-300" : "bg-red-900/50 text-red-300";
+
+  function handleRefresh() {
+    setError(null);
+    startTransition(async () => {
+      const result = await triggerWinLossAnalysis(dealId);
+      if (result.insight) {
+        setCurrentInsight(result.insight);
+      } else if (result.error) {
+        setError(result.error);
+      } else if (result.noKey) {
+        setError("DEEPSEEK_API_KEY is not configured.");
+      }
+    });
+  }
+
+  return (
+    <div className={`rounded-xl border ${borderColor} ${bgColor} px-6 py-5`}>
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-center gap-2">
+          <span className={`text-lg ${iconColor}`}>{isWon ? "🏆" : "📉"}</span>
+          <div>
+            <h3 className={`text-sm font-semibold ${labelColor}`}>
+              AI Win/Loss Analysis
+            </h3>
+            <span className={`inline-block mt-0.5 rounded-full px-2 py-0.5 text-xs font-medium ${badgeBg}`}>
+              {isWon ? "Won" : "Lost"}
+            </span>
+          </div>
+        </div>
+        <button
+          onClick={handleRefresh}
+          disabled={isPending}
+          title="Regenerate analysis"
+          className="shrink-0 rounded-lg px-2.5 py-1.5 text-xs text-neutral-400 hover:text-neutral-100 hover:bg-neutral-700/50 transition-colors disabled:opacity-40"
+        >
+          {isPending ? "Analysing…" : "↻ Refresh"}
+        </button>
+      </div>
+
+      {error ? (
+        <p className="mt-3 text-xs text-red-400">{error}</p>
+      ) : (
+        <p className={`mt-3 text-sm leading-relaxed ${textColor}`}>
+          {currentInsight}
+        </p>
+      )}
+    </div>
+  );
+}
