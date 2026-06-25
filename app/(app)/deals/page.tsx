@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getDb } from "@/db";
 import DealModal from "./deal-modal";
 import DealsTable from "./deals-table";
+import KanbanCard from "./kanban-card";
 import { getCrmSettings } from "@/lib/settings";
 
 const STAGES = [
@@ -198,14 +199,7 @@ export default async function DealsPage({
                       </p>
                     ) : (
                       cards.map((deal) => (
-                        <DealModal
-                          key={deal.id}
-                          deal={deal}
-                          hasDb={!!db}
-                          contacts={allContacts}
-                          defaultCurrency={settings.defaultCurrency}
-                          defaultStage={settings.defaultDealStage}
-                        />
+                        <KanbanCard key={deal.id} deal={deal} />
                       ))
                     )}
                   </div>
