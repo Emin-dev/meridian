@@ -796,6 +796,7 @@ export async function bulkEnrollInSequence(
   const db = getDb();
   if (!db) return { noDb: true };
   if (ids.length === 0) return { count: 0 };
+  if (!Number.isInteger(sequenceId)) return { error: "Invalid sequence." };
 
   const existing = await db
     .select({ contactId: schema.contactSequenceEnrollments.contactId })
