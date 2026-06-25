@@ -19,6 +19,7 @@ export async function insertDemoData(db: Db): Promise<void> {
         title: "VP of Sales",
         notes:
           "Key decision maker. Interested in enterprise integrations and SSO.",
+        status: "active" as const,
         leadScore: 85,
         leadScoreRationale:
           "Senior role with clear budget authority at a fast-growing SaaS company.",
@@ -34,6 +35,7 @@ export async function insertDemoData(db: Db): Promise<void> {
         title: "CTO",
         notes:
           "Technical buyer. Needs strong API access and data export options.",
+        status: "active" as const,
         leadScore: 72,
         leadScoreRationale:
           "Strong technical influence; budget approval requires CFO sign-off.",
@@ -49,6 +51,7 @@ export async function insertDemoData(db: Db): Promise<void> {
         title: "Marketing Director",
         notes:
           "Existing customer on Starter plan. Ready to expand to the sales team.",
+        status: "active" as const,
         leadScore: 60,
         leadScoreRationale:
           "Already a customer — expansion opportunity with proven ROI.",
@@ -64,6 +67,7 @@ export async function insertDemoData(db: Db): Promise<void> {
         title: "CEO",
         notes:
           "Evaluating three CRM vendors. Final decision due next quarter.",
+        status: "lead" as const,
         leadScore: 91,
         leadScoreRationale:
           "C-level sponsor with full budget authority; company just closed Series B.",
@@ -79,6 +83,7 @@ export async function insertDemoData(db: Db): Promise<void> {
         title: "Head of Engineering",
         notes:
           "Early-stage interest. Budget approval is still pending from finance.",
+        status: "lead" as const,
         leadScore: 45,
         leadScoreRationale:
           "Technical fit is strong but no clear budget authority confirmed.",
@@ -94,6 +99,7 @@ export async function insertDemoData(db: Db): Promise<void> {
         title: "Product Manager",
         notes:
           "Deal closed lost — went with a cheaper on-premise competitor. Re-engage in Q3.",
+        status: "churned" as const,
         leadScore: 68,
         leadScoreRationale:
           "Good product fit; lost on price. Worth revisiting after competitor contract expires.",
@@ -109,6 +115,7 @@ export async function insertDemoData(db: Db): Promise<void> {
         title: "Founder & CEO",
         notes:
           "Trial user for 3 weeks; very positive feedback. Ready to close.",
+        status: "active" as const,
         leadScore: 78,
         leadScoreRationale:
           "Founder with full decision authority; high engagement in trial.",
@@ -124,6 +131,7 @@ export async function insertDemoData(db: Db): Promise<void> {
         title: "VP of Operations",
         notes:
           "Looking to consolidate three tools into one platform. IT director needs to approve.",
+        status: "inactive" as const,
         leadScore: 55,
         leadScoreRationale:
           "Budget exists but requires IT stakeholder alignment before purchase.",

@@ -1,0 +1,117 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
+
+const STATUS_OPTIONS = [
+  { value: "", label: "All statuses" },
+  { value: "lead", label: "Lead" },
+  { value: "active", label: "Active" },
+  { value: "inactive", label: "Inactive" },
+  { value: "churned", label: "Churned" },
+] as const;
+
+interface Props {
+  initialStatus: string;
+  initialCompany: string;
+  initialMinScore: string;
+}
+
+export default function ContactFilters({
+  initialStatus,
+  initialCompany,
+  initialMinScore,
+}: Props) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  const [status, setStatus] = useState(initialStatus);
+  const [company, setCompany] = useState(initialCompany);
+  const [minScore, setMinScore] = useState(initialMinScore);
+
+  const hasFilters = status !== "" || company !== "" || minScore !== "";
+
+  function apply() {
+    const params = new URLSearchParams();
+    if (status) params.set("status", status);
+    if (company.trim()) params.set("company", company.trim());
+    if (minScore) params.set("minScore", minScore);
+    const qs = params.toString();
+    startTransition(() => {
+      router.push(qs ? `/contacts?${qs}` : "/contacts");
+    });
+  }
+
+  function clear() {
+    setStatus("");
+    setCompany("");
+    setMinScore("");
+    startTransition(() => {
+      router.push("/contacts");
+    });
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "Enter") apply();
+  }
+
+  const inputClass =
+    "rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500";
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <select
+        value={status}
+        onChange={(e) => setStatus(e.target.value)}
+        className={inputClass}
+        aria-label="Filter by status"
+      >
+        {STATUS_OPTIONS.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+
+      <input
+        type="text"
+        placeholder="Company contains…"
+        value={company}
+        onChange={(e) => setCompany(e.target.value)}
+        onKeyDown={handleKeyDown}
+        className={`${inputClass} w-44`}
+        aria-label="Filter by company"
+      />
+
+      <input
+        type="number"
+        placeholder="Min score"
+        min="0"
+        max="100"
+        value={minScore}
+        onChange={(e) => setMinScore(e.target.value)}
+        onKeyDown={handleKeyDown}
+        className={`${inputClass} w-28`}
+        aria-label="Minimum lead score"
+      />
+
+      <button
+        onClick={apply}
+        disabled={isPending}
+        className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-50"
+      >
+        Apply
+      </button>
+
+      {hasFilters && (
+        <button
+          onClick={clear}
+          disabled={isPending}
+          className="rounded-lg border border-neutral-700 px-3 py-1.5 text-sm text-neutral-400 hover:border-neutral-600 hover:text-neutral-200 disabled:opacity-50"
+        >
+          Clear
+        </button>
+      )}
+    </div>
+  );
+}

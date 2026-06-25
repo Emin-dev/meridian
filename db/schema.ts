@@ -29,6 +29,13 @@ export const activityTypeEnum = pgEnum("activity_type", [
   "task",
 ]);
 
+export const contactStatusEnum = pgEnum("contact_status", [
+  "lead",
+  "active",
+  "inactive",
+  "churned",
+]);
+
 // ─── Users ────────────────────────────────────────────────────────────────────
 
 export const users = pgTable("users", {
@@ -51,6 +58,7 @@ export const contacts = pgTable("contacts", {
   company: text("company"),
   title: text("title"),
   notes: text("notes"),
+  status: contactStatusEnum("status").default("lead"),
   leadScore: integer("lead_score"),
   leadScoreRationale: text("lead_score_rationale"),
   leadScoredAt: timestamp("lead_scored_at", { withTimezone: true }),
