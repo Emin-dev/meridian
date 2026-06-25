@@ -13,6 +13,7 @@ import EnrollSequenceModal, {
   CancelEnrollmentButton,
 } from "./enroll-sequence-modal";
 import EnrichContactPanel from "./enrich-contact-panel";
+import LinkedTasksSection from "@/app/(app)/tasks/linked-tasks-section";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -204,6 +205,11 @@ export default async function ContactDetailPage({ params }: Props) {
             ))}
           </ul>
         )}
+      </div>
+
+      {/* Linked tasks */}
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-5">
+        <LinkedTasksSection contactId={contact.id} />
       </div>
 
       {/* Activity timeline */}

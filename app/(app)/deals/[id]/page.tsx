@@ -11,6 +11,7 @@ import DealNextActionPanel from "./deal-next-action-panel";
 import StageControl from "../stage-control";
 import WinLossInsightCallout from "./win-loss-insight-callout";
 import { extractUserNotes, extractWinLossInsight } from "./notes-utils";
+import LinkedTasksSection from "@/app/(app)/tasks/linked-tasks-section";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -233,6 +234,11 @@ export default async function DealDetailPage({ params }: Props) {
       {/* AI next best action */}
       <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-5">
         <DealNextActionPanel dealId={deal.id} />
+      </div>
+
+      {/* Linked tasks */}
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-5">
+        <LinkedTasksSection dealId={deal.id} />
       </div>
 
       {/* Activity timeline */}

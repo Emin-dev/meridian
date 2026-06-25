@@ -10,6 +10,13 @@ const AddTaskSchema = z.object({
   dueAt: z.string().min(1, "Due date is required").transform((v) => new Date(v)),
 });
 
+const AddLinkedTaskSchema = z.object({
+  subject: z.string().min(1, "Subject is required"),
+  dueAt: z.string().min(1, "Due date is required").transform((v) => new Date(v)),
+  contactId: z.string().transform((v) => (v.trim() === "" ? null : Number(v))),
+  dealId: z.string().transform((v) => (v.trim() === "" ? null : Number(v))),
+});
+
 export type AddTaskState = {
   error?: string;
   fieldErrors?: Partial<Record<"subject" | "dueAt", string[]>>;
@@ -44,6 +51,43 @@ export async function addTask(
 
   revalidatePath("/tasks");
   revalidatePath("/activity");
+
+  return { success: true };
+}
+
+export async function addLinkedTask(
+  _prev: AddTaskState,
+  formData: FormData
+): Promise<AddTaskState> {
+  const raw = {
+    subject: String(formData.get("subject") ?? ""),
+    dueAt: String(formData.get("dueAt") ?? ""),
+    contactId: String(formData.get("contactId") ?? ""),
+    dealId: String(formData.get("dealId") ?? ""),
+  };
+
+  const parsed = AddLinkedTaskSchema.safeParse(raw);
+  if (!parsed.success) {
+    return {
+      fieldErrors: parsed.error.flatten().fieldErrors as AddTaskState["fieldErrors"],
+    };
+  }
+
+  const db = getDb();
+  if (!db) return { noDb: true };
+
+  await db.insert(schema.activities).values({
+    type: "task",
+    subject: parsed.data.subject,
+    dueAt: parsed.data.dueAt,
+    contactId: parsed.data.contactId,
+    dealId: parsed.data.dealId,
+  });
+
+  revalidatePath("/tasks");
+  revalidatePath("/activity");
+  if (parsed.data.contactId) revalidatePath(`/contacts/${parsed.data.contactId}`);
+  if (parsed.data.dealId) revalidatePath(`/deals/${parsed.data.dealId}`);
 
   return { success: true };
 }
