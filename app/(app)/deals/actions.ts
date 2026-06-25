@@ -130,6 +130,8 @@ export async function moveDealStage(
     .where(eq(schema.deals.id, id))
     .limit(1);
 
+  if (!current) return { error: "Deal not found" };
+
   const isTerminal = parsed.data === "won" || parsed.data === "lost";
 
   await db
