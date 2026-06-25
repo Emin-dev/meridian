@@ -124,11 +124,16 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
           >
             <span
               className={[
-                "flex items-center justify-center rounded-full px-3 py-1",
+                "flex items-center justify-center rounded-full px-3 py-1 relative",
                 isMoreActive ? "bg-[--accent-tint]" : "",
               ].join(" ")}
             >
               <MoreIcon size={20} aria-hidden="true" />
+              {overdueTaskCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-red-600 px-0.5 text-[10px] font-semibold text-white leading-none">
+                  {overdueTaskCount > 99 ? "99+" : overdueTaskCount}
+                </span>
+              )}
             </span>
             <span className="text-caption leading-none">More</span>
           </button>
