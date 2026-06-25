@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { getDb } from "@/db";
+import DealModal from "./deal-modal";
 
 const STAGES = [
   { key: "lead" as const, label: "Lead", dot: "bg-blue-500" },
@@ -10,26 +10,21 @@ const STAGES = [
   { key: "lost" as const, label: "Lost", dot: "bg-red-500" },
 ];
 
-function formatValue(value: string | null, currency: string) {
-  if (!value) return null;
-  const num = parseFloat(value);
-  if (isNaN(num)) return null;
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  }).format(num);
-}
-
 export default async function DealsPage() {
   const db = getDb();
 
-  const allDeals = db
-    ? await db.query.deals.findMany({
-        with: { contact: true },
-        orderBy: (deals, { asc }) => [asc(deals.createdAt)],
-      })
-    : [];
+  const [allDeals, allContacts] = db
+    ? await Promise.all([
+        db.query.deals.findMany({
+          with: { contact: true },
+          orderBy: (deals, { asc }) => [asc(deals.createdAt)],
+        }),
+        db.query.contacts.findMany({
+          columns: { id: true, name: true },
+          orderBy: (contacts, { asc }) => [asc(contacts.name)],
+        }),
+      ])
+    : [[], []];
 
   const byStage = Object.fromEntries(
     STAGES.map((s) => [s.key, allDeals.filter((d) => d.stage === s.key)])
@@ -62,9 +57,7 @@ export default async function DealsPage() {
               </span>
             </span>
           )}
-          <button className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500">
-            Add Deal
-          </button>
+          <DealModal hasDb={!!db} contacts={allContacts} />
         </div>
       </div>
 
@@ -81,7 +74,10 @@ export default async function DealsPage() {
       {/* Kanban board */}
       {db && (
         <div className="overflow-x-auto pb-4">
-          <div className="flex gap-4" style={{ minWidth: `${STAGES.length * 260}px` }}>
+          <div
+            className="flex gap-4"
+            style={{ minWidth: `${STAGES.length * 260}px` }}
+          >
             {STAGES.map((stage) => {
               const cards = byStage[stage.key] ?? [];
               const stageTotal = cards
@@ -126,44 +122,14 @@ export default async function DealsPage() {
                         No deals
                       </p>
                     ) : (
-                      cards.map((deal) => {
-                        const formatted = formatValue(deal.value, deal.currency);
-                        return (
-                          <div
-                            key={deal.id}
-                            className="rounded-lg border border-neutral-800 bg-neutral-800/50 p-3 transition-colors hover:border-neutral-700 hover:bg-neutral-800"
-                          >
-                            <p className="text-sm font-medium text-neutral-100 leading-snug">
-                              {deal.title}
-                            </p>
-                            {formatted && (
-                              <p className="mt-1 text-sm font-semibold text-indigo-400">
-                                {formatted}
-                              </p>
-                            )}
-                            {deal.contact && (
-                              <Link
-                                href={`/contacts/${deal.contact.id}`}
-                                className="mt-2 flex items-center gap-1.5 text-xs text-neutral-500 hover:text-neutral-300 transition-colors"
-                              >
-                                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-neutral-700 text-[10px] font-medium text-neutral-300">
-                                  {deal.contact.name[0].toUpperCase()}
-                                </span>
-                                {deal.contact.name}
-                              </Link>
-                            )}
-                            {deal.expectedCloseDate && (
-                              <p className="mt-1.5 text-xs text-neutral-600">
-                                Close:{" "}
-                                {new Date(deal.expectedCloseDate).toLocaleDateString(
-                                  "en-US",
-                                  { month: "short", day: "numeric", year: "numeric" }
-                                )}
-                              </p>
-                            )}
-                          </div>
-                        );
-                      })
+                      cards.map((deal) => (
+                        <DealModal
+                          key={deal.id}
+                          deal={deal}
+                          hasDb={!!db}
+                          contacts={allContacts}
+                        />
+                      ))
                     )}
                   </div>
                 </div>
