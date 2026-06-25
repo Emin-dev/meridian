@@ -96,7 +96,12 @@ const NAV = [
 export default function AppShell({ children, overdueCount = 0, overdueTaskCount = 0 }: { children: React.ReactNode; overdueCount?: number; overdueTaskCount?: number }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [isMac, setIsMac] = useState(true);
   const pathname = usePathname();
+
+  useEffect(() => {
+    setIsMac(/Mac|iPhone|iPad|iPod/.test(navigator.platform));
+  }, []);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -108,6 +113,15 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
   }, []);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileOpen(false);
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [mobileOpen]);
 
   const pageLabel = NAV.find((n) => pathname === n.href || pathname.startsWith(n.href + "/"))?.label ?? "Meridian";
 
@@ -212,7 +226,7 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
             </svg>
             <span className="hidden sm:inline">Search</span>
             <kbd className="hidden rounded border border-neutral-600 px-1 font-mono text-xs sm:inline">
-              ⌘K
+              {isMac ? "⌘K" : "Ctrl+K"}
             </kbd>
           </button>
         </header>
