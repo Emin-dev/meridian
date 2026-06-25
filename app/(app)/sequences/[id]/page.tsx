@@ -24,6 +24,45 @@ const ENROLLMENT_STATUS_LABELS = {
   },
 } as const;
 
+function computeProgress(
+  enrolledAt: Date,
+  steps: { position: number; delayDays: number }[]
+) {
+  const now = new Date();
+  const sorted = [...steps].sort((a, b) => a.position - b.position);
+  // cumulative delay in days for each step
+  const cumulativeDelays = sorted.reduce<number[]>((acc, step) => {
+    acc.push((acc.at(-1) ?? 0) + step.delayDays);
+    return acc;
+  }, []);
+
+  let completedSteps = 0;
+  for (const totalDelay of cumulativeDelays) {
+    const dueDate = new Date(
+      enrolledAt.getTime() + totalDelay * 86_400_000
+    );
+    if (dueDate <= now) completedSteps++;
+    else break;
+  }
+
+  const totalSteps = sorted.length;
+  const isComplete = completedSteps >= totalSteps;
+  const nextDueDate =
+    isComplete || totalSteps === 0
+      ? null
+      : new Date(
+          enrolledAt.getTime() + cumulativeDelays[completedSteps] * 86_400_000
+        );
+
+  return {
+    completedSteps,
+    currentStep: isComplete ? totalSteps : completedSteps + 1, // 1-based
+    nextDueDate,
+    isComplete,
+    totalSteps,
+  };
+}
+
 export default async function SequenceDetailPage({
   params,
   searchParams,
@@ -227,44 +266,86 @@ export default async function SequenceDetailPage({
                 {enrollments.map((enrollment) => {
                   const enrStatus =
                     ENROLLMENT_STATUS_LABELS[enrollment.status];
+                  const progress = computeProgress(
+                    enrollment.enrolledAt,
+                    steps
+                  );
+                  const pct =
+                    progress.totalSteps > 0
+                      ? Math.round(
+                          (progress.completedSteps / progress.totalSteps) * 100
+                        )
+                      : 0;
+                  const isCancelled = enrollment.status === "cancelled";
                   return (
-                    <li
-                      key={enrollment.id}
-                      className="flex items-center justify-between gap-4 px-4 py-3"
-                    >
-                      <div className="min-w-0">
-                        <Link
-                          href={`/contacts/${enrollment.contactId}`}
-                          className="truncate text-sm font-medium text-neutral-100 transition-colors hover:text-neutral-300"
-                        >
-                          {enrollment.contactName}
-                        </Link>
-                        {enrollment.contactEmail && (
-                          <p className="truncate text-xs text-neutral-500">
-                            {enrollment.contactEmail}
-                          </p>
-                        )}
+                    <li key={enrollment.id} className="px-4 py-4">
+                      <div className="flex items-start justify-between gap-4">
+                        {/* Left: name + email */}
+                        <div className="min-w-0 flex-1">
+                          <Link
+                            href={`/contacts/${enrollment.contactId}`}
+                            className="truncate text-sm font-medium text-neutral-100 transition-colors hover:text-neutral-300"
+                          >
+                            {enrollment.contactName}
+                          </Link>
+                          {enrollment.contactEmail && (
+                            <p className="truncate text-xs text-neutral-500">
+                              {enrollment.contactEmail}
+                            </p>
+                          )}
+                        </div>
+                        {/* Right: step position + status + cancel */}
+                        <div className="flex shrink-0 items-center gap-3">
+                          {progress.totalSteps > 0 && (
+                            <div className="text-right">
+                              <p className="text-xs font-medium text-neutral-300">
+                                {progress.isComplete
+                                  ? "Complete"
+                                  : `Step ${progress.currentStep} of ${progress.totalSteps}`}
+                              </p>
+                              {progress.nextDueDate && !isCancelled && (
+                                <p className="text-xs text-neutral-500">
+                                  Due{" "}
+                                  {progress.nextDueDate.toLocaleDateString(
+                                    "en-US",
+                                    {
+                                      month: "short",
+                                      day: "numeric",
+                                      year: "numeric",
+                                    }
+                                  )}
+                                </p>
+                              )}
+                            </div>
+                          )}
+                          <span
+                            className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${enrStatus.className}`}
+                          >
+                            {enrStatus.label}
+                          </span>
+                          {enrollment.status === "active" && (
+                            <CancelEnrollmentButton
+                              enrollmentId={enrollment.id}
+                              sequenceId={numId}
+                            />
+                          )}
+                        </div>
                       </div>
-                      <div className="flex shrink-0 items-center gap-3">
-                        <span className="text-xs text-neutral-500">
-                          {enrollment.enrolledAt.toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
-                        </span>
-                        <span
-                          className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${enrStatus.className}`}
-                        >
-                          {enrStatus.label}
-                        </span>
-                        {enrollment.status === "active" && (
-                          <CancelEnrollmentButton
-                            enrollmentId={enrollment.id}
-                            sequenceId={numId}
+                      {/* Progress bar */}
+                      {progress.totalSteps > 0 && (
+                        <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-neutral-800">
+                          <div
+                            className={`h-full rounded-full transition-all ${
+                              isCancelled
+                                ? "bg-neutral-600"
+                                : progress.isComplete
+                                  ? "bg-emerald-500"
+                                  : "bg-emerald-500/70"
+                            }`}
+                            style={{ width: `${pct}%` }}
                           />
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </li>
                   );
                 })}
