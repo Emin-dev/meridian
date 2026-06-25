@@ -38,9 +38,9 @@ const STAGES = [
 export default async function DealsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ view?: string; owner?: string }>;
+  searchParams: Promise<{ view?: string; owner?: string; stage?: string }>;
 }) {
-  const { view = "kanban", owner: ownerFilter = "" } = await searchParams;
+  const { view = "kanban", owner: ownerFilter = "", stage: stageFilter = "" } = await searchParams;
   const isTable = view === "table";
 
   const db = getDb();
@@ -66,10 +66,15 @@ export default async function DealsPage({
     new Set(allDeals.map((d) => d.owner).filter((o): o is string => !!o))
   ).sort();
 
-  // Apply owner filter.
-  const visibleDeals = ownerFilter
-    ? allDeals.filter((d) => d.owner === ownerFilter)
-    : allDeals;
+  // Validate stage filter against known stages.
+  const stageMatch = STAGES.find((s) => s.key === stageFilter) ?? null;
+
+  // Apply owner and stage filters.
+  const visibleDeals = allDeals.filter(
+    (d) =>
+      (!ownerFilter || d.owner === ownerFilter) &&
+      (!stageMatch || d.stage === stageMatch.key)
+  );
 
   const byStage = Object.fromEntries(
     STAGES.map((s) => [s.key, visibleDeals.filter((d) => d.stage === s.key)])
@@ -122,6 +127,21 @@ export default async function DealsPage({
 
           <OwnerFilter owners={uniqueOwners} selected={ownerFilter} />
 
+          {/* Stage filter chip — shown when arriving from analytics funnel */}
+          {stageMatch && (
+            <div className="flex items-center gap-1.5 rounded-lg border border-neutral-700 bg-neutral-800 px-2.5 py-1.5 text-xs text-neutral-300">
+              <span className={`h-2 w-2 shrink-0 rounded-full ${stageMatch.dot}`} />
+              <span>{stageMatch.label}</span>
+              <Link
+                href={`?view=${view}${ownerFilter ? `&owner=${encodeURIComponent(ownerFilter)}` : ""}`}
+                className="ml-0.5 text-neutral-500 hover:text-neutral-200"
+                aria-label="Clear stage filter"
+              >
+                ×
+              </Link>
+            </div>
+          )}
+
           {/* View toggle */}
           <DealsViewSwitcher
             currentView={isTable ? "table" : "kanban"}
@@ -155,20 +175,26 @@ export default async function DealsPage({
         visibleDeals.length === 0 ? (
           <div className="rounded-xl border border-neutral-800 bg-neutral-900">
             <EmptyState
-              icon={ownerFilter ? <FilterIcon /> : <PipelineIcon />}
-              title={ownerFilter ? `No deals for "${ownerFilter}"` : "No deals yet"}
+              icon={(ownerFilter || stageMatch) ? <FilterIcon /> : <PipelineIcon />}
+              title={
+                stageMatch
+                  ? `No deals in "${stageMatch.label}"`
+                  : ownerFilter
+                    ? `No deals for "${ownerFilter}"`
+                    : "No deals yet"
+              }
               description={
-                ownerFilter
-                  ? "Try clearing the owner filter to see all deals."
+                (ownerFilter || stageMatch)
+                  ? "Try clearing the filters to see all deals."
                   : "Add your first deal to start tracking your pipeline."
               }
               action={
-                ownerFilter ? (
+                (ownerFilter || stageMatch) ? (
                   <Link
                     href="?view=kanban"
                     className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-xs font-medium text-neutral-300 transition-colors hover:bg-neutral-700 hover:text-neutral-100"
                   >
-                    Clear filter
+                    Clear filters
                   </Link>
                 ) : (
                   <div className="flex flex-wrap items-center justify-center gap-3">
@@ -252,20 +278,26 @@ export default async function DealsPage({
         visibleDeals.length === 0 ? (
           <div className="rounded-xl border border-neutral-800 bg-neutral-900">
             <EmptyState
-              icon={ownerFilter ? <FilterIcon /> : <PipelineIcon />}
-              title={ownerFilter ? `No deals for "${ownerFilter}"` : "No deals yet"}
+              icon={(ownerFilter || stageMatch) ? <FilterIcon /> : <PipelineIcon />}
+              title={
+                stageMatch
+                  ? `No deals in "${stageMatch.label}"`
+                  : ownerFilter
+                    ? `No deals for "${ownerFilter}"`
+                    : "No deals yet"
+              }
               description={
-                ownerFilter
-                  ? "Try clearing the owner filter to see all deals."
+                (ownerFilter || stageMatch)
+                  ? "Try clearing the filters to see all deals."
                   : "Add your first deal to start tracking your pipeline."
               }
               action={
-                ownerFilter ? (
+                (ownerFilter || stageMatch) ? (
                   <Link
                     href="?view=table"
                     className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-xs font-medium text-neutral-300 transition-colors hover:bg-neutral-700 hover:text-neutral-100"
                   >
-                    Clear filter
+                    Clear filters
                   </Link>
                 ) : (
                   <div className="flex flex-wrap items-center justify-center gap-3">

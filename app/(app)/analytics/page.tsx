@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { gte } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { TimeRangeFilter } from "./time-range-filter";
@@ -368,9 +369,10 @@ export default async function AnalyticsPage({
                             ? "text-yellow-400"
                             : "text-red-400";
                     return (
-                      <div
+                      <Link
                         key={stage.key}
-                        className="flex items-center gap-4 px-6 py-3"
+                        href={`/deals?stage=${stage.key}`}
+                        className="flex items-center gap-4 px-6 py-3 transition-colors hover:bg-neutral-800/60"
                       >
                         {/* Stage label */}
                         <div className="flex w-28 shrink-0 items-center gap-2">
@@ -417,7 +419,7 @@ export default async function AnalyticsPage({
                             <span className="text-neutral-700">—</span>
                           )}
                         </div>
-                      </div>
+                      </Link>
                     );
                   })}
                 </div>
