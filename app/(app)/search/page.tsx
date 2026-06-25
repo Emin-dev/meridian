@@ -5,13 +5,13 @@ import SearchResultsTabs from "./search-results";
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; tab?: string }>;
 }) {
-  const { q } = await searchParams;
+  const { q, tab } = await searchParams;
   const query = q?.trim() ?? "";
   const db = getDb();
 
-  let results: SearchResults = { contacts: [], deals: [], activities: [] };
+  let results: SearchResults = { contacts: [], deals: [], activities: [], totals: { contacts: 0, deals: 0, activities: 0 } };
   if (db && query) {
     results = await searchGlobal(query);
   }
@@ -45,7 +45,7 @@ export default async function SearchPage({
           </p>
         </div>
       ) : (
-        <SearchResultsTabs results={results} query={query} />
+        <SearchResultsTabs results={results} query={query} initialTab={tab} />
       )}
     </div>
   );

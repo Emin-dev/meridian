@@ -9,12 +9,19 @@ interface GlobalSearchProps {
   onClose: () => void;
 }
 
+type FlatItem =
+  | { kind: "contact"; id: number; href: string }
+  | { kind: "deal"; id: number; href: string }
+  | { kind: "activity"; id: number; href: string }
+  | { kind: "see-all"; category: "contacts" | "deals" | "activities"; href: string };
+
 export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResults | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isPending, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   // Focus input on open; reset state on close
@@ -46,24 +53,50 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
     return () => clearTimeout(t);
   }, [query]);
 
-  // Flat list for arrow-key navigation
-  const allItems = [
-    ...(results?.contacts.map((c) => ({
-      type: "contact" as const,
-      id: c.id,
-      href: `/contacts/${c.id}`,
-    })) ?? []),
-    ...(results?.deals.map((d) => ({
-      type: "deal" as const,
-      id: d.id,
-      href: `/deals/${d.id}`,
-    })) ?? []),
-    ...(results?.activities.map((a) => ({
-      type: "activity" as const,
-      id: a.id,
-      href: `/activity`,
-    })) ?? []),
-  ];
+  // Scroll selected item into view when selection changes via keyboard
+  useEffect(() => {
+    const el = listRef.current?.querySelector<HTMLElement>(
+      `[data-search-idx="${selectedIndex}"]`
+    );
+    el?.scrollIntoView({ block: "nearest" });
+  }, [selectedIndex]);
+
+  const encodedQ = encodeURIComponent(query);
+
+  // Flat list for keyboard navigation — order must match JSX rendering order
+  const allItems: FlatItem[] = [];
+  if (results) {
+    for (const c of results.contacts) {
+      allItems.push({ kind: "contact", id: c.id, href: `/contacts/${c.id}` });
+    }
+    if (results.totals.contacts > results.contacts.length) {
+      allItems.push({
+        kind: "see-all",
+        category: "contacts",
+        href: `/search?q=${encodedQ}&tab=contacts`,
+      });
+    }
+    for (const d of results.deals) {
+      allItems.push({ kind: "deal", id: d.id, href: `/deals/${d.id}` });
+    }
+    if (results.totals.deals > results.deals.length) {
+      allItems.push({
+        kind: "see-all",
+        category: "deals",
+        href: `/search?q=${encodedQ}&tab=deals`,
+      });
+    }
+    for (const a of results.activities) {
+      allItems.push({ kind: "activity", id: a.id, href: `/activity` });
+    }
+    if (results.totals.activities > results.activities.length) {
+      allItems.push({
+        kind: "see-all",
+        category: "activities",
+        href: `/search?q=${encodedQ}&tab=activities`,
+      });
+    }
+  }
 
   function navigate(href: string) {
     router.push(href);
@@ -90,6 +123,20 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
   }
 
   if (!open) return null;
+
+  // Index helpers — keep in sync with allItems construction above
+  function idxForContact(id: number) {
+    return allItems.findIndex((i) => i.kind === "contact" && i.id === id);
+  }
+  function idxForDeal(id: number) {
+    return allItems.findIndex((i) => i.kind === "deal" && i.id === id);
+  }
+  function idxForActivity(id: number) {
+    return allItems.findIndex((i) => i.kind === "activity" && i.id === id);
+  }
+  function idxForSeeAll(category: "contacts" | "deals" | "activities") {
+    return allItems.findIndex((i) => i.kind === "see-all" && i.category === category);
+  }
 
   return (
     <div
@@ -133,7 +180,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
         </div>
 
         {/* Results list */}
-        <div className="max-h-80 overflow-y-auto">
+        <div ref={listRef} className="max-h-80 overflow-y-auto">
           {!results && (
             <p className="py-8 text-center text-sm text-neutral-500">
               Type to search contacts, deals and activities
@@ -146,19 +193,19 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
             </p>
           )}
 
+          {/* Contacts section */}
           {results && results.contacts.length > 0 && (
             <div className="p-2">
               <p className="mb-1 px-2 text-xs font-semibold uppercase tracking-wider text-neutral-500">
                 Contacts
               </p>
               {results.contacts.map((contact) => {
-                const flatIdx = allItems.findIndex(
-                  (i) => i.type === "contact" && i.id === contact.id
-                );
+                const flatIdx = idxForContact(contact.id);
                 const active = flatIdx === selectedIndex;
                 return (
                   <button
                     key={contact.id}
+                    data-search-idx={flatIdx}
                     onClick={() => navigate(`/contacts/${contact.id}`)}
                     onMouseEnter={() => setSelectedIndex(flatIdx)}
                     className={[
@@ -187,22 +234,44 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                   </button>
                 );
               })}
+              {results.totals.contacts > results.contacts.length && (() => {
+                const flatIdx = idxForSeeAll("contacts");
+                const active = flatIdx === selectedIndex;
+                return (
+                  <button
+                    data-search-idx={flatIdx}
+                    onClick={() => navigate(`/search?q=${encodedQ}&tab=contacts`)}
+                    onMouseEnter={() => setSelectedIndex(flatIdx)}
+                    className={[
+                      "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs transition-colors",
+                      active
+                        ? "bg-indigo-600 text-indigo-100"
+                        : "text-indigo-400 hover:bg-neutral-800",
+                    ].join(" ")}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                      <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+                    </svg>
+                    See all {results.totals.contacts} contacts
+                  </button>
+                );
+              })()}
             </div>
           )}
 
+          {/* Deals section */}
           {results && results.deals.length > 0 && (
             <div className="p-2">
               <p className="mb-1 px-2 text-xs font-semibold uppercase tracking-wider text-neutral-500">
                 Deals
               </p>
               {results.deals.map((deal) => {
-                const flatIdx = allItems.findIndex(
-                  (i) => i.type === "deal" && i.id === deal.id
-                );
+                const flatIdx = idxForDeal(deal.id);
                 const active = flatIdx === selectedIndex;
                 return (
                   <button
                     key={deal.id}
+                    data-search-idx={flatIdx}
                     onClick={() => navigate(`/deals/${deal.id}`)}
                     onMouseEnter={() => setSelectedIndex(flatIdx)}
                     className={[
@@ -256,22 +325,44 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                   </button>
                 );
               })}
+              {results.totals.deals > results.deals.length && (() => {
+                const flatIdx = idxForSeeAll("deals");
+                const active = flatIdx === selectedIndex;
+                return (
+                  <button
+                    data-search-idx={flatIdx}
+                    onClick={() => navigate(`/search?q=${encodedQ}&tab=deals`)}
+                    onMouseEnter={() => setSelectedIndex(flatIdx)}
+                    className={[
+                      "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs transition-colors",
+                      active
+                        ? "bg-indigo-600 text-indigo-100"
+                        : "text-indigo-400 hover:bg-neutral-800",
+                    ].join(" ")}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                      <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+                    </svg>
+                    See all {results.totals.deals} deals
+                  </button>
+                );
+              })()}
             </div>
           )}
 
+          {/* Activities section */}
           {results && results.activities.length > 0 && (
             <div className="p-2">
               <p className="mb-1 px-2 text-xs font-semibold uppercase tracking-wider text-neutral-500">
                 Activities
               </p>
               {results.activities.map((activity) => {
-                const flatIdx = allItems.findIndex(
-                  (i) => i.type === "activity" && i.id === activity.id
-                );
+                const flatIdx = idxForActivity(activity.id);
                 const active = flatIdx === selectedIndex;
                 return (
                   <button
                     key={activity.id}
+                    data-search-idx={flatIdx}
                     onClick={() => navigate(`/activity`)}
                     onMouseEnter={() => setSelectedIndex(flatIdx)}
                     className={[
@@ -327,6 +418,28 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                   </button>
                 );
               })}
+              {results.totals.activities > results.activities.length && (() => {
+                const flatIdx = idxForSeeAll("activities");
+                const active = flatIdx === selectedIndex;
+                return (
+                  <button
+                    data-search-idx={flatIdx}
+                    onClick={() => navigate(`/search?q=${encodedQ}&tab=activities`)}
+                    onMouseEnter={() => setSelectedIndex(flatIdx)}
+                    className={[
+                      "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs transition-colors",
+                      active
+                        ? "bg-indigo-600 text-indigo-100"
+                        : "text-indigo-400 hover:bg-neutral-800",
+                    ].join(" ")}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                      <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+                    </svg>
+                    See all {results.totals.activities} activities
+                  </button>
+                );
+              })()}
             </div>
           )}
         </div>

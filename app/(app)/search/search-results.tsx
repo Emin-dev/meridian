@@ -5,31 +5,39 @@ import Link from "next/link";
 import type { SearchResults } from "./actions";
 
 type Tab = "contacts" | "deals" | "activities";
+const VALID_TABS: Tab[] = ["contacts", "deals", "activities"];
 
 export default function SearchResultsTabs({
   results,
   query,
+  initialTab: initialTabProp,
 }: {
   results: SearchResults;
   query: string;
+  initialTab?: string;
 }) {
   const counts = {
-    contacts: results.contacts.length,
-    deals: results.deals.length,
-    activities: results.activities.length,
+    contacts: results.totals.contacts,
+    deals: results.totals.deals,
+    activities: results.totals.activities,
   };
 
-  // Default to the first tab that has results, else contacts.
-  const initialTab: Tab =
-    counts.contacts > 0
-      ? "contacts"
-      : counts.deals > 0
-        ? "deals"
-        : counts.activities > 0
-          ? "activities"
-          : "contacts";
+  const parsedInitial = VALID_TABS.includes(initialTabProp as Tab)
+    ? (initialTabProp as Tab)
+    : undefined;
 
-  const [tab, setTab] = useState<Tab>(initialTab);
+  // Use URL-provided tab if valid, otherwise default to the first tab with results.
+  const defaultTab: Tab =
+    parsedInitial ??
+    (results.contacts.length > 0
+      ? "contacts"
+      : results.deals.length > 0
+        ? "deals"
+        : results.activities.length > 0
+          ? "activities"
+          : "contacts");
+
+  const [tab, setTab] = useState<Tab>(defaultTab);
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "contacts", label: "Contacts" },
