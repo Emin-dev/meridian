@@ -34,8 +34,15 @@ export default function ContactsOverflowMenu({
         setOpen(false);
       }
     }
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
     document.addEventListener("mousedown", handleOutside);
-    return () => document.removeEventListener("mousedown", handleOutside);
+    document.addEventListener("keydown", handleKey);
+    return () => {
+      document.removeEventListener("mousedown", handleOutside);
+      document.removeEventListener("keydown", handleKey);
+    };
   }, [open]);
 
   return (
@@ -49,7 +56,7 @@ export default function ContactsOverflowMenu({
         •••
       </button>
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-1 flex min-w-[180px] flex-col gap-1 rounded-xl border border-neutral-700 bg-neutral-900 p-2 shadow-2xl">
+        <div role="menu" className="absolute right-0 top-full z-50 mt-1 flex min-w-[180px] flex-col gap-1 rounded-xl border border-neutral-700 bg-neutral-900 p-2 shadow-2xl">
           <ScoreAllUnscoredButton hasUnscored={hasUnscored} />
           <FindDuplicatesButton hasDb={hasDb} />
           <ExportCsvButton

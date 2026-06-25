@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { searchGlobal, type SearchResults } from "@/app/(app)/search/actions";
 import { SearchIcon, DollarSignIcon, ClockIcon } from "@/components/icons";
+import { useOverlayDismiss } from "@/hooks/use-overlay-dismiss";
 
 interface GlobalSearchProps {
   open: boolean;
@@ -24,10 +25,15 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const panelRef = useOverlayDismiss<HTMLDivElement>(open, onClose);
 
   // Focus input on open; reset state on close
   useEffect(() => {
     if (open) {
+      // ⌘K can fire over an open native <dialog>; never stack overlays.
+      document
+        .querySelectorAll("dialog[open]")
+        .forEach((d) => (d as HTMLDialogElement).close());
       const t = setTimeout(() => inputRef.current?.focus(), 10);
       return () => clearTimeout(t);
     } else {
@@ -137,6 +143,10 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
     >
       {/* Panel */}
       <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Global search"
         className="[color-scheme:dark] flex w-full flex-col max-h-[85dvh] overflow-hidden rounded-t-[--r-2xl] border border-[--line-1] bg-[--surface-1] shadow-[--shadow-3] sm:mx-4 sm:max-w-lg sm:rounded-[--r-xl]"
       >
         {/* Input row — 44px touch target */}

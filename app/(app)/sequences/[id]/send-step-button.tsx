@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { interpolate, contactToVars } from "@/lib/template";
 import { markStepSent } from "./enrollment-actions";
+import { useOverlayDismiss } from "@/hooks/use-overlay-dismiss";
 
 interface Props {
   enrollmentId: number;
@@ -54,6 +55,7 @@ function SendStepModal({
 }: Props & { onClose: () => void }) {
   const [isPending, startTransition] = useTransition();
   const [copied, setCopied] = useState<"subject" | "body" | null>(null);
+  const panelRef = useOverlayDismiss<HTMLDivElement>(true, onClose);
 
   const vars = {
     ...contactToVars({ name: contactName, company: contactCompany, owner: contactOwner }),
@@ -96,7 +98,13 @@ function SendStepModal({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="flex w-full max-w-lg flex-col rounded-t-[--r-2xl] border border-[--line-1] bg-[--surface-1] shadow-[--shadow-3] max-h-[90dvh] pb-[env(safe-area-inset-bottom)] sm:rounded-[--r-xl] sm:pb-0">
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Sequence step ${stepPosition} of ${totalSteps}`}
+        className="flex w-full max-w-lg flex-col rounded-t-[--r-2xl] border border-[--line-1] bg-[--surface-1] shadow-[--shadow-3] max-h-[90dvh] pb-[env(safe-area-inset-bottom)] sm:rounded-[--r-xl] sm:pb-0"
+      >
         {/* Header */}
         <div className="flex shrink-0 items-center justify-between border-b border-[--line-1] px-4 py-4">
           <div>

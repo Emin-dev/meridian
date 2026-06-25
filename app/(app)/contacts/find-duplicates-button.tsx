@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { findDuplicateContacts, mergeContacts } from "./actions";
 import type { DuplicatePair } from "./actions";
+import { useOverlayDismiss } from "@/hooks/use-overlay-dismiss";
 
 const CONFIDENCE_STYLES: Record<"high" | "medium" | "low", string> = {
   high: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
@@ -19,12 +20,17 @@ export default function FindDuplicatesButton({ hasDb }: { hasDb: boolean }) {
   const [confirmingKey, setConfirmingKey] = useState<string | null>(null);
   const [mergingKey, setMergingKey] = useState<string | null>(null);
   const [pairErrors, setPairErrors] = useState<Record<string, string>>({});
+  const panelRef = useOverlayDismiss<HTMLDivElement>(open, () => setOpen(false));
 
   function pairKey(p: DuplicatePair) {
     return `${p.primaryId}-${p.secondaryId}`;
   }
 
   function handleOpen() {
+    // Never let two overlays stack: close any open native <dialog> first.
+    document
+      .querySelectorAll("dialog[open]")
+      .forEach((d) => (d as HTMLDialogElement).close());
     setOpen(true);
     setSearched(false);
     setPairs([]);
@@ -101,7 +107,13 @@ export default function FindDuplicatesButton({ hasDb }: { hasDb: boolean }) {
             if (e.target === e.currentTarget) setOpen(false);
           }}
         >
-          <div className="w-full max-w-2xl rounded-xl border border-neutral-800 bg-neutral-950 shadow-2xl">
+          <div
+            ref={panelRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Find duplicate contacts"
+            className="w-full max-w-2xl rounded-xl border border-neutral-800 bg-neutral-950 shadow-2xl"
+          >
             {/* Header */}
             <div className="flex items-center justify-between border-b border-neutral-800 px-5 py-4">
               <div>

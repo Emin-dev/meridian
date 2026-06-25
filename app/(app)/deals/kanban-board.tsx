@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { moveDealStage } from "./actions";
 import { useToast } from "@/components/toaster";
+import { useOverlayDismiss } from "@/hooks/use-overlay-dismiss";
 import KanbanColumn from "./kanban-column";
 import KanbanCard from "./kanban-card";
 import type { Deal, Contact } from "@/db/schema";
@@ -41,6 +42,10 @@ export default function KanbanBoard({
   const [sheetDealId, setSheetDealId] = useState<number | null>(null);
   const [sheetTerminal, setSheetTerminal] = useState<"won" | "lost" | null>(null);
   const [sheetReason, setSheetReason] = useState("");
+  const sheetRef = useOverlayDismiss<HTMLDivElement>(
+    sheetDealId !== null,
+    () => closeSheet(),
+  );
 
   async function handleMove(dealId: number, toStage: StageKey, closeReason?: string) {
     const deal = deals.find((d) => d.id === dealId);
@@ -239,6 +244,7 @@ export default function KanbanBoard({
 
           {/* Sheet */}
           <div
+            ref={sheetRef}
             role="dialog"
             aria-modal="true"
             aria-label="Move deal to stage"

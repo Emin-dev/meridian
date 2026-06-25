@@ -29,6 +29,14 @@ export default function EnrollSequenceModal({
   const [errors, setErrors] = useState<Record<number, string>>({});
   const [isPending, startTransition] = useTransition();
 
+  const openModal = () => {
+    // Never let two modals stack/overlap: close any other open dialog first.
+    document
+      .querySelectorAll("dialog[open]")
+      .forEach((d) => (d as HTMLDialogElement).close());
+    dialogRef.current?.showModal();
+  };
+
   function handleEnroll(sequenceId: number) {
     setEnrollingId(sequenceId);
     setErrors({});
@@ -53,7 +61,7 @@ export default function EnrollSequenceModal({
     <>
       <button
         type="button"
-        onClick={() => dialogRef.current?.showModal()}
+        onClick={openModal}
         className="rounded-lg border border-neutral-700 px-4 py-2 text-sm font-medium text-neutral-300 transition-colors hover:bg-neutral-800 hover:text-neutral-100"
       >
         Enroll in sequence
@@ -61,10 +69,21 @@ export default function EnrollSequenceModal({
 
       <dialog
         ref={dialogRef}
-        className="w-full max-w-md rounded-xl border border-neutral-800 bg-neutral-900 p-0 text-neutral-100 shadow-2xl backdrop:bg-black/60"
+        aria-label="Enroll in sequence"
+        onClick={(e) => {
+          if (e.target === dialogRef.current) dialogRef.current?.close();
+        }}
+        className="
+          m-0 inset-x-0 bottom-0 top-auto
+          w-full max-w-none rounded-t-[var(--r-2xl)]
+          max-h-[90dvh] overflow-hidden flex flex-col
+          border border-neutral-800 bg-neutral-900 p-0 text-neutral-100 shadow-2xl
+          backdrop:bg-black/60
+          sm:m-auto sm:inset-0 sm:max-w-md sm:w-full sm:rounded-xl
+        "
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-4">
+        <div className="shrink-0 flex items-center justify-between border-b border-neutral-800 px-6 py-4">
           <h2 className="text-base font-semibold">Enroll in Sequence</h2>
           <button
             type="button"
@@ -88,7 +107,7 @@ export default function EnrollSequenceModal({
         </div>
 
         {/* Body */}
-        <div className="px-6 py-5">
+        <div className="flex-1 overflow-y-auto px-6 py-5">
           {sequences.length === 0 ? (
             <div className="py-8 text-center">
               <p className="text-sm text-neutral-400">
@@ -137,7 +156,7 @@ export default function EnrollSequenceModal({
           )}
         </div>
 
-        <div className="flex justify-end border-t border-neutral-800 px-6 py-4">
+        <div className="shrink-0 flex justify-end border-t border-neutral-800 px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
           <button
             type="button"
             onClick={() => dialogRef.current?.close()}

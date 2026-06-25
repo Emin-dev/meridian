@@ -86,6 +86,14 @@ export default function DealModal({
     }
   }, [state.success, isEdit, toast]);
 
+  const openModal = () => {
+    // Never let two modals stack/overlap: close any other open dialog first.
+    document
+      .querySelectorAll("dialog[open]")
+      .forEach((d) => (d as HTMLDialogElement).close());
+    dialogRef.current?.showModal();
+  };
+
   const noDb = !hasDb || state.noDb;
   const defaultDate = deal?.expectedCloseDate
     ? new Date(deal.expectedCloseDate).toISOString().slice(0, 10)
@@ -114,7 +122,7 @@ export default function DealModal({
               })()}
               <button
                 type="button"
-                onClick={() => dialogRef.current?.showModal()}
+                onClick={openModal}
                 className="shrink-0 rounded p-0.5 text-neutral-600 hover:bg-neutral-700 hover:text-neutral-300 transition-colors"
                 aria-label="Edit deal"
               >
@@ -171,7 +179,7 @@ export default function DealModal({
       ) : (
         <button
           type="button"
-          onClick={() => dialogRef.current?.showModal()}
+          onClick={openModal}
           className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
         >
           {buttonLabel}
@@ -184,6 +192,10 @@ export default function DealModal({
       */}
       <dialog
         ref={dialogRef}
+        aria-label={isEdit ? "Edit deal" : "New deal"}
+        onClick={(e) => {
+          if (e.target === dialogRef.current) dialogRef.current?.close();
+        }}
         className="
           m-0 inset-x-0 bottom-0 top-auto
           w-full max-w-none rounded-t-[var(--r-2xl)]
