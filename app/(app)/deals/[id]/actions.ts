@@ -519,6 +519,132 @@ export async function summarizeDeal(dealId: number): Promise<DealSummarizeState>
   }
 }
 
+// ─── AI: Deal risk & next step ───────────────────────────────────────────────
+
+export type DealRiskState = {
+  risk?: "low" | "medium" | "high";
+  reason?: string;
+  nextStep?: string;
+  error?: string;
+  noDb?: boolean;
+  noKey?: boolean;
+};
+
+export async function assessDealRisk(dealId: number): Promise<DealRiskState> {
+  const db = getDb();
+  if (!db) return { noDb: true };
+
+  const [deal] = await db
+    .select()
+    .from(schema.deals)
+    .where(eq(schema.deals.id, dealId))
+    .limit(1);
+
+  if (!deal) return { error: "Deal not found." };
+
+  if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
+
+  let contactInfo: string | null = null;
+  if (deal.contactId) {
+    const [c] = await db
+      .select({
+        name: schema.contacts.name,
+        title: schema.contacts.title,
+        company: schema.contacts.company,
+        status: schema.contacts.status,
+        leadScore: schema.contacts.leadScore,
+      })
+      .from(schema.contacts)
+      .where(eq(schema.contacts.id, deal.contactId))
+      .limit(1);
+    if (c) {
+      const parts = [
+        c.name,
+        c.title && c.company
+          ? `${c.title} at ${c.company}`
+          : (c.company ?? c.title),
+        c.status ? `status: ${c.status}` : null,
+        c.leadScore != null ? `lead score: ${c.leadScore}` : null,
+      ].filter(Boolean);
+      contactInfo = parts.join(", ");
+    }
+  }
+
+  const recentActivities = await db
+    .select()
+    .from(schema.activities)
+    .where(eq(schema.activities.dealId, dealId))
+    .orderBy(desc(schema.activities.createdAt))
+    .limit(15);
+
+  const userNotes = extractUserNotes(deal.notes ?? null);
+
+  const lines: string[] = [
+    `Deal: ${deal.title}`,
+    `Stage: ${deal.stage}`,
+    deal.value ? `Value: ${deal.value} ${deal.currency}` : null,
+    deal.expectedCloseDate
+      ? `Expected close: ${deal.expectedCloseDate.toISOString().slice(0, 10)}`
+      : null,
+    contactInfo ? `Contact: ${contactInfo}` : null,
+    userNotes ? `\nNotes:\n${userNotes}` : null,
+  ].filter(Boolean) as string[];
+
+  if (recentActivities.length > 0) {
+    lines.push("\nRecent activities (newest first):");
+    for (const a of recentActivities) {
+      const date = a.createdAt.toISOString().slice(0, 10);
+      const entry = [`[${date}] ${a.type.toUpperCase()}: ${a.subject}`, a.body ?? null]
+        .filter(Boolean)
+        .join(" — ");
+      lines.push(`- ${entry}`);
+    }
+  } else {
+    lines.push("\nNo recorded activities.");
+  }
+
+  try {
+    const raw = await chat(
+      [
+        {
+          role: "system",
+          content:
+            'You are a sales pipeline risk analyst. Assess how at-risk this deal is of stalling or being lost, based on its stage, value, expected close date, contact profile, notes, and recent activity (including how recent or stale the last touch is). Return JSON with exactly three keys: "risk" ("low", "medium", or "high"), "reason" (a single concise sentence, max 20 words, naming the main driver of that risk level), and "nextStep" (one concrete, specific action the rep should take next, max 14 words, imperative). No other text.',
+        },
+        {
+          role: "user",
+          content: `Assess the risk and next step for this deal:\n\n${lines.join("\n")}`,
+        },
+      ],
+      { json: true }
+    );
+
+    const parsed = JSON.parse(raw) as {
+      risk: unknown;
+      reason: unknown;
+      nextStep: unknown;
+    };
+
+    const risk = (["low", "medium", "high"] as const).includes(
+      parsed.risk as "low" | "medium" | "high"
+    )
+      ? (parsed.risk as "low" | "medium" | "high")
+      : "medium";
+    const reason = String(parsed.reason ?? "").trim();
+    const nextStep = String(parsed.nextStep ?? "").trim();
+
+    if (!reason && !nextStep) {
+      return { error: "AI returned an empty assessment." };
+    }
+
+    return { risk, reason, nextStep };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown AI error.";
+    if (message.includes("DEEPSEEK_API_KEY")) return { noKey: true };
+    return { error: message };
+  }
+}
+
 // ─── AI: Suggest next action for deal ────────────────────────────────────────
 
 export type DealNextActionState = {

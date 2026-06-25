@@ -10,6 +10,7 @@ import DealChangeLog from "./deal-change-log";
 import DealSummarizePanel from "./deal-summarize-panel";
 import DealWinProbabilityPanel from "./deal-win-probability-panel";
 import DealNextActionPanel from "./deal-next-action-panel";
+import DealRiskPanel from "./deal-risk-panel";
 import WinLossInsightCallout from "./win-loss-insight-callout";
 import { extractUserNotes, extractWinLossInsight } from "./notes-utils";
 import LinkedTasksSection from "@/app/(app)/tasks/linked-tasks-section";
@@ -144,6 +145,11 @@ export default async function DealDetailPage({ params }: Props) {
       {/* AI win-probability score */}
       <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-4 sm:p-5">
         <DealWinProbabilityPanel dealId={deal.id} initialScore={deal.probability} />
+      </div>
+
+      {/* AI deal risk & next step */}
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-4 sm:p-5">
+        <DealRiskPanel dealId={deal.id} />
       </div>
 
       {/* AI deal brief */}
