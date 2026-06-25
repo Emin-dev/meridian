@@ -128,7 +128,11 @@ ${context}`;
       ],
       { json: true }
     );
-    aiResponse = JSON.parse(raw) as AiResponse;
+    const parsed: unknown = JSON.parse(raw);
+    if (typeof parsed !== "object" || parsed === null) {
+      throw new Error("AI returned a non-object response.");
+    }
+    aiResponse = parsed as AiResponse;
   } catch (err) {
     const msg = err instanceof Error ? err.message : "AI request failed.";
     return { answer: `Error: ${msg}`, contacts: [], deals: [] };
