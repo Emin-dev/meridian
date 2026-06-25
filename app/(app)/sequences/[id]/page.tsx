@@ -15,19 +15,19 @@ interface Props {
 }
 
 const STATUS_LABELS = {
-  active: { label: "Active", className: "bg-emerald-500/10 text-emerald-400" },
-  paused: { label: "Paused", className: "bg-neutral-700 text-neutral-400" },
+  active: { label: "Active", className: "bg-[--ok-tint] text-[--ok]" },
+  paused: { label: "Paused", className: "bg-[--surface-2] text-[--ink-2]" },
 } as const;
 
 const ENROLLMENT_STATUS_LABELS = {
-  active: { label: "Active", className: "bg-emerald-500/10 text-emerald-400" },
+  active: { label: "Active", className: "bg-[--ok-tint] text-[--ok]" },
   cancelled: {
     label: "Cancelled",
-    className: "bg-neutral-700 text-neutral-400",
+    className: "bg-[--surface-2] text-[--ink-2]",
   },
   completed: {
     label: "Completed",
-    className: "bg-blue-500/10 text-blue-400",
+    className: "bg-[--info-tint] text-[--info]",
   },
 } as const;
 
@@ -81,15 +81,15 @@ export default async function SequenceDetailPage({
       <div className="space-y-6">
         <Link
           href="/sequences"
-          className="text-sm text-neutral-400 transition-colors hover:text-neutral-100"
+          className="text-sm text-[--ink-2] transition-colors hover:text-[--ink-1]"
         >
           ← Sequences
         </Link>
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-16 text-center">
-          <p className="text-sm text-neutral-400">Database not connected.</p>
-          <p className="mt-1 text-xs text-neutral-600">
+        <div className="rounded-xl border border-[--line-1] bg-[--surface-1] px-6 py-16 text-center">
+          <p className="text-sm text-[--ink-2]">Database not connected.</p>
+          <p className="mt-1 text-xs text-[--ink-3]">
             Set{" "}
-            <code className="rounded bg-neutral-800 px-1 py-0.5">
+            <code className="rounded bg-[--surface-2] px-1 py-0.5">
               DATABASE_URL
             </code>{" "}
             to connect your Neon database.
@@ -157,7 +157,7 @@ export default async function SequenceDetailPage({
       {/* Back link */}
       <Link
         href="/sequences"
-        className="text-sm text-neutral-400 transition-colors hover:text-neutral-100"
+        className="text-sm text-[--ink-2] transition-colors hover:text-[--ink-1]"
       >
         ← Sequences
       </Link>
@@ -165,7 +165,7 @@ export default async function SequenceDetailPage({
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h2 className="text-xl font-semibold text-neutral-100">
+          <h2 className="text-xl font-semibold text-[--ink-1]">
             {sequence.name}
           </h2>
           <div className="mt-2 flex items-center gap-2">
@@ -175,12 +175,12 @@ export default async function SequenceDetailPage({
               {statusMeta.label}
             </span>
             <SequenceStatusToggle id={numId} status={sequence.status} />
-            <span className="text-xs text-neutral-500">
+            <span className="text-xs text-[--ink-3]">
               {steps.length} {steps.length === 1 ? "step" : "steps"}
             </span>
           </div>
         </div>
-        <div className="text-xs text-neutral-600">
+        <div className="text-xs text-[--ink-3]">
           Created{" "}
           {sequence.createdAt.toLocaleDateString("en-US", {
             month: "short",
@@ -191,13 +191,13 @@ export default async function SequenceDetailPage({
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-neutral-800">
+      <div className="flex border-b border-[--line-1]">
         <Link
           href={`/sequences/${numId}`}
           className={`-mb-px px-4 py-2 text-sm font-medium transition-colors ${
             !isContactsTab && !isPreviewTab
-              ? "border-b-2 border-neutral-100 text-neutral-100"
-              : "text-neutral-400 hover:text-neutral-100"
+              ? "border-b-2 border-[--accent] text-[--ink-1]"
+              : "text-[--ink-2] hover:text-[--ink-1]"
           }`}
         >
           Steps
@@ -206,13 +206,13 @@ export default async function SequenceDetailPage({
           href={`/sequences/${numId}?tab=contacts`}
           className={`-mb-px px-4 py-2 text-sm font-medium transition-colors ${
             isContactsTab
-              ? "border-b-2 border-neutral-100 text-neutral-100"
-              : "text-neutral-400 hover:text-neutral-100"
+              ? "border-b-2 border-[--accent] text-[--ink-1]"
+              : "text-[--ink-2] hover:text-[--ink-1]"
           }`}
         >
           Enrolled Contacts
           {enrollments.length > 0 && (
-            <span className="ml-1.5 rounded-full bg-neutral-800 px-1.5 py-0.5 text-xs font-normal text-neutral-400">
+            <span className="ml-1.5 rounded-full bg-[--surface-2] px-1.5 py-0.5 text-xs font-normal text-[--ink-2]">
               {enrollments.length}
             </span>
           )}
@@ -221,8 +221,8 @@ export default async function SequenceDetailPage({
           href={`/sequences/${numId}?tab=preview`}
           className={`-mb-px px-4 py-2 text-sm font-medium transition-colors ${
             isPreviewTab
-              ? "border-b-2 border-neutral-100 text-neutral-100"
-              : "text-neutral-400 hover:text-neutral-100"
+              ? "border-b-2 border-[--accent] text-[--ink-1]"
+              : "text-[--ink-2] hover:text-[--ink-1]"
           }`}
         >
           Preview
@@ -237,9 +237,9 @@ export default async function SequenceDetailPage({
         /* Steps */
         <div>
           {steps.length === 0 ? (
-            <div className="mb-4 rounded-xl border border-dashed border-neutral-800 bg-neutral-900/50 px-6 py-10 text-center">
-              <p className="text-sm text-neutral-500">No steps yet.</p>
-              <p className="mt-1 text-xs text-neutral-600">
+            <div className="mb-4 rounded-xl border border-dashed border-[--line-1] bg-[--surface-1]/50 px-6 py-10 text-center">
+              <p className="text-sm text-[--ink-3]">No steps yet.</p>
+              <p className="mt-1 text-xs text-[--ink-3]">
                 Add the first step to this sequence below.
               </p>
             </div>
@@ -268,15 +268,15 @@ export default async function SequenceDetailPage({
         /* Enrolled Contacts */
         <div>
           {enrollments.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-neutral-800 bg-neutral-900/50 px-6 py-10 text-center">
-              <p className="text-sm text-neutral-500">No contacts enrolled.</p>
-              <p className="mt-1 text-xs text-neutral-600">
+            <div className="rounded-xl border border-dashed border-[--line-1] bg-[--surface-1]/50 px-6 py-10 text-center">
+              <p className="text-sm text-[--ink-3]">No contacts enrolled.</p>
+              <p className="mt-1 text-xs text-[--ink-3]">
                 Enroll contacts from a contact&apos;s detail page.
               </p>
             </div>
           ) : (
-            <div className="rounded-xl border border-neutral-800 bg-neutral-900">
-              <ul className="divide-y divide-neutral-800">
+            <div className="rounded-xl border border-[--line-1] bg-[--surface-1]">
+              <ul className="divide-y divide-[--line-1]">
                 {enrollments.map((enrollment) => {
                   const enrStatus =
                     ENROLLMENT_STATUS_LABELS[enrollment.status];

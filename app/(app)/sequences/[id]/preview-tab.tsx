@@ -56,12 +56,12 @@ export function PreviewTab({
   return (
     <div className="space-y-5">
       {/* Contact picker */}
-      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-neutral-800 bg-neutral-900 px-4 py-3">
-        <span className="shrink-0 text-xs font-medium text-neutral-400">
+      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-[--line-1] bg-[--surface-1] px-4 py-3">
+        <span className="shrink-0 text-xs font-medium text-[--ink-2]">
           Preview as:
         </span>
         {contacts.length === 0 ? (
-          <span className="text-xs italic text-neutral-500">
+          <span className="text-xs italic text-[--ink-3]">
             No contacts enrolled — showing labelled placeholders
           </span>
         ) : (
@@ -88,17 +88,17 @@ export function PreviewTab({
           return (
             <div
               key={key}
-              className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2"
+              className="rounded-lg border border-[--line-1] bg-[--surface-1] px-3 py-2"
             >
-              <p className="mb-0.5 text-xs font-mono text-indigo-400">{token}</p>
+              <p className="mb-0.5 text-xs font-mono text-[--accent]">{token}</p>
               <p
                 className={`truncate text-sm ${
-                  isPlaceholder ? "italic text-neutral-600" : "text-neutral-200"
+                  isPlaceholder ? "italic text-[--ink-3]" : "text-[--ink-1]"
                 }`}
               >
                 {value}
               </p>
-              <p className="text-xs text-neutral-600">{label}</p>
+              <p className="text-xs text-[--ink-3]">{label}</p>
             </div>
           );
         })}
@@ -106,21 +106,21 @@ export function PreviewTab({
 
       {/* Step previews */}
       {steps.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-neutral-800 bg-neutral-900/50 px-6 py-10 text-center">
-          <p className="text-sm text-neutral-500">No steps to preview.</p>
+        <div className="rounded-xl border border-dashed border-[--line-1] bg-[--surface-1]/50 px-6 py-10 text-center">
+          <p className="text-sm text-[--ink-3]">No steps to preview.</p>
         </div>
       ) : (
         <div className="space-y-3">
           {steps.map((step) => (
             <div
               key={step.id}
-              className="rounded-xl border border-neutral-800 bg-neutral-900 p-5"
+              className="rounded-xl border border-[--line-1] bg-[--surface-1] p-5"
             >
               <div className="mb-3 flex items-center gap-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-400">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[--accent-tint] text-xs font-semibold text-[--accent]">
                   {step.position}
                 </span>
-                <span className="text-xs text-neutral-500">
+                <span className="text-xs text-[--ink-3]">
                   {step.delayDays === 0
                     ? "Send immediately"
                     : `Send after ${step.delayDays} day${step.delayDays === 1 ? "" : "s"}`}
@@ -128,18 +128,18 @@ export function PreviewTab({
               </div>
               <div className="space-y-3">
                 <div>
-                  <p className="mb-0.5 text-xs font-medium text-neutral-500">
+                  <p className="mb-0.5 text-xs font-medium text-[--ink-3]">
                     Subject
                   </p>
-                  <p className="text-sm text-neutral-200">
+                  <p className="text-sm text-[--ink-1]">
                     {interpolate(step.subjectTemplate, vars)}
                   </p>
                 </div>
                 <div>
-                  <p className="mb-0.5 text-xs font-medium text-neutral-500">
+                  <p className="mb-0.5 text-xs font-medium text-[--ink-3]">
                     Body
                   </p>
-                  <p className="whitespace-pre-wrap text-sm text-neutral-400 break-words overflow-x-hidden">
+                  <p className="whitespace-pre-wrap text-sm text-[--ink-2] break-words overflow-x-hidden">
                     {interpolate(step.bodyTemplate, vars)}
                   </p>
                 </div>
