@@ -76,12 +76,19 @@ export default async function DashboardPage() {
     STAGES.map((s) => ({ stage: s, count: 0, value: 0 }));
   let overdueCount = 0;
   let topContacts: { name: string; leadScore: number }[] = [];
+  let overdueActivities: Array<{
+    id: number;
+    type: string;
+    subject: string;
+    dueAt: Date;
+    contactName: string | null;
+  }> = [];
 
   if (db) {
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     const now = new Date();
 
-    const [contactRows, allDeals, activityRows, weekRows, overdueRows, topContactRows] = await Promise.all([
+    const [contactRows, allDeals, activityRows, weekRows, overdueRows, topContactRows, overdueActivityRows] = await Promise.all([
       db
         .select({ value: sql<number>`count(*)` })
         .from(schema.contacts),
@@ -125,6 +132,27 @@ export default async function DashboardPage() {
         .where(isNotNull(schema.contacts.leadScore))
         .orderBy(desc(schema.contacts.leadScore))
         .limit(3),
+      db
+        .select({
+          id: schema.activities.id,
+          type: schema.activities.type,
+          subject: schema.activities.subject,
+          dueAt: schema.activities.dueAt,
+          contactName: schema.contacts.name,
+        })
+        .from(schema.activities)
+        .leftJoin(
+          schema.contacts,
+          eq(schema.activities.contactId, schema.contacts.id)
+        )
+        .where(
+          and(
+            lt(schema.activities.dueAt, now),
+            isNull(schema.activities.completedAt)
+          )
+        )
+        .orderBy(schema.activities.dueAt)
+        .limit(5),
     ]);
 
     totalContacts = Number(contactRows[0]?.value ?? 0);
@@ -141,6 +169,9 @@ export default async function DashboardPage() {
     weekActivityCount = Number(weekRows[0]?.value ?? 0);
     recentActivities = activityRows;
     overdueCount = Number(overdueRows[0]?.value ?? 0);
+    overdueActivities = overdueActivityRows
+      .filter((a) => a.dueAt !== null)
+      .map((a) => ({ ...a, dueAt: a.dueAt as Date }));
     topContacts = topContactRows.map((c) => ({
       name: c.name,
       leadScore: c.leadScore ?? 0,
@@ -218,6 +249,77 @@ export default async function DashboardPage() {
               />
             </div>
           </div>
+
+          {/* Overdue activities alert */}
+          {overdueActivities.length > 0 && (
+            <div className="rounded-xl border border-red-800/60 bg-red-950/20">
+              <div className="flex items-center gap-2 border-b border-red-800/60 px-5 py-3">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  className="h-4 w-4 shrink-0 text-red-400"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <p className="text-xs font-medium uppercase tracking-wide text-red-400">
+                  Overdue Activities
+                  {overdueCount > 5 && (
+                    <span className="ml-1 font-normal normal-case text-red-500">
+                      ({overdueCount} total)
+                    </span>
+                  )}
+                </p>
+              </div>
+              <ul className="divide-y divide-red-900/30">
+                {overdueActivities.map((activity) => {
+                  const meta = TYPE_META[activity.type] ?? {
+                    label: activity.type,
+                    color: "text-neutral-400",
+                    bg: "bg-neutral-800",
+                  };
+                  const msOverdue = Date.now() - activity.dueAt.getTime();
+                  const daysOverdue = Math.floor(
+                    msOverdue / (1000 * 60 * 60 * 24)
+                  );
+                  return (
+                    <li key={activity.id} className="flex items-center gap-4 px-5 py-4">
+                      <div className="shrink-0">
+                        <span
+                          className={`inline-block rounded-full ${meta.bg} px-2 py-0.5 text-xs font-medium ${meta.color}`}
+                        >
+                          {meta.label}
+                        </span>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-neutral-200">
+                          {activity.subject}
+                        </p>
+                        {activity.contactName && (
+                          <p className="mt-0.5 text-xs text-neutral-500">
+                            {activity.contactName}
+                          </p>
+                        )}
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <span className="text-xs font-semibold text-red-400">
+                          {daysOverdue === 0
+                            ? "Due today"
+                            : daysOverdue === 1
+                            ? "1 day overdue"
+                            : `${daysOverdue} days overdue`}
+                        </span>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
 
           {/* Recent activity */}
           <div className="rounded-xl border border-neutral-800 bg-neutral-900">
