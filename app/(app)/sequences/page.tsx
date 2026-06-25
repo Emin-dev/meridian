@@ -105,7 +105,12 @@ export default async function SequencesPage() {
                       className="border-b border-neutral-800 last:border-0 transition-colors hover:bg-neutral-800/40"
                     >
                       <td className="px-5 py-3 font-medium text-neutral-100">
-                        {seq.name}
+                        <Link
+                          href={`/sequences/${seq.id}`}
+                          className="transition-colors hover:text-indigo-400"
+                        >
+                          {seq.name}
+                        </Link>
                       </td>
                       <td className="px-5 py-3">
                         <span
