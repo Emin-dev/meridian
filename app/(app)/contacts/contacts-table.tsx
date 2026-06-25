@@ -8,6 +8,7 @@ import type { LastContactedMap } from "./page";
 import LeadScoreBadge from "./lead-score-badge";
 import { tagColor } from "./tag-color";
 import { bulkChangeStatus, bulkAddTag, bulkEnrollInSequence, bulkChangeOwner } from "./actions";
+import { ContactsViewSwitcher, type ContactsView } from "./contacts-view-switcher";
 
 function getLastContactedMeta(dateStr: string | null): { text: string; dotClass: string } | null {
   if (!dateStr) return null;
@@ -59,12 +60,14 @@ function SortableHeader({
   currentSort,
   currentDir,
   allSearchParams,
+  className,
 }: {
   col: string;
   label: string;
   currentSort: string;
   currentDir: string;
   allSearchParams: Record<string, string>;
+  className?: string;
 }) {
   const router = useRouter();
   const isActive = currentSort === col;
@@ -80,7 +83,7 @@ function SortableHeader({
   return (
     <th
       onClick={handleClick}
-      className="cursor-pointer select-none px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500 hover:text-neutral-300 whitespace-nowrap"
+      className={`cursor-pointer select-none px-4 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500 hover:text-neutral-300 whitespace-nowrap${className ? ` ${className}` : ""}`}
     >
       <span className="flex items-center gap-1">
         {label}
@@ -113,9 +116,10 @@ type Props = {
   sort: string;
   dir: string;
   allSearchParams: Record<string, string>;
+  view: ContactsView;
 };
 
-export default function ContactsTable({ contacts, sequences, hasActiveFilters, lastContactedMap, hasDb, sort, dir, allSearchParams }: Props) {
+export default function ContactsTable({ contacts, sequences, hasActiveFilters, lastContactedMap, hasDb, sort, dir, allSearchParams, view }: Props) {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [tagInput, setTagInput] = useState("");
   const [statusSelect, setStatusSelect] = useState<ContactStatus>("lead");
@@ -196,8 +200,8 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
 
   return (
     <div className="space-y-3">
-      {/* Bulk action bar */}
-      {someSelected && (
+      {/* Bulk action bar — table view only */}
+      {someSelected && view === "table" && (
         <div className="flex flex-wrap items-center gap-2 rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-4 py-2.5">
           <span className="text-sm font-medium text-indigo-300">
             {selectedIds.size} selected
@@ -314,161 +318,217 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
         </div>
       )}
 
-      {/* Table */}
+      {/* Table / Card container */}
       <div className="rounded-xl border border-neutral-800 bg-neutral-900">
-        <div className="flex items-center justify-between border-b border-neutral-800 px-5 py-3">
+        {/* Header row */}
+        <div className="flex items-center justify-between border-b border-neutral-800 px-4 py-3">
           <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">
             {hasActiveFilters ? "Filtered contacts" : "All Contacts"}
+            {hasActiveFilters && (
+              <span className="ml-2 normal-case">
+                — {contacts.length} result{contacts.length !== 1 ? "s" : ""}
+              </span>
+            )}
           </p>
-          {hasActiveFilters && (
-            <span className="text-xs text-neutral-500">
-              {contacts.length} result{contacts.length !== 1 ? "s" : ""}
-            </span>
-          )}
+          <ContactsViewSwitcher currentView={view} allSearchParams={allSearchParams} />
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-neutral-800 text-left">
-                <th className="px-3 py-3 w-10">
-                  <input
-                    type="checkbox"
-                    checked={allSelected}
-                    ref={(el) => {
-                      if (el) el.indeterminate = someSelected && !allSelected;
-                    }}
-                    onChange={toggleAll}
-                    aria-label="Select all contacts"
-                    className="h-4 w-4 cursor-pointer rounded border-neutral-600 accent-indigo-500"
-                  />
-                </th>
-                <SortableHeader col="name" label="Name" currentSort={sort} currentDir={dir} allSearchParams={allSearchParams} />
-                <SortableHeader col="status" label="Status" currentSort={sort} currentDir={dir} allSearchParams={allSearchParams} />
-                <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
-                  Email
-                </th>
-                <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
-                  Phone
-                </th>
-                <SortableHeader col="company" label="Company" currentSort={sort} currentDir={dir} allSearchParams={allSearchParams} />
-                <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
-                  Title
-                </th>
-                <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
-                  Source
-                </th>
-                <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
-                  Owner
-                </th>
-                <SortableHeader col="leadScore" label="Score" currentSort={sort} currentDir={dir} allSearchParams={allSearchParams} />
-                <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
-                  Tags
-                </th>
-                {hasDb && (
-                  <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
-                    Last contact
-                  </th>
-                )}
-                <SortableHeader col="createdAt" label="Created" currentSort={sort} currentDir={dir} allSearchParams={allSearchParams} />
-              </tr>
-            </thead>
-            <tbody>
-              {contacts.map((c) => {
-                const statusMeta = c.status ? STATUS_LABELS[c.status] : null;
-                const isSelected = selectedIds.has(c.id);
-                return (
-                  <tr
-                    key={c.id}
-                    className={`border-b border-neutral-800 last:border-0 transition-colors ${
-                      isSelected ? "bg-indigo-500/5" : "hover:bg-neutral-800/40"
-                    }`}
+        {/* Card view */}
+        {view === "cards" && (
+          <div className="divide-y divide-[--line-1]">
+            {contacts.map((c) => {
+              const statusMeta = c.status ? STATUS_LABELS[c.status] : null;
+              const secondary = [
+                c.company,
+                statusMeta?.label,
+                c.leadScore != null ? String(c.leadScore) : null,
+              ]
+                .filter(Boolean)
+                .join(" • ");
+              return (
+                <Link
+                  key={c.id}
+                  href={`/contacts/${c.id}`}
+                  className="flex min-h-[44px] items-center gap-3 px-4 py-3 transition-colors hover:bg-neutral-800/40 active:bg-neutral-800/60"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-neutral-100">{c.name}</p>
+                    {secondary && (
+                      <p className="truncate text-xs text-neutral-400">{secondary}</p>
+                    )}
+                  </div>
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="flex-shrink-0 text-neutral-600"
+                    aria-hidden
                   >
-                    <td className="px-3 py-3">
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={() => toggle(c.id)}
-                        aria-label={`Select ${c.name}`}
-                        className="h-4 w-4 cursor-pointer rounded border-neutral-600 accent-indigo-500"
-                      />
-                    </td>
-                    <td className="px-5 py-3 font-medium text-neutral-100">
-                      <Link
-                        href={`/contacts/${c.id}`}
-                        className="hover:text-indigo-400 transition-colors"
-                      >
-                        {c.name}
-                      </Link>
-                    </td>
-                    <td className="px-5 py-3">
-                      {statusMeta ? (
-                        <span
-                          className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${statusMeta.className}`}
+                    <path d="M9 18l6-6-6-6" />
+                  </svg>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Table view */}
+        {view === "table" && (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-neutral-800 text-left">
+                  <th className="px-3 py-3 w-10">
+                    <input
+                      type="checkbox"
+                      checked={allSelected}
+                      ref={(el) => {
+                        if (el) el.indeterminate = someSelected && !allSelected;
+                      }}
+                      onChange={toggleAll}
+                      aria-label="Select all contacts"
+                      className="h-4 w-4 cursor-pointer rounded border-neutral-600 accent-indigo-500"
+                    />
+                  </th>
+                  <SortableHeader
+                    col="name"
+                    label="Name"
+                    currentSort={sort}
+                    currentDir={dir}
+                    allSearchParams={allSearchParams}
+                    className="sticky left-0 z-10 bg-neutral-900"
+                  />
+                  <SortableHeader col="status" label="Status" currentSort={sort} currentDir={dir} allSearchParams={allSearchParams} />
+                  <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
+                    Email
+                  </th>
+                  <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
+                    Phone
+                  </th>
+                  <SortableHeader col="company" label="Company" currentSort={sort} currentDir={dir} allSearchParams={allSearchParams} />
+                  <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
+                    Title
+                  </th>
+                  <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
+                    Source
+                  </th>
+                  <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
+                    Owner
+                  </th>
+                  <SortableHeader col="leadScore" label="Score" currentSort={sort} currentDir={dir} allSearchParams={allSearchParams} />
+                  <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
+                    Tags
+                  </th>
+                  {hasDb && (
+                    <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
+                      Last contact
+                    </th>
+                  )}
+                  <SortableHeader col="createdAt" label="Created" currentSort={sort} currentDir={dir} allSearchParams={allSearchParams} />
+                </tr>
+              </thead>
+              <tbody>
+                {contacts.map((c) => {
+                  const statusMeta = c.status ? STATUS_LABELS[c.status] : null;
+                  const isSelected = selectedIds.has(c.id);
+                  return (
+                    <tr
+                      key={c.id}
+                      className={`border-b border-neutral-800 last:border-0 transition-colors ${
+                        isSelected ? "bg-indigo-500/5" : "hover:bg-neutral-800/40"
+                      }`}
+                    >
+                      <td className="px-3 py-3">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggle(c.id)}
+                          aria-label={`Select ${c.name}`}
+                          className="h-4 w-4 cursor-pointer rounded border-neutral-600 accent-indigo-500"
+                        />
+                      </td>
+                      <td className={`sticky left-0 z-10 px-4 py-3 font-medium text-neutral-100 ${isSelected ? "bg-indigo-500/5" : "bg-neutral-900"}`}>
+                        <Link
+                          href={`/contacts/${c.id}`}
+                          className="hover:text-indigo-400 transition-colors"
                         >
-                          {statusMeta.label}
-                        </span>
-                      ) : (
-                        <span className="text-neutral-600">—</span>
-                      )}
-                    </td>
-                    <td className="px-5 py-3 text-neutral-400">{c.email ?? "—"}</td>
-                    <td className="px-5 py-3 text-neutral-400">{c.phone ?? "—"}</td>
-                    <td className="px-5 py-3 text-neutral-400">{c.company ?? "—"}</td>
-                    <td className="px-5 py-3 text-neutral-400">{c.title ?? "—"}</td>
-                    <td className="px-5 py-3 text-neutral-400">
-                      {c.source ? SOURCE_LABELS[c.source] ?? c.source : "—"}
-                    </td>
-                    <td className="px-5 py-3 text-neutral-400">{c.owner ?? "—"}</td>
-                    <td className="px-5 py-3">
-                      {c.leadScore != null ? (
-                        <LeadScoreBadge score={c.leadScore} />
-                      ) : (
-                        <span className="text-neutral-600">—</span>
-                      )}
-                    </td>
-                    <td className="px-5 py-3">
-                      {(c.tags ?? []).length > 0 ? (
-                        <div className="flex flex-wrap gap-1">
-                          {(c.tags ?? []).map((t) => (
-                            <span
-                              key={t}
-                              className={`rounded-full px-2 py-0.5 text-xs font-medium ${tagColor(t)}`}
-                            >
-                              {t}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        <span className="text-neutral-600">—</span>
-                      )}
-                    </td>
-                    {hasDb && (() => {
-                      const meta = getLastContactedMeta(lastContactedMap[c.id] ?? null);
-                      return (
-                        <td className="px-5 py-3 whitespace-nowrap">
-                          {meta ? (
-                            <span className="flex items-center gap-1.5">
-                              <span className={`h-2 w-2 flex-shrink-0 rounded-full ${meta.dotClass}`} />
-                              <span className="text-xs text-neutral-400">{meta.text}</span>
-                            </span>
-                          ) : (
-                            <span className="text-neutral-600">—</span>
-                          )}
-                        </td>
-                      );
-                    })()}
-                    <td className="px-5 py-3 whitespace-nowrap text-xs text-neutral-500">
-                      {c.createdAt
-                        ? new Date(c.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-                        : "—"}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                          {c.name}
+                        </Link>
+                      </td>
+                      <td className="px-4 py-3">
+                        {statusMeta ? (
+                          <span
+                            className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${statusMeta.className}`}
+                          >
+                            {statusMeta.label}
+                          </span>
+                        ) : (
+                          <span className="text-neutral-600">—</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-neutral-400">{c.email ?? "—"}</td>
+                      <td className="px-4 py-3 text-neutral-400">{c.phone ?? "—"}</td>
+                      <td className="px-4 py-3 text-neutral-400">{c.company ?? "—"}</td>
+                      <td className="px-4 py-3 text-neutral-400">{c.title ?? "—"}</td>
+                      <td className="px-4 py-3 text-neutral-400">
+                        {c.source ? SOURCE_LABELS[c.source] ?? c.source : "—"}
+                      </td>
+                      <td className="px-4 py-3 text-neutral-400">{c.owner ?? "—"}</td>
+                      <td className="px-4 py-3">
+                        {c.leadScore != null ? (
+                          <LeadScoreBadge score={c.leadScore} />
+                        ) : (
+                          <span className="text-neutral-600">—</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        {(c.tags ?? []).length > 0 ? (
+                          <div className="flex flex-wrap gap-1">
+                            {(c.tags ?? []).map((t) => (
+                              <span
+                                key={t}
+                                className={`rounded-full px-2 py-0.5 text-xs font-medium ${tagColor(t)}`}
+                              >
+                                {t}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-neutral-600">—</span>
+                        )}
+                      </td>
+                      {hasDb && (() => {
+                        const meta = getLastContactedMeta(lastContactedMap[c.id] ?? null);
+                        return (
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            {meta ? (
+                              <span className="flex items-center gap-1.5">
+                                <span className={`h-2 w-2 flex-shrink-0 rounded-full ${meta.dotClass}`} />
+                                <span className="text-xs text-neutral-400">{meta.text}</span>
+                              </span>
+                            ) : (
+                              <span className="text-neutral-600">—</span>
+                            )}
+                          </td>
+                        );
+                      })()}
+                      <td className="px-4 py-3 whitespace-nowrap text-xs text-neutral-500">
+                        {c.createdAt
+                          ? new Date(c.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+                          : "—"}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

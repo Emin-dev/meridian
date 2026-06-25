@@ -43,9 +43,9 @@ type SortColKey = (typeof VALID_SORT_COLS)[number];
 export default async function ContactsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; company?: string; minScore?: string; source?: string; tag?: string; unscored?: string; noActivity?: string; sort?: string; dir?: string }>;
+  searchParams: Promise<{ status?: string; company?: string; minScore?: string; source?: string; tag?: string; unscored?: string; noActivity?: string; sort?: string; dir?: string; view?: string }>;
 }) {
-  const { status, company, minScore, source, tag, unscored, noActivity, sort, dir } = await searchParams;
+  const { status, company, minScore, source, tag, unscored, noActivity, sort, dir, view } = await searchParams;
 
   const statusFilter =
     status && (VALID_STATUSES as readonly string[]).includes(status)
@@ -260,6 +260,7 @@ export default async function ContactsPage({
           hasDb
           sort={sortColKey}
           dir={sortDir}
+          view={view === "cards" ? "cards" : "table"}
           allSearchParams={{
             ...(status ? { status } : {}),
             ...(company ? { company } : {}),
