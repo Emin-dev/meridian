@@ -3,24 +3,32 @@
 import { useActionState } from "react";
 import { login, type LoginState } from "./actions";
 
+const inputCls =
+  "tap w-full rounded-[--r-md] border border-[--line-1] bg-[--surface-1] px-3 py-2.5 text-body text-[--ink-1] placeholder:text-[--ink-3] [color-scheme:dark] outline-none focus:border-[--accent] transition-colors";
+
 export default function LoginForm() {
-  const [state, action, pending] = useActionState<LoginState, FormData>(login, null);
+  const [state, action, pending] = useActionState<LoginState, FormData>(
+    login,
+    null
+  );
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-neutral-950 px-4">
+    <div className="flex min-h-dvh items-center justify-center bg-[--bg] px-4 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="mb-8 flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-indigo-600 text-sm font-bold text-white">
+          <div className="flex h-9 w-9 items-center justify-center rounded-[--r-md] bg-[--accent] text-body font-bold text-[--accent-ink]">
             M
           </div>
-          <span className="text-base font-semibold tracking-tight text-neutral-100">
+          <span className="text-callout font-semibold text-[--ink-1]">
             Meridian
           </span>
         </div>
 
-        <h1 className="mb-1 text-xl font-semibold text-neutral-100">Sign in</h1>
-        <p className="mb-6 text-sm text-neutral-400">
+        <h1 className="mb-1 text-title2 font-semibold text-[--ink-1]">
+          Sign in
+        </h1>
+        <p className="mb-6 text-body text-[--ink-2]">
           Enter your credentials to access Meridian.
         </p>
 
@@ -28,7 +36,7 @@ export default function LoginForm() {
           <div>
             <label
               htmlFor="email"
-              className="mb-1.5 block text-sm font-medium text-neutral-300"
+              className="mb-1.5 block text-footnote font-medium text-[--ink-2]"
             >
               Email
             </label>
@@ -38,7 +46,7 @@ export default function LoginForm() {
               type="email"
               autoComplete="email"
               required
-              className="w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 outline-none ring-offset-neutral-950 transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30"
+              className={inputCls}
               placeholder="you@example.com"
             />
           </div>
@@ -46,7 +54,7 @@ export default function LoginForm() {
           <div>
             <label
               htmlFor="password"
-              className="mb-1.5 block text-sm font-medium text-neutral-300"
+              className="mb-1.5 block text-footnote font-medium text-[--ink-2]"
             >
               Password
             </label>
@@ -56,13 +64,16 @@ export default function LoginForm() {
               type="password"
               autoComplete="current-password"
               required
-              className="w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 outline-none ring-offset-neutral-950 transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30"
+              className={inputCls}
               placeholder="••••••••"
             />
           </div>
 
           {state?.error && (
-            <p className="rounded-lg border border-red-800/50 bg-red-950/40 px-3 py-2 text-sm text-red-400">
+            <p
+              role="alert"
+              className="rounded-[--r-md] border border-[--bad]/30 bg-[--bad-tint] px-3 py-2 text-body text-[--bad]"
+            >
               {state.error}
             </p>
           )}
@@ -70,7 +81,7 @@ export default function LoginForm() {
           <button
             type="submit"
             disabled={pending}
-            className="w-full rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="tap w-full rounded-[--r-md] bg-[--accent] px-4 text-body font-medium text-[--accent-ink] transition-opacity active:scale-[0.98] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {pending ? "Signing in…" : "Sign in"}
           </button>

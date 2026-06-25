@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState } from "react";
 import { savePreferences, type PreferencesFormState } from "./actions";
 import type { CrmSettings } from "@/lib/settings";
 
@@ -17,6 +17,9 @@ const STAGES = [
 
 const initialState: PreferencesFormState = {};
 
+const inputCls =
+  "tap w-full rounded-[--r-md] border border-[--line-1] bg-[--surface-1] px-3 py-2.5 text-body text-[--ink-1] placeholder:text-[--ink-3] [color-scheme:dark] outline-none focus:border-[--accent] transition-colors";
+
 export function PreferencesForm({ current }: { current: CrmSettings }) {
   const [state, formAction, pending] = useActionState(
     savePreferences,
@@ -29,7 +32,7 @@ export function PreferencesForm({ current }: { current: CrmSettings }) {
       <div>
         <label
           htmlFor="pf-displayName"
-          className="mb-1 block text-xs font-medium text-neutral-400"
+          className="mb-1.5 block text-footnote font-medium text-[--ink-2]"
         >
           Display name
         </label>
@@ -40,10 +43,14 @@ export function PreferencesForm({ current }: { current: CrmSettings }) {
           placeholder="e.g. Alice Smith"
           defaultValue={current.displayName}
           maxLength={100}
-          className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none"
+          className={inputCls}
         />
-        <p className="mt-1 text-xs text-neutral-600">
-          Used as <code className="rounded bg-neutral-800 px-1 py-0.5">{"{{ownerName}}"}</code> in sequence templates.
+        <p className="mt-1 text-caption text-[--ink-3]">
+          Used as{" "}
+          <code className="rounded bg-[--surface-2] px-1 py-0.5">
+            {"{{ownerName}}"}
+          </code>{" "}
+          in sequence templates.
         </p>
       </div>
 
@@ -51,7 +58,7 @@ export function PreferencesForm({ current }: { current: CrmSettings }) {
       <div>
         <label
           htmlFor="pf-currency"
-          className="mb-1 block text-xs font-medium text-neutral-400"
+          className="mb-1.5 block text-footnote font-medium text-[--ink-2]"
         >
           Default currency
         </label>
@@ -59,7 +66,7 @@ export function PreferencesForm({ current }: { current: CrmSettings }) {
           id="pf-currency"
           name="defaultCurrency"
           defaultValue={current.defaultCurrency}
-          className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 focus:border-indigo-500 focus:outline-none"
+          className={inputCls}
         >
           {CURRENCIES.map((c) => (
             <option key={c} value={c}>
@@ -67,7 +74,7 @@ export function PreferencesForm({ current }: { current: CrmSettings }) {
             </option>
           ))}
         </select>
-        <p className="mt-1 text-xs text-neutral-600">
+        <p className="mt-1 text-caption text-[--ink-3]">
           Pre-selected when creating a new deal.
         </p>
       </div>
@@ -76,7 +83,7 @@ export function PreferencesForm({ current }: { current: CrmSettings }) {
       <div>
         <label
           htmlFor="pf-stage"
-          className="mb-1 block text-xs font-medium text-neutral-400"
+          className="mb-1.5 block text-footnote font-medium text-[--ink-2]"
         >
           Default deal stage
         </label>
@@ -84,7 +91,7 @@ export function PreferencesForm({ current }: { current: CrmSettings }) {
           id="pf-stage"
           name="defaultDealStage"
           defaultValue={current.defaultDealStage}
-          className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 focus:border-indigo-500 focus:outline-none"
+          className={inputCls}
         >
           {STAGES.map((s) => (
             <option key={s.value} value={s.value}>
@@ -92,28 +99,32 @@ export function PreferencesForm({ current }: { current: CrmSettings }) {
             </option>
           ))}
         </select>
-        <p className="mt-1 text-xs text-neutral-600">
+        <p className="mt-1 text-caption text-[--ink-3]">
           Pre-selected stage when creating a new deal.
         </p>
       </div>
 
       {state.noDb && (
-        <p className="text-xs text-amber-400">
+        <p role="alert" className="text-caption text-[--warn]">
           Connect a database to save preferences.
         </p>
       )}
       {state.error && (
-        <p className="text-xs text-red-400">{state.error}</p>
+        <p role="alert" className="text-caption text-[--bad]">
+          {state.error}
+        </p>
       )}
       {state.success && (
-        <p className="text-xs text-emerald-400">Preferences saved.</p>
+        <p role="status" className="text-caption text-[--ok]">
+          Preferences saved.
+        </p>
       )}
 
-      <div className="flex justify-end pt-1">
+      <div>
         <button
           type="submit"
           disabled={pending}
-          className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
+          className="tap w-full rounded-[--r-md] bg-[--accent] px-5 text-body font-medium text-[--accent-ink] transition-opacity active:scale-[0.98] hover:opacity-90 disabled:opacity-50 sm:w-auto"
         >
           {pending ? "Saving…" : "Save preferences"}
         </button>

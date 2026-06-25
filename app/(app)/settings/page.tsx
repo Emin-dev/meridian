@@ -7,7 +7,7 @@ import { PreferencesForm } from "./preferences-form";
 function StatusDot({ ok }: { ok: boolean }) {
   return (
     <span
-      className={`inline-block h-2.5 w-2.5 rounded-full ${ok ? "bg-emerald-500" : "bg-red-500"}`}
+      className={`inline-block h-2.5 w-2.5 shrink-0 rounded-full ${ok ? "bg-[--ok]" : "bg-[--bad]"}`}
     />
   );
 }
@@ -32,63 +32,65 @@ export default async function SettingsPage() {
   const aiKeySet = Boolean(process.env.DEEPSEEK_API_KEY);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div>
-        <h2 className="text-xl font-semibold text-neutral-100">Settings</h2>
-        <p className="mt-1 text-sm text-neutral-400">
+        <h2 className="text-title2 font-semibold text-[--ink-1]">Settings</h2>
+        <p className="mt-1 text-body text-[--ink-2]">
           Configure your Meridian workspace.
         </p>
       </div>
 
       {/* Account */}
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-5 space-y-3">
-        <p className="text-sm font-medium text-neutral-300">Account</p>
+      <div className="card p-4 sm:p-5 space-y-3">
+        <p className="text-callout font-semibold text-[--ink-1]">Account</p>
         {session ? (
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-neutral-700 text-sm font-semibold text-neutral-200 shrink-0">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[--surface-3] text-body font-semibold text-[--ink-1]">
               {session.email[0].toUpperCase()}
             </div>
-            <div>
-              <p className="text-sm text-neutral-200">{session.email}</p>
-              <p className="text-xs text-neutral-500">Signed in</p>
+            <div className="min-w-0">
+              <p className="text-body text-[--ink-1] truncate">{session.email}</p>
+              <p className="text-footnote text-[--ink-3]">Signed in</p>
             </div>
           </div>
         ) : (
-          <p className="text-sm text-neutral-500">Not signed in.</p>
+          <p className="text-body text-[--ink-3]">Not signed in.</p>
         )}
       </div>
 
       {/* Connection health */}
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-5 space-y-4">
-        <p className="text-sm font-medium text-neutral-300">Connection Health</p>
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-neutral-200">Neon Postgres</p>
-              <p className="text-xs text-neutral-500">
-                {dbConnected ? "DATABASE_URL is set and connected." : "DATABASE_URL is not configured."}
+      <div className="card p-4 sm:p-5 space-y-0">
+        <p className="text-callout font-semibold text-[--ink-1] mb-4">Connection Health</p>
+        <div className="divide-y divide-[--line-1]">
+          <div className="flex items-center justify-between gap-4 pb-3">
+            <div className="min-w-0">
+              <p className="text-body text-[--ink-1]">Neon Postgres</p>
+              <p className="text-footnote text-[--ink-3]">
+                {dbConnected
+                  ? "DATABASE_URL is set and connected."
+                  : "DATABASE_URL is not configured."}
               </p>
             </div>
-            <div className="flex items-center gap-2 text-sm">
+            <div className="flex shrink-0 items-center gap-2 text-footnote">
               <StatusDot ok={dbConnected} />
-              <span className={dbConnected ? "text-emerald-400" : "text-red-400"}>
+              <span className={dbConnected ? "text-[--ok]" : "text-[--bad]"}>
                 {dbConnected ? "Connected" : "Not connected"}
               </span>
             </div>
           </div>
 
-          <div className="border-t border-neutral-800" />
-
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-neutral-200">DeepSeek API</p>
-              <p className="text-xs text-neutral-500">
-                {aiKeySet ? "DEEPSEEK_API_KEY is set." : "DEEPSEEK_API_KEY is not configured."}
+          <div className="flex items-center justify-between gap-4 pt-3">
+            <div className="min-w-0">
+              <p className="text-body text-[--ink-1]">DeepSeek API</p>
+              <p className="text-footnote text-[--ink-3]">
+                {aiKeySet
+                  ? "DEEPSEEK_API_KEY is set."
+                  : "DEEPSEEK_API_KEY is not configured."}
               </p>
             </div>
-            <div className="flex items-center gap-2 text-sm">
+            <div className="flex shrink-0 items-center gap-2 text-footnote">
               <StatusDot ok={aiKeySet} />
-              <span className={aiKeySet ? "text-emerald-400" : "text-red-400"}>
+              <span className={aiKeySet ? "text-[--ok]" : "text-[--bad]"}>
                 {aiKeySet ? "Key present" : "Key missing"}
               </span>
             </div>
@@ -97,15 +99,15 @@ export default async function SettingsPage() {
       </div>
 
       {/* CRM Preferences */}
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-5 space-y-4">
+      <div className="card p-4 sm:p-5 space-y-4">
         <div>
-          <p className="text-sm font-medium text-neutral-300">CRM Preferences</p>
-          <p className="mt-1 text-xs text-neutral-500">
+          <p className="text-callout font-semibold text-[--ink-1]">CRM Preferences</p>
+          <p className="mt-1 text-footnote text-[--ink-3]">
             Set your display name, default currency, and default deal stage.
           </p>
         </div>
         {!db ? (
-          <p className="text-xs text-neutral-500">
+          <p className="text-footnote text-[--ink-3]">
             Connect a database to save preferences.
           </p>
         ) : (
@@ -114,20 +116,20 @@ export default async function SettingsPage() {
       </div>
 
       {/* Demo data */}
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-5 space-y-4">
+      <div className="card p-4 sm:p-5 space-y-4">
         <div>
-          <p className="text-sm font-medium text-neutral-300">Demo Data</p>
-          <p className="mt-1 text-xs text-neutral-500">
+          <p className="text-callout font-semibold text-[--ink-1]">Demo Data</p>
+          <p className="mt-1 text-footnote text-[--ink-3]">
             Load realistic sample data — 8 contacts, 8 deals across pipeline
             stages, and 16 activities — to explore all of Meridian&apos;s features.
           </p>
         </div>
         {!db ? (
-          <p className="text-xs text-neutral-500">
+          <p className="text-footnote text-[--ink-3]">
             Connect a database to use this feature.
           </p>
         ) : contactCount > 0 ? (
-          <p className="text-xs text-neutral-500">
+          <p className="text-footnote text-[--ink-3]">
             Your workspace already has data. Remove existing contacts to load
             the demo dataset.
           </p>
