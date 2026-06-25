@@ -6,6 +6,7 @@ import {
   integer,
   numeric,
   pgEnum,
+  index,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
@@ -75,7 +76,10 @@ export const contacts = pgTable("contacts", {
   leadScoredAt: timestamp("lead_scored_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (table) => [
+  index("contacts_status_idx").on(table.status),
+  index("contacts_owner_idx").on(table.owner),
+]);
 
 export const contactsRelations = relations(contacts, ({ many }) => ({
   deals: many(deals),
@@ -102,7 +106,10 @@ export const deals = pgTable("deals", {
   owner: text("owner"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (table) => [
+  index("deals_stage_idx").on(table.stage),
+  index("deals_contact_id_idx").on(table.contactId),
+]);
 
 export const dealsRelations = relations(deals, ({ one, many }) => ({
   contact: one(contacts, { fields: [deals.contactId], references: [contacts.id] }),
@@ -144,7 +151,11 @@ export const activities = pgTable("activities", {
   completedAt: timestamp("completed_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (table) => [
+  index("activities_contact_id_idx").on(table.contactId),
+  index("activities_deal_id_idx").on(table.dealId),
+  index("activities_due_at_idx").on(table.dueAt),
+]);
 
 export const activitiesRelations = relations(activities, ({ one }) => ({
   contact: one(contacts, { fields: [activities.contactId], references: [contacts.id] }),
