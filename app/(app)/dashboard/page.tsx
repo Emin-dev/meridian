@@ -4,6 +4,7 @@ import AiDigest from "@/components/ai-digest";
 import PipelineChart from "@/components/pipeline-chart-wrapper";
 import { OnboardingBanner } from "@/components/onboarding-banner";
 import TodayAgenda from "./today-agenda";
+import StaleDeals from "./stale-deals";
 
 const STAGES = [
   "lead",
@@ -262,6 +263,9 @@ export default async function DashboardPage() {
               />
             </div>
           </div>
+
+          {/* Stale deals */}
+          <StaleDeals />
 
           {/* Overdue activities alert */}
           {overdueActivities.length > 0 && (
