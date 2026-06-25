@@ -158,7 +158,7 @@ export function StepCard({
             <button
               type="submit"
               disabled={pending}
-              className="tap flex items-center justify-center rounded-[--r-md] bg-[--accent] px-4 text-body font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] active:scale-[0.98] disabled:opacity-50"
+              className="tap flex items-center justify-center rounded-[--r-md] bg-[--accent] px-4 text-body font-medium text-[--accent-ink] press hover:bg-[--accent-hover] disabled:opacity-50"
             >
               {pending ? "Saving…" : "Save"}
             </button>
@@ -331,7 +331,7 @@ export function AddStepForm({
           <button
             type="submit"
             disabled={pending}
-            className="tap flex items-center justify-center rounded-[--r-md] bg-[--accent] px-4 text-body font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] active:scale-[0.98] disabled:opacity-50"
+            className="tap flex items-center justify-center rounded-[--r-md] bg-[--accent] px-4 text-body font-medium text-[--accent-ink] press hover:bg-[--accent-hover] disabled:opacity-50"
           >
             {pending ? "Adding…" : "Add step"}
           </button>

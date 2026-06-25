@@ -128,7 +128,7 @@ export default async function SequencesPage() {
         </div>
         <Link
           href="/sequences/new"
-          className="tap flex items-center justify-center self-start rounded-[--r-md] bg-[--accent] px-4 text-body font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] active:scale-[0.98] sm:self-auto"
+          className="tap press flex items-center justify-center self-start rounded-[--r-md] bg-[--accent] px-4 text-body font-medium text-[--accent-ink] hover:bg-[--accent-hover] sm:self-auto"
         >
           New sequence
         </Link>
@@ -160,7 +160,7 @@ export default async function SequencesPage() {
             {db && (
               <Link
                 href="/sequences/new"
-                className="tap mt-1 flex items-center justify-center rounded-[--r-md] bg-[--accent] px-4 text-body font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover]"
+                className="tap press mt-1 flex items-center justify-center rounded-[--r-md] bg-[--accent] px-4 text-body font-medium text-[--accent-ink] hover:bg-[--accent-hover]"
               >
                 New sequence
               </Link>

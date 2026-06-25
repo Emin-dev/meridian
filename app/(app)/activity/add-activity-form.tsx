@@ -138,7 +138,7 @@ export default function AddActivityForm({
           <button
             type="submit"
             disabled={pending}
-            className="tap inline-flex items-center justify-center rounded-[--r-md] bg-[--accent] px-5 text-body font-medium text-[--accent-ink] transition-opacity active:scale-[0.98] hover:opacity-90 disabled:opacity-50"
+            className="tap press inline-flex items-center justify-center rounded-[--r-md] bg-[--accent] px-5 text-body font-medium text-[--accent-ink] hover:opacity-90 disabled:opacity-50"
           >
             {pending ? "Logging…" : "Log activity"}
           </button>

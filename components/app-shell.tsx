@@ -90,7 +90,7 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
                 href={item.href}
                 onClick={() => setMobileOpen(false)}
                 aria-current={active ? "page" : undefined}
-                className="tap flex flex-1 flex-col items-center justify-center gap-0.5 py-2 relative"
+                className="tap press flex flex-1 flex-col items-center justify-center gap-0.5 py-2 relative"
                 style={{ color: active ? "var(--accent)" : "var(--ink-2)" }}
               >
                 <span
@@ -117,7 +117,7 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
             onClick={() => setMobileOpen(true)}
             aria-label="More navigation options"
             aria-expanded={mobileOpen}
-            className="tap flex flex-1 flex-col items-center justify-center gap-0.5 py-2"
+            className="tap press flex flex-1 flex-col items-center justify-center gap-0.5 py-2"
             style={{ color: isMoreActive ? "var(--accent)" : "var(--ink-2)" }}
           >
             <span
@@ -173,7 +173,7 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
                 href={item.href}
                 onClick={() => setMobileOpen(false)}
                 className={[
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                  "press flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium",
                   active
                     ? "bg-indigo-600 text-white"
                     : "text-neutral-400 hover:bg-neutral-800 hover:text-neutral-100",
@@ -210,7 +210,7 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
         {/* Topbar */}
         <header className="sticky top-0 z-30 glass border-b border-[--line-1] flex items-center gap-3 px-4 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top))]">
           <button
-            className="tap flex items-center justify-center rounded-lg text-[--ink-2] transition-colors hover:bg-[--surface-2] hover:text-[--ink-1] lg:hidden"
+            className="tap press flex items-center justify-center rounded-lg text-[--ink-2] hover:bg-[--surface-2] hover:text-[--ink-1] lg:hidden"
             onClick={() => setMobileOpen(true)}
             aria-label="Open navigation"
           >
@@ -219,7 +219,7 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
           <h1 className="flex-1 truncate min-w-0 text-sm font-semibold text-neutral-100">{pageLabel}</h1>
           <button
             onClick={() => setSearchOpen(true)}
-            className="tap flex items-center gap-2 rounded-lg border border-[--line-1] bg-[--surface-2] px-3 text-xs text-[--ink-2] transition-colors hover:border-[--line-2] hover:text-[--ink-1]"
+            className="tap press flex items-center gap-2 rounded-lg border border-[--line-1] bg-[--surface-2] px-3 text-xs text-[--ink-2] hover:border-[--line-2] hover:text-[--ink-1]"
             aria-label="Open search"
           >
             <SearchIcon size={13} aria-hidden="true" />

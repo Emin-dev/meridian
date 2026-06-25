@@ -98,12 +98,41 @@ body {
 .card{ background:var(--surface-1); border:1px solid var(--line-1); border-radius:var(--r-lg); }
 .hairline{ border-color:var(--line-1); }
 
+/* Press / active-scale — add to any interactive element for haptic-like feedback */
+.press {
+  transition:
+    color var(--dur-1) var(--ease),
+    background-color var(--dur-1) var(--ease),
+    border-color var(--dur-1) var(--ease),
+    opacity var(--dur-1) var(--ease),
+    transform var(--dur-1) var(--ease);
+}
+.press:active { transform: scale(0.98); }
+
+/* Accent focus ring — in base layer so per-element Tailwind utilities can override */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: var(--r-sm);
+  }
+}
+
 /* Hide scrollbar while keeping scroll behavior (used in tab bars) */
 .no-scrollbar{ scrollbar-width:none; -ms-overflow-style:none; }
 .no-scrollbar::-webkit-scrollbar{ display:none; }
 
 /* Native dialog: always dark color scheme so system date/select pickers render dark */
 dialog { color-scheme: dark; }
+
+/* Cross-document View Transitions (Chrome 115+, Firefox 130+, Safari 18+) */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; }
+  ::view-transition-old(root) { animation: _vt-out var(--dur-2) var(--ease) both; }
+  ::view-transition-new(root) { animation: _vt-in  var(--dur-2) var(--ease) both; }
+  @keyframes _vt-out { to   { opacity: 0; } }
+  @keyframes _vt-in  { from { opacity: 0; } }
+}
 
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{ animation-duration:.01ms!important; transition-duration:.01ms!important; }

@@ -81,7 +81,7 @@ export default function LoginForm() {
           <button
             type="submit"
             disabled={pending}
-            className="tap w-full rounded-[--r-md] bg-[--accent] px-4 text-body font-medium text-[--accent-ink] transition-opacity active:scale-[0.98] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="tap press w-full rounded-[--r-md] bg-[--accent] px-4 text-body font-medium text-[--accent-ink] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {pending ? "Signing in…" : "Sign in"}
           </button>

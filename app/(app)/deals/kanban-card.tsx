@@ -82,7 +82,7 @@ export default function KanbanCard({
       }}
       className={
         phoneMode
-          ? "rounded-[--r-lg] border border-[--line-1] bg-[--surface-1] transition-colors"
+          ? "press rounded-[--r-lg] border border-[--line-1] bg-[--surface-1]"
           : "rounded-lg border border-neutral-800 bg-neutral-800/50 transition-colors hover:border-neutral-700 hover:bg-neutral-800 cursor-grab active:cursor-grabbing"
       }
     >

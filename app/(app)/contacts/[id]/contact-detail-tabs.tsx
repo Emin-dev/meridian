@@ -37,7 +37,7 @@ export default function ContactDetailTabs({ overviewPanel, aiPanel, activityPane
             aria-controls={`tabpanel-${tab}`}
             id={`tab-${tab}`}
             onClick={() => setActive(tab)}
-            className="tap flex-1 rounded-[10px] px-3 text-sm font-medium transition-colors active:scale-[0.98]"
+            className="tap press flex-1 rounded-[10px] px-3 text-sm font-medium"
             style={
               active === tab
                 ? { background: "var(--surface-3)", color: "var(--ink-1)" }

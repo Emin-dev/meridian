@@ -27,7 +27,7 @@ export function SendStepButton(props: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="tap flex items-center justify-center rounded-[--r-md] bg-[--accent] px-3 text-xs font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] active:scale-[0.98]"
+        className="tap press flex items-center justify-center rounded-[--r-md] bg-[--accent] px-3 text-xs font-medium text-[--accent-ink] hover:bg-[--accent-hover]"
       >
         Send
       </button>

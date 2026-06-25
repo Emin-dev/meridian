@@ -124,7 +124,7 @@ export function PreferencesForm({ current }: { current: CrmSettings }) {
         <button
           type="submit"
           disabled={pending}
-          className="tap w-full rounded-[--r-md] bg-[--accent] px-5 text-body font-medium text-[--accent-ink] transition-opacity active:scale-[0.98] hover:opacity-90 disabled:opacity-50 sm:w-auto"
+          className="tap press w-full rounded-[--r-md] bg-[--accent] px-5 text-body font-medium text-[--accent-ink] hover:opacity-90 disabled:opacity-50 sm:w-auto"
         >
           {pending ? "Saving…" : "Save preferences"}
         </button>

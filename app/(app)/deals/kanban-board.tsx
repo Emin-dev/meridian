@@ -319,7 +319,7 @@ export default function KanbanBoard({
                           type="button"
                           onClick={() => handleSheetPick(stage.key)}
                           disabled={isCurrent}
-                          className="tap flex items-center gap-3 px-1 text-left text-body text-[--ink-1] transition-colors hover:text-[--accent] disabled:opacity-40 active:scale-[0.98]"
+                          className="tap press flex items-center gap-3 px-1 text-left text-body text-[--ink-1] hover:text-[--accent] disabled:opacity-40"
                         >
                           <span
                             className={`h-2.5 w-2.5 shrink-0 rounded-full ${stage.dot}`}
