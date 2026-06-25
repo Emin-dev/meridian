@@ -12,6 +12,7 @@ import NextActionPanel from "./next-action-panel";
 import EnrollSequenceModal, {
   CancelEnrollmentButton,
 } from "./enroll-sequence-modal";
+import EnrichContactPanel from "./enrich-contact-panel";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -133,6 +134,11 @@ export default async function ContactDetailPage({ params }: Props) {
       {/* AI contact brief */}
       <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-5">
         <SummarizePanel contactId={contact.id} />
+      </div>
+
+      {/* AI contact enrichment */}
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-5">
+        <EnrichContactPanel contactId={contact.id} />
       </div>
 
       {/* AI next best action */}

@@ -447,6 +447,127 @@ export async function suggestNextAction(
   }
 }
 
+// ─── AI: Contact enrichment ───────────────────────────────────────────────────
+
+export type EnrichState = {
+  title?: string;
+  company?: string;
+  notes?: string;
+  error?: string;
+  noDb?: boolean;
+  noKey?: boolean;
+};
+
+export async function enrichContact(contactId: number): Promise<EnrichState> {
+  const db = getDb();
+  if (!db) return { noDb: true };
+
+  const [contact] = await db
+    .select()
+    .from(schema.contacts)
+    .where(eq(schema.contacts.id, contactId))
+    .limit(1);
+
+  if (!contact) return { error: "Contact not found." };
+
+  if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
+
+  const recentActivities = await db
+    .select()
+    .from(schema.activities)
+    .where(eq(schema.activities.contactId, contactId))
+    .orderBy(desc(schema.activities.createdAt))
+    .limit(10);
+
+  const lines: string[] = [
+    `Name: ${contact.name}`,
+    contact.title ? `Title (already known): ${contact.title}` : "Title: (missing)",
+    contact.company ? `Company (already known): ${contact.company}` : "Company: (missing)",
+    contact.email ? `Email: ${contact.email}` : null,
+    contact.notes ? `\nExisting notes:\n${contact.notes}` : null,
+  ].filter(Boolean) as string[];
+
+  if (recentActivities.length > 0) {
+    lines.push("\nRecent activities:");
+    for (const a of recentActivities) {
+      const date = a.createdAt.toISOString().slice(0, 10);
+      const entry = [
+        `[${date}] ${a.type.toUpperCase()}: ${a.subject}`,
+        a.body ?? null,
+      ]
+        .filter(Boolean)
+        .join(" — ");
+      lines.push(`- ${entry}`);
+    }
+  }
+
+  try {
+    const raw = await chat(
+      [
+        {
+          role: "system",
+          content:
+            'You are a CRM data enrichment assistant. Given a contact\'s name, email, and activity history, infer or suggest values for missing or incomplete profile fields. Return JSON with exactly three keys: "title" (job title — infer from email domain, activity context, or name patterns; empty string if truly unknown), "company" (company name — infer from email domain or activity context; empty string if unknown), and "notes" (2–3 sentences of relevant context based on available signals, incorporating any existing notes). Only output JSON, no other text.',
+        },
+        {
+          role: "user",
+          content: `Enrich this contact:\n\n${lines.join("\n")}`,
+        },
+      ],
+      { json: true }
+    );
+
+    const parsed = JSON.parse(raw) as {
+      title: unknown;
+      company: unknown;
+      notes: unknown;
+    };
+
+    return {
+      title: String(parsed.title ?? "").trim(),
+      company: String(parsed.company ?? "").trim(),
+      notes: String(parsed.notes ?? "").trim(),
+    };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown AI error.";
+    if (message.includes("DEEPSEEK_API_KEY")) return { noKey: true };
+    return { error: message };
+  }
+}
+
+export type ApplyEnrichmentState = {
+  success?: boolean;
+  error?: string;
+  noDb?: boolean;
+};
+
+export async function applyContactEnrichment(
+  contactId: number,
+  fields: { title: string; company: string; notes: string }
+): Promise<ApplyEnrichmentState> {
+  const db = getDb();
+  if (!db) return { noDb: true };
+
+  try {
+    await db
+      .update(schema.contacts)
+      .set({
+        title: fields.title || null,
+        company: fields.company || null,
+        notes: fields.notes || null,
+        updatedAt: new Date(),
+      })
+      .where(eq(schema.contacts.id, contactId));
+
+    revalidatePath(`/contacts/${contactId}`);
+    revalidatePath("/contacts");
+    return { success: true };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error.";
+    return { error: message };
+  }
+}
+
 // ─── AI: Draft outreach email ─────────────────────────────────────────────────
 
 export type DraftEmailState = {
