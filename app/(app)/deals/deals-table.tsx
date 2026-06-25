@@ -274,19 +274,21 @@ export default function DealsTable({
         <table className="w-full text-sm">
           <thead className="border-b border-neutral-800 bg-neutral-900">
             <tr>
-              <th className="w-10 px-3 py-3">
-                <input
-                  type="checkbox"
-                  checked={allSelected}
-                  ref={(el) => {
-                    if (el) el.indeterminate = someSelected && !allSelected;
-                  }}
-                  onChange={toggleAll}
-                  aria-label="Select all deals"
-                  className="h-4 w-4 cursor-pointer rounded border-neutral-600 accent-indigo-500"
-                />
+              <th className="sticky left-0 z-20 w-11 bg-neutral-900">
+                <label className="flex min-h-[44px] min-w-[44px] cursor-pointer items-center justify-center">
+                  <input
+                    type="checkbox"
+                    checked={allSelected}
+                    ref={(el) => {
+                      if (el) el.indeterminate = someSelected && !allSelected;
+                    }}
+                    onChange={toggleAll}
+                    aria-label="Select all deals"
+                    className="h-4 w-4 cursor-pointer rounded border-neutral-600 accent-indigo-500"
+                  />
+                </label>
               </th>
-              <th className={thClass} onClick={() => handleSort("title")}>
+              <th className={`${thClass} sticky left-11 z-20 bg-neutral-900 border-r border-neutral-800`} onClick={() => handleSort("title")}>
                 Title <SortIcon active={sortKey === "title"} dir={sortDir} />
               </th>
               <th className={thClass} onClick={() => handleSort("contact")}>
@@ -339,16 +341,18 @@ export default function DealsTable({
                         : "bg-neutral-900/60 hover:bg-neutral-800/50"
                   }`}
                 >
-                  <td className="px-3 py-3">
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={() => toggle(deal.id)}
-                      aria-label={`Select ${deal.title}`}
-                      className="h-4 w-4 cursor-pointer rounded border-neutral-600 accent-indigo-500"
-                    />
+                  <td className={`sticky left-0 z-10 w-11 ${isSelected ? "bg-indigo-900/30" : "bg-neutral-900"}`}>
+                    <label className="flex min-h-[44px] min-w-[44px] cursor-pointer items-center justify-center">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggle(deal.id)}
+                        aria-label={`Select ${deal.title}`}
+                        className="h-4 w-4 cursor-pointer rounded border-neutral-600 accent-indigo-500"
+                      />
+                    </label>
                   </td>
-                  <td className="px-4 py-3 font-medium text-neutral-100">
+                  <td className={`px-4 py-3 font-medium text-neutral-100 sticky left-11 z-10 border-r border-neutral-800 ${isSelected ? "bg-indigo-900/30" : "bg-neutral-900"}`}>
                     <Link href={`/deals/${deal.id}`} className="hover:underline">
                       {deal.title}
                     </Link>

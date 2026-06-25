@@ -68,7 +68,7 @@ export default async function DealDetailPage({ params }: Props) {
         >
           ← Deals
         </Link>
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-16 text-center">
+        <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-4 py-16 text-center sm:px-5">
           <p className="text-sm text-neutral-400">Database not connected.</p>
           <p className="mt-1 text-xs text-neutral-600">
             Set{" "}
@@ -116,7 +116,7 @@ export default async function DealDetailPage({ params }: Props) {
       </Link>
 
       {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h2 className="text-xl font-semibold text-neutral-100">{deal.title}</h2>
           <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -156,7 +156,7 @@ export default async function DealDetailPage({ params }: Props) {
       </div>
 
       {/* Edit deal details */}
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-5">
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-4 sm:p-5">
         <h3 className="mb-4 text-sm font-medium text-neutral-300">Details</h3>
         <EditDealForm deal={deal} />
         <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 border-t border-neutral-800 pt-4 text-sm sm:grid-cols-2">
@@ -185,7 +185,7 @@ export default async function DealDetailPage({ params }: Props) {
 
       {/* Linked contact */}
       {contact ? (
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-5">
+        <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-4 sm:p-5">
           <h3 className="mb-3 text-sm font-medium text-neutral-300">
             Linked contact
           </h3>
@@ -212,7 +212,7 @@ export default async function DealDetailPage({ params }: Props) {
           </Link>
         </div>
       ) : deal.contactId ? (
-        <div className="rounded-xl border border-dashed border-neutral-800 bg-neutral-900/50 px-6 py-4">
+        <div className="rounded-xl border border-dashed border-neutral-800 bg-neutral-900/50 p-4 sm:p-5">
           <p className="text-xs text-neutral-500">Contact was removed</p>
           <p className="mt-1 text-xs text-neutral-600">
             The contact linked to this deal no longer exists and may have been
@@ -220,7 +220,7 @@ export default async function DealDetailPage({ params }: Props) {
           </p>
         </div>
       ) : (
-        <div className="rounded-xl border border-dashed border-neutral-800 bg-neutral-900/50 px-6 py-4">
+        <div className="rounded-xl border border-dashed border-neutral-800 bg-neutral-900/50 p-4 sm:p-5">
           <p className="text-xs text-neutral-600">No contact linked to this deal.</p>
         </div>
       )}
@@ -235,38 +235,38 @@ export default async function DealDetailPage({ params }: Props) {
       )}
 
       {/* Notes */}
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-5">
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-4 sm:p-5">
         <h3 className="mb-4 text-sm font-medium text-neutral-300">Notes</h3>
         <EditNotesForm dealId={deal.id} initialNotes={extractUserNotes(deal.notes)} />
       </div>
 
       {/* AI win-probability score */}
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-5">
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-4 sm:p-5">
         <DealWinProbabilityPanel dealId={deal.id} initialScore={deal.probability} />
       </div>
 
       {/* AI deal brief */}
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-5">
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-4 sm:p-5">
         <DealSummarizePanel dealId={deal.id} />
       </div>
 
       {/* AI next best action */}
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-5">
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-4 sm:p-5">
         <DealNextActionPanel dealId={deal.id} />
       </div>
 
       {/* Linked tasks */}
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-5">
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-4 sm:p-5">
         <LinkedTasksSection dealId={deal.id} />
       </div>
 
       {/* Activity timeline */}
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-5">
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-4 sm:p-5">
         <DealActivityTimeline dealId={deal.id} />
       </div>
 
       {/* Change log */}
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-5">
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-4 sm:p-5">
         <DealChangeLog dealId={deal.id} />
       </div>
     </div>
