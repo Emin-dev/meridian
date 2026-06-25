@@ -100,7 +100,9 @@ export default async function DealDetailPage({ params }: Props) {
     contact = c ?? null;
   }
 
-  const stageMeta = STAGE_META[deal.stage];
+  const stageMeta =
+    STAGE_META[deal.stage as keyof typeof STAGE_META] ??
+    ({ label: deal.stage, color: "text-neutral-400", bg: "bg-neutral-800" } as const);
   const formatted = formatValue(deal.value, deal.currency);
 
   return (
@@ -123,10 +125,12 @@ export default async function DealDetailPage({ params }: Props) {
             >
               {stageMeta.label}
             </span>
-            {formatted && (
+            {formatted ? (
               <span className="text-sm font-semibold text-indigo-400">
                 {formatted}
               </span>
+            ) : (
+              <span className="text-xs text-neutral-500">Not set</span>
             )}
             {deal.expectedCloseDate && (
               <span className="text-xs text-neutral-500">
@@ -206,6 +210,14 @@ export default async function DealDetailPage({ params }: Props) {
               )}
             </div>
           </Link>
+        </div>
+      ) : deal.contactId ? (
+        <div className="rounded-xl border border-dashed border-neutral-800 bg-neutral-900/50 px-6 py-4">
+          <p className="text-xs text-neutral-500">Contact was removed</p>
+          <p className="mt-1 text-xs text-neutral-600">
+            The contact linked to this deal no longer exists and may have been
+            deleted.
+          </p>
         </div>
       ) : (
         <div className="rounded-xl border border-dashed border-neutral-800 bg-neutral-900/50 px-6 py-4">
