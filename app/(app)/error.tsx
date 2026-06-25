@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { AlertCircleIcon } from "@/components/icons";
 
 export default function AppError({
   error,
@@ -17,21 +18,7 @@ export default function AppError({
     <div className="flex items-center justify-center py-24">
       <div className="w-full max-w-md rounded-xl border border-neutral-800 bg-neutral-900 px-8 py-10 text-center">
         <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-red-900/40">
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="text-red-400"
-          >
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" x2="12" y1="8" y2="12" />
-            <line x1="12" x2="12.01" y1="16" y2="16" />
-          </svg>
+          <AlertCircleIcon size={20} className="text-red-400" aria-hidden="true" />
         </div>
         <h2 className="text-base font-semibold text-neutral-100">
           Something went wrong

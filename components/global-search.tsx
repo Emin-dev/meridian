@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { searchGlobal, type SearchResults } from "@/app/(app)/search/actions";
+import { SearchIcon, DollarSignIcon, ClockIcon } from "@/components/icons";
 
 interface GlobalSearchProps {
   open: boolean;
@@ -140,21 +141,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
       >
         {/* Input row — 44px touch target */}
         <div className="tap flex items-center gap-3 border-b border-[--line-1] px-4">
-          <svg
-            className="shrink-0 text-[--ink-3]"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <circle cx="11" cy="11" r="8" />
-            <path d="m21 21-4.35-4.35" />
-          </svg>
+          <SearchIcon size={16} className="shrink-0 text-[--ink-3]" aria-hidden="true" />
           <input
             ref={inputRef}
             type="text"
@@ -240,9 +227,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                       active ? "bg-[--accent] text-[--accent-ink]" : "text-[--accent] hover:bg-[--surface-2]",
                     ].join(" ")}
                   >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0" aria-hidden="true">
-                      <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-                    </svg>
+                    <SearchIcon size={12} className="shrink-0" aria-hidden="true" />
                     See all {results.totals.contacts} contacts
                   </button>
                 );
@@ -273,10 +258,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                     ].join(" ")}
                   >
                     <span className={["flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[--ink-2]", active ? "bg-[--accent-hover]" : "bg-[--surface-2]"].join(" ")}>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <line x1="12" x2="12" y1="2" y2="22" />
-                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                      </svg>
+                      <DollarSignIcon size={12} aria-hidden="true" />
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate font-medium">{deal.title}</span>
@@ -307,9 +289,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                       active ? "bg-[--accent] text-[--accent-ink]" : "text-[--accent] hover:bg-[--surface-2]",
                     ].join(" ")}
                   >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0" aria-hidden="true">
-                      <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-                    </svg>
+                    <SearchIcon size={12} className="shrink-0" aria-hidden="true" />
                     See all {results.totals.deals} deals
                   </button>
                 );
@@ -340,10 +320,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                     ].join(" ")}
                   >
                     <span className={["flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[--ink-2]", active ? "bg-[--accent-hover]" : "bg-[--surface-2]"].join(" ")}>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <circle cx="12" cy="12" r="10" />
-                        <polyline points="12 6 12 12 16 14" />
-                      </svg>
+                      <ClockIcon size={12} aria-hidden="true" />
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate font-medium">{activity.subject}</span>
@@ -374,9 +351,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                       active ? "bg-[--accent] text-[--accent-ink]" : "text-[--accent] hover:bg-[--surface-2]",
                     ].join(" ")}
                   >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0" aria-hidden="true">
-                      <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-                    </svg>
+                    <SearchIcon size={12} className="shrink-0" aria-hidden="true" />
                     See all {results.totals.activities} activities
                   </button>
                 );

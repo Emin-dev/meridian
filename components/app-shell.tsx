@@ -5,104 +5,33 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logout } from "@/app/login/actions";
 import { GlobalSearch } from "@/components/global-search";
+import {
+  DashboardIcon,
+  UsersIcon,
+  DollarSignIcon,
+  ActivityIcon,
+  CheckSquareIcon,
+  MailIcon,
+  BarChartIcon,
+  SettingsIcon,
+  MenuIcon,
+  SearchIcon,
+  MoreIcon,
+} from "@/components/icons";
 
 const NAV = [
-  {
-    href: "/dashboard",
-    label: "Dashboard",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect width="7" height="7" x="3" y="3" rx="1" />
-        <rect width="7" height="7" x="14" y="3" rx="1" />
-        <rect width="7" height="7" x="14" y="14" rx="1" />
-        <rect width="7" height="7" x="3" y="14" rx="1" />
-      </svg>
-    ),
-  },
-  {
-    href: "/contacts",
-    label: "Contacts",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-        <circle cx="9" cy="7" r="4" />
-        <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-      </svg>
-    ),
-  },
-  {
-    href: "/deals",
-    label: "Deals",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="12" x2="12" y1="2" y2="22" />
-        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-      </svg>
-    ),
-  },
-  {
-    href: "/activity",
-    label: "Activity",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-      </svg>
-    ),
-  },
-  {
-    href: "/tasks",
-    label: "Tasks",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M9 11l3 3L22 4" />
-        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-      </svg>
-    ),
-  },
-  {
-    href: "/sequences",
-    label: "Sequences",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect width="20" height="16" x="2" y="4" rx="2" />
-        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-      </svg>
-    ),
-  },
-  {
-    href: "/analytics",
-    label: "Analytics",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="18" x2="18" y1="20" y2="10" />
-        <line x1="12" x2="12" y1="20" y2="4" />
-        <line x1="6" x2="6" y1="20" y2="14" />
-      </svg>
-    ),
-  },
-  {
-    href: "/settings",
-    label: "Settings",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-        <circle cx="12" cy="12" r="3" />
-      </svg>
-    ),
-  },
+  { href: "/dashboard", label: "Dashboard", icon: <DashboardIcon size={18} aria-hidden="true" /> },
+  { href: "/contacts", label: "Contacts", icon: <UsersIcon size={18} aria-hidden="true" /> },
+  { href: "/deals", label: "Deals", icon: <DollarSignIcon size={18} aria-hidden="true" /> },
+  { href: "/activity", label: "Activity", icon: <ActivityIcon size={18} aria-hidden="true" /> },
+  { href: "/tasks", label: "Tasks", icon: <CheckSquareIcon size={18} aria-hidden="true" /> },
+  { href: "/sequences", label: "Sequences", icon: <MailIcon size={18} aria-hidden="true" /> },
+  { href: "/analytics", label: "Analytics", icon: <BarChartIcon size={18} aria-hidden="true" /> },
+  { href: "/settings", label: "Settings", icon: <SettingsIcon size={18} aria-hidden="true" /> },
 ];
 
 // Bottom tab bar shows the 4 primary destinations + More
 const BOTTOM_TABS = NAV.slice(0, 4);
-
-const MoreIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true">
-    <circle cx="5" cy="12" r="1.5" />
-    <circle cx="12" cy="12" r="1.5" />
-    <circle cx="19" cy="12" r="1.5" />
-  </svg>
-);
 
 export default function AppShell({ children, overdueCount = 0, overdueTaskCount = 0 }: { children: React.ReactNode; overdueCount?: number; overdueTaskCount?: number }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -197,7 +126,7 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
                 isMoreActive ? "bg-[--accent-tint]" : "",
               ].join(" ")}
             >
-              <MoreIcon />
+              <MoreIcon size={20} aria-hidden="true" />
             </span>
             <span className="text-caption leading-none">More</span>
           </button>
@@ -285,11 +214,7 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
             onClick={() => setMobileOpen(true)}
             aria-label="Open navigation"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="4" x2="20" y1="6" y2="6" />
-              <line x1="4" x2="20" y1="12" y2="12" />
-              <line x1="4" x2="20" y1="18" y2="18" />
-            </svg>
+            <MenuIcon size={20} aria-hidden="true" />
           </button>
           <h1 className="flex-1 truncate min-w-0 text-sm font-semibold text-neutral-100">{pageLabel}</h1>
           <button
@@ -297,10 +222,7 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
             className="tap flex items-center gap-2 rounded-lg border border-[--line-1] bg-[--surface-2] px-3 text-xs text-[--ink-2] transition-colors hover:border-[--line-2] hover:text-[--ink-1]"
             aria-label="Open search"
           >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8" />
-              <path d="m21 21-4.35-4.35" />
-            </svg>
+            <SearchIcon size={13} aria-hidden="true" />
             <span className="hidden sm:inline">Search</span>
             <kbd className="hidden rounded border border-neutral-600 px-1 font-mono text-xs sm:inline">
               {isMac ? "⌘K" : "Ctrl+K"}
