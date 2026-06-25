@@ -27,7 +27,7 @@ export function SendStepButton(props: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="rounded-md bg-indigo-600 px-2.5 py-1 text-xs font-medium text-white transition-colors hover:bg-indigo-500"
+        className="tap flex items-center justify-center rounded-[--r-md] bg-[--accent] px-3 text-xs font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] active:scale-[0.98]"
       >
         Send
       </button>
@@ -91,100 +91,100 @@ function SendStepModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 sm:items-center sm:p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="w-full max-w-lg rounded-xl border border-neutral-700 bg-neutral-900 shadow-xl">
+      <div className="flex w-full max-w-lg flex-col rounded-t-[--r-2xl] border border-[--line-1] bg-[--surface-1] shadow-[--shadow-3] max-h-[90dvh] pb-[env(safe-area-inset-bottom)] sm:rounded-[--r-xl] sm:pb-0">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-neutral-800 px-5 py-4">
+        <div className="flex shrink-0 items-center justify-between border-b border-[--line-1] px-4 py-4">
           <div>
-            <h3 className="text-sm font-semibold text-neutral-100">
+            <h3 className="text-callout font-semibold text-[--ink-1]">
               Step {stepPosition} of {totalSteps}
             </h3>
-            <p className="mt-0.5 text-xs text-neutral-500">
+            <p className="mt-0.5 text-footnote text-[--ink-3]">
               {contactName}
               {contactEmail ? ` · ${contactEmail}` : ""}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="text-neutral-500 transition-colors hover:text-neutral-300"
+            className="tap flex items-center justify-center rounded-full text-[--ink-3] transition-colors hover:text-[--ink-1]"
             aria-label="Close"
           >
             ✕
           </button>
         </div>
 
-        {/* Body */}
-        <div className="space-y-4 px-5 py-4">
+        {/* Scrollable body */}
+        <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
           <div>
-            <div className="mb-1 flex items-center justify-between">
-              <p className="text-xs font-medium text-neutral-500">Subject</p>
+            <div className="mb-1.5 flex items-center justify-between">
+              <p className="text-footnote font-medium text-[--ink-3]">Subject</p>
               <button
                 onClick={() => copyToClipboard(subject, "subject")}
-                className="text-xs text-neutral-500 transition-colors hover:text-neutral-300"
+                className="tap flex items-center justify-center px-3 text-footnote text-[--ink-3] transition-colors hover:text-[--ink-1]"
               >
                 {copied === "subject" ? "Copied!" : "Copy"}
               </button>
             </div>
-            <div className="rounded-lg border border-neutral-800 bg-neutral-800/50 px-3 py-2.5 text-sm text-neutral-200">
+            <div className="rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-3 py-2.5 text-body text-[--ink-1] break-words">
               {subject}
             </div>
           </div>
 
           <div>
-            <div className="mb-1 flex items-center justify-between">
-              <p className="text-xs font-medium text-neutral-500">Body</p>
+            <div className="mb-1.5 flex items-center justify-between">
+              <p className="text-footnote font-medium text-[--ink-3]">Body</p>
               <button
                 onClick={() => copyToClipboard(body, "body")}
-                className="text-xs text-neutral-500 transition-colors hover:text-neutral-300"
+                className="tap flex items-center justify-center px-3 text-footnote text-[--ink-3] transition-colors hover:text-[--ink-1]"
               >
                 {copied === "body" ? "Copied!" : "Copy"}
               </button>
             </div>
-            <div className="max-h-52 overflow-y-auto rounded-lg border border-neutral-800 bg-neutral-800/50 px-3 py-2.5 text-sm leading-relaxed whitespace-pre-wrap text-neutral-400">
+            <div className="max-h-48 overflow-y-auto rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-3 py-2.5 text-body leading-relaxed whitespace-pre-wrap text-[--ink-2] break-words">
               {body}
             </div>
           </div>
         </div>
 
         {/* Note */}
-        <div className="border-t border-neutral-800 px-5 py-3">
-          <p className="text-xs text-neutral-500">
+        <div className="shrink-0 border-t border-[--line-1] px-4 py-3">
+          <p className="text-footnote text-[--ink-3]">
             Meridian tracks sequence steps but does not send email directly. Use the link below to open your email client, then log the step once sent.
           </p>
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between border-t border-neutral-800 px-5 py-4">
+        <div className="shrink-0 flex items-center justify-between border-t border-[--line-1] px-4 py-3">
           <div>
             {mailtoHref ? (
               <a
                 href={mailtoHref}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-indigo-500"
+                className="tap inline-flex items-center gap-1.5 rounded-[--r-md] bg-[--accent] px-3 text-xs font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover]"
               >
                 Open in email client ↗
               </a>
             ) : (
-              <span className="text-xs text-neutral-600">No email address on file</span>
+              <span className="text-footnote text-[--ink-3]">No email address on file</span>
             )}
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <button
               onClick={onClose}
               disabled={isPending}
-              className="text-xs text-neutral-400 transition-colors hover:text-neutral-200 disabled:opacity-50"
+              className="tap inline-flex items-center justify-center rounded-[--r-md] px-3 text-xs text-[--ink-2] transition-colors hover:text-[--ink-1] disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               onClick={handleMarkSent}
               disabled={isPending}
-              className="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
+              className="tap inline-flex items-center justify-center rounded-[--r-md] bg-emerald-600 px-3 text-xs font-medium text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
             >
               {isPending ? "Logging…" : "Log as Sent"}
             </button>

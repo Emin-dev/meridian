@@ -301,86 +301,81 @@ export default async function SequenceDetailPage({
                     currentStep !== undefined;
                   return (
                     <li key={enrollment.id} className="px-4 py-4">
-                      <div className="flex items-start justify-between gap-4">
-                        {/* Left: name + email */}
+                      {/* Row 1: name + status badge */}
+                      <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0 flex-1">
                           <Link
                             href={`/contacts/${enrollment.contactId}`}
-                            className="truncate text-sm font-medium text-neutral-100 transition-colors hover:text-neutral-300"
+                            className="block truncate text-body font-medium text-[--ink-1] transition-colors hover:text-[--ink-2]"
                           >
                             {enrollment.contactName}
                           </Link>
                           {enrollment.contactEmail && (
-                            <p className="truncate text-xs text-neutral-500">
+                            <p className="truncate text-footnote text-[--ink-3]">
                               {enrollment.contactEmail}
                             </p>
                           )}
                         </div>
-                        {/* Right: step position + status + actions */}
-                        <div className="flex shrink-0 items-center gap-3">
-                          {progress.totalSteps > 0 && (
-                            <div className="text-right">
-                              <p className="text-xs font-medium text-neutral-300">
-                                {progress.isComplete
-                                  ? "Complete"
-                                  : `Step ${progress.currentStep} of ${progress.totalSteps}`}
-                              </p>
-                              {progress.currentStepDueDate && !isCancelled && !isCompleted && (
-                                <p className="text-xs text-neutral-500">
-                                  {progress.isDue
-                                    ? "Due now"
-                                    : `Due ${progress.currentStepDueDate.toLocaleDateString(
-                                        "en-US",
-                                        {
-                                          month: "short",
-                                          day: "numeric",
-                                          year: "numeric",
-                                        }
-                                      )}`}
-                                </p>
-                              )}
-                            </div>
-                          )}
-                          <span
-                            className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${enrStatus.className}`}
-                          >
-                            {enrStatus.label}
+                        <span
+                          className={`shrink-0 inline-block rounded-full px-2 py-0.5 text-caption font-medium ${enrStatus.className}`}
+                        >
+                          {enrStatus.label}
+                        </span>
+                      </div>
+                      {/* Row 2: step progress + action buttons */}
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        {progress.totalSteps > 0 && (
+                          <span className="text-footnote text-[--ink-3]">
+                            {progress.isComplete
+                              ? "Complete"
+                              : `Step ${progress.currentStep} of ${progress.totalSteps}`}
+                            {progress.currentStepDueDate && !isCancelled && !isCompleted && (
+                              <>
+                                {" · "}
+                                {progress.isDue
+                                  ? "Due now"
+                                  : `Due ${progress.currentStepDueDate.toLocaleDateString(
+                                      "en-US",
+                                      { month: "short", day: "numeric", year: "numeric" }
+                                    )}`}
+                              </>
+                            )}
                           </span>
-                          {showSendButton && currentStep && (
-                            <SendStepButton
-                              enrollmentId={enrollment.id}
-                              sequenceId={numId}
-                              contactId={enrollment.contactId}
-                              contactName={enrollment.contactName}
-                              contactEmail={enrollment.contactEmail ?? null}
-                              contactCompany={enrollment.contactCompany ?? null}
-                              contactOwner={enrollment.contactOwner ?? null}
-                              stepSubjectTemplate={currentStep.subjectTemplate}
-                              stepBodyTemplate={currentStep.bodyTemplate}
-                              stepPosition={enrollment.currentStepPosition + 1}
-                              newStepPosition={enrollment.currentStepPosition + 1}
-                              totalSteps={progress.totalSteps}
-                              defaultOwnerName={crmSettings.displayName}
-                            />
-                          )}
-                          {enrollment.status === "active" && (
-                            <CancelEnrollmentButton
-                              enrollmentId={enrollment.id}
-                              sequenceId={numId}
-                            />
-                          )}
-                        </div>
+                        )}
+                        {showSendButton && currentStep && (
+                          <SendStepButton
+                            enrollmentId={enrollment.id}
+                            sequenceId={numId}
+                            contactId={enrollment.contactId}
+                            contactName={enrollment.contactName}
+                            contactEmail={enrollment.contactEmail ?? null}
+                            contactCompany={enrollment.contactCompany ?? null}
+                            contactOwner={enrollment.contactOwner ?? null}
+                            stepSubjectTemplate={currentStep.subjectTemplate}
+                            stepBodyTemplate={currentStep.bodyTemplate}
+                            stepPosition={enrollment.currentStepPosition + 1}
+                            newStepPosition={enrollment.currentStepPosition + 1}
+                            totalSteps={progress.totalSteps}
+                            defaultOwnerName={crmSettings.displayName}
+                          />
+                        )}
+                        {enrollment.status === "active" && (
+                          <CancelEnrollmentButton
+                            enrollmentId={enrollment.id}
+                            sequenceId={numId}
+                          />
+                        )}
                       </div>
                       {/* Progress bar */}
                       {progress.totalSteps > 0 && (
-                        <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-neutral-800">
+                        <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-[--surface-2]">
                           <div
                             className={`h-full rounded-full transition-all ${
                               isCancelled
-                                ? "bg-neutral-600"
+                                ? "bg-[--ink-3]"
                                 : isCompleted || progress.isComplete
-                                  ? "bg-emerald-500"
-                                  : "bg-emerald-500/70"
+                                  ? "bg-[--ok]"
+                                  : "bg-[--ok]/70"
                             }`}
                             style={{ width: `${pct}%` }}
                           />

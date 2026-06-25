@@ -68,7 +68,7 @@ export function PreviewTab({
           <select
             value={selectedId ?? ""}
             onChange={(e) => setSelectedId(Number(e.target.value))}
-            className="rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-sm text-neutral-100 focus:border-indigo-500 focus:outline-none"
+            className="tap rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-3 text-body text-[--ink-1] focus:border-[--accent] focus:outline-none [color-scheme:dark]"
           >
             {contacts.map((c) => (
               <option key={c.id} value={c.id}>
@@ -139,7 +139,7 @@ export function PreviewTab({
                   <p className="mb-0.5 text-xs font-medium text-neutral-500">
                     Body
                   </p>
-                  <p className="whitespace-pre-wrap text-sm text-neutral-400">
+                  <p className="whitespace-pre-wrap text-sm text-neutral-400 break-words overflow-x-hidden">
                     {interpolate(step.bodyTemplate, vars)}
                   </p>
                 </div>

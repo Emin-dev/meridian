@@ -22,7 +22,7 @@ export function SequenceStatusToggle({ id, status }: Props) {
     <button
       onClick={handleToggle}
       disabled={isPending}
-      className={`text-xs transition-colors disabled:opacity-50 ${
+      className={`tap inline-flex items-center justify-center rounded-md px-3 text-xs font-medium transition-colors disabled:opacity-50 ${
         status === "active"
           ? "text-amber-400 hover:text-amber-300"
           : "text-emerald-400 hover:text-emerald-300"
