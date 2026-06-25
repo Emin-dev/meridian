@@ -70,12 +70,17 @@ export default function KanbanCard({ deal }: { deal: DealWithContact }) {
 
   return (
     <div
-      className={`rounded-lg border border-neutral-800 bg-neutral-800/50 transition-colors hover:border-neutral-700 hover:bg-neutral-800 ${
+      draggable
+      onDragStart={(e) => {
+        e.dataTransfer.effectAllowed = "move";
+        e.dataTransfer.setData("dealId", String(deal.id));
+      }}
+      className={`rounded-lg border border-neutral-800 bg-neutral-800/50 transition-colors hover:border-neutral-700 hover:bg-neutral-800 cursor-grab active:cursor-grabbing ${
         pending ? "opacity-60 pointer-events-none" : ""
       }`}
     >
       {/* Clickable card body → deal detail */}
-      <Link href={`/deals/${deal.id}`} className="block p-3">
+      <Link href={`/deals/${deal.id}`} className="block p-3" draggable={false}>
         <div className="flex items-start justify-between gap-2">
           <p className="text-sm font-medium text-neutral-100 leading-snug">
             {deal.title}

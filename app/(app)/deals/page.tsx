@@ -3,6 +3,7 @@ import { getDb } from "@/db";
 import DealModal from "./deal-modal";
 import DealsTable from "./deals-table";
 import KanbanCard from "./kanban-card";
+import KanbanColumn from "./kanban-column";
 import DealsExportCsvButton from "./export-csv-button";
 import OwnerFilter from "./owner-filter";
 import { getCrmSettings } from "@/lib/settings";
@@ -177,10 +178,7 @@ export default async function DealsPage({
                 .reduce((sum, d) => sum + parseFloat(d.value!), 0);
 
               return (
-                <div
-                  key={stage.key}
-                  className="flex w-60 flex-none flex-col rounded-xl border border-neutral-800 bg-neutral-900"
-                >
+                <KanbanColumn key={stage.key} stageKey={stage.key}>
                   {/* Column header */}
                   <div className="flex items-center justify-between border-b border-neutral-800 px-4 py-3">
                     <div className="flex items-center gap-2">
@@ -219,7 +217,7 @@ export default async function DealsPage({
                       ))
                     )}
                   </div>
-                </div>
+                </KanbanColumn>
               );
             })}
           </div>
