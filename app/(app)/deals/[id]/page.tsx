@@ -5,6 +5,8 @@ import { getDb, schema } from "@/db";
 import EditNotesForm from "./edit-notes-form";
 import DeleteDealButton from "./delete-deal-button";
 import DealActivityTimeline from "./deal-activity-timeline";
+import DealSummarizePanel from "./deal-summarize-panel";
+import DealNextActionPanel from "./deal-next-action-panel";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -223,6 +225,16 @@ export default async function DealDetailPage({ params }: Props) {
       <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-5">
         <h3 className="mb-4 text-sm font-medium text-neutral-300">Notes</h3>
         <EditNotesForm dealId={deal.id} initialNotes={deal.notes} />
+      </div>
+
+      {/* AI deal brief */}
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-5">
+        <DealSummarizePanel dealId={deal.id} />
+      </div>
+
+      {/* AI next best action */}
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-5">
+        <DealNextActionPanel dealId={deal.id} />
       </div>
 
       {/* Activity timeline */}
