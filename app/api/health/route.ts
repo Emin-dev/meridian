@@ -6,6 +6,9 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   const url = process.env.DATABASE_URL;
+  // Short commit SHA of the running deployment (set by Vercel) — lets tooling
+  // confirm a new deploy is actually live before smoke-testing it.
+  const commit = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? null;
 
   // The app must stay healthy before the database is provisioned.
   if (!url) {
@@ -13,6 +16,7 @@ export async function GET() {
       ok: true,
       service: "meridian",
       db: "not_configured",
+      commit,
       time: new Date().toISOString(),
     });
   }
@@ -25,6 +29,7 @@ export async function GET() {
       service: "meridian",
       db: "connected",
       dbTime: rows[0]?.now ?? null,
+      commit,
       time: new Date().toISOString(),
     });
   } catch (err) {
@@ -33,6 +38,7 @@ export async function GET() {
         ok: false,
         service: "meridian",
         db: "error",
+        commit,
         error: err instanceof Error ? err.message : String(err),
         time: new Date().toISOString(),
       },
