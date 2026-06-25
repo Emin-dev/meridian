@@ -27,11 +27,19 @@ export default function NewContactModal({ hasDb }: Props) {
 
   const noDb = !hasDb || state.noDb;
 
+  const openModal = () => {
+    // Never let two modals stack/overlap: close any other open dialog first.
+    document
+      .querySelectorAll("dialog[open]")
+      .forEach((d) => (d as HTMLDialogElement).close());
+    dialogRef.current?.showModal();
+  };
+
   return (
     <>
       <button
         type="button"
-        onClick={() => dialogRef.current?.showModal()}
+        onClick={openModal}
         className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
       >
         New contact
@@ -43,6 +51,9 @@ export default function NewContactModal({ hasDb }: Props) {
       */}
       <dialog
         ref={dialogRef}
+        onClick={(e) => {
+          if (e.target === dialogRef.current) dialogRef.current?.close();
+        }}
         className="
           m-0 inset-x-0 bottom-0 top-auto
           w-full max-w-none rounded-t-[var(--r-2xl)]

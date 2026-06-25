@@ -125,6 +125,10 @@ export default function CsvImportModal({ hasDb }: Props) {
     setMode("input");
     setImportCount(0);
     setAllSkipped([]);
+    // Never let two modals stack/overlap: close any other open dialog first.
+    document
+      .querySelectorAll("dialog[open]")
+      .forEach((d) => (d as HTMLDialogElement).close());
     dialogRef.current?.showModal();
   }
 
@@ -160,6 +164,10 @@ export default function CsvImportModal({ hasDb }: Props) {
 
       <dialog
         ref={dialogRef}
+        onClick={(e) => {
+          if (e.target === dialogRef.current && !isPending)
+            dialogRef.current?.close();
+        }}
         className="m-0 inset-x-0 bottom-0 top-auto w-full max-w-none rounded-t-[var(--r-2xl)] max-h-[90dvh] overflow-hidden flex flex-col border border-neutral-800 bg-neutral-900 p-0 text-neutral-100 shadow-2xl backdrop:bg-black/60 sm:m-auto sm:inset-0 sm:max-w-2xl sm:w-full sm:rounded-xl"
       >
         {mode === "results" ? (
