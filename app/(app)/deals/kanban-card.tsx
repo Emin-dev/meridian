@@ -197,7 +197,7 @@ export default function KanbanCard({
           </div>
         ) : (
           <select
-            defaultValue={deal.stage}
+            value={deal.stage}
             onChange={handleStageChange}
             className="w-full rounded border border-neutral-700 bg-neutral-900 px-2 py-1 text-xs text-neutral-300 focus:border-neutral-500 focus:outline-none cursor-pointer"
             aria-label="Move to stage"
