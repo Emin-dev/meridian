@@ -8,6 +8,7 @@ import CsvImportModal from "./csv-import-modal";
 import ExportCsvButton from "./export-csv-button";
 import ContactFilters from "./contact-filters";
 import ContactsTable from "./contacts-table";
+import ScoreAllUnscoredButton from "./score-all-unscored-button";
 
 const VALID_SOURCES = ["website", "referral", "linkedin", "cold-outreach", "other"] as const;
 type ContactSource = (typeof VALID_SOURCES)[number];
@@ -98,6 +99,8 @@ export default async function ContactsPage({
     tagFilter
   );
 
+  const hasUnscored = contacts.some((c) => c.leadScore == null);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -106,6 +109,7 @@ export default async function ContactsPage({
           <p className="mt-1 text-sm text-neutral-400">Manage your leads and customers.</p>
         </div>
         <div className="flex items-center gap-3">
+          <ScoreAllUnscoredButton hasUnscored={hasUnscored} />
           <ExportCsvButton
             hasDb={!!db}
             status={status}

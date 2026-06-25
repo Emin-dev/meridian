@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { eq, desc, inArray, and } from "drizzle-orm";
+import { eq, desc, inArray, and, isNull } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -343,6 +343,37 @@ export async function scoreContact(contactId: number): Promise<ScoreState> {
     if (message.includes("DEEPSEEK_API_KEY")) return { noKey: true };
     return { error: message };
   }
+}
+
+// ─── AI: Bulk lead scoring ────────────────────────────────────────────────────
+
+export type BulkScoreState = {
+  count?: number;
+  error?: string;
+  noDb?: boolean;
+  noKey?: boolean;
+};
+
+export async function bulkScoreContacts(): Promise<BulkScoreState> {
+  const db = getDb();
+  if (!db) return { noDb: true };
+  if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
+
+  const rows = await db
+    .select({ id: schema.contacts.id })
+    .from(schema.contacts)
+    .where(isNull(schema.contacts.leadScore));
+
+  if (rows.length === 0) return { count: 0 };
+
+  let count = 0;
+  for (const { id } of rows) {
+    const result = await scoreContact(id);
+    if (result.score !== undefined) count++;
+  }
+
+  revalidatePath("/contacts");
+  return { count };
 }
 
 // ─── AI: Next best action suggestion ─────────────────────────────────────────
