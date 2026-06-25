@@ -126,7 +126,7 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
   const pageLabel = NAV.find((n) => pathname === n.href || pathname.startsWith(n.href + "/"))?.label ?? "Meridian";
 
   return (
-    <div className="flex h-screen bg-neutral-950 text-neutral-100 overflow-hidden">
+    <div className="flex h-dvh bg-neutral-950 text-neutral-100 overflow-hidden">
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
