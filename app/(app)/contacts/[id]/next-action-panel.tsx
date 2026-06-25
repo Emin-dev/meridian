@@ -37,10 +37,19 @@ export default function NextActionPanel({ contactId }: Props) {
     });
   }
 
+  function inferType(action: string): "call" | "email" | "meeting" | "task" {
+    const s = action.toLowerCase();
+    if (s.includes("call") || s.includes("phone")) return "call";
+    if (s.includes("email") || s.includes("send") || s.includes("message")) return "email";
+    if (s.includes("meeting") || s.includes("meet") || s.includes("demo") || s.includes("schedule")) return "meeting";
+    return "task";
+  }
+
   function handleLogAsTask() {
     if (!result.action) return;
     startLogTransition(async () => {
-      const r = await logAiTaskSuggestion(result.action!, contactId, null);
+      const type = inferType(result.action!);
+      const r = await logAiTaskSuggestion(result.action!, contactId, null, result.suggestedMessage ?? null, type);
       if (r.success) {
         toast("Task saved");
       } else if (r.noDb) {

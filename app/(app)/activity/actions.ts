@@ -80,6 +80,8 @@ export async function logAiTaskSuggestion(
   subject: string,
   contactId: number | null,
   dealId: number | null,
+  body?: string | null,
+  type?: "call" | "email" | "meeting" | "note" | "task",
 ): Promise<{ success?: boolean; error?: string; noDb?: boolean }> {
   if (!subject?.trim()) return { error: "Subject is required" };
 
@@ -87,8 +89,9 @@ export async function logAiTaskSuggestion(
   if (!db) return { noDb: true };
 
   await db.insert(schema.activities).values({
-    type: "task",
+    type: type ?? "task",
     subject: subject.trim(),
+    body: body?.trim() || null,
     contactId: contactId ?? null,
     dealId: dealId ?? null,
     dueAt: new Date(),
