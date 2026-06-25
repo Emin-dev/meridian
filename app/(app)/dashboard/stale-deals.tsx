@@ -119,7 +119,7 @@ export default async function StaleDeals() {
               <li key={deal.id}>
                 <Link
                   href={`/deals/${deal.id}`}
-                  className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-neutral-800/50"
+                  className="flex min-h-11 items-center gap-4 px-5 py-3 transition-colors hover:bg-neutral-800/50"
                 >
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-neutral-200">

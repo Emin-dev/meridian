@@ -31,20 +31,22 @@ function CompleteButton({ id }: { id: number }) {
       <button
         type="submit"
         title="Mark complete"
-        className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-neutral-600 text-neutral-600 transition-colors hover:border-green-500 hover:text-green-500"
+        className="tap flex shrink-0 items-center justify-center text-neutral-600 transition-colors hover:text-green-500"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 16 16"
-          fill="currentColor"
-          className="h-3 w-3"
-        >
-          <path
-            fillRule="evenodd"
-            d="M12.416 3.376a.75.75 0 0 1 .208 1.04l-5 7.5a.75.75 0 0 1-1.154.114l-3-3a.75.75 0 0 1 1.06-1.06l2.353 2.353 4.493-6.74a.75.75 0 0 1 1.04-.207Z"
-            clipRule="evenodd"
-          />
-        </svg>
+        <span className="flex h-5 w-5 items-center justify-center rounded-full border border-current">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 16 16"
+            fill="currentColor"
+            className="h-3 w-3"
+          >
+            <path
+              fillRule="evenodd"
+              d="M12.416 3.376a.75.75 0 0 1 .208 1.04l-5 7.5a.75.75 0 0 1-1.154.114l-3-3a.75.75 0 0 1 1.06-1.06l2.353 2.353 4.493-6.74a.75.75 0 0 1 1.04-.207Z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </span>
       </button>
     </form>
   );
@@ -188,7 +190,7 @@ export default async function TodayAgenda() {
                     (now.getTime() - item.dueAt.getTime()) / (1000 * 60 * 60 * 24)
                   );
                   return (
-                    <li key={item.id} className="flex items-center gap-3 px-5 py-3">
+                    <li key={item.id} className="flex min-h-11 items-center gap-3 px-5 py-2">
                       <CompleteButton id={item.id} />
                       <span
                         className={`shrink-0 inline-block rounded-full ${meta.bg} px-2 py-0.5 text-xs font-medium ${meta.color}`}
@@ -240,7 +242,7 @@ export default async function TodayAgenda() {
                     minute: "2-digit",
                   });
                   return (
-                    <li key={item.id} className="flex items-center gap-3 px-5 py-3">
+                    <li key={item.id} className="flex min-h-11 items-center gap-3 px-5 py-2">
                       <CompleteButton id={item.id} />
                       <span
                         className={`shrink-0 inline-block rounded-full ${meta.bg} px-2 py-0.5 text-xs font-medium ${meta.color}`}
@@ -283,7 +285,7 @@ export default async function TodayAgenda() {
               </div>
               <ul className="divide-y divide-neutral-800/60">
                 {closingToday.map((deal) => (
-                  <li key={deal.id} className="flex items-center gap-3 px-5 py-3">
+                  <li key={deal.id} className="flex min-h-11 items-center gap-3 px-5 py-2">
                     <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-amber-700/50 text-amber-500">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"

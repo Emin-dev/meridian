@@ -36,11 +36,12 @@ const TYPE_META: Record<string, { label: string; color: string; bg: string }> =
   };
 
 function formatCurrency(value: number) {
+  const safe = Number.isFinite(value) ? value : 0;
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
     maximumFractionDigits: 0,
-  }).format(value);
+  }).format(safe);
 }
 
 function KpiCard({
@@ -51,11 +52,11 @@ function KpiCard({
   value: string;
 }) {
   return (
-    <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-5">
-      <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">
+    <div className="card p-4 sm:p-5">
+      <p className="text-caption font-medium uppercase tracking-wide text-[--ink-3]">
         {label}
       </p>
-      <p className="mt-2 text-2xl font-semibold text-neutral-100">{value}</p>
+      <p className="text-title2 mt-2 font-semibold text-[--ink-1]">{value}</p>
     </div>
   );
 }
@@ -300,8 +301,8 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-neutral-100">Dashboard</h2>
-          <p className="mt-1 text-sm text-neutral-400">Your sales overview.</p>
+          <h2 className="text-title3 font-semibold text-[--ink-1]">Dashboard</h2>
+          <p className="text-footnote mt-1 text-[--ink-2]">Your sales overview.</p>
         </div>
       </div>
 
@@ -323,24 +324,26 @@ export default async function DashboardPage() {
       {db && totalContacts > 0 && (
         <>
           {/* KPI cards */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            <KpiCard
-              label="Total Contacts"
-              value={totalContacts.toString()}
-            />
-            <KpiCard label="Open Deals" value={openDealsCount.toString()} />
-            <KpiCard
-              label="Pipeline Value"
-              value={formatCurrency(pipelineValue)}
-            />
-            <KpiCard
-              label="Weighted Pipeline"
-              value={formatCurrency(weightedPipelineValue)}
-            />
-            <KpiCard
-              label="Activities This Week"
-              value={weekActivityCount.toString()}
-            />
+          <div className="@container">
+            <div className="grid grid-cols-1 gap-4 @sm:grid-cols-2 @lg:grid-cols-3">
+              <KpiCard
+                label="Total Contacts"
+                value={totalContacts.toString()}
+              />
+              <KpiCard label="Open Deals" value={openDealsCount.toString()} />
+              <KpiCard
+                label="Pipeline Value"
+                value={formatCurrency(pipelineValue)}
+              />
+              <KpiCard
+                label="Weighted Pipeline"
+                value={formatCurrency(weightedPipelineValue)}
+              />
+              <KpiCard
+                label="Activities This Week"
+                value={weekActivityCount.toString()}
+              />
+            </div>
           </div>
 
           {/* Today's agenda */}
