@@ -29,10 +29,15 @@ export async function sendAllDueSteps(
       schema.contacts,
       eq(schema.contactSequenceEnrollments.contactId, schema.contacts.id),
     )
+    .innerJoin(
+      schema.sequences,
+      eq(schema.contactSequenceEnrollments.sequenceId, schema.sequences.id),
+    )
     .where(
       and(
         inArray(schema.contactSequenceEnrollments.id, enrollmentIds),
         eq(schema.contactSequenceEnrollments.status, "active"),
+        eq(schema.sequences.status, "active"),
       ),
     );
 
