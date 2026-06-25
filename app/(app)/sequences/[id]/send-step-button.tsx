@@ -192,7 +192,7 @@ function SendStepModal({
             <button
               onClick={handleMarkSent}
               disabled={isPending}
-              className="tap inline-flex items-center justify-center rounded-[--r-md] bg-emerald-600 px-3 text-xs font-medium text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
+              className="tap inline-flex items-center justify-center rounded-[--r-md] bg-[--ok] px-3 text-xs font-medium text-[--bg] transition-colors hover:opacity-90 disabled:opacity-50"
             >
               {isPending ? "Logging…" : "Log as Sent"}
             </button>

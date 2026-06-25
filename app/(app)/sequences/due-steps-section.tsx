@@ -63,7 +63,7 @@ export function DueStepsSection({ dueEnrollments, defaultOwnerName }: Props) {
         <button
           onClick={handleSendAll}
           disabled={isPending}
-          className="tap flex items-center justify-center self-start rounded-[--r-md] bg-emerald-600 px-4 text-xs font-medium text-white transition-colors hover:bg-emerald-500 disabled:opacity-50 sm:self-auto"
+          className="tap flex items-center justify-center self-start rounded-[--r-md] bg-[--ok] px-4 text-xs font-medium text-[--bg] transition-colors hover:opacity-90 disabled:opacity-50 sm:self-auto"
         >
           {isPending
             ? "Logging…"
