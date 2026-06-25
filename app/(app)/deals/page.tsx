@@ -3,6 +3,7 @@ import { getDb } from "@/db";
 import DealModal from "./deal-modal";
 import DealsTable from "./deals-table";
 import KanbanCard from "./kanban-card";
+import DealsExportCsvButton from "./export-csv-button";
 import { getCrmSettings } from "@/lib/settings";
 
 const STAGES = [
@@ -127,6 +128,8 @@ export default async function DealsPage({
               Table
             </Link>
           </div>
+
+          {isTable && <DealsExportCsvButton hasDb={!!db} />}
 
           <DealModal
             hasDb={!!db}
