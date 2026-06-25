@@ -8,6 +8,7 @@ import DeleteDealButton from "./delete-deal-button";
 import DealActivityTimeline from "./deal-activity-timeline";
 import DealSummarizePanel from "./deal-summarize-panel";
 import DealNextActionPanel from "./deal-next-action-panel";
+import StageControl from "../stage-control";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -140,6 +141,7 @@ export default async function DealDetailPage({ params }: Props) {
                 {deal.closeReason}
               </p>
             )}
+          <StageControl dealId={deal.id} stage={deal.stage} />
         </div>
         <DeleteDealButton dealId={deal.id} />
       </div>
