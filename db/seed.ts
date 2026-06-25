@@ -1,11 +1,17 @@
 import { config } from "dotenv";
 config({ path: ".env.local" });
 
-import { eq } from "drizzle-orm";
 import { getDb } from "./index";
 import { users } from "./schema";
 import { hashPassword } from "../lib/auth";
 import { insertDemoData } from "./demo-data";
+
+// Realistic Baku user accounts (used when auth is enabled via AUTH_ENABLED).
+const DEMO_USERS = [
+  { email: "elvin.mammadov@meridian.az", password: "Baku2026!" },
+  { email: "nigar.aliyeva@meridian.az", password: "Baku2026!" },
+  { email: "admin@meridian.az", password: "Admin2026!" },
+];
 
 async function main() {
   const db = getDb();
@@ -14,29 +20,18 @@ async function main() {
     return;
   }
 
-  const email = process.env.SEED_EMAIL ?? "admin@meridian.local";
-  const password = process.env.SEED_PASSWORD ?? "changeme";
-
-  const [existing] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.email, email))
-    .limit(1);
-
-  if (existing) {
-    console.log("Seed user already exists:", email);
-  } else {
-    const hash = await hashPassword(password);
-    await db.insert(users).values({ email, passwordHash: hash });
-    console.log("Created seed user:", email);
-    console.log("  Email:   ", email);
-    console.log("  Password:", password);
+  // Reset to the demo Baku user set.
+  await db.delete(users);
+  for (const u of DEMO_USERS) {
+    const hash = await hashPassword(u.password);
+    await db.insert(users).values({ email: u.email, passwordHash: hash });
+    console.log("User:", u.email, " /  password:", u.password);
   }
 
   if (process.argv.includes("--demo")) {
-    console.log("Loading demo data…");
+    console.log("Loading small Baku demo data…");
     await insertDemoData(db);
-    console.log("Demo data loaded: 8 contacts, 8 deals, 16 activities.");
+    console.log("Baku demo data loaded: 5 contacts, 4 deals, 6 activities, 1 sequence.");
   }
 }
 
