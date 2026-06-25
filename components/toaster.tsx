@@ -51,19 +51,19 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       <div
         aria-live="polite"
         aria-label="Notifications"
-        className="pointer-events-none fixed bottom-5 right-5 z-[200] flex flex-col gap-2"
+        className="pointer-events-none fixed bottom-[calc(env(safe-area-inset-bottom)+76px)] right-4 lg:bottom-5 z-[200] flex flex-col gap-2"
       >
         {toasts.map((t) => (
           <div
             key={t.id}
             role="status"
             className={[
-              "pointer-events-auto flex min-w-[220px] max-w-xs items-center gap-2.5 rounded-lg px-4 py-3 text-sm shadow-lg",
+              "pointer-events-auto flex min-w-[220px] max-w-xs items-center gap-2.5 rounded-[--r-lg] px-4 py-3 text-body bg-[--surface-2] border border-[--line-1] shadow-[--shadow-2]",
               t.variant === "error"
-                ? "border border-red-800 bg-red-950 text-red-300"
+                ? "text-[--bad]"
                 : t.variant === "info"
-                  ? "border border-neutral-700 bg-neutral-900 text-neutral-200"
-                  : "border border-emerald-800 bg-emerald-950 text-emerald-300",
+                  ? "text-[--info]"
+                  : "text-[--ok]",
             ].join(" ")}
           >
             {t.variant === "success" && (
