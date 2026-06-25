@@ -279,9 +279,9 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
       {/* Main column */}
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         {/* Topbar */}
-        <header className="flex shrink-0 items-center gap-3 border-b border-neutral-800 bg-neutral-900/80 px-4 py-3 backdrop-blur-sm">
+        <header className="sticky top-0 z-30 glass border-b border-[--line-1] flex items-center gap-3 px-4 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top))]">
           <button
-            className="rounded-lg p-1.5 text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-neutral-100 lg:hidden"
+            className="tap flex items-center justify-center rounded-lg text-[--ink-2] transition-colors hover:bg-[--surface-2] hover:text-[--ink-1] lg:hidden"
             onClick={() => setMobileOpen(true)}
             aria-label="Open navigation"
           >
@@ -294,7 +294,7 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
           <h1 className="flex-1 truncate min-w-0 text-sm font-semibold text-neutral-100">{pageLabel}</h1>
           <button
             onClick={() => setSearchOpen(true)}
-            className="flex items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-800/60 px-3 py-1.5 text-xs text-neutral-400 transition-colors hover:border-neutral-600 hover:text-neutral-200"
+            className="tap flex items-center gap-2 rounded-lg border border-[--line-1] bg-[--surface-2] px-3 text-xs text-[--ink-2] transition-colors hover:border-[--line-2] hover:text-[--ink-1]"
             aria-label="Open search"
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
