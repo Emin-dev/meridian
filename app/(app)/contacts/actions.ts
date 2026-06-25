@@ -99,22 +99,86 @@ const CsvRowSchema = z.object({
   company: z.string().transform((v) => (v.trim() === "" ? null : v.trim())),
 });
 
+export type ImportSkippedRow = {
+  row: number;
+  name: string;
+  reason: string;
+};
+
+export type BulkImportResult = {
+  count: number;
+  skipped: ImportSkippedRow[];
+  error?: string;
+};
+
 export async function bulkImportContacts(
-  rows: { name: string; email: string; phone: string; company: string }[]
-): Promise<{ count: number; error?: string }> {
+  rows: { rowIndex: number; name: string; email: string; phone: string; company: string }[]
+): Promise<BulkImportResult> {
   const db = getDb();
-  if (!db) return { count: 0, error: "Database not connected" };
+  if (!db) return { count: 0, skipped: [], error: "Database not connected" };
 
-  const valid = rows
-    .map((r) => CsvRowSchema.safeParse(r))
-    .filter((r) => r.success)
-    .map((r) => (r as { success: true; data: z.infer<typeof CsvRowSchema> }).data);
+  const skipped: ImportSkippedRow[] = [];
+  const valid: Array<{ rowIndex: number; data: z.infer<typeof CsvRowSchema> }> = [];
 
-  if (valid.length === 0) return { count: 0, error: "No valid rows to import" };
+  for (const r of rows) {
+    const result = CsvRowSchema.safeParse(r);
+    if (!result.success) {
+      const firstIssue = result.error.issues[0];
+      let reason = "Invalid data";
+      if (firstIssue?.path[0] === "name") reason = "Missing name";
+      else if (firstIssue?.path[0] === "email") reason = "Invalid email format";
+      skipped.push({ row: r.rowIndex, name: r.name || "(empty)", reason });
+    } else {
+      valid.push({ rowIndex: r.rowIndex, data: result.data });
+    }
+  }
 
-  await db.insert(schema.contacts).values(valid).onConflictDoNothing();
+  if (valid.length === 0) {
+    return { count: 0, skipped, error: skipped.length === 0 ? "No rows to import" : undefined };
+  }
+
+  // Check for emails that already exist in the database
+  const emailsToCheck = valid
+    .map((v) => v.data.email)
+    .filter((e): e is string => e !== null);
+
+  const existingEmails = new Set<string>();
+  if (emailsToCheck.length > 0) {
+    const existing = await db
+      .select({ email: schema.contacts.email })
+      .from(schema.contacts)
+      .where(inArray(schema.contacts.email, emailsToCheck));
+    for (const row of existing) {
+      if (row.email) existingEmails.add(row.email.toLowerCase());
+    }
+  }
+
+  // Also deduplicate within the batch itself
+  const seenEmailsInBatch = new Set<string>();
+  const toInsert: z.infer<typeof CsvRowSchema>[] = [];
+
+  for (const { rowIndex, data } of valid) {
+    if (data.email) {
+      const lower = data.email.toLowerCase();
+      if (existingEmails.has(lower)) {
+        skipped.push({ row: rowIndex, name: data.name, reason: `Duplicate email (${data.email})` });
+        continue;
+      }
+      if (seenEmailsInBatch.has(lower)) {
+        skipped.push({ row: rowIndex, name: data.name, reason: `Duplicate email in import (${data.email})` });
+        continue;
+      }
+      seenEmailsInBatch.add(lower);
+    }
+    toInsert.push(data);
+  }
+
+  if (toInsert.length > 0) {
+    await db.insert(schema.contacts).values(toInsert);
+  }
+
   revalidatePath("/contacts");
-  return { count: valid.length };
+  return { count: toInsert.length, skipped };
 }
 
 export async function updateContact(

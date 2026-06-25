@@ -2,18 +2,24 @@
 
 import { useRef, useState, useTransition } from "react";
 import { bulkImportContacts } from "./actions";
+import type { ImportSkippedRow } from "./actions";
 import { useToast } from "@/components/toaster";
 
 interface ParsedRow {
+  rowIndex: number;
   name: string;
   email: string;
   phone: string;
   company: string;
 }
 
-function parseCsv(text: string): { rows: ParsedRow[]; error?: string } {
+function parseCsv(text: string): {
+  rows: ParsedRow[];
+  skipped: ImportSkippedRow[];
+  error?: string;
+} {
   const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-  if (lines.length < 2) return { rows: [], error: "Paste at least a header row and one data row." };
+  if (lines.length < 2) return { rows: [], skipped: [], error: "Paste at least a header row and one data row." };
 
   const parseFields = (line: string): string[] => {
     const fields: string[] = [];
@@ -48,14 +54,21 @@ function parseCsv(text: string): { rows: ParsedRow[]; error?: string } {
   const phoneIdx = colIndex(["phone", "phonenumber", "phone_number", "mobile", "tel"]);
   const companyIdx = colIndex(["company", "organization", "org", "account"]);
 
-  if (nameIdx === -1) return { rows: [], error: 'Could not find a "name" column in the header row.' };
+  if (nameIdx === -1) return { rows: [], skipped: [], error: 'Could not find a "name" column in the header row.' };
 
   const rows: ParsedRow[] = [];
+  const skipped: ImportSkippedRow[] = [];
+
   for (let i = 1; i < lines.length; i++) {
+    const csvLineNumber = i + 1; // header = line 1, first data row = line 2
     const fields = parseFields(lines[i]);
     const name = nameIdx !== -1 ? (fields[nameIdx] ?? "") : "";
-    if (!name) continue;
+    if (!name) {
+      skipped.push({ row: csvLineNumber, name: "(empty)", reason: "Missing name" });
+      continue;
+    }
     rows.push({
+      rowIndex: csvLineNumber,
       name,
       email: emailIdx !== -1 ? (fields[emailIdx] ?? "") : "",
       phone: phoneIdx !== -1 ? (fields[phoneIdx] ?? "") : "",
@@ -63,8 +76,8 @@ function parseCsv(text: string): { rows: ParsedRow[]; error?: string } {
     });
   }
 
-  if (rows.length === 0) return { rows: [], error: "No valid data rows found." };
-  return { rows };
+  if (rows.length === 0 && skipped.length === 0) return { rows: [], skipped: [], error: "No valid data rows found." };
+  return { rows, skipped };
 }
 
 interface Props {
@@ -72,6 +85,8 @@ interface Props {
 }
 
 const PREVIEW_LIMIT = 8;
+
+type ModalMode = "input" | "results";
 
 export default function CsvImportModal({ hasDb }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -81,23 +96,35 @@ export default function CsvImportModal({ hasDb }: Props) {
   const [csvText, setCsvText] = useState("");
   const [parsed, setParsed] = useState<ParsedRow[]>([]);
   const [parseError, setParseError] = useState<string | undefined>();
+  const [parseSkipped, setParseSkipped] = useState<ImportSkippedRow[]>([]);
+
+  // Results state
+  const [mode, setMode] = useState<ModalMode>("input");
+  const [importCount, setImportCount] = useState(0);
+  const [allSkipped, setAllSkipped] = useState<ImportSkippedRow[]>([]);
 
   function handleTextChange(text: string) {
     setCsvText(text);
     if (!text.trim()) {
       setParsed([]);
       setParseError(undefined);
+      setParseSkipped([]);
       return;
     }
     const result = parseCsv(text);
     setParsed(result.rows);
     setParseError(result.error);
+    setParseSkipped(result.skipped);
   }
 
   function handleOpen() {
     setCsvText("");
     setParsed([]);
     setParseError(undefined);
+    setParseSkipped([]);
+    setMode("input");
+    setImportCount(0);
+    setAllSkipped([]);
     dialogRef.current?.showModal();
   }
 
@@ -109,12 +136,15 @@ export default function CsvImportModal({ hasDb }: Props) {
     if (parsed.length === 0) return;
     startTransition(async () => {
       const result = await bulkImportContacts(parsed);
-      dialogRef.current?.close();
-      if (result.error) {
+      if (result.error && result.count === 0 && result.skipped.length === 0) {
         toast(result.error, "error");
-      } else {
-        toast(`Imported ${result.count} contact${result.count !== 1 ? "s" : ""}`, "success");
+        dialogRef.current?.close();
+        return;
       }
+      const combined = [...parseSkipped, ...result.skipped].sort((a, b) => a.row - b.row);
+      setImportCount(result.count);
+      setAllSkipped(combined);
+      setMode("results");
     });
   }
 
@@ -132,96 +162,55 @@ export default function CsvImportModal({ hasDb }: Props) {
         ref={dialogRef}
         className="w-full max-w-2xl rounded-xl border border-neutral-800 bg-neutral-900 p-0 text-neutral-100 shadow-2xl backdrop:bg-black/60"
       >
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-4">
-          <div>
-            <h2 className="text-base font-semibold">Import Contacts from CSV</h2>
-            <p className="mt-0.5 text-xs text-neutral-500">
-              Columns: <code className="rounded bg-neutral-800 px-1">name</code>,{" "}
-              <code className="rounded bg-neutral-800 px-1">email</code>,{" "}
-              <code className="rounded bg-neutral-800 px-1">phone</code>,{" "}
-              <code className="rounded bg-neutral-800 px-1">company</code>
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={handleClose}
-            className="rounded-md p-1 text-neutral-400 hover:bg-neutral-800 hover:text-neutral-100"
-            aria-label="Close"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M18 6 6 18M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        <div className="space-y-4 px-6 py-5">
-          {!hasDb ? (
-            <div className="space-y-2 py-6 text-center">
-              <p className="text-sm text-neutral-300">Database not connected.</p>
-              <p className="text-xs text-neutral-500">
-                Set <code className="rounded bg-neutral-800 px-1 py-0.5">DATABASE_URL</code> to
-                import contacts.
-              </p>
+        {mode === "results" ? (
+          <>
+            {/* Results header */}
+            <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-4">
+              <h2 className="text-base font-semibold">Import Complete</h2>
+              <button
+                type="button"
+                onClick={handleClose}
+                className="rounded-md p-1 text-neutral-400 hover:bg-neutral-800 hover:text-neutral-100"
+                aria-label="Close"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
+              </button>
             </div>
-          ) : (
-            <>
-              <div>
-                <label className="mb-1 block text-xs font-medium text-neutral-400">
-                  Paste CSV text
-                </label>
-                <textarea
-                  rows={6}
-                  value={csvText}
-                  onChange={(e) => handleTextChange(e.target.value)}
-                  placeholder={"name,email,phone,company\nJane Smith,jane@example.com,+1 555 0001,Acme Corp"}
-                  className="w-full resize-y rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 font-mono text-xs text-neutral-100 placeholder-neutral-600 focus:border-indigo-500 focus:outline-none"
-                />
+
+            <div className="space-y-4 px-6 py-5">
+              {/* Summary counts */}
+              <div className="flex gap-4">
+                <div className="flex-1 rounded-lg border border-green-800/40 bg-green-900/20 px-4 py-3 text-center">
+                  <p className="text-2xl font-bold text-green-400">{importCount}</p>
+                  <p className="mt-0.5 text-xs text-green-600">imported</p>
+                </div>
+                <div className="flex-1 rounded-lg border border-neutral-700 bg-neutral-800/50 px-4 py-3 text-center">
+                  <p className="text-2xl font-bold text-neutral-300">{allSkipped.length}</p>
+                  <p className="mt-0.5 text-xs text-neutral-500">skipped</p>
+                </div>
               </div>
 
-              {parseError && (
-                <p className="text-xs text-red-400">{parseError}</p>
-              )}
-
-              {parsed.length > 0 && (
+              {/* Skipped rows list */}
+              {allSkipped.length > 0 && (
                 <div>
-                  <p className="mb-2 text-xs font-medium text-neutral-400">
-                    Preview — {parsed.length} row{parsed.length !== 1 ? "s" : ""}
-                    {parsed.length > PREVIEW_LIMIT && ` (showing first ${PREVIEW_LIMIT})`}
-                  </p>
-                  <div className="overflow-x-auto rounded-lg border border-neutral-800">
+                  <p className="mb-2 text-xs font-medium text-neutral-400">Skipped rows</p>
+                  <div className="max-h-56 overflow-y-auto rounded-lg border border-neutral-800">
                     <table className="w-full text-xs">
-                      <thead>
-                        <tr className="border-b border-neutral-800 bg-neutral-800/50">
-                          {["Name", "Email", "Phone", "Company"].map((h) => (
-                            <th
-                              key={h}
-                              className="px-3 py-2 text-left font-medium uppercase tracking-wide text-neutral-500"
-                            >
-                              {h}
-                            </th>
-                          ))}
+                      <thead className="sticky top-0 bg-neutral-900">
+                        <tr className="border-b border-neutral-800 bg-neutral-800/60">
+                          <th className="w-16 px-3 py-2 text-left font-medium uppercase tracking-wide text-neutral-500">Row</th>
+                          <th className="px-3 py-2 text-left font-medium uppercase tracking-wide text-neutral-500">Name</th>
+                          <th className="px-3 py-2 text-left font-medium uppercase tracking-wide text-neutral-500">Reason</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {parsed.slice(0, PREVIEW_LIMIT).map((row, i) => (
-                          <tr
-                            key={i}
-                            className="border-b border-neutral-800 last:border-0"
-                          >
-                            <td className="px-3 py-2 font-medium text-neutral-200">{row.name || "—"}</td>
-                            <td className="px-3 py-2 text-neutral-400">{row.email || "—"}</td>
-                            <td className="px-3 py-2 text-neutral-400">{row.phone || "—"}</td>
-                            <td className="px-3 py-2 text-neutral-400">{row.company || "—"}</td>
+                        {allSkipped.map((s, i) => (
+                          <tr key={i} className="border-b border-neutral-800 last:border-0">
+                            <td className="px-3 py-2 tabular-nums text-neutral-500">{s.row}</td>
+                            <td className="px-3 py-2 font-medium text-neutral-300">{s.name}</td>
+                            <td className="px-3 py-2 text-amber-400">{s.reason}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -229,34 +218,148 @@ export default function CsvImportModal({ hasDb }: Props) {
                   </div>
                 </div>
               )}
-            </>
-          )}
-        </div>
 
-        {/* Footer */}
-        <div className="flex justify-end gap-3 border-t border-neutral-800 px-6 py-4">
-          <button
-            type="button"
-            onClick={handleClose}
-            className="rounded-lg px-4 py-2 text-sm text-neutral-400 hover:bg-neutral-800 hover:text-neutral-100"
-          >
-            Cancel
-          </button>
-          {hasDb && (
-            <button
-              type="button"
-              onClick={handleImport}
-              disabled={parsed.length === 0 || isPending}
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
-            >
-              {isPending
-                ? "Importing…"
-                : parsed.length > 0
-                  ? `Import ${parsed.length} contact${parsed.length !== 1 ? "s" : ""}`
-                  : "Import"}
-            </button>
-          )}
-        </div>
+              {allSkipped.length === 0 && (
+                <p className="text-center text-xs text-neutral-500">All rows imported successfully — no rows were skipped.</p>
+              )}
+            </div>
+
+            <div className="flex justify-end border-t border-neutral-800 px-6 py-4">
+              <button
+                type="button"
+                onClick={handleClose}
+                className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
+              >
+                Done
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Input header */}
+            <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-4">
+              <div>
+                <h2 className="text-base font-semibold">Import Contacts from CSV</h2>
+                <p className="mt-0.5 text-xs text-neutral-500">
+                  Columns: <code className="rounded bg-neutral-800 px-1">name</code>,{" "}
+                  <code className="rounded bg-neutral-800 px-1">email</code>,{" "}
+                  <code className="rounded bg-neutral-800 px-1">phone</code>,{" "}
+                  <code className="rounded bg-neutral-800 px-1">company</code>
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleClose}
+                className="rounded-md p-1 text-neutral-400 hover:bg-neutral-800 hover:text-neutral-100"
+                aria-label="Close"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="space-y-4 px-6 py-5">
+              {!hasDb ? (
+                <div className="space-y-2 py-6 text-center">
+                  <p className="text-sm text-neutral-300">Database not connected.</p>
+                  <p className="text-xs text-neutral-500">
+                    Set <code className="rounded bg-neutral-800 px-1 py-0.5">DATABASE_URL</code> to
+                    import contacts.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-neutral-400">
+                      Paste CSV text
+                    </label>
+                    <textarea
+                      rows={6}
+                      value={csvText}
+                      onChange={(e) => handleTextChange(e.target.value)}
+                      placeholder={"name,email,phone,company\nJane Smith,jane@example.com,+1 555 0001,Acme Corp"}
+                      className="w-full resize-y rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 font-mono text-xs text-neutral-100 placeholder-neutral-600 focus:border-indigo-500 focus:outline-none"
+                    />
+                  </div>
+
+                  {parseError && (
+                    <p className="text-xs text-red-400">{parseError}</p>
+                  )}
+
+                  {parseSkipped.length > 0 && (
+                    <p className="text-xs text-amber-400">
+                      {parseSkipped.length} row{parseSkipped.length !== 1 ? "s" : ""} will be skipped (missing name).
+                    </p>
+                  )}
+
+                  {parsed.length > 0 && (
+                    <div>
+                      <p className="mb-2 text-xs font-medium text-neutral-400">
+                        Preview — {parsed.length} row{parsed.length !== 1 ? "s" : ""}
+                        {parsed.length > PREVIEW_LIMIT && ` (showing first ${PREVIEW_LIMIT})`}
+                      </p>
+                      <div className="overflow-x-auto rounded-lg border border-neutral-800">
+                        <table className="w-full text-xs">
+                          <thead>
+                            <tr className="border-b border-neutral-800 bg-neutral-800/50">
+                              {["Name", "Email", "Phone", "Company"].map((h) => (
+                                <th
+                                  key={h}
+                                  className="px-3 py-2 text-left font-medium uppercase tracking-wide text-neutral-500"
+                                >
+                                  {h}
+                                </th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {parsed.slice(0, PREVIEW_LIMIT).map((row, i) => (
+                              <tr
+                                key={i}
+                                className="border-b border-neutral-800 last:border-0"
+                              >
+                                <td className="px-3 py-2 font-medium text-neutral-200">{row.name || "—"}</td>
+                                <td className="px-3 py-2 text-neutral-400">{row.email || "—"}</td>
+                                <td className="px-3 py-2 text-neutral-400">{row.phone || "—"}</td>
+                                <td className="px-3 py-2 text-neutral-400">{row.company || "—"}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-end gap-3 border-t border-neutral-800 px-6 py-4">
+              <button
+                type="button"
+                onClick={handleClose}
+                className="rounded-lg px-4 py-2 text-sm text-neutral-400 hover:bg-neutral-800 hover:text-neutral-100"
+              >
+                Cancel
+              </button>
+              {hasDb && (
+                <button
+                  type="button"
+                  onClick={handleImport}
+                  disabled={parsed.length === 0 || isPending}
+                  className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
+                >
+                  {isPending
+                    ? "Importing…"
+                    : parsed.length > 0
+                      ? `Import ${parsed.length} contact${parsed.length !== 1 ? "s" : ""}`
+                      : "Import"}
+                </button>
+              )}
+            </div>
+          </>
+        )}
       </dialog>
     </>
   );
