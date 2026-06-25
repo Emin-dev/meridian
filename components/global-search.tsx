@@ -58,6 +58,11 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
       id: d.id,
       href: `/deals/${d.id}`,
     })) ?? []),
+    ...(results?.activities.map((a) => ({
+      type: "activity" as const,
+      id: a.id,
+      href: `/activity`,
+    })) ?? []),
   ];
 
   function navigate(href: string) {
@@ -116,7 +121,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleInputKeyDown}
-            placeholder="Search contacts and deals…"
+            placeholder="Search contacts, deals and activities…"
             className="flex-1 bg-transparent text-sm text-neutral-100 placeholder:text-neutral-500 outline-none"
           />
           {isPending && (
@@ -131,7 +136,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
         <div className="max-h-80 overflow-y-auto">
           {!results && (
             <p className="py-8 text-center text-sm text-neutral-500">
-              Type to search contacts and deals
+              Type to search contacts, deals and activities
             </p>
           )}
 
@@ -248,6 +253,77 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                         ${Number(deal.value).toLocaleString()}
                       </span>
                     )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {results && results.activities.length > 0 && (
+            <div className="p-2">
+              <p className="mb-1 px-2 text-xs font-semibold uppercase tracking-wider text-neutral-500">
+                Activities
+              </p>
+              {results.activities.map((activity) => {
+                const flatIdx = allItems.findIndex(
+                  (i) => i.type === "activity" && i.id === activity.id
+                );
+                const active = flatIdx === selectedIndex;
+                return (
+                  <button
+                    key={activity.id}
+                    onClick={() => navigate(`/activity`)}
+                    onMouseEnter={() => setSelectedIndex(flatIdx)}
+                    className={[
+                      "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors",
+                      active
+                        ? "bg-indigo-600 text-white"
+                        : "text-neutral-200 hover:bg-neutral-800",
+                    ].join(" ")}
+                  >
+                    <span
+                      className={[
+                        "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-neutral-400",
+                        active ? "bg-indigo-500" : "bg-neutral-800",
+                      ].join(" ")}
+                    >
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="12 6 12 12 16 14" />
+                      </svg>
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate font-medium">{activity.subject}</span>
+                      {activity.body && (
+                        <span
+                          className={[
+                            "block truncate text-xs",
+                            active ? "text-indigo-200" : "text-neutral-500",
+                          ].join(" ")}
+                        >
+                          {activity.body}
+                        </span>
+                      )}
+                    </span>
+                    <span
+                      className={[
+                        "shrink-0 rounded px-1.5 py-0.5 text-xs font-medium capitalize",
+                        active
+                          ? "bg-indigo-500 text-white"
+                          : "bg-neutral-800 text-neutral-400",
+                      ].join(" ")}
+                    >
+                      {activity.type}
+                    </span>
                   </button>
                 );
               })}

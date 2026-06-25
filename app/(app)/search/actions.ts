@@ -16,17 +16,23 @@ export type SearchResults = {
     stage: string;
     value: string | null;
   }>;
+  activities: Array<{
+    id: number;
+    type: string;
+    subject: string;
+    body: string | null;
+  }>;
 };
 
 export async function searchGlobal(query: string): Promise<SearchResults> {
   const db = getDb();
   if (!db || !query.trim()) {
-    return { contacts: [], deals: [] };
+    return { contacts: [], deals: [], activities: [] };
   }
 
   const q = `%${query.trim()}%`;
 
-  const [contacts, deals] = await Promise.all([
+  const [contacts, deals, activities] = await Promise.all([
     db
       .select({
         id: schema.contacts.id,
@@ -53,7 +59,22 @@ export async function searchGlobal(query: string): Promise<SearchResults> {
       .from(schema.deals)
       .where(ilike(schema.deals.title, q))
       .limit(5),
+    db
+      .select({
+        id: schema.activities.id,
+        type: schema.activities.type,
+        subject: schema.activities.subject,
+        body: schema.activities.body,
+      })
+      .from(schema.activities)
+      .where(
+        or(
+          ilike(schema.activities.subject, q),
+          ilike(schema.activities.body, q),
+        )
+      )
+      .limit(5),
   ]);
 
-  return { contacts, deals };
+  return { contacts, deals, activities };
 }
