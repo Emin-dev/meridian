@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useState } from "react";
 import { addActivity, type AddActivityState } from "./actions";
 import { useToast } from "@/components/toaster";
+import SmartCompose from "@/components/smart-compose";
 
 const INIT: AddActivityState = {};
 const ACTIVITY_TYPES = ["call", "email", "meeting", "note", "task"] as const;
@@ -22,11 +23,14 @@ export default function AddActivityForm({
 }) {
   const [state, formAction, pending] = useActionState(addActivity, INIT);
   const [formKey, setFormKey] = useState(0);
+  const [type, setType] = useState<string>("note");
+  const [body, setBody] = useState("");
   const { toast } = useToast();
 
   useEffect(() => {
     if (state.success) {
       setFormKey((k) => k + 1);
+      setBody("");
       toast("Activity logged");
       onSuccess?.();
     }
@@ -63,7 +67,8 @@ export default function AddActivityForm({
             <select
               id="af-type"
               name="type"
-              defaultValue="note"
+              value={type}
+              onChange={(e) => setType(e.target.value)}
               className={inputCls}
             >
               {ACTIVITY_TYPES.map((t) => (
@@ -95,12 +100,17 @@ export default function AddActivityForm({
         </div>
 
         <div>
-          <label htmlFor="af-body" className={labelCls}>
-            Notes
-          </label>
+          <div className="mb-1 flex items-end justify-between gap-3">
+            <label htmlFor="af-body" className={labelCls + " mb-0"}>
+              Notes
+            </label>
+            <SmartCompose type={type} onAccept={setBody} />
+          </div>
           <textarea
             id="af-body"
             name="body"
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
             rows={2}
             placeholder="Optional details..."
             className={`${inputCls} resize-none`}

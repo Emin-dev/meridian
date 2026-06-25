@@ -106,6 +106,58 @@ export async function logAiTaskSuggestion(
   return { success: true };
 }
 
+// ─── AI: Smart compose — draft a polished message from a short intent ─────────
+
+export type SmartComposeState = {
+  draft?: string;
+  error?: string;
+  noKey?: boolean;
+};
+
+const COMPOSE_TONE: Record<string, string> = {
+  email: "a concise, professional email (with a greeting and sign-off)",
+  call: "brief call talking points / a short script",
+  meeting: "a short, friendly meeting request or agenda note",
+  note: "a clear internal CRM note",
+  task: "a clear, actionable task description",
+};
+
+export async function smartCompose(
+  intent: string,
+  type?: string,
+): Promise<SmartComposeState> {
+  const trimmed = intent?.trim() ?? "";
+  if (!trimmed) return { error: "Describe what you want to say first." };
+  if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
+
+  const format =
+    (type && COMPOSE_TONE[type]) ?? "a polished, professional message";
+
+  try {
+    const draft = await chat([
+      {
+        role: "system",
+        content:
+          `You are a CRM writing assistant. Turn the user's short intent into ${format}. ` +
+          "Keep it natural, warm and to the point — no fluff, no placeholder brackets unless a real name is unknown. " +
+          "Return only the message text, with no preamble, labels, or quotation marks.",
+      },
+      {
+        role: "user",
+        content: `Draft a message for this intent:\n\n${trimmed}`,
+      },
+    ]);
+
+    const clean = draft.trim();
+    if (!clean) return { error: "The assistant returned an empty draft." };
+    return { draft: clean };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown AI error.";
+    if (message.includes("DEEPSEEK_API_KEY")) return { noKey: true };
+    return { error: message };
+  }
+}
+
 export async function toggleActivityComplete(
   activityId: number,
   isCompleted: boolean,
