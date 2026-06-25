@@ -1,4 +1,4 @@
-import { and, desc, eq, gte } from "drizzle-orm";
+import { and, count, desc, eq, gte } from "drizzle-orm";
 import type { SQL } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import AddActivityForm from "./add-activity-form";
@@ -14,12 +14,14 @@ const LightningIcon = () => (
 const VALID_TYPES = ["call", "email", "meeting", "note", "task"] as const;
 type ActivityType = (typeof VALID_TYPES)[number];
 
+const PAGE_SIZE = 50;
+
 export default async function ActivityPage({
   searchParams,
 }: {
-  searchParams: Promise<{ type?: string; range?: string }>;
+  searchParams: Promise<{ type?: string; range?: string; offset?: string }>;
 }) {
-  const { type: typeParam, range: rangeParam } = await searchParams;
+  const { type: typeParam, range: rangeParam, offset: offsetParam } = await searchParams;
 
   const typeFilter =
     typeParam && (VALID_TYPES as readonly string[]).includes(typeParam)
@@ -33,6 +35,12 @@ export default async function ActivityPage({
 
   const currentType = typeFilter ?? "";
   const currentRange = rangeFilter !== undefined ? String(rangeFilter) : "";
+
+  const offset =
+    offsetParam && /^\d+$/.test(offsetParam)
+      ? Math.max(0, parseInt(offsetParam, 10))
+      : 0;
+  const limit = PAGE_SIZE + offset;
 
   const db = getDb();
 
@@ -84,21 +92,26 @@ export default async function ActivityPage({
   ];
   const whereClause = and(...conditions);
 
-  const rows = await db
-    .select({
-      activity: schema.activities,
-      contactName: schema.contacts.name,
-      dealTitle: schema.deals.title,
-    })
-    .from(schema.activities)
-    .leftJoin(
-      schema.contacts,
-      eq(schema.activities.contactId, schema.contacts.id)
-    )
-    .leftJoin(schema.deals, eq(schema.activities.dealId, schema.deals.id))
-    .where(whereClause)
-    .orderBy(desc(schema.activities.createdAt))
-    .limit(200);
+  const [countResult, rows] = await Promise.all([
+    db.select({ total: count() }).from(schema.activities).where(whereClause),
+    db
+      .select({
+        activity: schema.activities,
+        contactName: schema.contacts.name,
+        dealTitle: schema.deals.title,
+      })
+      .from(schema.activities)
+      .leftJoin(
+        schema.contacts,
+        eq(schema.activities.contactId, schema.contacts.id)
+      )
+      .leftJoin(schema.deals, eq(schema.activities.dealId, schema.deals.id))
+      .where(whereClause)
+      .orderBy(desc(schema.activities.createdAt))
+      .limit(limit),
+  ]);
+
+  const total = Number(countResult[0]?.total ?? 0);
 
   const serialized = rows.map(({ activity, contactName, dealTitle }) => ({
     activity: {
@@ -124,6 +137,7 @@ export default async function ActivityPage({
         rows={serialized}
         currentType={currentType}
         currentRange={currentRange}
+        total={total}
       />
     </div>
   );

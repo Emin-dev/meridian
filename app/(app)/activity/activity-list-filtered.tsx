@@ -58,9 +58,10 @@ interface Props {
   rows: SerializedRow[];
   currentType: string;
   currentRange: string;
+  total: number;
 }
 
-export default function ActivityListFiltered({ rows, currentType, currentRange }: Props) {
+export default function ActivityListFiltered({ rows, currentType, currentRange, total }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [contactQuery, setContactQuery] = useState("");
@@ -69,11 +70,24 @@ export default function ActivityListFiltered({ rows, currentType, currentRange }
     const params = new URLSearchParams();
     if (type) params.set("type", type);
     if (range) params.set("range", range);
+    // reset offset when changing filters
     const qs = params.toString();
     startTransition(() => {
       router.push(qs ? `/activity?${qs}` : "/activity");
     });
   }
+
+  function loadMore() {
+    const params = new URLSearchParams();
+    if (currentType) params.set("type", currentType);
+    if (currentRange) params.set("range", currentRange);
+    params.set("offset", String(rows.length));
+    startTransition(() => {
+      router.push(`/activity?${params.toString()}`);
+    });
+  }
+
+  const hasMore = rows.length < total;
 
   const now = new Date();
 
@@ -93,6 +107,14 @@ export default function ActivityListFiltered({ rows, currentType, currentRange }
     <div className="rounded-xl border border-neutral-800 bg-neutral-900">
       {/* Filter bar */}
       <div className="flex flex-wrap items-center gap-3 border-b border-neutral-800 px-5 py-3">
+        {total > 0 && (
+          <span className="mr-1 shrink-0 text-xs text-neutral-500">
+            {rows.length < total
+              ? `${rows.length} of ${total}`
+              : String(total)}{" "}
+            {total === 1 ? "activity" : "activities"}
+          </span>
+        )}
         {/* Type chips */}
         <div className="flex flex-wrap gap-1.5">
           {TYPE_CHIPS.map(({ value, label }) => {
@@ -184,99 +206,112 @@ export default function ActivityListFiltered({ rows, currentType, currentRange }
           )}
         </div>
       ) : (
-        <ul className="divide-y divide-neutral-800">
-          {filtered.map(({ activity, contactName, dealTitle }) => {
-            const meta = TYPE_META[activity.type as ActivityType];
-            const date = activity.createdAt.slice(0, 10);
-            const isCompleted = !!activity.completedAt;
-            const isOverdue =
-              !!activity.dueAt && !isCompleted && new Date(activity.dueAt) < now;
-            return (
-              <li
-                key={activity.id}
-                className={`flex gap-4 px-5 py-4 ${isOverdue ? "bg-red-950/20" : ""}`}
-              >
-                <ActivityToggle
-                  activityId={activity.id}
-                  isCompleted={isCompleted}
-                  contactId={activity.contactId}
-                  dealId={activity.dealId}
-                />
-                <div
-                  className={`mt-0.5 shrink-0 flex flex-wrap gap-1.5 items-start ${
-                    isCompleted ? "opacity-40" : ""
-                  }`}
+        <>
+          <ul className="divide-y divide-neutral-800">
+            {filtered.map(({ activity, contactName, dealTitle }) => {
+              const meta = TYPE_META[activity.type as ActivityType];
+              const date = activity.createdAt.slice(0, 10);
+              const isCompleted = !!activity.completedAt;
+              const isOverdue =
+                !!activity.dueAt && !isCompleted && new Date(activity.dueAt) < now;
+              return (
+                <li
+                  key={activity.id}
+                  className={`flex gap-4 px-5 py-4 ${isOverdue ? "bg-red-950/20" : ""}`}
                 >
-                  <span
-                    className={`inline-block rounded-full ${meta.bg} px-2 py-0.5 text-xs font-medium ${meta.color}`}
-                  >
-                    {meta.label}
-                  </span>
-                  {isOverdue && (
-                    <span className="inline-block rounded-full bg-red-900/30 px-2 py-0.5 text-xs font-medium text-red-400">
-                      Overdue
-                    </span>
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p
-                    className={`text-sm font-medium ${
-                      isCompleted ? "text-neutral-500 line-through" : "text-neutral-200"
+                  <ActivityToggle
+                    activityId={activity.id}
+                    isCompleted={isCompleted}
+                    contactId={activity.contactId}
+                    dealId={activity.dealId}
+                  />
+                  <div
+                    className={`mt-0.5 shrink-0 flex flex-wrap gap-1.5 items-start ${
+                      isCompleted ? "opacity-40" : ""
                     }`}
                   >
-                    {activity.subject}
-                  </p>
-                  {activity.body && (
-                    <p
-                      className={`mt-0.5 line-clamp-2 text-xs ${
-                        isCompleted ? "text-neutral-600" : "text-neutral-400"
-                      }`}
+                    <span
+                      className={`inline-block rounded-full ${meta.bg} px-2 py-0.5 text-xs font-medium ${meta.color}`}
                     >
-                      {activity.body}
-                    </p>
-                  )}
-                  <div className="mt-1 flex items-center gap-2 text-xs text-neutral-600">
-                    <span>{date}</span>
-                    {activity.dueAt && (
-                      <>
-                        <span aria-hidden>·</span>
-                        <span className={isOverdue ? "text-red-400" : "text-neutral-500"}>
-                          Due {activity.dueAt.slice(0, 10)}
-                        </span>
-                      </>
-                    )}
-                    {contactName && (
-                      <>
-                        <span aria-hidden>·</span>
-                        <span>{contactName}</span>
-                      </>
-                    )}
-                    {dealTitle && (
-                      <>
-                        <span aria-hidden>·</span>
-                        <span>{dealTitle}</span>
-                      </>
-                    )}
-                    {isCompleted && activity.completedAt && (
-                      <>
-                        <span aria-hidden>·</span>
-                        <span className="text-neutral-500">
-                          Completed {formatCompletedAt(activity.completedAt)}
-                        </span>
-                        <span aria-hidden>·</span>
-                        <ActivityUndoButton
-                          activityId={activity.id}
-                          contactId={activity.contactId}
-                          dealId={activity.dealId}
-                        />
-                      </>
+                      {meta.label}
+                    </span>
+                    {isOverdue && (
+                      <span className="inline-block rounded-full bg-red-900/30 px-2 py-0.5 text-xs font-medium text-red-400">
+                        Overdue
+                      </span>
                     )}
                   </div>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+                  <div className="min-w-0 flex-1">
+                    <p
+                      className={`text-sm font-medium ${
+                        isCompleted ? "text-neutral-500 line-through" : "text-neutral-200"
+                      }`}
+                    >
+                      {activity.subject}
+                    </p>
+                    {activity.body && (
+                      <p
+                        className={`mt-0.5 line-clamp-2 text-xs ${
+                          isCompleted ? "text-neutral-600" : "text-neutral-400"
+                        }`}
+                      >
+                        {activity.body}
+                      </p>
+                    )}
+                    <div className="mt-1 flex items-center gap-2 text-xs text-neutral-600">
+                      <span>{date}</span>
+                      {activity.dueAt && (
+                        <>
+                          <span aria-hidden>·</span>
+                          <span className={isOverdue ? "text-red-400" : "text-neutral-500"}>
+                            Due {activity.dueAt.slice(0, 10)}
+                          </span>
+                        </>
+                      )}
+                      {contactName && (
+                        <>
+                          <span aria-hidden>·</span>
+                          <span>{contactName}</span>
+                        </>
+                      )}
+                      {dealTitle && (
+                        <>
+                          <span aria-hidden>·</span>
+                          <span>{dealTitle}</span>
+                        </>
+                      )}
+                      {isCompleted && activity.completedAt && (
+                        <>
+                          <span aria-hidden>·</span>
+                          <span className="text-neutral-500">
+                            Completed {formatCompletedAt(activity.completedAt)}
+                          </span>
+                          <span aria-hidden>·</span>
+                          <ActivityUndoButton
+                            activityId={activity.id}
+                            contactId={activity.contactId}
+                            dealId={activity.dealId}
+                          />
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+          {hasMore && !contactQuery.trim() && (
+            <div className="border-t border-neutral-800 px-5 py-4 text-center">
+              <button
+                onClick={loadMore}
+                disabled={isPending}
+                className="inline-flex items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-800 px-4 py-2 text-xs font-medium text-neutral-300 transition-colors hover:bg-neutral-700 hover:text-neutral-100 disabled:opacity-50"
+              >
+                {isPending ? "Loading…" : `Load more (${total - rows.length} remaining)`}
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
