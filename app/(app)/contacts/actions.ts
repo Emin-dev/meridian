@@ -289,6 +289,108 @@ export async function scoreContact(contactId: number): Promise<ScoreState> {
   }
 }
 
+// ─── AI: Next best action suggestion ─────────────────────────────────────────
+
+export type NextActionState = {
+  action?: string;
+  priority?: "high" | "medium" | "low";
+  rationale?: string;
+  suggestedMessage?: string;
+  error?: string;
+  noDb?: boolean;
+  noKey?: boolean;
+};
+
+export async function suggestNextAction(
+  contactId: number
+): Promise<NextActionState> {
+  const db = getDb();
+  if (!db) return { noDb: true };
+
+  const [contact] = await db
+    .select()
+    .from(schema.contacts)
+    .where(eq(schema.contacts.id, contactId))
+    .limit(1);
+
+  if (!contact) return { error: "Contact not found." };
+
+  if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
+
+  const recentActivities = await db
+    .select()
+    .from(schema.activities)
+    .where(eq(schema.activities.contactId, contactId))
+    .orderBy(desc(schema.activities.createdAt))
+    .limit(15);
+
+  const lines: string[] = [
+    `Name: ${contact.name}`,
+    contact.title ? `Title: ${contact.title}` : null,
+    contact.company ? `Company: ${contact.company}` : null,
+    contact.email ? `Email: ${contact.email}` : null,
+    contact.leadScore != null ? `Lead score: ${contact.leadScore}/100` : null,
+    contact.leadScoreRationale
+      ? `Score rationale: ${contact.leadScoreRationale}`
+      : null,
+    contact.notes ? `\nNotes:\n${contact.notes}` : null,
+  ].filter(Boolean) as string[];
+
+  if (recentActivities.length > 0) {
+    lines.push("\nRecent activities (newest first):");
+    for (const a of recentActivities) {
+      const date = a.createdAt.toISOString().slice(0, 10);
+      const entry = [`[${date}] ${a.type.toUpperCase()}: ${a.subject}`, a.body ?? null]
+        .filter(Boolean)
+        .join(" — ");
+      lines.push(`- ${entry}`);
+    }
+  } else {
+    lines.push("\nNo recorded activities.");
+  }
+
+  try {
+    const raw = await chat(
+      [
+        {
+          role: "system",
+          content:
+            'You are an expert sales strategist. Given a CRM contact\'s profile, lead score, notes, and recent activities, recommend the single best next action the sales rep should take to advance the relationship. Return JSON with exactly four keys: "action" (short imperative phrase, max 8 words), "priority" ("high", "medium", or "low"), "rationale" (one or two sentences explaining why this action now), and "suggestedMessage" (a ready-to-send short message or email the rep can copy, 60–120 words). No other text.',
+        },
+        {
+          role: "user",
+          content: `Suggest the next best action for this contact:\n\n${lines.join("\n")}`,
+        },
+      ],
+      { json: true }
+    );
+
+    const parsed = JSON.parse(raw) as {
+      action: unknown;
+      priority: unknown;
+      rationale: unknown;
+      suggestedMessage: unknown;
+    };
+
+    const action = String(parsed.action ?? "").trim();
+    const priority = (["high", "medium", "low"] as const).includes(
+      parsed.priority as "high" | "medium" | "low"
+    )
+      ? (parsed.priority as "high" | "medium" | "low")
+      : "medium";
+    const rationale = String(parsed.rationale ?? "").trim();
+    const suggestedMessage = String(parsed.suggestedMessage ?? "").trim();
+
+    if (!action) return { error: "AI returned an empty action." };
+
+    return { action, priority, rationale, suggestedMessage };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown AI error.";
+    if (message.includes("DEEPSEEK_API_KEY")) return { noKey: true };
+    return { error: message };
+  }
+}
+
 // ─── AI: Draft outreach email ─────────────────────────────────────────────────
 
 export type DraftEmailState = {

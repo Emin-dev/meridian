@@ -7,6 +7,7 @@ import DraftEmailPanel from "./draft-email-panel";
 import SummarizePanel from "./summarize-panel";
 import LeadScorePanel from "./lead-score-panel";
 import ActivityTimeline from "./activity-timeline";
+import NextActionPanel from "./next-action-panel";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -89,6 +90,11 @@ export default async function ContactDetailPage({ params }: Props) {
       {/* AI contact brief */}
       <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-5">
         <SummarizePanel contactId={contact.id} />
+      </div>
+
+      {/* AI next best action */}
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-5">
+        <NextActionPanel contactId={contact.id} />
       </div>
 
       {/* AI email draft card */}
