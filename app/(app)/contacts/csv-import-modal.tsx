@@ -160,17 +160,17 @@ export default function CsvImportModal({ hasDb }: Props) {
 
       <dialog
         ref={dialogRef}
-        className="w-full max-w-2xl rounded-xl border border-neutral-800 bg-neutral-900 p-0 text-neutral-100 shadow-2xl backdrop:bg-black/60"
+        className="m-0 inset-x-0 bottom-0 top-auto w-full max-w-none rounded-t-[var(--r-2xl)] max-h-[90dvh] overflow-hidden flex flex-col border border-neutral-800 bg-neutral-900 p-0 text-neutral-100 shadow-2xl backdrop:bg-black/60 sm:m-auto sm:inset-0 sm:max-w-2xl sm:w-full sm:rounded-xl"
       >
         {mode === "results" ? (
           <>
             {/* Results header */}
-            <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-4">
+            <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-4 shrink-0">
               <h2 className="text-base font-semibold">Import Complete</h2>
               <button
                 type="button"
                 onClick={handleClose}
-                className="rounded-md p-1 text-neutral-400 hover:bg-neutral-800 hover:text-neutral-100"
+                className="tap flex items-center justify-center rounded-lg text-neutral-400 hover:bg-neutral-800 hover:text-neutral-100 transition-colors"
                 aria-label="Close"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -179,7 +179,7 @@ export default function CsvImportModal({ hasDb }: Props) {
               </button>
             </div>
 
-            <div className="space-y-4 px-6 py-5">
+            <div className="flex-1 overflow-y-auto space-y-4 px-6 py-5">
               {/* Summary counts */}
               <div className="flex gap-4">
                 <div className="flex-1 rounded-lg border border-green-800/40 bg-green-900/20 px-4 py-3 text-center">
@@ -196,7 +196,7 @@ export default function CsvImportModal({ hasDb }: Props) {
               {allSkipped.length > 0 && (
                 <div>
                   <p className="mb-2 text-xs font-medium text-neutral-400">Skipped rows</p>
-                  <div className="max-h-56 overflow-y-auto rounded-lg border border-neutral-800">
+                  <div className="max-h-56 overflow-x-auto overflow-y-auto rounded-lg border border-neutral-800">
                     <table className="w-full text-xs">
                       <thead className="sticky top-0 bg-neutral-900">
                         <tr className="border-b border-neutral-800 bg-neutral-800/60">
@@ -224,11 +224,11 @@ export default function CsvImportModal({ hasDb }: Props) {
               )}
             </div>
 
-            <div className="flex justify-end border-t border-neutral-800 px-6 py-4">
+            <div className="flex justify-end border-t border-neutral-800 px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] shrink-0">
               <button
                 type="button"
                 onClick={handleClose}
-                className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
+                className="tap flex items-center justify-center rounded-lg bg-indigo-600 px-4 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
               >
                 Done
               </button>
@@ -237,7 +237,7 @@ export default function CsvImportModal({ hasDb }: Props) {
         ) : (
           <>
             {/* Input header */}
-            <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-4">
+            <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-4 shrink-0">
               <div>
                 <h2 className="text-base font-semibold">Import Contacts from CSV</h2>
                 <p className="mt-0.5 text-xs text-neutral-500">
@@ -250,7 +250,7 @@ export default function CsvImportModal({ hasDb }: Props) {
               <button
                 type="button"
                 onClick={handleClose}
-                className="rounded-md p-1 text-neutral-400 hover:bg-neutral-800 hover:text-neutral-100"
+                className="tap flex items-center justify-center rounded-lg text-neutral-400 hover:bg-neutral-800 hover:text-neutral-100 transition-colors"
                 aria-label="Close"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -259,7 +259,7 @@ export default function CsvImportModal({ hasDb }: Props) {
               </button>
             </div>
 
-            <div className="space-y-4 px-6 py-5">
+            <div className="flex-1 overflow-y-auto space-y-4 px-6 py-5">
               {!hasDb ? (
                 <div className="space-y-2 py-6 text-center">
                   <p className="text-sm text-neutral-300">Database not connected.</p>
@@ -335,11 +335,11 @@ export default function CsvImportModal({ hasDb }: Props) {
             </div>
 
             {/* Footer */}
-            <div className="flex justify-end gap-3 border-t border-neutral-800 px-6 py-4">
+            <div className="flex justify-end gap-3 border-t border-neutral-800 px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] shrink-0">
               <button
                 type="button"
                 onClick={handleClose}
-                className="rounded-lg px-4 py-2 text-sm text-neutral-400 hover:bg-neutral-800 hover:text-neutral-100"
+                className="tap flex items-center justify-center rounded-lg px-4 text-sm text-neutral-400 hover:bg-neutral-800 hover:text-neutral-100"
               >
                 Cancel
               </button>
@@ -348,7 +348,7 @@ export default function CsvImportModal({ hasDb }: Props) {
                   type="button"
                   onClick={handleImport}
                   disabled={parsed.length === 0 || isPending}
-                  className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
+                  className="tap flex items-center justify-center rounded-lg bg-indigo-600 px-4 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
                 >
                   {isPending
                     ? "Importing…"
