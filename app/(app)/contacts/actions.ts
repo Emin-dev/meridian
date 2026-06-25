@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, inArray, and } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -576,6 +576,97 @@ export type DraftEmailState = {
   noDb?: boolean;
   noKey?: boolean;
 };
+
+// ─── Bulk Actions ─────────────────────────────────────────────────────────────
+
+export type BulkActionState = {
+  success?: boolean;
+  count?: number;
+  error?: string;
+  noDb?: boolean;
+};
+
+const CONTACT_STATUSES = ["lead", "active", "inactive", "churned"] as const;
+type BulkContactStatus = (typeof CONTACT_STATUSES)[number];
+
+export async function bulkChangeStatus(
+  ids: number[],
+  status: BulkContactStatus
+): Promise<BulkActionState> {
+  const db = getDb();
+  if (!db) return { noDb: true };
+  if (ids.length === 0) return { count: 0 };
+
+  await db
+    .update(schema.contacts)
+    .set({ status, updatedAt: new Date() })
+    .where(inArray(schema.contacts.id, ids));
+
+  revalidatePath("/contacts");
+  return { success: true, count: ids.length };
+}
+
+export async function bulkAddTag(
+  ids: number[],
+  tag: string
+): Promise<BulkActionState> {
+  const db = getDb();
+  if (!db) return { noDb: true };
+  if (ids.length === 0) return { count: 0 };
+  const trimmed = tag.trim();
+  if (!trimmed) return { error: "Tag cannot be empty." };
+
+  const rows = await db
+    .select({ id: schema.contacts.id, tags: schema.contacts.tags })
+    .from(schema.contacts)
+    .where(inArray(schema.contacts.id, ids));
+
+  let updated = 0;
+  for (const contact of rows) {
+    if (!contact.tags.includes(trimmed)) {
+      await db
+        .update(schema.contacts)
+        .set({ tags: [...contact.tags, trimmed], updatedAt: new Date() })
+        .where(eq(schema.contacts.id, contact.id));
+      updated++;
+    }
+  }
+
+  revalidatePath("/contacts");
+  return { success: true, count: updated };
+}
+
+export async function bulkEnrollInSequence(
+  ids: number[],
+  sequenceId: number
+): Promise<BulkActionState> {
+  const db = getDb();
+  if (!db) return { noDb: true };
+  if (ids.length === 0) return { count: 0 };
+
+  const existing = await db
+    .select({ contactId: schema.contactSequenceEnrollments.contactId })
+    .from(schema.contactSequenceEnrollments)
+    .where(
+      and(
+        inArray(schema.contactSequenceEnrollments.contactId, ids),
+        eq(schema.contactSequenceEnrollments.sequenceId, sequenceId),
+        eq(schema.contactSequenceEnrollments.status, "active")
+      )
+    );
+
+  const alreadyEnrolled = new Set(existing.map((e) => e.contactId));
+  const toEnroll = ids.filter((id) => !alreadyEnrolled.has(id));
+
+  if (toEnroll.length > 0) {
+    await db
+      .insert(schema.contactSequenceEnrollments)
+      .values(toEnroll.map((contactId) => ({ contactId, sequenceId })));
+  }
+
+  revalidatePath("/contacts");
+  return { success: true, count: toEnroll.length };
+}
 
 export async function draftOutreachEmail(
   contactId: number
