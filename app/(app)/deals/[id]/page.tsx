@@ -13,6 +13,7 @@ import DealNextActionPanel from "./deal-next-action-panel";
 import WinLossInsightCallout from "./win-loss-insight-callout";
 import { extractUserNotes, extractWinLossInsight } from "./notes-utils";
 import LinkedTasksSection from "@/app/(app)/tasks/linked-tasks-section";
+import ActionItemsPanel from "@/components/action-items-panel";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -153,6 +154,11 @@ export default async function DealDetailPage({ params }: Props) {
       {/* AI next best action */}
       <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-4 sm:p-5">
         <DealNextActionPanel dealId={deal.id} />
+      </div>
+
+      {/* AI action items extractor */}
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-4 sm:p-5">
+        <ActionItemsPanel dealId={deal.id} />
       </div>
 
       {/* Linked tasks */}

@@ -15,6 +15,7 @@ import LinkedTasksSection from "@/app/(app)/tasks/linked-tasks-section";
 import LinkedDealsSection from "./linked-deals-section";
 import ContactNotesSection from "./contact-notes-section";
 import ContactDetailClient from "./contact-detail-client";
+import ActionItemsPanel from "@/components/action-items-panel";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -124,6 +125,9 @@ export default async function ContactDetailPage({ params }: Props) {
       </div>
       <div className="card p-4 sm:p-5">
         <NextActionPanel contactId={contact.id} />
+      </div>
+      <div className="card p-4 sm:p-5">
+        <ActionItemsPanel contactId={contact.id} />
       </div>
       <div className="card p-4 sm:p-5">
         <DraftEmailPanel contactId={contact.id} />
