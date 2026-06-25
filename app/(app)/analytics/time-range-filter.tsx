@@ -22,7 +22,7 @@ export function TimeRangeFilter({ current }: { current: string }) {
         <button
           key={r.value || "all"}
           onClick={() => select(r.value)}
-          className={`rounded px-3 py-1 text-sm font-medium transition-colors ${
+          className={`tap flex items-center justify-center rounded px-3 py-1 text-sm font-medium transition-colors ${
             current === r.value
               ? "bg-neutral-700 text-neutral-100"
               : "text-neutral-400 hover:text-neutral-200"

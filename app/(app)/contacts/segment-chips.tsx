@@ -40,7 +40,7 @@ export default function SegmentChips({ currentParams }: Props) {
             onClick={() => handleClick(preset)}
             disabled={isPending}
             className={[
-              "rounded-full px-3 py-1 text-xs font-medium transition-colors disabled:opacity-50",
+              "tap inline-flex items-center justify-center rounded-full px-3 text-xs font-medium transition-colors disabled:opacity-50",
               active
                 ? "bg-indigo-600 text-white"
                 : "border border-neutral-700 bg-neutral-800 text-neutral-300 hover:border-indigo-500 hover:text-indigo-300",

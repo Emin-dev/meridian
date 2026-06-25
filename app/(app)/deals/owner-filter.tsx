@@ -27,7 +27,7 @@ export default function OwnerFilter({ owners, selected }: OwnerFilterProps) {
     <select
       value={selected}
       onChange={handleChange}
-      className="rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-xs text-neutral-300 focus:border-indigo-500 focus:outline-none"
+      className="tap rounded-lg border border-neutral-700 bg-neutral-900 px-3 text-xs text-neutral-300 focus:border-indigo-500 focus:outline-none"
       aria-label="Filter by owner"
     >
       <option value="">All owners</option>

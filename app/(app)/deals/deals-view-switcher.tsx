@@ -54,7 +54,7 @@ export function DealsViewSwitcher({
     <div className="flex items-center rounded-lg border border-neutral-700 bg-neutral-900 p-0.5">
       <button
         onClick={() => setView("kanban")}
-        className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+        className={`flex min-h-[44px] items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
           !isTable
             ? "bg-neutral-700 text-neutral-100"
             : "text-neutral-400 hover:text-neutral-200"
@@ -71,7 +71,7 @@ export function DealsViewSwitcher({
       </button>
       <button
         onClick={() => setView("table")}
-        className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+        className={`flex min-h-[44px] items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
           isTable
             ? "bg-neutral-700 text-neutral-100"
             : "text-neutral-400 hover:text-neutral-200"
