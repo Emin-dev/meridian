@@ -1,34 +1,41 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
-import { updateDealDetails, type DealDetailsState } from "./actions";
+import { useState, useTransition, useEffect } from "react";
+import { updateDealDetails } from "./actions";
 import type { Deal } from "@/db/schema";
 import { useToast } from "@/components/toaster";
+import type { DealFormUpdate } from "./deal-detail-top";
 
 const STAGES = [
-  { value: "lead", label: "Lead" },
-  { value: "qualified", label: "Qualified" },
-  { value: "proposal", label: "Proposal" },
+  { value: "lead",        label: "Lead"        },
+  { value: "qualified",   label: "Qualified"   },
+  { value: "proposal",    label: "Proposal"    },
   { value: "negotiation", label: "Negotiation" },
-  { value: "won", label: "Won" },
-  { value: "lost", label: "Lost" },
+  { value: "won",         label: "Won"         },
+  { value: "lost",        label: "Lost"        },
 ] as const;
-
-const initialState: DealDetailsState = {};
 
 interface Props {
   deal: Deal;
+  /** Called immediately on submit with optimistic values. */
+  onSaved?: (updates: DealFormUpdate) => void;
+  /** Called if the server action fails; roll back to this snapshot. */
+  onRollback?: (snapshot: Deal) => void;
 }
 
-export default function EditDealForm({ deal }: Props) {
-  const boundUpdate = updateDealDetails.bind(null, deal.id);
-  const [state, formAction, pending] = useActionState(boundUpdate, initialState);
+export default function EditDealForm({ deal, onSaved, onRollback }: Props) {
   const { toast } = useToast();
+  const [pending, startTransition] = useTransition();
+  const [fieldErrors, setFieldErrors] = useState<
+    Partial<Record<"title" | "stage" | "value" | "expectedCloseDate" | "probability", string[]>>
+  >({});
 
+  // Stage is controlled so it stays in sync when StageControl moves the deal
+  // (the parent updates deal.stage without remounting this form).
+  const [stageValue, setStageValue] = useState<Deal["stage"]>(deal.stage);
   useEffect(() => {
-    if (state.success) toast("Deal saved");
-    if (state.error) toast(state.error, "error");
-  }, [state.success, state.error, toast]);
+    setStageValue(deal.stage);
+  }, [deal.stage]);
 
   const closeDateValue = deal.expectedCloseDate
     ? (deal.expectedCloseDate instanceof Date
@@ -43,8 +50,47 @@ export default function EditDealForm({ deal }: Props) {
     "w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none";
   const labelCls = "mb-1 block text-xs font-medium text-neutral-400";
 
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const snapshot = { ...deal };
+
+    // Read optimistic values from the form
+    const valueRaw = String(formData.get("value") ?? "").trim();
+    const dateRaw  = String(formData.get("expectedCloseDate") ?? "").trim();
+    const probRaw  = String(formData.get("probability") ?? "0").trim();
+    const updates: DealFormUpdate = {
+      title:             String(formData.get("title") ?? "").trim(),
+      stage:             String(formData.get("stage") ?? deal.stage) as DealFormUpdate["stage"],
+      value:             valueRaw === "" ? null : valueRaw,
+      expectedCloseDate: dateRaw === "" ? null : new Date(dateRaw),
+      probability:       probRaw === "" ? 0 : parseInt(probRaw, 10),
+    };
+
+    // Optimistic: update the parent header immediately
+    onSaved?.(updates);
+    setFieldErrors({});
+
+    startTransition(async () => {
+      const result = await updateDealDetails(deal.id, {}, formData);
+      if (result.error) {
+        onRollback?.(snapshot);
+        toast(result.error, "error");
+      } else if (result.fieldErrors) {
+        onRollback?.(snapshot);
+        setFieldErrors(result.fieldErrors);
+        toast("Please fix the highlighted errors", "error");
+      } else if (result.noDb) {
+        onRollback?.(snapshot);
+        toast("Database not connected — changes cannot be saved.", "error");
+      } else if (result.success) {
+        toast("Deal saved");
+      }
+    });
+  }
+
   return (
-    <form action={formAction} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4">
       {/* Title */}
       <div>
         <label htmlFor="ed-title" className={labelCls}>
@@ -58,12 +104,12 @@ export default function EditDealForm({ deal }: Props) {
           defaultValue={deal.title}
           className={inputCls}
         />
-        {state.fieldErrors?.title && (
-          <p className="mt-1 text-xs text-red-400">{state.fieldErrors.title[0]}</p>
+        {fieldErrors.title && (
+          <p className="mt-1 text-xs text-red-400">{fieldErrors.title[0]}</p>
         )}
       </div>
 
-      {/* Stage */}
+      {/* Stage — controlled so it tracks parent stage changes */}
       <div>
         <label htmlFor="ed-stage" className={labelCls}>
           Stage
@@ -71,7 +117,8 @@ export default function EditDealForm({ deal }: Props) {
         <select
           id="ed-stage"
           name="stage"
-          defaultValue={deal.stage}
+          value={stageValue}
+          onChange={(e) => setStageValue(e.target.value as Deal["stage"])}
           className={inputCls}
         >
           {STAGES.map((s) => (
@@ -80,8 +127,8 @@ export default function EditDealForm({ deal }: Props) {
             </option>
           ))}
         </select>
-        {state.fieldErrors?.stage && (
-          <p className="mt-1 text-xs text-red-400">{state.fieldErrors.stage[0]}</p>
+        {fieldErrors.stage && (
+          <p className="mt-1 text-xs text-red-400">{fieldErrors.stage[0]}</p>
         )}
       </div>
 
@@ -100,8 +147,8 @@ export default function EditDealForm({ deal }: Props) {
           placeholder="0.00"
           className={inputCls}
         />
-        {state.fieldErrors?.value && (
-          <p className="mt-1 text-xs text-red-400">{state.fieldErrors.value[0]}</p>
+        {fieldErrors.value && (
+          <p className="mt-1 text-xs text-red-400">{fieldErrors.value[0]}</p>
         )}
       </div>
 
@@ -117,9 +164,9 @@ export default function EditDealForm({ deal }: Props) {
           defaultValue={closeDateValue}
           className={inputCls}
         />
-        {state.fieldErrors?.expectedCloseDate && (
+        {fieldErrors.expectedCloseDate && (
           <p className="mt-1 text-xs text-red-400">
-            {state.fieldErrors.expectedCloseDate[0]}
+            {fieldErrors.expectedCloseDate[0]}
           </p>
         )}
       </div>
@@ -146,18 +193,14 @@ export default function EditDealForm({ deal }: Props) {
               style={{ width: `${deal.probability}%` }}
             />
           </div>
-          <span className="w-10 text-right text-xs text-neutral-400">{deal.probability}%</span>
+          <span className="w-10 text-right text-xs text-neutral-400">
+            {deal.probability}%
+          </span>
         </div>
-        {state.fieldErrors?.probability && (
-          <p className="mt-1 text-xs text-red-400">{state.fieldErrors.probability[0]}</p>
+        {fieldErrors.probability && (
+          <p className="mt-1 text-xs text-red-400">{fieldErrors.probability[0]}</p>
         )}
       </div>
-
-      {state.noDb && (
-        <p className="text-xs text-red-400">
-          Database not connected — changes cannot be saved.
-        </p>
-      )}
 
       <div className="flex justify-end pt-2">
         <button

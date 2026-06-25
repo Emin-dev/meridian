@@ -1,38 +1,86 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
-import { updateContact, deleteContact, type ContactFormState } from "../actions";
+import { useState, useTransition } from "react";
+import { updateContact, deleteContact } from "../actions";
 import type { Contact } from "@/db/schema";
 import { useToast } from "@/components/toaster";
 import TagInput from "../tag-input";
-
-const initialState: ContactFormState = {};
+import type { ContactHeaderUpdate } from "./contact-detail-client";
 
 interface Props {
   contact: Contact;
+  /** Called immediately on submit with optimistic header values. */
+  onSaved?: (updates: ContactHeaderUpdate) => void;
+  /** Called if the server action fails; roll back to this snapshot. */
+  onRollback?: (snapshot: Contact) => void;
 }
 
-export default function EditContactForm({ contact }: Props) {
-  const boundUpdate = updateContact.bind(null, contact.id);
-  const [state, formAction, pending] = useActionState(boundUpdate, initialState);
+export default function EditContactForm({ contact, onSaved, onRollback }: Props) {
   const { toast } = useToast();
+  const [pending, startTransition] = useTransition();
+  const [fieldErrors, setFieldErrors] = useState<
+    Partial<Record<"name" | "email" | "phone" | "company" | "title" | "notes" | "source" | "owner", string[]>>
+  >({});
 
-  useEffect(() => {
-    if (state.success) toast("Contact saved");
-    if (state.error) toast(state.error, "error");
-  }, [state.success, state.error, toast]);
+  const inputCls =
+    "w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none";
+  const labelCls = "mb-1 block text-xs font-medium text-neutral-400";
 
   async function handleDelete() {
     if (!window.confirm(`Delete "${contact.name}"? This cannot be undone.`)) return;
     await deleteContact(contact.id);
   }
 
-  const inputCls =
-    "w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none";
-  const labelCls = "mb-1 block text-xs font-medium text-neutral-400";
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const snapshot = { ...contact };
+
+    // Parse tags from the hidden JSON input (same as server-side parseTags)
+    let parsedTags: string[] = [];
+    try {
+      const raw = String(formData.get("tags") ?? "[]");
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr)) {
+        parsedTags = arr
+          .filter((t): t is string => typeof t === "string")
+          .map((t) => t.trim())
+          .filter(Boolean);
+      }
+    } catch {
+      parsedTags = contact.tags ?? [];
+    }
+
+    // Optimistic update for the page header fields
+    const optimistic: ContactHeaderUpdate = {
+      name:    String(formData.get("name") ?? "").trim() || contact.name,
+      title:   String(formData.get("title") ?? "").trim() || null,
+      company: String(formData.get("company") ?? "").trim() || null,
+      tags:    parsedTags,
+    };
+    onSaved?.(optimistic);
+    setFieldErrors({});
+
+    startTransition(async () => {
+      const result = await updateContact(contact.id, {}, formData);
+      if (result.error) {
+        onRollback?.(snapshot);
+        toast(result.error, "error");
+      } else if (result.fieldErrors) {
+        onRollback?.(snapshot);
+        setFieldErrors(result.fieldErrors);
+        toast("Please fix the highlighted errors", "error");
+      } else if (result.noDb) {
+        onRollback?.(snapshot);
+        toast("Database not connected — changes cannot be saved.", "error");
+      } else if (result.success) {
+        toast("Contact saved");
+      }
+    });
+  }
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4">
       {/* Name */}
       <div>
         <label htmlFor="ec-name" className={labelCls}>
@@ -46,8 +94,8 @@ export default function EditContactForm({ contact }: Props) {
           defaultValue={contact.name}
           className={inputCls}
         />
-        {state.fieldErrors?.name && (
-          <p className="mt-1 text-xs text-red-400">{state.fieldErrors.name[0]}</p>
+        {fieldErrors.name && (
+          <p className="mt-1 text-xs text-red-400">{fieldErrors.name[0]}</p>
         )}
       </div>
 
@@ -63,8 +111,8 @@ export default function EditContactForm({ contact }: Props) {
           defaultValue={contact.email ?? ""}
           className={inputCls}
         />
-        {state.fieldErrors?.email && (
-          <p className="mt-1 text-xs text-red-400">{state.fieldErrors.email[0]}</p>
+        {fieldErrors.email && (
+          <p className="mt-1 text-xs text-red-400">{fieldErrors.email[0]}</p>
         )}
       </div>
 
@@ -153,10 +201,6 @@ export default function EditContactForm({ contact }: Props) {
         <label className={labelCls}>Tags</label>
         <TagInput name="tags" defaultValue={contact.tags ?? []} />
       </div>
-
-      {state.noDb && (
-        <p className="text-xs text-red-400">Database not connected — changes cannot be saved.</p>
-      )}
 
       {/* Actions */}
       <div className="flex items-center justify-between pt-2">

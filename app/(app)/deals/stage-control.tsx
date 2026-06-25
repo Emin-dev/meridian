@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { moveDealStage } from "./actions";
+import { useToast } from "@/components/toaster";
 
 const STAGE_KEYS = [
   "lead",
@@ -17,9 +18,19 @@ type StageKey = (typeof STAGE_KEYS)[number];
 interface StageControlProps {
   dealId: number;
   stage: StageKey;
+  /** Called immediately before the server action so the parent can update optimistically. */
+  onOptimisticMove?: (newStage: string) => void;
+  /** Called if the server action fails; parent should revert to this stage. */
+  onMoveRollback?: (oldStage: string) => void;
 }
 
-export default function StageControl({ dealId, stage }: StageControlProps) {
+export default function StageControl({
+  dealId,
+  stage,
+  onOptimisticMove,
+  onMoveRollback,
+}: StageControlProps) {
+  const { toast } = useToast();
   const [pending, startTransition] = useTransition();
   const [pendingStage, setPendingStage] = useState<StageKey | null>(null);
   const [reason, setReason] = useState("");
@@ -33,10 +44,23 @@ export default function StageControl({ dealId, stage }: StageControlProps) {
       setPendingStage(targetStage);
       setReason("");
     } else {
-      startTransition(async () => {
-        await moveDealStage(dealId, targetStage);
-      });
+      doMove(targetStage);
     }
+  }
+
+  function doMove(targetStage: StageKey, closeReason?: string) {
+    const originalStage = stage;
+    onOptimisticMove?.(targetStage);
+    startTransition(async () => {
+      const result = await moveDealStage(dealId, targetStage, closeReason);
+      if (result?.error) {
+        onMoveRollback?.(originalStage);
+        toast(result.error, "error");
+      } else if (result?.noDb) {
+        onMoveRollback?.(originalStage);
+        toast("Database not connected", "error");
+      }
+    });
   }
 
   function confirmMove() {
@@ -45,9 +69,7 @@ export default function StageControl({ dealId, stage }: StageControlProps) {
     const reasonText = reason;
     setPendingStage(null);
     setReason("");
-    startTransition(async () => {
-      await moveDealStage(dealId, stageToMove, reasonText);
-    });
+    doMove(stageToMove, reasonText);
   }
 
   function cancelMove() {
