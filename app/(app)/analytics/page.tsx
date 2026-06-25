@@ -163,7 +163,6 @@ export default async function AnalyticsPage({
       : null;
 
   // ── Won deals per month ───────────────────────────────────────────────────────
-  // Number of months to display adapts to the selected time range
   const closedChartMonths = since
     ? Math.min(
         Math.max(
@@ -189,7 +188,6 @@ export default async function AnalyticsPage({
       count: 0,
     };
   });
-  // Bucket by updatedAt (close date) and respect the time range filter
   const wonDealsForChart = since
     ? wonDeals.filter((d) => d.updatedAt >= since)
     : wonDeals;
@@ -277,52 +275,54 @@ export default async function AnalyticsPage({
 
       {db && (
         <>
-          {/* Summary stat cards — 4 cards: 1 col → 2 col → 4 col */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <StatCard
-              label="Win Rate"
-              value={winRate !== null ? `${winRate.toFixed(1)}%` : "—"}
-              subtext={
-                closedCount > 0
-                  ? `${wonDeals.length} won of ${closedCount} closed`
-                  : validDays
-                    ? "No closed deals in this range"
-                    : "No closed deals yet"
-              }
-            />
-            <StatCard
-              label="Avg Won Deal Value"
-              value={avgWonValue !== null ? fmtUSD(avgWonValue) : "—"}
-              subtext={
-                wonWithValue.length > 0
-                  ? `across ${wonWithValue.length} won deal${wonWithValue.length !== 1 ? "s" : ""}`
-                  : validDays
-                    ? "No won deals in this range"
-                    : "No won deals with value"
-              }
-            />
-            <StatCard
-              label="Total Pipeline Value"
-              value={fmtUSD(totalPipeline)}
-              subtext={`${activeDeals.length} active deal${activeDeals.length !== 1 ? "s" : ""}`}
-            />
-            <StatCard
-              label="Avg Days to Close"
-              value={
-                avgDaysToClose !== null ? `${Math.round(avgDaysToClose)}d` : "—"
-              }
-              subtext={
-                wonDeals.length > 0
-                  ? `across ${wonDeals.length} won deal${wonDeals.length !== 1 ? "s" : ""}`
-                  : validDays
-                    ? "No won deals in this range"
-                    : "No won deals yet"
-              }
-            />
+          {/* Summary stat cards — container query: 1→2→4 cols */}
+          <div className="@container">
+            <div className="grid grid-cols-1 gap-4 @sm:grid-cols-2 @xl:grid-cols-4">
+              <StatCard
+                label="Win Rate"
+                value={winRate !== null ? `${winRate.toFixed(1)}%` : "—"}
+                subtext={
+                  closedCount > 0
+                    ? `${wonDeals.length} won of ${closedCount} closed`
+                    : validDays
+                      ? "No closed deals in this range"
+                      : "No closed deals yet"
+                }
+              />
+              <StatCard
+                label="Avg Won Deal Value"
+                value={avgWonValue !== null ? fmtUSD(avgWonValue) : "—"}
+                subtext={
+                  wonWithValue.length > 0
+                    ? `across ${wonWithValue.length} won deal${wonWithValue.length !== 1 ? "s" : ""}`
+                    : validDays
+                      ? "No won deals in this range"
+                      : "No won deals with value"
+                }
+              />
+              <StatCard
+                label="Total Pipeline Value"
+                value={fmtUSD(totalPipeline)}
+                subtext={`${activeDeals.length} active deal${activeDeals.length !== 1 ? "s" : ""}`}
+              />
+              <StatCard
+                label="Avg Days to Close"
+                value={
+                  avgDaysToClose !== null ? `${Math.round(avgDaysToClose)}d` : "—"
+                }
+                subtext={
+                  wonDeals.length > 0
+                    ? `across ${wonDeals.length} won deal${wonDeals.length !== 1 ? "s" : ""}`
+                    : validDays
+                      ? "No won deals in this range"
+                      : "No won deals yet"
+                }
+              />
+            </div>
           </div>
 
-          {/* Stage funnel table */}
-          <div className="rounded-xl border border-neutral-800 bg-neutral-900">
+          {/* Stage funnel — @container for responsive rows */}
+          <div className="@container rounded-xl border border-neutral-800 bg-neutral-900">
             <div className="border-b border-neutral-800 px-6 py-4">
               <h3 className="text-sm font-semibold text-neutral-100">
                 Stage Funnel
@@ -340,8 +340,8 @@ export default async function AnalyticsPage({
               </div>
             ) : (
               <>
-                {/* Column headers */}
-                <div className="flex items-center gap-4 border-b border-neutral-800 px-6 py-2">
+                {/* Column headers: only on wide containers */}
+                <div className="hidden @[30rem]:flex items-center gap-4 border-b border-neutral-800 px-6 py-2">
                   <div className="w-28 shrink-0 text-xs font-medium uppercase tracking-wide text-neutral-600">
                     Stage
                   </div>
@@ -372,20 +372,36 @@ export default async function AnalyticsPage({
                       <Link
                         key={stage.key}
                         href={`/deals?stage=${stage.key}`}
-                        className="flex items-center gap-4 px-6 py-3 transition-colors hover:bg-neutral-800/60"
+                        className="block px-4 py-3 transition-colors hover:bg-neutral-800/60 @[30rem]:flex @[30rem]:items-center @[30rem]:gap-4 @[30rem]:px-6"
                       >
-                        {/* Stage label */}
-                        <div className="flex w-28 shrink-0 items-center gap-2">
+                        {/* Label + mobile trailing stats */}
+                        <div className="flex items-center gap-2 @[30rem]:w-28 @[30rem]:shrink-0">
                           <span
                             className={`h-2 w-2 shrink-0 rounded-full ${stage.dot}`}
                           />
                           <span className="text-sm text-neutral-300">
                             {stage.label}
                           </span>
+                          {/* Mobile-only: show count, value, conv inline */}
+                          <div className="ml-auto flex items-center gap-2 @[30rem]:hidden">
+                            <span className="text-sm font-semibold text-neutral-200">
+                              {stage.count}
+                            </span>
+                            {stage.value > 0 && (
+                              <span className="text-xs text-neutral-400">
+                                {fmtUSD(stage.value)}
+                              </span>
+                            )}
+                            {conv != null && (
+                              <span className={`text-xs ${convColor}`}>
+                                {conv.toFixed(0)}%
+                              </span>
+                            )}
+                          </div>
                         </div>
 
-                        {/* Progress bar */}
-                        <div className="flex-1">
+                        {/* Progress bar: full-width on mobile, flex-1 on desktop */}
+                        <div className="mt-1.5 @[30rem]:mt-0 @[30rem]:flex-1">
                           <div className="h-1.5 rounded-full bg-neutral-800">
                             <div
                               className={`h-1.5 rounded-full ${stage.dot} opacity-60 transition-all duration-300`}
@@ -399,18 +415,14 @@ export default async function AnalyticsPage({
                           </div>
                         </div>
 
-                        {/* Count */}
-                        <div className="w-10 shrink-0 text-right text-sm font-semibold text-neutral-200">
+                        {/* Desktop-only trailing stats */}
+                        <div className="hidden @[30rem]:block w-10 shrink-0 text-right text-sm font-semibold text-neutral-200">
                           {stage.count}
                         </div>
-
-                        {/* Value */}
-                        <div className="w-28 shrink-0 text-right text-sm text-neutral-400">
+                        <div className="hidden @[30rem]:block w-28 shrink-0 text-right text-sm text-neutral-400">
                           {stage.value > 0 ? fmtUSD(stage.value) : "—"}
                         </div>
-
-                        {/* Conversion rate */}
-                        <div className="w-24 shrink-0 text-right text-sm">
+                        <div className="hidden @[30rem]:block w-24 shrink-0 text-right text-sm">
                           {conv != null ? (
                             <span className={convColor}>
                               {conv.toFixed(0)}%
@@ -529,61 +541,63 @@ export default async function AnalyticsPage({
                   </div>
                 </div>
 
-                {/* Bar chart */}
-                <div className="flex items-end gap-2 px-6 pb-4 pt-6 sm:gap-4">
-                  {forecastMonths.map((bucket) => (
-                    <div
-                      key={`${bucket.year}-${bucket.month}`}
-                      className="flex flex-1 flex-col items-center gap-1"
-                    >
-                      {/* Dual bars */}
-                      <div className="flex h-32 w-full items-end justify-center gap-1">
-                        <div className="relative flex h-full flex-1 items-end">
-                          <div
-                            className="w-full rounded-t bg-violet-500 opacity-80 transition-all duration-300"
-                            style={{
-                              height:
-                                bucket.raw > 0
-                                  ? `${(bucket.raw / maxForecastVal) * 100}%`
-                                  : "2px",
-                            }}
-                          />
+                {/* Bar chart — internal scroll so it never overflows the page */}
+                <div className="overflow-x-auto">
+                  <div className="flex min-w-[360px] items-end gap-2 px-6 pb-4 pt-6 sm:gap-4">
+                    {forecastMonths.map((bucket) => (
+                      <div
+                        key={`${bucket.year}-${bucket.month}`}
+                        className="flex flex-1 flex-col items-center gap-1"
+                      >
+                        {/* Dual bars */}
+                        <div className="flex h-32 w-full items-end justify-center gap-1">
+                          <div className="relative flex h-full flex-1 items-end">
+                            <div
+                              className="w-full rounded-t bg-violet-500 opacity-80 transition-all duration-300"
+                              style={{
+                                height:
+                                  bucket.raw > 0
+                                    ? `${(bucket.raw / maxForecastVal) * 100}%`
+                                    : "2px",
+                              }}
+                            />
+                          </div>
+                          <div className="relative flex h-full flex-1 items-end">
+                            <div
+                              className="w-full rounded-t bg-blue-500 opacity-80 transition-all duration-300"
+                              style={{
+                                height:
+                                  bucket.weighted > 0
+                                    ? `${(bucket.weighted / maxForecastVal) * 100}%`
+                                    : "2px",
+                              }}
+                            />
+                          </div>
                         </div>
-                        <div className="relative flex h-full flex-1 items-end">
-                          <div
-                            className="w-full rounded-t bg-blue-500 opacity-80 transition-all duration-300"
-                            style={{
-                              height:
-                                bucket.weighted > 0
-                                  ? `${(bucket.weighted / maxForecastVal) * 100}%`
-                                  : "2px",
-                            }}
-                          />
+
+                        {/* Value labels — text-footnote replaces text-[10px] */}
+                        <div className="w-full text-center">
+                          {bucket.raw > 0 ? (
+                            <>
+                              <p className="text-footnote truncate font-medium text-neutral-300">
+                                {fmtUSD(bucket.raw)}
+                              </p>
+                              <p className="text-footnote truncate text-neutral-500">
+                                {fmtUSD(bucket.weighted)}
+                              </p>
+                            </>
+                          ) : (
+                            <p className="text-footnote text-neutral-700">—</p>
+                          )}
                         </div>
-                      </div>
 
-                      {/* Value labels */}
-                      <div className="w-full text-center">
-                        {bucket.raw > 0 ? (
-                          <>
-                            <p className="truncate text-[10px] font-medium text-neutral-300">
-                              {fmtUSD(bucket.raw)}
-                            </p>
-                            <p className="truncate text-[10px] text-neutral-500">
-                              {fmtUSD(bucket.weighted)}
-                            </p>
-                          </>
-                        ) : (
-                          <p className="text-[10px] text-neutral-700">—</p>
-                        )}
+                        {/* Month label */}
+                        <p className="text-footnote text-neutral-500">
+                          {bucket.label}
+                        </p>
                       </div>
-
-                      {/* Month label */}
-                      <p className="text-[10px] text-neutral-500 sm:text-xs">
-                        {bucket.label}
-                      </p>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </>
             )}
@@ -598,8 +612,8 @@ export default async function AnalyticsPage({
           </div>
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            {/* Status distribution */}
-            <div className="rounded-xl border border-neutral-800 bg-neutral-900">
+            {/* Status distribution — @container for responsive rows */}
+            <div className="@container rounded-xl border border-neutral-800 bg-neutral-900">
               <div className="border-b border-neutral-800 px-6 py-4">
                 <h3 className="text-sm font-semibold text-neutral-100">
                   Status Distribution
@@ -620,17 +634,22 @@ export default async function AnalyticsPage({
                   {statusRows.map((row) => (
                     <div
                       key={row.key}
-                      className="flex items-center gap-4 px-6 py-3"
+                      className="block px-4 py-3 @[30rem]:flex @[30rem]:items-center @[30rem]:gap-4 @[30rem]:px-6"
                     >
-                      <div className="flex w-24 shrink-0 items-center gap-2">
+                      {/* Label + mobile count */}
+                      <div className="flex items-center gap-2 @[30rem]:w-24 @[30rem]:shrink-0">
                         <span
                           className={`h-2 w-2 shrink-0 rounded-full ${row.dot}`}
                         />
                         <span className="text-sm text-neutral-300">
                           {row.label}
                         </span>
+                        <span className="ml-auto text-sm font-semibold text-neutral-200 @[30rem]:hidden">
+                          {row.count}
+                        </span>
                       </div>
-                      <div className="flex-1">
+                      {/* Progress bar */}
+                      <div className="mt-1.5 @[30rem]:mt-0 @[30rem]:flex-1">
                         <div className="h-1.5 rounded-full bg-neutral-800">
                           <div
                             className={`h-1.5 rounded-full ${row.dot} opacity-60 transition-all duration-300`}
@@ -643,7 +662,8 @@ export default async function AnalyticsPage({
                           />
                         </div>
                       </div>
-                      <div className="w-8 shrink-0 text-right text-sm font-semibold text-neutral-200">
+                      {/* Desktop count */}
+                      <div className="hidden @[30rem]:block w-8 shrink-0 text-right text-sm font-semibold text-neutral-200">
                         {row.count}
                       </div>
                     </div>
@@ -652,8 +672,8 @@ export default async function AnalyticsPage({
               )}
             </div>
 
-            {/* Source breakdown */}
-            <div className="rounded-xl border border-neutral-800 bg-neutral-900">
+            {/* Source breakdown — @container for responsive rows */}
+            <div className="@container rounded-xl border border-neutral-800 bg-neutral-900">
               <div className="border-b border-neutral-800 px-6 py-4">
                 <h3 className="text-sm font-semibold text-neutral-100">
                   Source Breakdown
@@ -674,17 +694,22 @@ export default async function AnalyticsPage({
                   {sourceRows.map((row) => (
                     <div
                       key={row.key}
-                      className="flex items-center gap-4 px-6 py-3"
+                      className="block px-4 py-3 @[30rem]:flex @[30rem]:items-center @[30rem]:gap-4 @[30rem]:px-6"
                     >
-                      <div className="flex w-28 shrink-0 items-center gap-2">
+                      {/* Label + mobile count */}
+                      <div className="flex items-center gap-2 @[30rem]:w-28 @[30rem]:shrink-0">
                         <span
                           className={`h-2 w-2 shrink-0 rounded-full ${row.dot}`}
                         />
                         <span className="text-sm text-neutral-300">
                           {row.label}
                         </span>
+                        <span className="ml-auto text-sm font-semibold text-neutral-200 @[30rem]:hidden">
+                          {row.count}
+                        </span>
                       </div>
-                      <div className="flex-1">
+                      {/* Progress bar */}
+                      <div className="mt-1.5 @[30rem]:mt-0 @[30rem]:flex-1">
                         <div className="h-1.5 rounded-full bg-neutral-800">
                           <div
                             className={`h-1.5 rounded-full ${row.dot} opacity-60 transition-all duration-300`}
@@ -697,7 +722,8 @@ export default async function AnalyticsPage({
                           />
                         </div>
                       </div>
-                      <div className="w-8 shrink-0 text-right text-sm font-semibold text-neutral-200">
+                      {/* Desktop count */}
+                      <div className="hidden @[30rem]:block w-8 shrink-0 text-right text-sm font-semibold text-neutral-200">
                         {row.count}
                       </div>
                     </div>
