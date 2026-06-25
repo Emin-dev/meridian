@@ -42,7 +42,7 @@ export default function NextActionPanel({ contactId }: Props) {
     startLogTransition(async () => {
       const r = await logAiTaskSuggestion(result.action!, contactId, null);
       if (r.success) {
-        toast("Task logged successfully");
+        toast("Task saved");
       } else if (r.noDb) {
         toast("Database not connected", "error");
       } else {
@@ -102,14 +102,14 @@ export default function NextActionPanel({ contactId }: Props) {
             </div>
           </div>
 
-          {/* Log as task */}
+          {/* Save as task */}
           <button
             type="button"
             onClick={handleLogAsTask}
             disabled={isLogging}
             className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-xs font-medium text-neutral-300 transition-colors hover:border-neutral-600 hover:bg-neutral-700 hover:text-white disabled:opacity-50"
           >
-            {isLogging ? "Logging…" : "Log as task"}
+            {isLogging ? "Saving…" : "Save as task"}
           </button>
 
           {/* Rationale */}

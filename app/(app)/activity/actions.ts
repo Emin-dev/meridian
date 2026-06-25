@@ -86,8 +86,10 @@ export async function logAiTaskSuggestion(
     subject: subject.trim(),
     contactId: contactId ?? null,
     dealId: dealId ?? null,
+    dueAt: new Date(),
   });
 
+  revalidatePath("/tasks");
   revalidatePath("/activity");
   if (contactId) revalidatePath(`/contacts/${contactId}`);
   if (dealId) revalidatePath(`/deals/${dealId}`);
