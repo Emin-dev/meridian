@@ -161,9 +161,26 @@ export default async function AnalyticsPage({
         }, 0) / wonDeals.length
       : null;
 
-  // ── Won deals per month (last 6 months) ──────────────────────────────────────
-  const monthBuckets = Array.from({ length: 6 }, (_, i) => {
-    const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
+  // ── Won deals per month ───────────────────────────────────────────────────────
+  // Number of months to display adapts to the selected time range
+  const closedChartMonths = since
+    ? Math.min(
+        Math.max(
+          (now.getFullYear() - since.getFullYear()) * 12 +
+            (now.getMonth() - since.getMonth()) +
+            1,
+          1
+        ),
+        6
+      )
+    : 6;
+
+  const monthBuckets = Array.from({ length: closedChartMonths }, (_, i) => {
+    const d = new Date(
+      now.getFullYear(),
+      now.getMonth() - (closedChartMonths - 1 - i),
+      1
+    );
     return {
       year: d.getFullYear(),
       month: d.getMonth(),
@@ -171,13 +188,18 @@ export default async function AnalyticsPage({
       count: 0,
     };
   });
-  for (const deal of wonDeals) {
+  // Bucket by updatedAt (close date) and respect the time range filter
+  const wonDealsForChart = since
+    ? wonDeals.filter((d) => d.updatedAt >= since)
+    : wonDeals;
+  for (const deal of wonDealsForChart) {
     const y = deal.updatedAt.getFullYear();
     const m = deal.updatedAt.getMonth();
     const bucket = monthBuckets.find((b) => b.year === y && b.month === m);
     if (bucket) bucket.count++;
   }
   const maxMonthCount = Math.max(...monthBuckets.map((b) => b.count), 1);
+  const hasMonthData = wonDealsForChart.length > 0;
 
   // ── Stage funnel ─────────────────────────────────────────────────────────────
   const stageRows = STAGES.map((stage) => {
@@ -262,7 +284,9 @@ export default async function AnalyticsPage({
               subtext={
                 closedCount > 0
                   ? `${wonDeals.length} won of ${closedCount} closed`
-                  : "No closed deals yet"
+                  : validDays
+                    ? "No closed deals in this range"
+                    : "No closed deals yet"
               }
             />
             <StatCard
@@ -271,7 +295,9 @@ export default async function AnalyticsPage({
               subtext={
                 wonWithValue.length > 0
                   ? `across ${wonWithValue.length} won deal${wonWithValue.length !== 1 ? "s" : ""}`
-                  : "No won deals with value"
+                  : validDays
+                    ? "No won deals in this range"
+                    : "No won deals with value"
               }
             />
             <StatCard
@@ -287,7 +313,9 @@ export default async function AnalyticsPage({
               subtext={
                 wonDeals.length > 0
                   ? `across ${wonDeals.length} won deal${wonDeals.length !== 1 ? "s" : ""}`
-                  : "No won deals yet"
+                  : validDays
+                    ? "No won deals in this range"
+                    : "No won deals yet"
               }
             />
           </div>
@@ -305,7 +333,9 @@ export default async function AnalyticsPage({
 
             {deals.length === 0 ? (
               <div className="px-6 py-12 text-center text-sm text-neutral-600">
-                No deals found. Add some deals to see analytics.
+                {validDays
+                  ? "No deals in this time range."
+                  : "No deals found. Add some deals to see analytics."}
               </div>
             ) : (
               <>
@@ -410,13 +440,17 @@ export default async function AnalyticsPage({
                 Deals Closed Per Month
               </h3>
               <p className="mt-0.5 text-xs text-neutral-500">
-                Won deals over the last 6 months
+                {validDays
+                  ? `Won deals in the last ${validDays} days`
+                  : "Won deals over the last 6 months"}
               </p>
             </div>
 
-            {wonDeals.length === 0 ? (
+            {!hasMonthData ? (
               <div className="px-6 py-12 text-center text-sm text-neutral-600">
-                No won deals yet.
+                {validDays
+                  ? "No won deals in this time range."
+                  : "No won deals yet."}
               </div>
             ) : (
               <div className="divide-y divide-neutral-800">
@@ -473,7 +507,9 @@ export default async function AnalyticsPage({
 
             {!hasForecastData ? (
               <div className="px-6 py-12 text-center text-sm text-neutral-600">
-                No open deals with expected close dates in the next 6 months.
+                {validDays
+                  ? `No open deals from the last ${validDays} days have expected close dates in the next 6 months.`
+                  : "No open deals with expected close dates in the next 6 months."}
               </div>
             ) : (
               <>
@@ -573,7 +609,9 @@ export default async function AnalyticsPage({
 
               {contacts.length === 0 ? (
                 <div className="px-6 py-12 text-center text-sm text-neutral-600">
-                  No contacts found. Add some contacts to see analytics.
+                  {validDays
+                    ? "No contacts in this time range."
+                    : "No contacts found. Add some contacts to see analytics."}
                 </div>
               ) : (
                 <div className="divide-y divide-neutral-800">
@@ -625,7 +663,9 @@ export default async function AnalyticsPage({
 
               {contacts.length === 0 ? (
                 <div className="px-6 py-12 text-center text-sm text-neutral-600">
-                  No contacts found. Add some contacts to see analytics.
+                  {validDays
+                    ? "No contacts in this time range."
+                    : "No contacts found. Add some contacts to see analytics."}
                 </div>
               ) : (
                 <div className="divide-y divide-neutral-800">
