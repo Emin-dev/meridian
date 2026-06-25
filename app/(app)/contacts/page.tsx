@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getDb, schema } from "@/db";
 import NewContactModal from "./new-contact-modal";
 
@@ -64,7 +65,14 @@ export default async function ContactsPage() {
                     key={c.id}
                     className="border-b border-neutral-800 last:border-0 transition-colors hover:bg-neutral-800/40"
                   >
-                    <td className="px-5 py-3 font-medium text-neutral-100">{c.name}</td>
+                    <td className="px-5 py-3 font-medium text-neutral-100">
+                      <Link
+                        href={`/contacts/${c.id}`}
+                        className="hover:text-indigo-400 transition-colors"
+                      >
+                        {c.name}
+                      </Link>
+                    </td>
                     <td className="px-5 py-3 text-neutral-400">{c.email ?? "—"}</td>
                     <td className="px-5 py-3 text-neutral-400">{c.phone ?? "—"}</td>
                     <td className="px-5 py-3 text-neutral-400">{c.company ?? "—"}</td>
