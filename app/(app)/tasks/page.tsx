@@ -33,7 +33,7 @@ function TaskItem({ task }: { task: TaskRow }) {
   });
 
   return (
-    <div className={`flex items-start gap-3 py-3 ${completed ? "opacity-50" : ""}`}>
+    <div className={`flex min-h-[44px] items-center gap-3 py-2 ${completed ? "opacity-50" : ""}`}>
       <TaskToggle
         activityId={task.id}
         isCompleted={completed}
@@ -41,15 +41,15 @@ function TaskItem({ task }: { task: TaskRow }) {
         dealId={task.dealId}
       />
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <p className={`text-sm text-neutral-100 ${completed ? "line-through" : ""}`}>
+        <p className={`text-body text-[--ink-1] ${completed ? "line-through" : ""}`}>
           {task.subject}
         </p>
         {(task.contactName || task.dealTitle) && (
-          <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-500">
+          <div className="flex flex-wrap items-center gap-2 text-footnote text-[--ink-3]">
             {task.contactId && task.contactName && (
               <Link
                 href={`/contacts/${task.contactId}`}
-                className="transition-colors hover:text-indigo-400"
+                className="transition-colors hover:text-[--accent]"
               >
                 {task.contactName}
               </Link>
@@ -60,7 +60,7 @@ function TaskItem({ task }: { task: TaskRow }) {
             {task.dealId && task.dealTitle && (
               <Link
                 href={`/deals/${task.dealId}`}
-                className="transition-colors hover:text-indigo-400"
+                className="transition-colors hover:text-[--accent]"
               >
                 {task.dealTitle}
               </Link>
@@ -68,7 +68,7 @@ function TaskItem({ task }: { task: TaskRow }) {
           </div>
         )}
       </div>
-      <span className="shrink-0 text-xs text-neutral-500">{formatted}</span>
+      <span className="shrink-0 text-footnote text-[--ink-3]">{formatted}</span>
     </div>
   );
 }
@@ -85,18 +85,18 @@ function TaskGroup({
   emptyLabel: string;
 }) {
   return (
-    <div className="rounded-xl border border-neutral-800 bg-neutral-900">
-      <div className="flex items-center gap-2 border-b border-neutral-800 px-5 py-3">
-        <span className={`h-2 w-2 rounded-full ${dotClass}`} />
-        <p className="text-xs font-medium uppercase tracking-wide text-neutral-400">
+    <div className="card overflow-hidden">
+      <div className="flex items-center gap-2 border-b border-[--line-1] px-4 py-3 sm:px-5">
+        <span className={`h-2 w-2 rounded-full shrink-0 ${dotClass}`} />
+        <p className="text-caption font-medium uppercase tracking-wide text-[--ink-2]">
           {title}
         </p>
-        <span className="ml-auto text-xs text-neutral-600">{tasks.length}</span>
+        <span className="ml-auto text-caption text-[--ink-3]">{tasks.length}</span>
       </div>
       {tasks.length === 0 ? (
-        <p className="px-5 py-4 text-sm text-neutral-600">{emptyLabel}</p>
+        <p className="px-4 py-4 text-body text-[--ink-3] sm:px-5">{emptyLabel}</p>
       ) : (
-        <div className="divide-y divide-neutral-800 px-5">
+        <div className="divide-y divide-[--line-1] px-4 sm:px-5">
           {tasks.map((t) => (
             <TaskItem key={t.id} task={t} />
           ))}
@@ -109,16 +109,16 @@ function TaskGroup({
 export default async function TasksPage() {
   const header = (
     <div>
-      <h2 className="text-xl font-semibold text-neutral-100">Tasks</h2>
-      <p className="mt-1 text-sm text-neutral-400">
+      <h2 className="text-title2 font-semibold text-[--ink-1]">Tasks</h2>
+      <p className="mt-1 text-body text-[--ink-2]">
         Track and complete tasks across your contacts and deals.
       </p>
     </div>
   );
 
   const addCard = (
-    <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-5">
-      <h3 className="mb-4 text-sm font-medium text-neutral-300">Add a task</h3>
+    <div className="card px-4 py-5 sm:px-6">
+      <h3 className="mb-4 text-callout font-medium text-[--ink-1]">Add a task</h3>
       <TaskQuickAddForm />
     </div>
   );
@@ -130,7 +130,7 @@ export default async function TasksPage() {
       <div className="space-y-6">
         {header}
         {addCard}
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900">
+        <div className="card">
           <EmptyState
             icon={<TaskIcon />}
             title="Database not connected"
@@ -191,7 +191,7 @@ export default async function TasksPage() {
       {addCard}
 
       {total === 0 ? (
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900">
+        <div className="card">
           <EmptyState
             icon={<TaskIcon />}
             title="No tasks yet"
@@ -199,7 +199,7 @@ export default async function TasksPage() {
             action={
               <DemoDataButton
                 label="Load demo data"
-                className="inline-flex items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-xs font-medium text-neutral-400 transition-colors hover:bg-neutral-700 hover:text-neutral-200 disabled:opacity-50"
+                className="tap inline-flex items-center gap-2 rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-3 text-caption font-medium text-[--ink-2] transition-colors hover:text-[--ink-1] disabled:opacity-50"
               />
             }
           />
@@ -209,19 +209,19 @@ export default async function TasksPage() {
           <TaskGroup
             title="Overdue"
             tasks={overdue}
-            dotClass="bg-red-500"
+            dotClass="bg-[--bad]"
             emptyLabel="No overdue tasks."
           />
           <TaskGroup
             title="Due Today"
             tasks={dueToday}
-            dotClass="bg-amber-400"
+            dotClass="bg-[--warn]"
             emptyLabel="Nothing due today."
           />
           <TaskGroup
             title="Upcoming"
             tasks={upcoming}
-            dotClass="bg-indigo-500"
+            dotClass="bg-[--accent]"
             emptyLabel="No upcoming tasks."
           />
         </div>

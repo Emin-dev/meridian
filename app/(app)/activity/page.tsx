@@ -46,16 +46,16 @@ export default async function ActivityPage({
 
   const header = (
     <div>
-      <h2 className="text-xl font-semibold text-neutral-100">Activity</h2>
-      <p className="mt-1 text-sm text-neutral-400">
+      <h2 className="text-title2 font-semibold text-[--ink-1]">Activity</h2>
+      <p className="mt-1 text-body text-[--ink-2]">
         A log of all interactions across your CRM.
       </p>
     </div>
   );
 
   const logCard = (
-    <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-5">
-      <h3 className="mb-4 text-sm font-medium text-neutral-300">Log an activity</h3>
+    <div className="card px-4 py-5 sm:px-6">
+      <h3 className="mb-4 text-callout font-medium text-[--ink-1]">Log an activity</h3>
       <AddActivityForm />
     </div>
   );
@@ -65,9 +65,9 @@ export default async function ActivityPage({
       <div className="space-y-6">
         {header}
         {logCard}
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900">
-          <div className="border-b border-neutral-800 px-5 py-3">
-            <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">
+        <div className="card">
+          <div className="border-b border-[--line-1] px-4 py-3 sm:px-5">
+            <p className="text-caption font-medium uppercase tracking-wide text-[--ink-3]">
               Recent events
             </p>
           </div>

@@ -19,17 +19,19 @@ export default function TaskToggle({
   const [pending, startTransition] = useTransition();
 
   return (
-    <input
-      type="checkbox"
-      checked={isCompleted}
-      disabled={pending}
-      aria-label={isCompleted ? "Mark incomplete" : "Mark complete"}
-      onChange={() => {
-        startTransition(async () => {
-          await toggleTaskComplete(activityId, isCompleted, contactId, dealId);
-        });
-      }}
-      className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-neutral-600 bg-neutral-800 accent-indigo-500 disabled:opacity-50"
-    />
+    <label className="tap flex shrink-0 cursor-pointer items-center justify-center">
+      <input
+        type="checkbox"
+        checked={isCompleted}
+        disabled={pending}
+        aria-label={isCompleted ? "Mark incomplete" : "Mark complete"}
+        onChange={() => {
+          startTransition(async () => {
+            await toggleTaskComplete(activityId, isCompleted, contactId, dealId);
+          });
+        }}
+        className="h-4 w-4 cursor-pointer rounded border-[--line-2] bg-[--surface-2] accent-[--accent] disabled:opacity-50"
+      />
+    </label>
   );
 }

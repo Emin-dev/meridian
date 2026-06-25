@@ -70,7 +70,6 @@ export default function ActivityListFiltered({ rows, currentType, currentRange, 
     const params = new URLSearchParams();
     if (type) params.set("type", type);
     if (range) params.set("range", range);
-    // reset offset when changing filters
     const qs = params.toString();
     startTransition(() => {
       router.push(qs ? `/activity?${qs}` : "/activity");
@@ -104,17 +103,18 @@ export default function ActivityListFiltered({ rows, currentType, currentRange, 
   const isNoData = rows.length === 0 && !currentType && !currentRange;
 
   return (
-    <div className="rounded-xl border border-neutral-800 bg-neutral-900">
+    <div className="card overflow-hidden">
       {/* Filter bar */}
-      <div className="flex flex-wrap items-center gap-3 border-b border-neutral-800 px-5 py-3">
+      <div className="flex flex-wrap items-center gap-2 border-b border-[--line-1] px-4 py-2">
         {total > 0 && (
-          <span className="mr-1 shrink-0 text-xs text-neutral-500">
+          <span className="shrink-0 text-footnote text-[--ink-3]">
             {rows.length < total
               ? `${rows.length} of ${total}`
               : String(total)}{" "}
             {total === 1 ? "activity" : "activities"}
           </span>
         )}
+
         {/* Type chips */}
         <div className="flex flex-wrap gap-1.5">
           {TYPE_CHIPS.map(({ value, label }) => {
@@ -124,10 +124,10 @@ export default function ActivityListFiltered({ rows, currentType, currentRange, 
                 key={value || "all"}
                 onClick={() => navigate(value, currentRange)}
                 disabled={isPending}
-                className={`rounded-full px-3 py-1 text-xs font-medium transition-all disabled:opacity-50 ${
+                className={`tap inline-flex items-center rounded-[--r-pill] px-3 text-caption font-medium transition-all disabled:opacity-50 ${
                   isActive
-                    ? "bg-indigo-600 text-white"
-                    : "bg-neutral-800 text-neutral-400 hover:bg-neutral-700 hover:text-neutral-200"
+                    ? "bg-[--accent] text-[--accent-ink]"
+                    : "bg-[--surface-2] text-[--ink-2] hover:text-[--ink-1]"
                 }`}
               >
                 {label}
@@ -141,7 +141,7 @@ export default function ActivityListFiltered({ rows, currentType, currentRange, 
           value={currentRange}
           onChange={(e) => navigate(currentType, e.target.value)}
           disabled={isPending}
-          className="rounded-lg border border-neutral-700 bg-neutral-800 px-2.5 py-1 text-xs text-neutral-300 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:opacity-50"
+          className="tap rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-2.5 text-caption text-[--ink-2] focus:border-[--accent] focus:outline-none disabled:opacity-50 [color-scheme:dark]"
           aria-label="Date range"
         >
           {RANGE_OPTIONS.map(({ value, label }) => (
@@ -151,19 +151,19 @@ export default function ActivityListFiltered({ rows, currentType, currentRange, 
           ))}
         </select>
 
-        {/* Contact search (client-side) */}
+        {/* Contact search — full width on mobile, auto on sm+ */}
         <input
           type="text"
           value={contactQuery}
           onChange={(e) => setContactQuery(e.target.value)}
           placeholder="Search contact…"
-          className="ml-auto w-36 rounded-lg border border-neutral-700 bg-neutral-800 px-2.5 py-1 text-xs text-neutral-200 placeholder-neutral-500 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+          className="tap w-full rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-3 text-caption text-[--ink-1] placeholder:text-[--ink-3] outline-none focus:border-[--accent] sm:ml-auto sm:w-40 [color-scheme:dark]"
         />
       </div>
 
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center gap-3 px-6 py-16 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-neutral-800 bg-neutral-800/50 text-neutral-500">
+          <div className="flex h-12 w-12 items-center justify-center rounded-[--r-lg] border border-[--line-1] bg-[--surface-2] text-[--ink-3]">
             {isNoData ? (
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
@@ -174,14 +174,14 @@ export default function ActivityListFiltered({ rows, currentType, currentRange, 
               </svg>
             )}
           </div>
-          <p className="text-sm font-medium text-neutral-300">
+          <p className="text-body font-medium text-[--ink-1]">
             {isNoData
               ? "No activity logged yet"
               : isClientFilterZero
               ? "No activities match your search"
               : "No activities match the current filters"}
           </p>
-          <p className="max-w-xs text-xs text-neutral-500">
+          <p className="max-w-xs text-footnote text-[--ink-3]">
             {isNoData
               ? "Use the form above to log your first call, email, or meeting."
               : isClientFilterZero
@@ -191,7 +191,7 @@ export default function ActivityListFiltered({ rows, currentType, currentRange, 
           {isServerFilterZero && (
             <button
               onClick={() => navigate("", "")}
-              className="mt-1 inline-flex items-center gap-1.5 rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-xs font-medium text-neutral-300 transition-colors hover:bg-neutral-700 hover:text-neutral-100"
+              className="tap mt-1 inline-flex items-center gap-1.5 rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-3 text-caption font-medium text-[--ink-2] transition-colors hover:text-[--ink-1]"
             >
               Clear filters
             </button>
@@ -199,7 +199,7 @@ export default function ActivityListFiltered({ rows, currentType, currentRange, 
           {isClientFilterZero && (
             <button
               onClick={() => setContactQuery("")}
-              className="mt-1 inline-flex items-center gap-1.5 rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-xs font-medium text-neutral-300 transition-colors hover:bg-neutral-700 hover:text-neutral-100"
+              className="tap mt-1 inline-flex items-center gap-1.5 rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-3 text-caption font-medium text-[--ink-2] transition-colors hover:text-[--ink-1]"
             >
               Clear search
             </button>
@@ -207,7 +207,7 @@ export default function ActivityListFiltered({ rows, currentType, currentRange, 
         </div>
       ) : (
         <>
-          <ul className="divide-y divide-neutral-800">
+          <ul className="divide-y divide-[--line-1]">
             {filtered.map(({ activity, contactName, dealTitle }) => {
               const meta = TYPE_META[activity.type as ActivityType];
               const date = activity.createdAt.slice(0, 10);
@@ -217,7 +217,7 @@ export default function ActivityListFiltered({ rows, currentType, currentRange, 
               return (
                 <li
                   key={activity.id}
-                  className={`flex gap-4 px-5 py-4 ${isOverdue ? "bg-red-950/20" : ""}`}
+                  className={`flex gap-3 px-4 py-3 ${isOverdue ? "bg-[--bad-tint]" : ""}`}
                 >
                   <ActivityToggle
                     activityId={activity.id}
@@ -231,39 +231,39 @@ export default function ActivityListFiltered({ rows, currentType, currentRange, 
                     }`}
                   >
                     <span
-                      className={`inline-block rounded-full ${meta.bg} px-2 py-0.5 text-xs font-medium ${meta.color}`}
+                      className={`inline-block rounded-[--r-pill] ${meta.bg} px-2 py-0.5 text-caption font-medium ${meta.color}`}
                     >
                       {meta.label}
                     </span>
                     {isOverdue && (
-                      <span className="inline-block rounded-full bg-red-900/30 px-2 py-0.5 text-xs font-medium text-red-400">
+                      <span className="inline-block rounded-[--r-pill] bg-[--bad-tint] px-2 py-0.5 text-caption font-medium text-[--bad]">
                         Overdue
                       </span>
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
                     <p
-                      className={`text-sm font-medium ${
-                        isCompleted ? "text-neutral-500 line-through" : "text-neutral-200"
+                      className={`text-body font-medium ${
+                        isCompleted ? "text-[--ink-3] line-through" : "text-[--ink-1]"
                       }`}
                     >
                       {activity.subject}
                     </p>
                     {activity.body && (
                       <p
-                        className={`mt-0.5 line-clamp-2 text-xs ${
-                          isCompleted ? "text-neutral-600" : "text-neutral-400"
+                        className={`mt-0.5 line-clamp-2 text-footnote ${
+                          isCompleted ? "text-[--ink-3]" : "text-[--ink-2]"
                         }`}
                       >
                         {activity.body}
                       </p>
                     )}
-                    <div className="mt-1 flex items-center gap-2 text-xs text-neutral-600">
+                    <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-caption text-[--ink-3]">
                       <span>{date}</span>
                       {activity.dueAt && (
                         <>
                           <span aria-hidden>·</span>
-                          <span className={isOverdue ? "text-red-400" : "text-neutral-500"}>
+                          <span className={isOverdue ? "text-[--bad]" : "text-[--ink-3]"}>
                             Due {activity.dueAt.slice(0, 10)}
                           </span>
                         </>
@@ -283,7 +283,7 @@ export default function ActivityListFiltered({ rows, currentType, currentRange, 
                       {isCompleted && activity.completedAt && (
                         <>
                           <span aria-hidden>·</span>
-                          <span className="text-neutral-500">
+                          <span className="text-[--ink-3]">
                             Completed {formatCompletedAt(activity.completedAt)}
                           </span>
                           <span aria-hidden>·</span>
@@ -301,11 +301,11 @@ export default function ActivityListFiltered({ rows, currentType, currentRange, 
             })}
           </ul>
           {hasMore && !contactQuery.trim() && (
-            <div className="border-t border-neutral-800 px-5 py-4 text-center">
+            <div className="border-t border-[--line-1] px-4 py-3 text-center">
               <button
                 onClick={loadMore}
                 disabled={isPending}
-                className="inline-flex items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-800 px-4 py-2 text-xs font-medium text-neutral-300 transition-colors hover:bg-neutral-700 hover:text-neutral-100 disabled:opacity-50"
+                className="tap inline-flex items-center gap-2 rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-4 text-caption font-medium text-[--ink-2] transition-colors hover:text-[--ink-1] disabled:opacity-50"
               >
                 {isPending ? "Loading…" : `Load more (${total - rows.length} remaining)`}
               </button>

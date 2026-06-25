@@ -20,7 +20,7 @@ export default function ActivityUndoButton({ activityId, contactId, dealId }: Pr
           await toggleActivityComplete(activityId, true, contactId, dealId);
         });
       }}
-      className="text-xs text-indigo-400 hover:text-indigo-300 disabled:opacity-50 transition-colors"
+      className="tap inline-flex items-center text-caption text-[--accent] transition-colors hover:text-[--accent-hover] disabled:opacity-50"
     >
       {pending ? "…" : "Undo"}
     </button>

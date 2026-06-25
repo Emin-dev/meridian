@@ -7,8 +7,8 @@ import { useToast } from "@/components/toaster";
 const INIT: AddTaskState = {};
 
 const inputCls =
-  "w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none";
-const labelCls = "mb-1 block text-xs font-medium text-neutral-400";
+  "w-full rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-3 py-2 text-body text-[--ink-1] placeholder:text-[--ink-3] focus:border-[--accent] focus:outline-none [color-scheme:dark]";
+const labelCls = "mb-1 block text-caption font-medium text-[--ink-2]";
 
 export default function TaskQuickAddForm() {
   const [state, formAction, pending] = useActionState(addTask, INIT);
@@ -27,10 +27,10 @@ export default function TaskQuickAddForm() {
   return (
     <div className="space-y-3">
       {state.noDb && (
-        <div className="rounded-lg border border-amber-800 bg-amber-900/20 px-3 py-2">
-          <p className="text-xs text-amber-400">
+        <div className="rounded-[--r-md] border border-[--warn] bg-[--warn-tint] px-3 py-2">
+          <p className="text-caption text-[--warn]">
             Database not connected — set{" "}
-            <code className="rounded bg-neutral-800 px-1">DATABASE_URL</code> to
+            <code className="rounded bg-[--surface-3] px-1">DATABASE_URL</code> to
             save tasks.
           </p>
         </div>
@@ -39,7 +39,7 @@ export default function TaskQuickAddForm() {
       <form key={formKey} action={formAction} className="flex flex-col gap-3 sm:flex-row sm:items-end">
         <div className="flex-1">
           <label htmlFor="tqf-subject" className={labelCls}>
-            Subject <span className="text-red-400">*</span>
+            Subject <span className="text-[--bad]">*</span>
           </label>
           <input
             id="tqf-subject"
@@ -50,7 +50,7 @@ export default function TaskQuickAddForm() {
             className={inputCls}
           />
           {state.fieldErrors?.subject && (
-            <p className="mt-1 text-xs text-red-400">
+            <p className="mt-1 text-caption text-[--bad]">
               {state.fieldErrors.subject[0]}
             </p>
           )}
@@ -58,7 +58,7 @@ export default function TaskQuickAddForm() {
 
         <div>
           <label htmlFor="tqf-due" className={labelCls}>
-            Due date <span className="text-red-400">*</span>
+            Due date <span className="text-[--bad]">*</span>
           </label>
           <input
             id="tqf-due"
@@ -68,7 +68,7 @@ export default function TaskQuickAddForm() {
             className={`${inputCls} [color-scheme:dark] sm:w-40`}
           />
           {state.fieldErrors?.dueAt && (
-            <p className="mt-1 text-xs text-red-400">
+            <p className="mt-1 text-caption text-[--bad]">
               {state.fieldErrors.dueAt[0]}
             </p>
           )}
@@ -77,7 +77,7 @@ export default function TaskQuickAddForm() {
         <button
           type="submit"
           disabled={pending}
-          className="shrink-0 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
+          className="tap inline-flex shrink-0 items-center justify-center rounded-[--r-md] bg-[--accent] px-5 text-body font-medium text-[--accent-ink] transition-opacity active:scale-[0.98] hover:opacity-90 disabled:opacity-50"
         >
           {pending ? "Adding…" : "Add task"}
         </button>

@@ -8,8 +8,8 @@ const INIT: AddActivityState = {};
 const ACTIVITY_TYPES = ["call", "email", "meeting", "note", "task"] as const;
 
 const inputCls =
-  "w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none";
-const labelCls = "mb-1 block text-xs font-medium text-neutral-400";
+  "w-full rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-3 py-2 text-body text-[--ink-1] placeholder:text-[--ink-3] focus:border-[--accent] focus:outline-none [color-scheme:dark]";
+const labelCls = "mb-1 block text-caption font-medium text-[--ink-2]";
 
 export default function AddActivityForm({
   contactId,
@@ -37,10 +37,10 @@ export default function AddActivityForm({
   return (
     <div className="space-y-3">
       {state.noDb && (
-        <div className="rounded-lg border border-amber-800 bg-amber-900/20 px-3 py-2">
-          <p className="text-xs text-amber-400">
+        <div className="rounded-[--r-md] border border-[--warn] bg-[--warn-tint] px-3 py-2">
+          <p className="text-caption text-[--warn]">
             Database not connected — set{" "}
-            <code className="rounded bg-neutral-800 px-1">DATABASE_URL</code> to
+            <code className="rounded bg-[--surface-3] px-1">DATABASE_URL</code> to
             save activities.
           </p>
         </div>
@@ -55,7 +55,8 @@ export default function AddActivityForm({
         )}
 
         <div className="flex flex-col gap-3 sm:flex-row">
-          <div>
+          {/* Type select — w-full on mobile so it fills the stacked column */}
+          <div className="w-full sm:w-auto">
             <label htmlFor="af-type" className={labelCls}>
               Type
             </label>
@@ -75,7 +76,7 @@ export default function AddActivityForm({
 
           <div className="flex-1">
             <label htmlFor="af-subject" className={labelCls}>
-              Subject <span className="text-red-400">*</span>
+              Subject <span className="text-[--bad]">*</span>
             </label>
             <input
               id="af-subject"
@@ -86,7 +87,7 @@ export default function AddActivityForm({
               className={inputCls}
             />
             {state.fieldErrors?.subject && (
-              <p className="mt-1 text-xs text-red-400">
+              <p className="mt-1 text-caption text-[--bad]">
                 {state.fieldErrors.subject[0]}
               </p>
             )}
@@ -108,7 +109,7 @@ export default function AddActivityForm({
 
         <div>
           <label htmlFor="af-due" className={labelCls}>
-            Due date <span className="text-neutral-600">(optional)</span>
+            Due date <span className="text-[--ink-3]">(optional)</span>
           </label>
           <input
             id="af-due"
@@ -118,14 +119,17 @@ export default function AddActivityForm({
           />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <input
             id="af-completed"
             name="completedAt"
             type="checkbox"
-            className="h-3.5 w-3.5 rounded border-neutral-600 bg-neutral-800 accent-indigo-500"
+            className="h-4 w-4 rounded border-[--line-2] bg-[--surface-2] accent-[--accent]"
           />
-          <label htmlFor="af-completed" className="text-xs text-neutral-400 cursor-pointer select-none">
+          <label
+            htmlFor="af-completed"
+            className="text-caption text-[--ink-2] cursor-pointer select-none"
+          >
             Mark as completed
           </label>
         </div>
@@ -134,7 +138,7 @@ export default function AddActivityForm({
           <button
             type="submit"
             disabled={pending}
-            className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
+            className="tap inline-flex items-center justify-center rounded-[--r-md] bg-[--accent] px-5 text-body font-medium text-[--accent-ink] transition-opacity active:scale-[0.98] hover:opacity-90 disabled:opacity-50"
           >
             {pending ? "Logging…" : "Log activity"}
           </button>
