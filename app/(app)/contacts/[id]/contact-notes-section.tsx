@@ -1,20 +1,23 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
-import { updateDealNotes, type UpdateNotesState } from "./actions";
+import {
+  updateContactNotes,
+  type UpdateContactNotesState,
+} from "../actions";
 import { useToast } from "@/components/toaster";
 import MarkdownContent from "@/components/markdown-content";
 
-const INIT: UpdateNotesState = {};
+const INIT: UpdateContactNotesState = {};
 
-export default function EditNotesForm({
-  dealId,
+export default function ContactNotesSection({
+  contactId,
   initialNotes,
 }: {
-  dealId: number;
+  contactId: number;
   initialNotes: string | null;
 }) {
-  const action = updateDealNotes.bind(null, dealId);
+  const action = updateContactNotes.bind(null, contactId);
   const [state, formAction, pending] = useActionState(action, INIT);
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(!initialNotes);
@@ -54,7 +57,7 @@ export default function EditNotesForm({
       <textarea
         name="notes"
         rows={4}
-        placeholder="Add notes about this deal…"
+        placeholder="Add notes about this contact…"
         defaultValue={initialNotes ?? ""}
         className="w-full resize-none rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none"
       />

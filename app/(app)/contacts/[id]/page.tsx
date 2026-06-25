@@ -15,6 +15,7 @@ import EnrollSequenceModal, {
 import EnrichContactPanel from "./enrich-contact-panel";
 import LinkedTasksSection from "@/app/(app)/tasks/linked-tasks-section";
 import LinkedDealsSection from "./linked-deals-section";
+import ContactNotesSection from "./contact-notes-section";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -206,6 +207,15 @@ export default async function ContactDetailPage({ params }: Props) {
             ))}
           </ul>
         )}
+      </div>
+
+      {/* Notes */}
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-5">
+        <h3 className="mb-4 text-sm font-medium text-neutral-300">Notes</h3>
+        <ContactNotesSection
+          contactId={contact.id}
+          initialNotes={contact.notes}
+        />
       </div>
 
       {/* Linked deals */}

@@ -145,19 +145,8 @@ export default function EditContactForm({ contact }: Props) {
         </div>
       </div>
 
-      {/* Notes */}
-      <div>
-        <label htmlFor="ec-notes" className={labelCls}>
-          Notes
-        </label>
-        <textarea
-          id="ec-notes"
-          name="notes"
-          rows={4}
-          defaultValue={contact.notes ?? ""}
-          className={`${inputCls} resize-none`}
-        />
-      </div>
+      {/* Preserve notes value when saving other fields */}
+      <input type="hidden" name="notes" value={contact.notes ?? ""} readOnly />
 
       {/* Tags */}
       <div>

@@ -229,6 +229,34 @@ export async function updateContact(
   return { success: true };
 }
 
+// ─── Update contact notes only ────────────────────────────────────────────────
+
+export type UpdateContactNotesState = {
+  success?: boolean;
+  error?: string;
+  noDb?: boolean;
+};
+
+export async function updateContactNotes(
+  id: number,
+  _prev: UpdateContactNotesState,
+  formData: FormData
+): Promise<UpdateContactNotesState> {
+  const db = getDb();
+  if (!db) return { noDb: true };
+
+  const notes = String(formData.get("notes") ?? "").trim() || null;
+
+  await db
+    .update(schema.contacts)
+    .set({ notes, updatedAt: new Date() })
+    .where(eq(schema.contacts.id, id));
+
+  revalidatePath(`/contacts/${id}`);
+  revalidatePath("/contacts");
+  return { success: true };
+}
+
 export async function deleteContact(id: number): Promise<void> {
   const db = getDb();
   if (!db) return;
