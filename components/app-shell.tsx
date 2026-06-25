@@ -13,6 +13,7 @@ import {
   CheckSquareIcon,
   MailIcon,
   BarChartIcon,
+  SparklesIcon,
   SettingsIcon,
   MenuIcon,
   SearchIcon,
@@ -27,6 +28,7 @@ const NAV = [
   { href: "/tasks", label: "Tasks", icon: <CheckSquareIcon size={18} aria-hidden="true" /> },
   { href: "/sequences", label: "Sequences", icon: <MailIcon size={18} aria-hidden="true" /> },
   { href: "/analytics", label: "Analytics", icon: <BarChartIcon size={18} aria-hidden="true" /> },
+  { href: "/ask", label: "Ask AI", icon: <SparklesIcon size={18} aria-hidden="true" /> },
   { href: "/settings", label: "Settings", icon: <SettingsIcon size={18} aria-hidden="true" /> },
 ];
 
