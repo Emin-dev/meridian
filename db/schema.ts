@@ -155,6 +155,8 @@ export const activities = pgTable("activities", {
   index("activities_contact_id_idx").on(table.contactId),
   index("activities_deal_id_idx").on(table.dealId),
   index("activities_due_at_idx").on(table.dueAt),
+  index("activities_type_idx").on(table.type),
+  index("activities_created_at_idx").on(table.createdAt),
 ]);
 
 export const activitiesRelations = relations(activities, ({ one }) => ({
