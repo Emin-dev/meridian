@@ -6,6 +6,7 @@ import {
   addStep,
   updateStep,
   deleteStep,
+  reorderStep,
   draftStepContent,
   type StepFormState,
 } from "./actions";
@@ -15,12 +16,17 @@ const INIT: StepFormState = {};
 export function StepCard({
   step,
   sequenceId,
+  isFirst,
+  isLast,
 }: {
   step: SequenceStep;
   sequenceId: number;
+  isFirst: boolean;
+  isLast: boolean;
 }) {
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [reordering, setReordering] = useState(false);
 
   const boundUpdate = updateStep.bind(null, step.id, sequenceId);
   const [state, formAction, pending] = useActionState(boundUpdate, INIT);
@@ -33,6 +39,12 @@ export function StepCard({
     setDeleting(true);
     await deleteStep(step.id, sequenceId);
     setDeleting(false);
+  }
+
+  async function handleReorder(direction: "up" | "down") {
+    setReordering(true);
+    await reorderStep(step.id, sequenceId, direction);
+    setReordering(false);
   }
 
   return (
@@ -50,6 +62,24 @@ export function StepCard({
         </div>
         {!editing && (
           <div className="flex items-center gap-2">
+            <div className="flex items-center gap-0.5">
+              <button
+                onClick={() => handleReorder("up")}
+                disabled={isFirst || reordering}
+                title="Move up"
+                className="rounded p-1 text-neutral-500 transition-colors hover:bg-neutral-700 hover:text-neutral-200 disabled:cursor-not-allowed disabled:opacity-30"
+              >
+                ▲
+              </button>
+              <button
+                onClick={() => handleReorder("down")}
+                disabled={isLast || reordering}
+                title="Move down"
+                className="rounded p-1 text-neutral-500 transition-colors hover:bg-neutral-700 hover:text-neutral-200 disabled:cursor-not-allowed disabled:opacity-30"
+              >
+                ▼
+              </button>
+            </div>
             <button
               onClick={() => setEditing(true)}
               className="rounded-lg px-3 py-1.5 text-xs font-medium text-neutral-400 transition-colors hover:bg-neutral-700 hover:text-neutral-100"

@@ -113,6 +113,42 @@ export async function deleteStep(
   return {};
 }
 
+export async function reorderStep(
+  stepId: number,
+  sequenceId: number,
+  direction: "up" | "down"
+): Promise<{ error?: string }> {
+  const db = getDb();
+  if (!db) return { error: "Database not connected." };
+
+  const steps = await db
+    .select({ id: schema.sequenceSteps.id, position: schema.sequenceSteps.position })
+    .from(schema.sequenceSteps)
+    .where(eq(schema.sequenceSteps.sequenceId, sequenceId))
+    .orderBy(asc(schema.sequenceSteps.position));
+
+  const idx = steps.findIndex((s) => s.id === stepId);
+  if (idx === -1) return { error: "Step not found." };
+
+  const swapIdx = direction === "up" ? idx - 1 : idx + 1;
+  if (swapIdx < 0 || swapIdx >= steps.length) return {};
+
+  const current = steps[idx];
+  const swap = steps[swapIdx];
+
+  await db
+    .update(schema.sequenceSteps)
+    .set({ position: swap.position })
+    .where(eq(schema.sequenceSteps.id, current.id));
+  await db
+    .update(schema.sequenceSteps)
+    .set({ position: current.position })
+    .where(eq(schema.sequenceSteps.id, swap.id));
+
+  revalidatePath(`/sequences/${sequenceId}`);
+  return {};
+}
+
 export type DraftStepResult = {
   subjectTemplate?: string;
   bodyTemplate?: string;

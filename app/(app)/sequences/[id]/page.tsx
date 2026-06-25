@@ -246,8 +246,14 @@ export default async function SequenceDetailPage({
             </div>
           ) : (
             <div className="mb-4 space-y-3">
-              {steps.map((step) => (
-                <StepCard key={step.id} step={step} sequenceId={numId} />
+              {steps.map((step, idx) => (
+                <StepCard
+                  key={step.id}
+                  step={step}
+                  sequenceId={numId}
+                  isFirst={idx === 0}
+                  isLast={idx === steps.length - 1}
+                />
               ))}
             </div>
           )}
