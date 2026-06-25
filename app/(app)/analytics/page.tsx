@@ -1,5 +1,20 @@
 import { getDb } from "@/db";
 
+const CONTACT_STATUSES = [
+  { key: "lead" as const, label: "Lead", dot: "bg-blue-500" },
+  { key: "active" as const, label: "Active", dot: "bg-green-500" },
+  { key: "inactive" as const, label: "Inactive", dot: "bg-neutral-500" },
+  { key: "churned" as const, label: "Churned", dot: "bg-red-500" },
+];
+
+const CONTACT_SOURCES = [
+  { key: "website" as const, label: "Website", dot: "bg-cyan-500" },
+  { key: "referral" as const, label: "Referral", dot: "bg-violet-500" },
+  { key: "linkedin" as const, label: "LinkedIn", dot: "bg-blue-400" },
+  { key: "cold-outreach" as const, label: "Cold Outreach", dot: "bg-orange-500" },
+  { key: "other" as const, label: "Other", dot: "bg-neutral-500" },
+];
+
 const STAGES = [
   { key: "lead" as const, label: "Lead", dot: "bg-blue-500" },
   { key: "qualified" as const, label: "Qualified", dot: "bg-violet-500" },
@@ -60,6 +75,12 @@ export default async function AnalyticsPage() {
       })
     : [];
 
+  const contacts = db
+    ? await db.query.contacts.findMany({
+        columns: { status: true, source: true },
+      })
+    : [];
+
   // ── Summary stats ────────────────────────────────────────────────────────────
   const wonDeals = deals.filter((d) => d.stage === "won");
   const lostDeals = deals.filter((d) => d.stage === "lost");
@@ -104,6 +125,19 @@ export default async function AnalyticsPage() {
   });
 
   const maxCount = Math.max(...stageRows.map((s) => s.count), 1);
+
+  // ── Contacts analytics ───────────────────────────────────────────────────────
+  const statusRows = CONTACT_STATUSES.map((s) => ({
+    ...s,
+    count: contacts.filter((c) => c.status === s.key).length,
+  }));
+  const maxStatusCount = Math.max(...statusRows.map((s) => s.count), 1);
+
+  const sourceRows = CONTACT_SOURCES.map((s) => ({
+    ...s,
+    count: contacts.filter((c) => c.source === s.key).length,
+  }));
+  const maxSourceCount = Math.max(...sourceRows.map((s) => s.count), 1);
 
   // Conversion rate for each stage = count[stage] / count[prev stage]
   const countByKey = Object.fromEntries(stageRows.map((s) => [s.key, s.count]));
@@ -300,6 +334,120 @@ export default async function AnalyticsPage() {
                 </div>
               </>
             )}
+          </div>
+
+          {/* ── Contacts analytics ─────────────────────────────────────────── */}
+          <div>
+            <h2 className="text-xl font-semibold text-neutral-100">Contacts</h2>
+            <p className="mt-1 text-sm text-neutral-400">
+              Status distribution and acquisition source breakdown.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            {/* Status distribution */}
+            <div className="rounded-xl border border-neutral-800 bg-neutral-900">
+              <div className="border-b border-neutral-800 px-6 py-4">
+                <h3 className="text-sm font-semibold text-neutral-100">
+                  Status Distribution
+                </h3>
+                <p className="mt-0.5 text-xs text-neutral-500">
+                  Contact count by lifecycle status
+                </p>
+              </div>
+
+              {contacts.length === 0 ? (
+                <div className="px-6 py-12 text-center text-sm text-neutral-600">
+                  No contacts found. Add some contacts to see analytics.
+                </div>
+              ) : (
+                <div className="divide-y divide-neutral-800">
+                  {statusRows.map((row) => (
+                    <div
+                      key={row.key}
+                      className="flex items-center gap-4 px-6 py-3"
+                    >
+                      <div className="flex w-24 shrink-0 items-center gap-2">
+                        <span
+                          className={`h-2 w-2 shrink-0 rounded-full ${row.dot}`}
+                        />
+                        <span className="text-sm text-neutral-300">
+                          {row.label}
+                        </span>
+                      </div>
+                      <div className="flex-1">
+                        <div className="h-1.5 rounded-full bg-neutral-800">
+                          <div
+                            className={`h-1.5 rounded-full ${row.dot} opacity-60 transition-all duration-300`}
+                            style={{
+                              width:
+                                row.count > 0
+                                  ? `${(row.count / maxStatusCount) * 100}%`
+                                  : "0%",
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <div className="w-8 shrink-0 text-right text-sm font-semibold text-neutral-200">
+                        {row.count}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Source breakdown */}
+            <div className="rounded-xl border border-neutral-800 bg-neutral-900">
+              <div className="border-b border-neutral-800 px-6 py-4">
+                <h3 className="text-sm font-semibold text-neutral-100">
+                  Source Breakdown
+                </h3>
+                <p className="mt-0.5 text-xs text-neutral-500">
+                  Contact count by acquisition source
+                </p>
+              </div>
+
+              {contacts.length === 0 ? (
+                <div className="px-6 py-12 text-center text-sm text-neutral-600">
+                  No contacts found. Add some contacts to see analytics.
+                </div>
+              ) : (
+                <div className="divide-y divide-neutral-800">
+                  {sourceRows.map((row) => (
+                    <div
+                      key={row.key}
+                      className="flex items-center gap-4 px-6 py-3"
+                    >
+                      <div className="flex w-28 shrink-0 items-center gap-2">
+                        <span
+                          className={`h-2 w-2 shrink-0 rounded-full ${row.dot}`}
+                        />
+                        <span className="text-sm text-neutral-300">
+                          {row.label}
+                        </span>
+                      </div>
+                      <div className="flex-1">
+                        <div className="h-1.5 rounded-full bg-neutral-800">
+                          <div
+                            className={`h-1.5 rounded-full ${row.dot} opacity-60 transition-all duration-300`}
+                            style={{
+                              width:
+                                row.count > 0
+                                  ? `${(row.count / maxSourceCount) * 100}%`
+                                  : "0%",
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <div className="w-8 shrink-0 text-right text-sm font-semibold text-neutral-200">
+                        {row.count}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </>
       )}
