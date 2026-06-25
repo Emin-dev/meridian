@@ -309,7 +309,7 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
         </header>
 
         {/* Page content — bottom padding reserves space for the tab bar on mobile */}
-        <main className="flex-1 overflow-auto px-4 pt-4 sm:px-6 sm:pt-6 pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-6">
+        <main className="flex-1 overflow-auto px-4 pt-4 sm:px-6 sm:pt-6 pb-[calc(72px+env(safe-area-inset-bottom))] lg:pb-6">
           {children}
         </main>
       </div>
