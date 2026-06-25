@@ -4,6 +4,11 @@ import { z } from "zod";
 import { eq, inArray } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { revalidatePath } from "next/cache";
+import {
+  WIN_LOSS_MARKER,
+  extractUserNotes,
+  extractWinLossInsight,
+} from "./[id]/notes-utils";
 
 const DEAL_STAGES = [
   "lead",
@@ -235,13 +240,23 @@ export async function updateDeal(
   if (!db) return { noDb: true };
 
   const [current] = await db
-    .select({ stage: schema.deals.stage, value: schema.deals.value })
+    .select({ stage: schema.deals.stage, value: schema.deals.value, notes: schema.deals.notes })
     .from(schema.deals)
     .where(eq(schema.deals.id, id))
     .limit(1);
 
   const { title, stage, value, currency, expectedCloseDate, contactId, notes, owner } =
     parsed.data;
+
+  // Preserve any AI win/loss insight stored alongside the user notes — the edit
+  // form only ever submits the user-authored portion, so re-attach the insight.
+  const existingInsight = extractWinLossInsight(current?.notes ?? null);
+  const submittedNotes = extractUserNotes(notes);
+  const finalNotes = submittedNotes
+    ? submittedNotes + (existingInsight ? WIN_LOSS_MARKER + existingInsight : "")
+    : existingInsight
+      ? WIN_LOSS_MARKER.trimStart() + existingInsight
+      : null;
 
   await db
     .update(schema.deals)
@@ -252,7 +267,7 @@ export async function updateDeal(
       currency,
       expectedCloseDate: expectedCloseDate ? new Date(expectedCloseDate) : null,
       contactId: contactId,
-      notes: notes,
+      notes: finalNotes,
       owner: owner,
       updatedAt: new Date(),
     })

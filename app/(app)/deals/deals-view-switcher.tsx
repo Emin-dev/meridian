@@ -9,11 +9,21 @@ type View = "kanban" | "table";
 export function DealsViewSwitcher({
   currentView,
   ownerParam,
+  stageParam,
 }: {
   currentView: View;
   ownerParam?: string;
+  stageParam?: string;
 }) {
   const router = useRouter();
+
+  function buildQuery(view: View) {
+    const params = new URLSearchParams();
+    params.set("view", view);
+    if (ownerParam) params.set("owner", ownerParam);
+    if (stageParam) params.set("stage", stageParam);
+    return params.toString();
+  }
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY) as View | null;
@@ -28,20 +38,14 @@ export function DealsViewSwitcher({
     }
 
     if (preferred && preferred !== currentView) {
-      const params = new URLSearchParams();
-      params.set("view", preferred);
-      if (ownerParam) params.set("owner", ownerParam);
-      router.replace(`?${params.toString()}`);
+      router.replace(`?${buildQuery(preferred)}`);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function setView(view: View) {
     localStorage.setItem(STORAGE_KEY, view);
-    const params = new URLSearchParams();
-    params.set("view", view);
-    if (ownerParam) params.set("owner", ownerParam);
-    router.push(`?${params.toString()}`);
+    router.push(`?${buildQuery(view)}`);
   }
 
   const isTable = currentView === "table";

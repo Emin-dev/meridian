@@ -144,6 +144,7 @@ export default async function DealsPage({
             <DealsViewSwitcher
               currentView={isTable ? "table" : "kanban"}
               ownerParam={ownerFilter || undefined}
+              stageParam={stageMatch?.key || undefined}
             />
 
             {isTable && <DealsExportCsvButton hasDb={!!db} />}

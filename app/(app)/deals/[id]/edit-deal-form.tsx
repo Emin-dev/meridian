@@ -37,6 +37,13 @@ export default function EditDealForm({ deal, onSaved, onRollback }: Props) {
     setStageValue(deal.stage);
   }, [deal.stage]);
 
+  // Probability is controlled so the progress bar tracks the input live.
+  const [probInput, setProbInput] = useState(String(deal.probability));
+  useEffect(() => {
+    setProbInput(String(deal.probability));
+  }, [deal.probability]);
+  const probPercent = Math.max(0, Math.min(100, parseInt(probInput || "0", 10) || 0));
+
   const closeDateValue = deal.expectedCloseDate
     ? (deal.expectedCloseDate instanceof Date
         ? deal.expectedCloseDate
@@ -184,17 +191,18 @@ export default function EditDealForm({ deal, onSaved, onRollback }: Props) {
             min="0"
             max="100"
             step="1"
-            defaultValue={deal.probability}
+            value={probInput}
+            onChange={(e) => setProbInput(e.target.value)}
             className="w-24 rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none"
           />
           <div className="flex-1 overflow-hidden rounded-full bg-neutral-700 h-2">
             <div
               className="h-2 rounded-full bg-indigo-500 transition-all"
-              style={{ width: `${deal.probability}%` }}
+              style={{ width: `${probPercent}%` }}
             />
           </div>
           <span className="w-10 text-right text-xs text-neutral-400">
-            {deal.probability}%
+            {probPercent}%
           </span>
         </div>
         {fieldErrors.probability && (

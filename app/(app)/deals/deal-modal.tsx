@@ -6,6 +6,7 @@ import { createDeal, updateDeal, type DealFormState } from "./actions";
 import { useToast } from "@/components/toaster";
 import type { DealWithContact } from "./types";
 import StageControl from "./stage-control";
+import { extractUserNotes } from "./[id]/notes-utils";
 
 const STAGES = [
   { value: "lead", label: "Lead" },
@@ -422,7 +423,7 @@ export default function DealModal({
                   name="notes"
                   rows={3}
                   placeholder="Any notes about this deal…"
-                  defaultValue={deal?.notes ?? ""}
+                  defaultValue={extractUserNotes(deal?.notes ?? null) ?? ""}
                   className="w-full resize-none rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none"
                 />
               </div>
