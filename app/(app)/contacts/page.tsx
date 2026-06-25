@@ -1,4 +1,4 @@
-﻿import { and, eq, ilike, gte, sql } from "drizzle-orm";
+﻿import { and, eq, ilike, gte, isNull, sql } from "drizzle-orm";
 import type { SQL } from "drizzle-orm";
 import Link from "next/link";
 import { getDb, schema } from "@/db";
@@ -8,6 +8,7 @@ import NewContactModal from "./new-contact-modal";
 import CsvImportModal from "./csv-import-modal";
 import ExportCsvButton from "./export-csv-button";
 import ContactFilters from "./contact-filters";
+import SegmentChips from "./segment-chips";
 import ContactsTable from "./contacts-table";
 import ScoreAllUnscoredButton from "./score-all-unscored-button";
 import FindDuplicatesButton from "./find-duplicates-button";
@@ -38,9 +39,9 @@ type ContactStatus = (typeof VALID_STATUSES)[number];
 export default async function ContactsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; company?: string; minScore?: string; source?: string; tag?: string }>;
+  searchParams: Promise<{ status?: string; company?: string; minScore?: string; source?: string; tag?: string; unscored?: string; noActivity?: string }>;
 }) {
-  const { status, company, minScore, source, tag } = await searchParams;
+  const { status, company, minScore, source, tag, unscored, noActivity } = await searchParams;
 
   const statusFilter =
     status && (VALID_STATUSES as readonly string[]).includes(status)
@@ -54,6 +55,9 @@ export default async function ContactsPage({
   const minScoreFilter =
     minScore && !isNaN(parseInt(minScore)) ? parseInt(minScore) : undefined;
   const tagFilter = tag?.trim() || undefined;
+  const unscoredFilter = unscored === "1";
+  const noActivityDays =
+    noActivity && !isNaN(parseInt(noActivity)) ? parseInt(noActivity) : undefined;
 
   const db = getDb();
 
@@ -78,6 +82,7 @@ export default async function ContactsPage({
       tagFilter !== undefined
         ? sql`${schema.contacts.tags} @> ARRAY[${tagFilter}]::text[]`
         : undefined,
+      unscoredFilter ? isNull(schema.contacts.leadScore) : undefined,
     ];
     const whereClause = and(...conditions);
 
@@ -108,6 +113,14 @@ export default async function ContactsPage({
         lastContactedMap[row.contactId] = row.lastAt;
       }
     }
+
+    if (noActivityDays !== undefined) {
+      const cutoff = new Date(Date.now() - noActivityDays * 24 * 60 * 60 * 1000);
+      contacts = contacts.filter((c) => {
+        const lastAt = lastContactedMap[c.id];
+        return !lastAt || new Date(lastAt) < cutoff;
+      });
+    }
   }
 
   const hasActiveFilters = !!(
@@ -115,7 +128,9 @@ export default async function ContactsPage({
     sourceFilter ||
     companyFilter ||
     minScoreFilter !== undefined ||
-    tagFilter
+    tagFilter ||
+    unscoredFilter ||
+    noActivityDays !== undefined
   );
 
   const hasUnscored = contacts.some((c) => c.leadScore == null);
@@ -142,6 +157,11 @@ export default async function ContactsPage({
           <NewContactModal hasDb={!!db} />
         </div>
       </div>
+
+      {/* Segment preset chips */}
+      <SegmentChips
+        currentParams={{ status, company, minScore, source, tag, unscored, noActivity }}
+      />
 
       {/* Filter bar */}
       <ContactFilters
