@@ -1,4 +1,4 @@
-import { and, eq, isNull, lt } from "drizzle-orm";
+import { and, count, eq, isNull, lt } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import AppShell from "@/components/app-shell";
 
@@ -10,7 +10,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     const now = new Date();
     const [activityRows, taskRows] = await Promise.all([
       db
-        .select({ id: schema.activities.id })
+        .select({ c: count() })
         .from(schema.activities)
         .where(
           and(
@@ -19,7 +19,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           )
         ),
       db
-        .select({ id: schema.activities.id })
+        .select({ c: count() })
         .from(schema.activities)
         .where(
           and(
@@ -29,8 +29,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           )
         ),
     ]);
-    overdueCount = activityRows.length;
-    overdueTaskCount = taskRows.length;
+    overdueCount = Number(activityRows[0].c);
+    overdueTaskCount = Number(taskRows[0].c);
   }
   return <AppShell overdueCount={overdueCount} overdueTaskCount={overdueTaskCount}>{children}</AppShell>;
 }
