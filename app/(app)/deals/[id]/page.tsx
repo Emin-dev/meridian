@@ -96,7 +96,7 @@ export default async function DealDetailPage({ params }: Props) {
             className="group flex items-center gap-3"
           >
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-neutral-700 text-sm font-medium text-neutral-300 transition-colors group-hover:bg-neutral-600">
-              {contact.name[0].toUpperCase()}
+              {(contact.name[0] ?? "?").toUpperCase()}
             </span>
             <div>
               <p className="text-sm font-medium text-neutral-100 transition-colors group-hover:text-indigo-400">
