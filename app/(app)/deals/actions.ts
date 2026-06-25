@@ -96,7 +96,8 @@ export async function createDeal(
 
 export async function moveDealStage(
   id: number,
-  newStage: string
+  newStage: string,
+  closeReason?: string
 ): Promise<{ error?: string; noDb?: boolean }> {
   const parsed = z.enum(DEAL_STAGES).safeParse(newStage);
   if (!parsed.success) return { error: "Invalid stage" };
@@ -104,9 +105,15 @@ export async function moveDealStage(
   const db = getDb();
   if (!db) return { noDb: true };
 
+  const isTerminal = parsed.data === "won" || parsed.data === "lost";
+
   await db
     .update(schema.deals)
-    .set({ stage: parsed.data, updatedAt: new Date() })
+    .set({
+      stage: parsed.data,
+      closeReason: isTerminal ? (closeReason?.trim() || null) : null,
+      updatedAt: new Date(),
+    })
     .where(eq(schema.deals.id, id));
 
   revalidatePath("/deals");

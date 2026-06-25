@@ -133,6 +133,13 @@ export default async function DealDetailPage({ params }: Props) {
               </span>
             )}
           </div>
+          {(deal.stage === "won" || deal.stage === "lost") &&
+            deal.closeReason && (
+              <p className="mt-1.5 text-xs text-neutral-400">
+                <span className="text-neutral-600">Reason: </span>
+                {deal.closeReason}
+              </p>
+            )}
         </div>
         <DeleteDealButton dealId={deal.id} />
       </div>

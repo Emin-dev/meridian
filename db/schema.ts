@@ -96,6 +96,7 @@ export const deals = pgTable("deals", {
   contactId: integer("contact_id").references(() => contacts.id, { onDelete: "set null" }),
   expectedCloseDate: timestamp("expected_close_date", { withTimezone: true }),
   notes: text("notes"),
+  closeReason: text("close_reason"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
