@@ -298,9 +298,11 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold text-neutral-100">Dashboard</h2>
-        <p className="mt-1 text-sm text-neutral-400">Your sales overview.</p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-xl font-semibold text-neutral-100">Dashboard</h2>
+          <p className="mt-1 text-sm text-neutral-400">Your sales overview.</p>
+        </div>
       </div>
 
       {!db && (

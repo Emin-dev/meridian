@@ -94,16 +94,17 @@ export default async function DealsPage({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h2 className="text-xl font-semibold text-neutral-100">Deals</h2>
           <p className="mt-1 text-sm text-neutral-400">
             Track your pipeline and close more revenue.
           </p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-2 sm:items-end">
+          {/* Pipeline / Weighted stats — stack above controls on mobile */}
           {allDeals.length > 0 && (
-            <div className="flex items-center gap-4 text-sm text-neutral-400">
+            <div className="flex flex-wrap items-center gap-4 text-sm text-neutral-400">
               <span>
                 Pipeline:{" "}
                 <span className="font-semibold text-neutral-100">
@@ -120,37 +121,40 @@ export default async function DealsPage({
             </div>
           )}
 
-          <OwnerFilter owners={uniqueOwners} selected={ownerFilter} />
+          {/* Controls row — wraps on narrow viewports */}
+          <div className="flex flex-wrap items-center gap-2">
+            <OwnerFilter owners={uniqueOwners} selected={ownerFilter} />
 
-          {/* Stage filter chip — shown when arriving from analytics funnel */}
-          {stageMatch && (
-            <div className="flex items-center gap-1.5 rounded-lg border border-neutral-700 bg-neutral-800 px-2.5 py-1.5 text-xs text-neutral-300">
-              <span className={`h-2 w-2 shrink-0 rounded-full ${stageMatch.dot}`} />
-              <span>{stageMatch.label}</span>
-              <Link
-                href={`?view=${view}${ownerFilter ? `&owner=${encodeURIComponent(ownerFilter)}` : ""}`}
-                className="ml-0.5 text-neutral-500 hover:text-neutral-200"
-                aria-label="Clear stage filter"
-              >
-                ×
-              </Link>
-            </div>
-          )}
+            {/* Stage filter chip — shown when arriving from analytics funnel */}
+            {stageMatch && (
+              <div className="flex items-center gap-1.5 rounded-lg border border-neutral-700 bg-neutral-800 px-2.5 text-xs text-neutral-300">
+                <span className={`h-2 w-2 shrink-0 rounded-full ${stageMatch.dot}`} />
+                <span>{stageMatch.label}</span>
+                <Link
+                  href={`?view=${view}${ownerFilter ? `&owner=${encodeURIComponent(ownerFilter)}` : ""}`}
+                  className="tap ml-0.5 inline-flex items-center justify-center px-1 text-neutral-500 hover:text-neutral-200"
+                  aria-label="Clear stage filter"
+                >
+                  ×
+                </Link>
+              </div>
+            )}
 
-          {/* View toggle */}
-          <DealsViewSwitcher
-            currentView={isTable ? "table" : "kanban"}
-            ownerParam={ownerFilter || undefined}
-          />
+            {/* View toggle */}
+            <DealsViewSwitcher
+              currentView={isTable ? "table" : "kanban"}
+              ownerParam={ownerFilter || undefined}
+            />
 
-          {isTable && <DealsExportCsvButton hasDb={!!db} />}
+            {isTable && <DealsExportCsvButton hasDb={!!db} />}
 
-          <DealModal
-            hasDb={!!db}
-            contacts={allContacts}
-            defaultCurrency={settings.defaultCurrency}
-            defaultStage={settings.defaultDealStage}
-          />
+            <DealModal
+              hasDb={!!db}
+              contacts={allContacts}
+              defaultCurrency={settings.defaultCurrency}
+              defaultStage={settings.defaultDealStage}
+            />
+          </div>
         </div>
       </div>
 
