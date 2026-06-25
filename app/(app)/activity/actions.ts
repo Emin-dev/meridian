@@ -1,0 +1,64 @@
+"use server";
+
+import { z } from "zod";
+import { getDb, schema } from "@/db";
+import { revalidatePath } from "next/cache";
+
+const AddActivitySchema = z.object({
+  type: z.enum(["call", "email", "meeting", "note", "task"]),
+  subject: z.string().min(1, "Subject is required"),
+  body: z.string().transform((v) => (v.trim() === "" ? null : v)),
+  contactId: z
+    .string()
+    .transform((v) => (v.trim() === "" ? null : parseInt(v, 10))),
+  dueAt: z
+    .string()
+    .transform((v) => (v.trim() === "" ? null : new Date(v))),
+});
+
+export type AddActivityState = {
+  error?: string;
+  fieldErrors?: Partial<Record<"type" | "subject" | "body", string[]>>;
+  success?: boolean;
+  noDb?: boolean;
+};
+
+export async function addActivity(
+  _prev: AddActivityState,
+  formData: FormData
+): Promise<AddActivityState> {
+  const raw = {
+    type: String(formData.get("type") ?? "note"),
+    subject: String(formData.get("subject") ?? ""),
+    body: String(formData.get("body") ?? ""),
+    contactId: String(formData.get("contactId") ?? ""),
+    dueAt: String(formData.get("dueAt") ?? ""),
+  };
+
+  const parsed = AddActivitySchema.safeParse(raw);
+  if (!parsed.success) {
+    return {
+      fieldErrors: parsed.error.flatten()
+        .fieldErrors as AddActivityState["fieldErrors"],
+    };
+  }
+
+  const db = getDb();
+  if (!db) return { noDb: true };
+
+  await db.insert(schema.activities).values({
+    type: parsed.data.type,
+    subject: parsed.data.subject,
+    body: parsed.data.body,
+    contactId: parsed.data.contactId,
+    dealId: null,
+    dueAt: parsed.data.dueAt,
+  });
+
+  revalidatePath("/activity");
+  if (parsed.data.contactId) {
+    revalidatePath(`/contacts/${parsed.data.contactId}`);
+  }
+
+  return { success: true };
+}
