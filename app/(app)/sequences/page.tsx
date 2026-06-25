@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import type { Sequence } from "@/db/schema";
 import { getCrmSettings } from "@/lib/settings";
@@ -58,7 +58,12 @@ export default async function SequencesPage() {
             schema.sequences.id,
           ),
         )
-        .where(eq(schema.contactSequenceEnrollments.status, "active")),
+        .where(
+          and(
+            eq(schema.contactSequenceEnrollments.status, "active"),
+            eq(schema.sequences.status, "active"),
+          ),
+        ),
     ]);
 
     sequences = seqResults;
