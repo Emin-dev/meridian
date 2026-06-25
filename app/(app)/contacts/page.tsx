@@ -9,6 +9,7 @@ import ExportCsvButton from "./export-csv-button";
 import ContactFilters from "./contact-filters";
 import ContactsTable from "./contacts-table";
 import ScoreAllUnscoredButton from "./score-all-unscored-button";
+import FindDuplicatesButton from "./find-duplicates-button";
 
 const VALID_SOURCES = ["website", "referral", "linkedin", "cold-outreach", "other"] as const;
 type ContactSource = (typeof VALID_SOURCES)[number];
@@ -110,6 +111,7 @@ export default async function ContactsPage({
         </div>
         <div className="flex items-center gap-3">
           <ScoreAllUnscoredButton hasUnscored={hasUnscored} />
+          <FindDuplicatesButton hasDb={!!db} />
           <ExportCsvButton
             hasDb={!!db}
             status={status}

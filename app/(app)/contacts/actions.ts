@@ -699,6 +699,170 @@ export async function bulkEnrollInSequence(
   return { success: true, count: toEnroll.length };
 }
 
+// ─── AI: Find duplicate contacts ─────────────────────────────────────────────
+
+export type DuplicatePair = {
+  primaryId: number;
+  primaryName: string;
+  primaryEmail: string | null;
+  primaryCompany: string | null;
+  secondaryId: number;
+  secondaryName: string;
+  secondaryEmail: string | null;
+  secondaryCompany: string | null;
+  reason: string;
+  confidence: "high" | "medium" | "low";
+};
+
+export type FindDuplicatesState = {
+  pairs?: DuplicatePair[];
+  error?: string;
+  noDb?: boolean;
+  noKey?: boolean;
+};
+
+export async function findDuplicateContacts(): Promise<FindDuplicatesState> {
+  const db = getDb();
+  if (!db) return { noDb: true };
+  if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
+
+  const allContacts = await db
+    .select({
+      id: schema.contacts.id,
+      name: schema.contacts.name,
+      email: schema.contacts.email,
+      company: schema.contacts.company,
+      phone: schema.contacts.phone,
+    })
+    .from(schema.contacts)
+    .orderBy(schema.contacts.createdAt);
+
+  if (allContacts.length < 2) return { pairs: [] };
+
+  const contactList = allContacts
+    .map(
+      (c) =>
+        `ID:${c.id} | Name:${c.name} | Email:${c.email ?? ""} | Company:${c.company ?? ""} | Phone:${c.phone ?? ""}`
+    )
+    .join("\n");
+
+  try {
+    const raw = await chat(
+      [
+        {
+          role: "system",
+          content:
+            'You are a CRM data quality expert. Given a list of contacts, identify likely duplicate pairs. A duplicate is: exact or near-exact email match, same full name with matching or similar company, or same phone number. Return JSON with one key "pairs" — an array of objects each with: "primaryId" (number, the older/more complete record to keep), "secondaryId" (number, the duplicate to merge away), "reason" (short string why they are duplicates, max 20 words), "confidence" ("high", "medium", or "low"). Each contact ID may appear in at most one pair. Return an empty pairs array if no duplicates found. Output only JSON.',
+        },
+        {
+          role: "user",
+          content: `Find duplicate contacts:\n\n${contactList}`,
+        },
+      ],
+      { json: true }
+    );
+
+    const parsed = JSON.parse(raw) as {
+      pairs: Array<{
+        primaryId: unknown;
+        secondaryId: unknown;
+        reason: unknown;
+        confidence: unknown;
+      }>;
+    };
+
+    const contactMap = new Map(allContacts.map((c) => [c.id, c]));
+    const pairs: DuplicatePair[] = [];
+    const seenIds = new Set<number>();
+
+    for (const p of parsed.pairs ?? []) {
+      const primaryId = Number(p.primaryId);
+      const secondaryId = Number(p.secondaryId);
+      if (
+        !Number.isInteger(primaryId) ||
+        !Number.isInteger(secondaryId) ||
+        primaryId === secondaryId ||
+        seenIds.has(primaryId) ||
+        seenIds.has(secondaryId)
+      )
+        continue;
+
+      const primary = contactMap.get(primaryId);
+      const secondary = contactMap.get(secondaryId);
+      if (!primary || !secondary) continue;
+
+      const confidence = (["high", "medium", "low"] as const).includes(
+        p.confidence as "high" | "medium" | "low"
+      )
+        ? (p.confidence as "high" | "medium" | "low")
+        : "medium";
+
+      pairs.push({
+        primaryId: primary.id,
+        primaryName: primary.name,
+        primaryEmail: primary.email,
+        primaryCompany: primary.company,
+        secondaryId: secondary.id,
+        secondaryName: secondary.name,
+        secondaryEmail: secondary.email,
+        secondaryCompany: secondary.company,
+        reason: String(p.reason ?? "").slice(0, 120),
+        confidence,
+      });
+
+      seenIds.add(primaryId);
+      seenIds.add(secondaryId);
+    }
+
+    return { pairs };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown AI error.";
+    if (message.includes("DEEPSEEK_API_KEY")) return { noKey: true };
+    return { error: message };
+  }
+}
+
+// ─── Merge contacts ───────────────────────────────────────────────────────────
+
+export type MergeContactsState = {
+  success?: boolean;
+  error?: string;
+  noDb?: boolean;
+};
+
+export async function mergeContacts(
+  primaryId: number,
+  secondaryId: number
+): Promise<MergeContactsState> {
+  const db = getDb();
+  if (!db) return { noDb: true };
+
+  if (primaryId === secondaryId)
+    return { error: "Cannot merge a contact with itself." };
+
+  try {
+    await db
+      .update(schema.activities)
+      .set({ contactId: primaryId, updatedAt: new Date() })
+      .where(eq(schema.activities.contactId, secondaryId));
+
+    await db
+      .update(schema.deals)
+      .set({ contactId: primaryId, updatedAt: new Date() })
+      .where(eq(schema.deals.contactId, secondaryId));
+
+    await db
+      .delete(schema.contacts)
+      .where(eq(schema.contacts.id, secondaryId));
+
+    revalidatePath("/contacts");
+    return { success: true };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error.";
+    return { error: message };
+  }
+}
+
 export async function draftOutreachEmail(
   contactId: number
 ): Promise<DraftEmailState> {
