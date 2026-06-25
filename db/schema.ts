@@ -69,6 +69,7 @@ export const contacts = pgTable("contacts", {
 export const contactsRelations = relations(contacts, ({ many }) => ({
   deals: many(deals),
   activities: many(activities),
+  enrollments: many(contactSequenceEnrollments),
 }));
 
 export type Contact = InferSelectModel<typeof contacts>;
@@ -134,6 +135,7 @@ export const sequences = pgTable("sequences", {
 
 export const sequencesRelations = relations(sequences, ({ many }) => ({
   steps: many(sequenceSteps),
+  enrollments: many(contactSequenceEnrollments),
 }));
 
 export type Sequence = InferSelectModel<typeof sequences>;
@@ -159,3 +161,48 @@ export const sequenceStepsRelations = relations(sequenceSteps, ({ one }) => ({
 
 export type SequenceStep = InferSelectModel<typeof sequenceSteps>;
 export type NewSequenceStep = InferInsertModel<typeof sequenceSteps>;
+
+// ─── Contact Sequence Enrollments ─────────────────────────────────────────────
+
+export const enrollmentStatusEnum = pgEnum("enrollment_status", [
+  "active",
+  "cancelled",
+]);
+
+export const contactSequenceEnrollments = pgTable(
+  "contact_sequence_enrollments",
+  {
+    id: serial("id").primaryKey(),
+    contactId: integer("contact_id")
+      .notNull()
+      .references(() => contacts.id, { onDelete: "cascade" }),
+    sequenceId: integer("sequence_id")
+      .notNull()
+      .references(() => sequences.id, { onDelete: "cascade" }),
+    enrolledAt: timestamp("enrolled_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    status: enrollmentStatusEnum("status").notNull().default("active"),
+  }
+);
+
+export const contactSequenceEnrollmentsRelations = relations(
+  contactSequenceEnrollments,
+  ({ one }) => ({
+    contact: one(contacts, {
+      fields: [contactSequenceEnrollments.contactId],
+      references: [contacts.id],
+    }),
+    sequence: one(sequences, {
+      fields: [contactSequenceEnrollments.sequenceId],
+      references: [sequences.id],
+    }),
+  })
+);
+
+export type ContactSequenceEnrollment = InferSelectModel<
+  typeof contactSequenceEnrollments
+>;
+export type NewContactSequenceEnrollment = InferInsertModel<
+  typeof contactSequenceEnrollments
+>;
