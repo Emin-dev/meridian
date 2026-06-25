@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { logout } from "@/app/login/actions";
 
 const NAV = [
   {
@@ -116,8 +117,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </nav>
 
         {/* Sidebar footer */}
-        <div className="shrink-0 border-t border-neutral-800 px-4 py-3">
+        <div className="shrink-0 border-t border-neutral-800 px-4 py-3 flex items-center justify-between">
           <p className="text-xs text-neutral-600">v0.1.0</p>
+          <form action={logout}>
+            <button
+              type="submit"
+              className="text-xs text-neutral-500 transition-colors hover:text-neutral-300"
+            >
+              Sign out
+            </button>
+          </form>
         </div>
       </aside>
 
