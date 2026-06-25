@@ -1,7 +1,7 @@
 import { eq, desc } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import type { Activity } from "@/db/schema";
-import AddActivityForm from "@/app/(app)/activity/add-activity-form";
+import InlineActivityForm from "./inline-activity-form";
 import ActivityToggle from "@/app/(app)/activity/activity-toggle";
 
 type ActivityType = Activity["type"];
@@ -32,15 +32,16 @@ export default async function ActivityTimeline({ contactId }: Props) {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-sm font-medium text-neutral-300">Activity timeline</h3>
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="text-sm font-medium text-neutral-300">Activity timeline</h3>
+        {db && <InlineActivityForm contactId={contactId} />}
+      </div>
 
       {!db && (
         <p className="text-xs text-neutral-500">
           Connect a database to log and view activities.
         </p>
       )}
-
-      <AddActivityForm contactId={contactId} />
 
       {db && activities.length === 0 && (
         <p className="py-4 text-center text-sm text-neutral-500">

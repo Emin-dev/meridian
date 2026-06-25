@@ -14,9 +14,11 @@ const labelCls = "mb-1 block text-xs font-medium text-neutral-400";
 export default function AddActivityForm({
   contactId,
   dealId,
+  onSuccess,
 }: {
   contactId?: number;
   dealId?: number;
+  onSuccess?: () => void;
 }) {
   const [state, formAction, pending] = useActionState(addActivity, INIT);
   const [formKey, setFormKey] = useState(0);
@@ -26,8 +28,10 @@ export default function AddActivityForm({
     if (state.success) {
       setFormKey((k) => k + 1);
       toast("Activity logged");
+      onSuccess?.();
     }
     if (state.error) toast(state.error, "error");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.success, state.error, toast]);
 
   return (
