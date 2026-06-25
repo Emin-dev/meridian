@@ -1,4 +1,9 @@
-export default function ContactsPage() {
+import { getDb, schema } from "@/db";
+
+export default async function ContactsPage() {
+  const db = getDb();
+  const contacts = db ? await db.select().from(schema.contacts).orderBy(schema.contacts.createdAt) : [];
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -7,7 +12,7 @@ export default function ContactsPage() {
           <p className="mt-1 text-sm text-neutral-400">Manage your leads and customers.</p>
         </div>
         <button className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500">
-          Add Contact
+          New contact
         </button>
       </div>
 
@@ -15,9 +20,50 @@ export default function ContactsPage() {
         <div className="border-b border-neutral-800 px-5 py-3">
           <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">All Contacts</p>
         </div>
-        <div className="px-5 py-8 text-center">
-          <p className="text-sm text-neutral-500">No contacts yet. Add your first contact to get started.</p>
-        </div>
+
+        {contacts.length === 0 ? (
+          <div className="flex flex-col items-center gap-3 px-5 py-16 text-center">
+            <p className="text-sm text-neutral-400">
+              {db ? "No contacts yet." : "Database not connected."}
+            </p>
+            <p className="text-xs text-neutral-600">
+              {db
+                ? "Click “New contact” to add your first contact."
+                : "Set DATABASE_URL to connect your Neon database."}
+            </p>
+            <button className="mt-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500">
+              New contact
+            </button>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-neutral-800 text-left">
+                  <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">Name</th>
+                  <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">Email</th>
+                  <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">Phone</th>
+                  <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">Company</th>
+                  <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">Title</th>
+                </tr>
+              </thead>
+              <tbody>
+                {contacts.map((c) => (
+                  <tr
+                    key={c.id}
+                    className="border-b border-neutral-800 last:border-0 transition-colors hover:bg-neutral-800/40"
+                  >
+                    <td className="px-5 py-3 font-medium text-neutral-100">{c.name}</td>
+                    <td className="px-5 py-3 text-neutral-400">{c.email ?? "—"}</td>
+                    <td className="px-5 py-3 text-neutral-400">{c.phone ?? "—"}</td>
+                    <td className="px-5 py-3 text-neutral-400">{c.company ?? "—"}</td>
+                    <td className="px-5 py-3 text-neutral-400">{c.title ?? "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );
