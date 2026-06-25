@@ -4,6 +4,7 @@ import { eq, asc, desc } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { StepCard, AddStepForm } from "./step-card";
 import { CancelEnrollmentButton } from "./cancel-enrollment-button";
+import { PreviewTab, type PreviewContact } from "./preview-tab";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -29,6 +30,7 @@ export default async function SequenceDetailPage({
 }: Props) {
   const { id } = await params;
   const { tab = "steps" } = await searchParams;
+  const isPreviewTab = tab === "preview";
   const numId = Number(id);
 
   if (!Number.isInteger(numId) || numId <= 0) notFound();
@@ -78,6 +80,8 @@ export default async function SequenceDetailPage({
         contactId: schema.contactSequenceEnrollments.contactId,
         contactName: schema.contacts.name,
         contactEmail: schema.contacts.email,
+        contactCompany: schema.contacts.company,
+        contactOwner: schema.contacts.owner,
         enrolledAt: schema.contactSequenceEnrollments.enrolledAt,
         status: schema.contactSequenceEnrollments.status,
       })
@@ -89,6 +93,20 @@ export default async function SequenceDetailPage({
       .where(eq(schema.contactSequenceEnrollments.sequenceId, numId))
       .orderBy(desc(schema.contactSequenceEnrollments.enrolledAt)),
   ]);
+
+  // Unique contacts from enrollments for the Preview tab
+  const previewContacts = enrollments.reduce<PreviewContact[]>((acc, e) => {
+    if (!acc.some((c) => c.id === e.contactId)) {
+      acc.push({
+        id: e.contactId,
+        name: e.contactName,
+        email: e.contactEmail ?? null,
+        company: e.contactCompany ?? null,
+        owner: e.contactOwner ?? null,
+      });
+    }
+    return acc;
+  }, []);
 
   const statusMeta = STATUS_LABELS[sequence.status];
   const isContactsTab = tab === "contacts";
@@ -135,7 +153,7 @@ export default async function SequenceDetailPage({
         <Link
           href={`/sequences/${numId}`}
           className={`-mb-px px-4 py-2 text-sm font-medium transition-colors ${
-            !isContactsTab
+            !isContactsTab && !isPreviewTab
               ? "border-b-2 border-neutral-100 text-neutral-100"
               : "text-neutral-400 hover:text-neutral-100"
           }`}
@@ -157,10 +175,23 @@ export default async function SequenceDetailPage({
             </span>
           )}
         </Link>
+        <Link
+          href={`/sequences/${numId}?tab=preview`}
+          className={`-mb-px px-4 py-2 text-sm font-medium transition-colors ${
+            isPreviewTab
+              ? "border-b-2 border-neutral-100 text-neutral-100"
+              : "text-neutral-400 hover:text-neutral-100"
+          }`}
+        >
+          Preview
+        </Link>
       </div>
 
       {/* Tab content */}
-      {!isContactsTab ? (
+      {isPreviewTab ? (
+        /* Preview */
+        <PreviewTab steps={steps} contacts={previewContacts} />
+      ) : !isContactsTab ? (
         /* Steps */
         <div>
           {steps.length === 0 ? (
