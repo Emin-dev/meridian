@@ -1,6 +1,8 @@
 import { DemoDataButton } from "@/components/demo-data-button";
 import { getDb, schema } from "@/db";
 import { getSession } from "@/lib/auth";
+import { getCrmSettings } from "@/lib/settings";
+import { PreferencesForm } from "./preferences-form";
 
 function StatusDot({ ok }: { ok: boolean }) {
   return (
@@ -12,7 +14,10 @@ function StatusDot({ ok }: { ok: boolean }) {
 
 export default async function SettingsPage() {
   const db = getDb();
-  const session = await getSession();
+  const [session, crmSettings] = await Promise.all([
+    getSession(),
+    getCrmSettings(),
+  ]);
 
   let contactCount = 0;
   if (db) {
@@ -89,6 +94,23 @@ export default async function SettingsPage() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* CRM Preferences */}
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-5 space-y-4">
+        <div>
+          <p className="text-sm font-medium text-neutral-300">CRM Preferences</p>
+          <p className="mt-1 text-xs text-neutral-500">
+            Set your display name, default currency, and default deal stage.
+          </p>
+        </div>
+        {!db ? (
+          <p className="text-xs text-neutral-500">
+            Connect a database to save preferences.
+          </p>
+        ) : (
+          <PreferencesForm current={crmSettings} />
+        )}
       </div>
 
       {/* Demo data */}

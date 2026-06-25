@@ -5,6 +5,7 @@ import { getDb, schema } from "@/db";
 import { StepCard, AddStepForm } from "./step-card";
 import { CancelEnrollmentButton } from "./cancel-enrollment-button";
 import { PreviewTab, type PreviewContact } from "./preview-tab";
+import { getCrmSettings } from "@/lib/settings";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -107,7 +108,7 @@ export default async function SequenceDetailPage({
 
   if (!sequence) notFound();
 
-  const [steps, enrollments] = await Promise.all([
+  const [steps, enrollments, crmSettings] = await Promise.all([
     db
       .select()
       .from(schema.sequenceSteps)
@@ -131,6 +132,7 @@ export default async function SequenceDetailPage({
       )
       .where(eq(schema.contactSequenceEnrollments.sequenceId, numId))
       .orderBy(desc(schema.contactSequenceEnrollments.enrolledAt)),
+    getCrmSettings(),
   ]);
 
   // Unique contacts from enrollments for the Preview tab
@@ -229,7 +231,7 @@ export default async function SequenceDetailPage({
       {/* Tab content */}
       {isPreviewTab ? (
         /* Preview */
-        <PreviewTab steps={steps} contacts={previewContacts} />
+        <PreviewTab steps={steps} contacts={previewContacts} defaultOwnerName={crmSettings.displayName} />
       ) : !isContactsTab ? (
         /* Steps */
         <div>

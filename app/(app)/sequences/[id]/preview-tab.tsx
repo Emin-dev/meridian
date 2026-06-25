@@ -25,19 +25,33 @@ const VAR_LABELS: { key: keyof TemplateVars; label: string; token: string }[] =
     { key: "ownerName", label: "Owner", token: "{{ownerName}}" },
   ];
 
+function buildVars(
+  contact: PreviewContact | null,
+  defaultOwnerName: string
+): TemplateVars {
+  const ownerFallback = defaultOwnerName || PLACEHOLDER_VARS.ownerName;
+  if (!contact) return { ...PLACEHOLDER_VARS, ownerName: ownerFallback };
+  return {
+    ...contactToVars(contact),
+    ownerName: contact.owner ?? ownerFallback,
+  };
+}
+
 export function PreviewTab({
   steps,
   contacts,
+  defaultOwnerName = "",
 }: {
   steps: SequenceStep[];
   contacts: PreviewContact[];
+  defaultOwnerName?: string;
 }) {
   const [selectedId, setSelectedId] = useState<number | null>(
     contacts.length > 0 ? contacts[0].id : null
   );
 
   const selectedContact = contacts.find((c) => c.id === selectedId) ?? null;
-  const vars = selectedContact ? contactToVars(selectedContact) : PLACEHOLDER_VARS;
+  const vars = buildVars(selectedContact, defaultOwnerName);
 
   return (
     <div className="space-y-5">

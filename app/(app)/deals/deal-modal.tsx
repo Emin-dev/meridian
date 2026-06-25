@@ -24,6 +24,8 @@ interface DealModalProps {
   hasDb: boolean;
   contacts: ContactOption[];
   deal?: Deal & { contact: Contact | null };
+  defaultCurrency?: string;
+  defaultStage?: string;
 }
 
 function stageAgeInDays(updatedAt: Date): number {
@@ -55,7 +57,7 @@ type DealAction = (
 
 const initialState: DealFormState = {};
 
-export default function DealModal({ hasDb, contacts, deal }: DealModalProps) {
+export default function DealModal({ hasDb, contacts, deal, defaultCurrency = "USD", defaultStage = "lead" }: DealModalProps) {
   const isEdit = !!deal;
   const action: DealAction = deal
     ? (updateDeal.bind(null, deal.id) as DealAction)
@@ -251,7 +253,7 @@ export default function DealModal({ hasDb, contacts, deal }: DealModalProps) {
               <select
                 id="dm-stage"
                 name="stage"
-                defaultValue={deal?.stage ?? "lead"}
+                defaultValue={deal?.stage ?? defaultStage}
                 className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 focus:border-indigo-500 focus:outline-none"
               >
                 {STAGES.map((s) => (
@@ -292,7 +294,7 @@ export default function DealModal({ hasDb, contacts, deal }: DealModalProps) {
                 <select
                   id="dm-currency"
                   name="currency"
-                  defaultValue={deal?.currency ?? "USD"}
+                  defaultValue={deal?.currency ?? defaultCurrency}
                   className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 focus:border-indigo-500 focus:outline-none"
                 >
                   {CURRENCIES.map((c) => (

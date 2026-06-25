@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getDb } from "@/db";
 import DealModal from "./deal-modal";
 import DealsTable from "./deals-table";
+import { getCrmSettings } from "@/lib/settings";
 
 const STAGES = [
   { key: "lead" as const, label: "Lead", dot: "bg-blue-500" },
@@ -22,18 +23,21 @@ export default async function DealsPage({
 
   const db = getDb();
 
-  const [allDeals, allContacts] = db
-    ? await Promise.all([
-        db.query.deals.findMany({
-          with: { contact: true },
-          orderBy: (deals, { asc }) => [asc(deals.createdAt)],
-        }),
-        db.query.contacts.findMany({
-          columns: { id: true, name: true },
-          orderBy: (contacts, { asc }) => [asc(contacts.name)],
-        }),
-      ])
-    : [[], []];
+  const [[allDeals, allContacts], settings] = await Promise.all([
+    db
+      ? Promise.all([
+          db.query.deals.findMany({
+            with: { contact: true },
+            orderBy: (deals, { asc }) => [asc(deals.createdAt)],
+          }),
+          db.query.contacts.findMany({
+            columns: { id: true, name: true },
+            orderBy: (contacts, { asc }) => [asc(contacts.name)],
+          }),
+        ])
+      : Promise.resolve([[], []] as [never[], never[]]),
+    getCrmSettings(),
+  ]);
 
   const byStage = Object.fromEntries(
     STAGES.map((s) => [s.key, allDeals.filter((d) => d.stage === s.key)])
@@ -106,7 +110,12 @@ export default async function DealsPage({
             </Link>
           </div>
 
-          <DealModal hasDb={!!db} contacts={allContacts} />
+          <DealModal
+            hasDb={!!db}
+            contacts={allContacts}
+            defaultCurrency={settings.defaultCurrency}
+            defaultStage={settings.defaultDealStage}
+          />
         </div>
       </div>
 
@@ -177,6 +186,8 @@ export default async function DealsPage({
                           deal={deal}
                           hasDb={!!db}
                           contacts={allContacts}
+                          defaultCurrency={settings.defaultCurrency}
+                          defaultStage={settings.defaultDealStage}
                         />
                       ))
                     )}
