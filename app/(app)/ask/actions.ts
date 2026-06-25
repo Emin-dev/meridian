@@ -135,7 +135,10 @@ ${context}`;
     aiResponse = parsed as AiResponse;
   } catch (err) {
     const msg = err instanceof Error ? err.message : "AI request failed.";
-    return { answer: `Error: ${msg}`, contacts: [], deals: [] };
+    const friendly = msg.includes("timed out")
+      ? msg
+      : "Couldn't answer that right now. Please try again.";
+    return { answer: friendly, contacts: [], deals: [] };
   }
 
   const contactMap = new Map(contacts.map((c) => [c.id, c.name]));

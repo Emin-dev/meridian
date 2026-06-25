@@ -145,7 +145,10 @@ What are my top priorities today to move deals forward and avoid anything slippi
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     if (message.includes("DEEPSEEK_API_KEY")) return { noKey: true };
-    return { error: message };
+    const friendly = message.includes("timed out")
+      ? message
+      : "Couldn't generate the digest right now. Please try again.";
+    return { error: friendly };
   }
 }
 
@@ -288,6 +291,9 @@ Summarize the week: what went well (Wins), what's slipping (At risk), and the to
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     if (message.includes("DEEPSEEK_API_KEY")) return { noKey: true };
-    return { error: message };
+    const friendly = message.includes("timed out")
+      ? message
+      : "Couldn't generate the digest right now. Please try again.";
+    return { error: friendly };
   }
 }
