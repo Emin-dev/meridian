@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Contact, Sequence } from "@/db/schema";
-import type { LastContactedMap } from "./page";
+import type { LastContactedMap } from "./types";
 import LeadScoreBadge from "./lead-score-badge";
 import { tagColor } from "./tag-color";
 import { bulkChangeStatus, bulkAddTag, bulkEnrollInSequence, bulkChangeOwner } from "./actions";

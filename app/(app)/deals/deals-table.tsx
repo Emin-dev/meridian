@@ -2,10 +2,8 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import type { Deal, Contact } from "@/db/schema";
 import { bulkMoveStage, bulkChangeOwner, bulkDeleteDeals } from "./actions";
-
-type DealWithContact = Deal & { contact: Contact | null };
+import type { DealWithContact } from "./types";
 
 const STAGE_LABELS: Record<string, string> = {
   lead: "Lead",

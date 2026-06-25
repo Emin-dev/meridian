@@ -283,8 +283,9 @@ export default function FindDuplicatesButton({ hasDb }: { hasDb: boolean }) {
                             <div className="flex flex-wrap items-center gap-2">
                               <span className="text-xs text-neutral-400">
                                 Merge &ldquo;{pair.secondaryName}&rdquo; into &ldquo;
-                                {pair.primaryName}&rdquo;? Activities and deals will be
-                                reassigned. This cannot be undone.
+                                {pair.primaryName}&rdquo;? Activities, deals, and
+                                enrollments move over, tags merge, and empty fields
+                                are filled in. This cannot be undone.
                               </span>
                               <button
                                 onClick={() => handleMerge(pair)}

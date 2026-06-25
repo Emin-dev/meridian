@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useActionState, useEffect, useRef } from "react";
 import { createDeal, updateDeal, type DealFormState } from "./actions";
 import { useToast } from "@/components/toaster";
-import type { Deal, Contact } from "@/db/schema";
+import type { DealWithContact } from "./types";
 import StageControl from "./stage-control";
 
 const STAGES = [
@@ -23,7 +23,7 @@ type ContactOption = { id: number; name: string };
 interface DealModalProps {
   hasDb: boolean;
   contacts: ContactOption[];
-  deal?: Deal & { contact: Contact | null };
+  deal?: DealWithContact;
   defaultCurrency?: string;
   defaultStage?: string;
   defaultContactId?: number;

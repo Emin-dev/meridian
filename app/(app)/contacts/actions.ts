@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { eq, desc, inArray, and, isNull } from "drizzle-orm";
+import { eq, desc, inArray, and, isNull, notInArray, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -739,24 +739,24 @@ export async function bulkAddTag(
   const trimmed = tag.trim();
   if (!trimmed) return { error: "Tag cannot be empty." };
 
-  const rows = await db
-    .select({ id: schema.contacts.id, tags: schema.contacts.tags })
-    .from(schema.contacts)
-    .where(inArray(schema.contacts.id, ids));
-
-  let updated = 0;
-  for (const contact of rows) {
-    if (!contact.tags.includes(trimmed)) {
-      await db
-        .update(schema.contacts)
-        .set({ tags: [...contact.tags, trimmed], updatedAt: new Date() })
-        .where(eq(schema.contacts.id, contact.id));
-      updated++;
-    }
-  }
+  // Append the tag in a single query, touching only rows that don't already
+  // have it. `returning` gives us the exact count of contacts updated.
+  const updatedRows = await db
+    .update(schema.contacts)
+    .set({
+      tags: sql`array_append(${schema.contacts.tags}, ${trimmed})`,
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        inArray(schema.contacts.id, ids),
+        sql`NOT (${trimmed} = ANY(${schema.contacts.tags}))`
+      )
+    )
+    .returning({ id: schema.contacts.id });
 
   revalidatePath("/contacts");
-  return { success: true, count: updated };
+  return { success: true, count: updatedRows.length };
 }
 
 export async function bulkChangeOwner(
@@ -950,6 +950,41 @@ export async function mergeContacts(
     return { error: "Cannot merge a contact with itself." };
 
   try {
+    const rows = await db
+      .select()
+      .from(schema.contacts)
+      .where(inArray(schema.contacts.id, [primaryId, secondaryId]));
+    const primary = rows.find((r) => r.id === primaryId);
+    const secondary = rows.find((r) => r.id === secondaryId);
+    if (!primary || !secondary)
+      return { error: "One or both contacts no longer exist." };
+
+    // Backfill the primary's empty fields from the secondary and union tags so
+    // no data is lost when the duplicate is removed.
+    const mergedTags = Array.from(
+      new Set([...(primary.tags ?? []), ...(secondary.tags ?? [])])
+    );
+    const mergedNotes =
+      primary.notes && secondary.notes
+        ? `${primary.notes}\n\n${secondary.notes}`
+        : primary.notes ?? secondary.notes;
+
+    await db
+      .update(schema.contacts)
+      .set({
+        email: primary.email ?? secondary.email,
+        phone: primary.phone ?? secondary.phone,
+        company: primary.company ?? secondary.company,
+        title: primary.title ?? secondary.title,
+        source: primary.source ?? secondary.source,
+        owner: primary.owner ?? secondary.owner,
+        notes: mergedNotes,
+        tags: mergedTags,
+        updatedAt: new Date(),
+      })
+      .where(eq(schema.contacts.id, primaryId));
+
+    // Reassign related records to the primary.
     await db
       .update(schema.activities)
       .set({ contactId: primaryId, updatedAt: new Date() })
@@ -959,6 +994,34 @@ export async function mergeContacts(
       .update(schema.deals)
       .set({ contactId: primaryId, updatedAt: new Date() })
       .where(eq(schema.deals.contactId, secondaryId));
+
+    // Move the secondary's sequence enrollments to the primary, except for
+    // sequences the primary is already actively enrolled in (to avoid duplicate
+    // active rows). Enrollments left behind cascade-delete with the secondary.
+    const primaryActive = await db
+      .select({ sequenceId: schema.contactSequenceEnrollments.sequenceId })
+      .from(schema.contactSequenceEnrollments)
+      .where(
+        and(
+          eq(schema.contactSequenceEnrollments.contactId, primaryId),
+          eq(schema.contactSequenceEnrollments.status, "active")
+        )
+      );
+    const primaryActiveSeqs = primaryActive.map((e) => e.sequenceId);
+    const moveCondition =
+      primaryActiveSeqs.length > 0
+        ? and(
+            eq(schema.contactSequenceEnrollments.contactId, secondaryId),
+            notInArray(
+              schema.contactSequenceEnrollments.sequenceId,
+              primaryActiveSeqs
+            )
+          )
+        : eq(schema.contactSequenceEnrollments.contactId, secondaryId);
+    await db
+      .update(schema.contactSequenceEnrollments)
+      .set({ contactId: primaryId })
+      .where(moveCondition);
 
     await db
       .delete(schema.contacts)

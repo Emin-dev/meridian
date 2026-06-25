@@ -6,9 +6,7 @@ import { useToast } from "@/components/toaster";
 import { useOverlayDismiss } from "@/hooks/use-overlay-dismiss";
 import KanbanColumn from "./kanban-column";
 import KanbanCard from "./kanban-card";
-import type { Deal, Contact } from "@/db/schema";
-
-type DealWithContact = Deal & { contact: Contact | null };
+import type { DealWithContact } from "./types";
 
 const STAGES = [
   { key: "lead" as const, label: "Lead", dot: "bg-blue-500" },

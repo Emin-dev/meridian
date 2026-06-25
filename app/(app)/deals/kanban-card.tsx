@@ -2,9 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import type { Deal, Contact } from "@/db/schema";
-
-type DealWithContact = Deal & { contact: Contact | null };
+import type { DealWithContact } from "./types";
 
 const STAGES = [
   { value: "lead", label: "Lead" },

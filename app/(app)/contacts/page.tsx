@@ -3,7 +3,7 @@ import type { SQL } from "drizzle-orm";
 import Link from "next/link";
 import { getDb, schema } from "@/db";
 import type { Contact, Sequence } from "@/db/schema";
-export type LastContactedMap = Record<number, string | null>;
+import type { LastContactedMap } from "./types";
 import NewContactModal from "./new-contact-modal";
 import CsvImportModal from "./csv-import-modal";
 import ExportCsvButton from "./export-csv-button";
