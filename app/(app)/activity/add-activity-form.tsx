@@ -102,6 +102,18 @@ export default function AddActivityForm({
           />
         </div>
 
+        <div>
+          <label htmlFor="af-due" className={labelCls}>
+            Due date <span className="text-neutral-600">(optional)</span>
+          </label>
+          <input
+            id="af-due"
+            name="dueAt"
+            type="date"
+            className={`${inputCls} [color-scheme:dark]`}
+          />
+        </div>
+
         <div className="flex justify-end">
           <button
             type="submit"
