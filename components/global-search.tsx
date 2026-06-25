@@ -70,31 +70,19 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
       allItems.push({ kind: "contact", id: c.id, href: `/contacts/${c.id}` });
     }
     if (results.totals.contacts > results.contacts.length) {
-      allItems.push({
-        kind: "see-all",
-        category: "contacts",
-        href: `/search?q=${encodedQ}&tab=contacts`,
-      });
+      allItems.push({ kind: "see-all", category: "contacts", href: `/search?q=${encodedQ}&tab=contacts` });
     }
     for (const d of results.deals) {
       allItems.push({ kind: "deal", id: d.id, href: `/deals/${d.id}` });
     }
     if (results.totals.deals > results.deals.length) {
-      allItems.push({
-        kind: "see-all",
-        category: "deals",
-        href: `/search?q=${encodedQ}&tab=deals`,
-      });
+      allItems.push({ kind: "see-all", category: "deals", href: `/search?q=${encodedQ}&tab=deals` });
     }
     for (const a of results.activities) {
       allItems.push({ kind: "activity", id: a.id, href: `/activity` });
     }
     if (results.totals.activities > results.activities.length) {
-      allItems.push({
-        kind: "see-all",
-        category: "activities",
-        href: `/search?q=${encodedQ}&tab=activities`,
-      });
+      allItems.push({ kind: "see-all", category: "activities", href: `/search?q=${encodedQ}&tab=activities` });
     }
   }
 
@@ -139,17 +127,21 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
   }
 
   return (
+    /* Backdrop — bottom-sheet on mobile, centered card on desktop */
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh] bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-end bg-black/60 backdrop-blur-sm sm:items-start sm:justify-center sm:pt-[15vh]"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="mx-4 w-full max-w-lg overflow-hidden rounded-xl border border-neutral-700 bg-neutral-900 shadow-2xl">
-        {/* Input row */}
-        <div className="flex items-center gap-3 border-b border-neutral-800 px-4 py-3">
+      {/* Panel */}
+      <div
+        className="[color-scheme:dark] flex w-full flex-col max-h-[85dvh] overflow-hidden rounded-t-[--r-2xl] border border-[--line-1] bg-[--surface-1] shadow-[--shadow-3] sm:mx-4 sm:max-w-lg sm:rounded-[--r-xl]"
+      >
+        {/* Input row — 44px touch target */}
+        <div className="tap flex items-center gap-3 border-b border-[--line-1] px-4">
           <svg
-            className="shrink-0 text-neutral-500"
+            className="shrink-0 text-[--ink-3]"
             width="16"
             height="16"
             viewBox="0 0 24 24"
@@ -158,6 +150,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
+            aria-hidden="true"
           >
             <circle cx="11" cy="11" r="8" />
             <path d="m21 21-4.35-4.35" />
@@ -169,26 +162,27 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleInputKeyDown}
             placeholder="Search contacts, deals and activities…"
-            className="flex-1 bg-transparent text-sm text-neutral-100 placeholder:text-neutral-500 outline-none"
+            className="flex-1 bg-transparent text-body text-[--ink-1] placeholder:text-[--ink-3] outline-none"
+            aria-label="Global search"
           />
           {isPending && (
-            <div className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
+            <div className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-[--accent] border-t-transparent" aria-hidden="true" />
           )}
-          <kbd className="shrink-0 rounded border border-neutral-700 px-1.5 py-0.5 font-mono text-xs text-neutral-600">
+          <kbd className="shrink-0 rounded border border-[--line-1] px-1.5 py-0.5 font-mono text-caption text-[--ink-3]">
             Esc
           </kbd>
         </div>
 
-        {/* Results list */}
-        <div ref={listRef} className="max-h-80 overflow-y-auto">
+        {/* Results list — scrollable */}
+        <div ref={listRef} className="flex-1 min-h-0 overflow-y-auto" role="listbox" aria-label="Search results">
           {!results && (
-            <p className="py-8 text-center text-sm text-neutral-500">
+            <p className="py-8 text-center text-body text-[--ink-3]">
               Type to search contacts, deals and activities
             </p>
           )}
 
           {results && allItems.length === 0 && (
-            <p className="py-8 text-center text-sm text-neutral-500">
+            <p className="py-8 text-center text-body text-[--ink-3]">
               No results for &ldquo;{query}&rdquo;
             </p>
           )}
@@ -196,7 +190,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
           {/* Contacts section */}
           {results && results.contacts.length > 0 && (
             <div className="p-2">
-              <p className="mb-1 px-2 text-xs font-semibold uppercase tracking-wider text-neutral-500">
+              <p className="mb-1 px-2 text-caption font-semibold uppercase tracking-wider text-[--ink-3]">
                 Contacts
               </p>
               {results.contacts.map((contact) => {
@@ -208,25 +202,22 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                     data-search-idx={flatIdx}
                     onClick={() => navigate(`/contacts/${contact.id}`)}
                     onMouseEnter={() => setSelectedIndex(flatIdx)}
+                    role="option"
+                    aria-selected={active}
                     className={[
-                      "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors",
+                      "tap flex w-full items-center gap-3 rounded-[--r-md] px-3 text-left text-body transition-colors",
                       active
-                        ? "bg-indigo-600 text-white"
-                        : "text-neutral-200 hover:bg-neutral-800",
+                        ? "bg-[--accent] text-[--accent-ink]"
+                        : "text-[--ink-1] hover:bg-[--surface-2]",
                     ].join(" ")}
                   >
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-neutral-700 text-xs font-medium">
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[--surface-2] text-footnote font-medium">
                       {contact.name[0]?.toUpperCase() ?? "?"}
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate font-medium">{contact.name}</span>
                       {(contact.company || contact.email) && (
-                        <span
-                          className={[
-                            "block truncate text-xs",
-                            active ? "text-indigo-200" : "text-neutral-500",
-                          ].join(" ")}
-                        >
+                        <span className={["block truncate text-footnote", active ? "opacity-70" : "text-[--ink-3]"].join(" ")}>
                           {contact.company || contact.email}
                         </span>
                       )}
@@ -242,14 +233,14 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                     data-search-idx={flatIdx}
                     onClick={() => navigate(`/search?q=${encodedQ}&tab=contacts`)}
                     onMouseEnter={() => setSelectedIndex(flatIdx)}
+                    role="option"
+                    aria-selected={active}
                     className={[
-                      "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs transition-colors",
-                      active
-                        ? "bg-indigo-600 text-indigo-100"
-                        : "text-indigo-400 hover:bg-neutral-800",
+                      "tap flex w-full items-center gap-2 rounded-[--r-md] px-3 text-left text-footnote transition-colors",
+                      active ? "bg-[--accent] text-[--accent-ink]" : "text-[--accent] hover:bg-[--surface-2]",
                     ].join(" ")}
                   >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0" aria-hidden="true">
                       <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
                     </svg>
                     See all {results.totals.contacts} contacts
@@ -262,7 +253,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
           {/* Deals section */}
           {results && results.deals.length > 0 && (
             <div className="p-2">
-              <p className="mb-1 px-2 text-xs font-semibold uppercase tracking-wider text-neutral-500">
+              <p className="mb-1 px-2 text-caption font-semibold uppercase tracking-wider text-[--ink-3]">
                 Deals
               </p>
               {results.deals.map((deal) => {
@@ -274,51 +265,27 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                     data-search-idx={flatIdx}
                     onClick={() => navigate(`/deals/${deal.id}`)}
                     onMouseEnter={() => setSelectedIndex(flatIdx)}
+                    role="option"
+                    aria-selected={active}
                     className={[
-                      "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors",
-                      active
-                        ? "bg-indigo-600 text-white"
-                        : "text-neutral-200 hover:bg-neutral-800",
+                      "tap flex w-full items-center gap-3 rounded-[--r-md] px-3 text-left text-body transition-colors",
+                      active ? "bg-[--accent] text-[--accent-ink]" : "text-[--ink-1] hover:bg-[--surface-2]",
                     ].join(" ")}
                   >
-                    <span
-                      className={[
-                        "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-neutral-400",
-                        active ? "bg-indigo-500" : "bg-neutral-800",
-                      ].join(" ")}
-                    >
-                      <svg
-                        width="12"
-                        height="12"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
+                    <span className={["flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[--ink-2]", active ? "bg-[--accent-hover]" : "bg-[--surface-2]"].join(" ")}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                         <line x1="12" x2="12" y1="2" y2="22" />
                         <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                       </svg>
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate font-medium">{deal.title}</span>
-                      <span
-                        className={[
-                          "block truncate text-xs capitalize",
-                          active ? "text-indigo-200" : "text-neutral-500",
-                        ].join(" ")}
-                      >
+                      <span className={["block truncate text-footnote capitalize", active ? "opacity-70" : "text-[--ink-3]"].join(" ")}>
                         {deal.stage}
                       </span>
                     </span>
                     {deal.value && (
-                      <span
-                        className={[
-                          "shrink-0 text-xs",
-                          active ? "text-indigo-200" : "text-neutral-400",
-                        ].join(" ")}
-                      >
+                      <span className={["shrink-0 text-footnote", active ? "opacity-80" : "text-[--ink-2]"].join(" ")}>
                         ${Number(deal.value).toLocaleString()}
                       </span>
                     )}
@@ -333,14 +300,14 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                     data-search-idx={flatIdx}
                     onClick={() => navigate(`/search?q=${encodedQ}&tab=deals`)}
                     onMouseEnter={() => setSelectedIndex(flatIdx)}
+                    role="option"
+                    aria-selected={active}
                     className={[
-                      "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs transition-colors",
-                      active
-                        ? "bg-indigo-600 text-indigo-100"
-                        : "text-indigo-400 hover:bg-neutral-800",
+                      "tap flex w-full items-center gap-2 rounded-[--r-md] px-3 text-left text-footnote transition-colors",
+                      active ? "bg-[--accent] text-[--accent-ink]" : "text-[--accent] hover:bg-[--surface-2]",
                     ].join(" ")}
                   >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0" aria-hidden="true">
                       <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
                     </svg>
                     See all {results.totals.deals} deals
@@ -353,7 +320,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
           {/* Activities section */}
           {results && results.activities.length > 0 && (
             <div className="p-2">
-              <p className="mb-1 px-2 text-xs font-semibold uppercase tracking-wider text-neutral-500">
+              <p className="mb-1 px-2 text-caption font-semibold uppercase tracking-wider text-[--ink-3]">
                 Activities
               </p>
               {results.activities.map((activity) => {
@@ -365,29 +332,15 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                     data-search-idx={flatIdx}
                     onClick={() => navigate(`/activity`)}
                     onMouseEnter={() => setSelectedIndex(flatIdx)}
+                    role="option"
+                    aria-selected={active}
                     className={[
-                      "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors",
-                      active
-                        ? "bg-indigo-600 text-white"
-                        : "text-neutral-200 hover:bg-neutral-800",
+                      "tap flex w-full items-center gap-3 rounded-[--r-md] px-3 text-left text-body transition-colors",
+                      active ? "bg-[--accent] text-[--accent-ink]" : "text-[--ink-1] hover:bg-[--surface-2]",
                     ].join(" ")}
                   >
-                    <span
-                      className={[
-                        "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-neutral-400",
-                        active ? "bg-indigo-500" : "bg-neutral-800",
-                      ].join(" ")}
-                    >
-                      <svg
-                        width="12"
-                        height="12"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
+                    <span className={["flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[--ink-2]", active ? "bg-[--accent-hover]" : "bg-[--surface-2]"].join(" ")}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                         <circle cx="12" cy="12" r="10" />
                         <polyline points="12 6 12 12 16 14" />
                       </svg>
@@ -395,24 +348,12 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                     <span className="min-w-0 flex-1">
                       <span className="block truncate font-medium">{activity.subject}</span>
                       {activity.body && (
-                        <span
-                          className={[
-                            "block truncate text-xs",
-                            active ? "text-indigo-200" : "text-neutral-500",
-                          ].join(" ")}
-                        >
+                        <span className={["block truncate text-footnote", active ? "opacity-70" : "text-[--ink-3]"].join(" ")}>
                           {activity.body}
                         </span>
                       )}
                     </span>
-                    <span
-                      className={[
-                        "shrink-0 rounded px-1.5 py-0.5 text-xs font-medium capitalize",
-                        active
-                          ? "bg-indigo-500 text-white"
-                          : "bg-neutral-800 text-neutral-400",
-                      ].join(" ")}
-                    >
+                    <span className={["shrink-0 rounded-[--r-sm] px-1.5 py-0.5 text-caption font-medium capitalize", active ? "bg-[--accent-hover] text-[--accent-ink]" : "bg-[--surface-3] text-[--ink-2]"].join(" ")}>
                       {activity.type}
                     </span>
                   </button>
@@ -426,14 +367,14 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                     data-search-idx={flatIdx}
                     onClick={() => navigate(`/search?q=${encodedQ}&tab=activities`)}
                     onMouseEnter={() => setSelectedIndex(flatIdx)}
+                    role="option"
+                    aria-selected={active}
                     className={[
-                      "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs transition-colors",
-                      active
-                        ? "bg-indigo-600 text-indigo-100"
-                        : "text-indigo-400 hover:bg-neutral-800",
+                      "tap flex w-full items-center gap-2 rounded-[--r-md] px-3 text-left text-footnote transition-colors",
+                      active ? "bg-[--accent] text-[--accent-ink]" : "text-[--accent] hover:bg-[--surface-2]",
                     ].join(" ")}
                   >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0" aria-hidden="true">
                       <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
                     </svg>
                     See all {results.totals.activities} activities
@@ -445,13 +386,16 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
         </div>
 
         {/* Footer hints */}
-        <div className="flex items-center justify-end gap-4 border-t border-neutral-800 px-4 py-2">
-          <span className="text-xs text-neutral-600">
-            <kbd className="mr-1 rounded border border-neutral-700 px-1 font-mono text-xs">↑↓</kbd>
+        <div
+          className="flex items-center justify-end gap-4 border-t border-[--line-1] px-4 py-2"
+          style={{ paddingBottom: "max(8px, env(safe-area-inset-bottom))" }}
+        >
+          <span className="text-caption text-[--ink-3]">
+            <kbd className="mr-1 rounded border border-[--line-1] px-1 font-mono text-caption">↑↓</kbd>
             navigate
           </span>
-          <span className="text-xs text-neutral-600">
-            <kbd className="mr-1 rounded border border-neutral-700 px-1 font-mono text-xs">↵</kbd>
+          <span className="text-caption text-[--ink-3]">
+            <kbd className="mr-1 rounded border border-[--line-1] px-1 font-mono text-caption">↵</kbd>
             select
           </span>
         </div>

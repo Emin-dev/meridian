@@ -26,7 +26,6 @@ export default function SearchResultsTabs({
     ? (initialTabProp as Tab)
     : undefined;
 
-  // Use URL-provided tab if valid, otherwise default to the first tab with results.
   const defaultTab: Tab =
     parsedInitial ??
     (results.contacts.length > 0
@@ -46,9 +45,9 @@ export default function SearchResultsTabs({
   ];
 
   return (
-    <div className="rounded-xl border border-neutral-800 bg-neutral-900">
+    <div className="card overflow-hidden">
       {/* Tab bar */}
-      <div className="flex border-b border-neutral-800">
+      <div className="flex border-b border-[--line-1]">
         {tabs.map((t) => {
           const active = t.key === tab;
           return (
@@ -56,19 +55,19 @@ export default function SearchResultsTabs({
               key={t.key}
               onClick={() => setTab(t.key)}
               className={[
-                "flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors",
+                "tap flex items-center gap-2 px-4 text-body font-medium transition-colors",
                 active
-                  ? "border-b-2 border-indigo-500 text-neutral-100"
-                  : "border-b-2 border-transparent text-neutral-400 hover:text-neutral-200",
+                  ? "border-b-2 border-[--accent] text-[--ink-1]"
+                  : "border-b-2 border-transparent text-[--ink-2] hover:text-[--ink-1]",
               ].join(" ")}
             >
               {t.label}
               <span
                 className={[
-                  "rounded-full px-2 py-0.5 text-xs",
+                  "rounded-full px-2 py-0.5 text-caption",
                   active
-                    ? "bg-indigo-500/20 text-indigo-300"
-                    : "bg-neutral-800 text-neutral-500",
+                    ? "bg-[--accent-tint] text-[--accent]"
+                    : "bg-[--surface-2] text-[--ink-3]",
                 ].join(" ")}
               >
                 {counts[t.key]}
@@ -78,7 +77,7 @@ export default function SearchResultsTabs({
         })}
       </div>
 
-      <div className="divide-y divide-neutral-800">
+      <div className="divide-y divide-[--line-1]">
         {tab === "contacts" &&
           (results.contacts.length === 0 ? (
             <EmptyTab label="contacts" query={query} />
@@ -87,17 +86,17 @@ export default function SearchResultsTabs({
               <Link
                 key={c.id}
                 href={`/contacts/${c.id}`}
-                className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-neutral-800/40"
+                className="tap flex items-center gap-3 px-4 transition-colors hover:bg-[--surface-2]"
               >
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-neutral-700 text-sm font-medium text-neutral-200">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[--surface-2] text-body font-medium text-[--ink-1]">
                   {c.name[0]?.toUpperCase() ?? "?"}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate font-medium text-neutral-100">
+                  <span className="block truncate text-body font-medium text-[--ink-1]">
                     {c.name}
                   </span>
                   {(c.company || c.email) && (
-                    <span className="block truncate text-xs text-neutral-500">
+                    <span className="block truncate text-footnote text-[--ink-3]">
                       {c.company || c.email}
                     </span>
                   )}
@@ -114,18 +113,18 @@ export default function SearchResultsTabs({
               <Link
                 key={d.id}
                 href={`/deals/${d.id}`}
-                className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-neutral-800/40"
+                className="tap flex items-center gap-3 px-4 transition-colors hover:bg-[--surface-2]"
               >
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate font-medium text-neutral-100">
+                  <span className="block truncate text-body font-medium text-[--ink-1]">
                     {d.title}
                   </span>
-                  <span className="block truncate text-xs capitalize text-neutral-500">
+                  <span className="block truncate text-footnote capitalize text-[--ink-3]">
                     {d.stage}
                   </span>
                 </span>
                 {d.value && (
-                  <span className="shrink-0 text-sm text-neutral-400">
+                  <span className="shrink-0 text-body text-[--ink-2]">
                     ${Number(d.value).toLocaleString()}
                   </span>
                 )}
@@ -141,19 +140,19 @@ export default function SearchResultsTabs({
               <Link
                 key={a.id}
                 href="/activity"
-                className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-neutral-800/40"
+                className="tap flex items-center gap-3 px-4 transition-colors hover:bg-[--surface-2]"
               >
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate font-medium text-neutral-100">
+                  <span className="block truncate text-body font-medium text-[--ink-1]">
                     {a.subject}
                   </span>
                   {a.body && (
-                    <span className="block truncate text-xs text-neutral-500">
+                    <span className="block truncate text-footnote text-[--ink-3]">
                       {a.body}
                     </span>
                   )}
                 </span>
-                <span className="shrink-0 rounded px-1.5 py-0.5 text-xs font-medium capitalize bg-neutral-800 text-neutral-400">
+                <span className="shrink-0 rounded-[--r-sm] px-1.5 py-0.5 text-caption font-medium capitalize bg-[--surface-2] text-[--ink-2]">
                   {a.type}
                 </span>
               </Link>
@@ -166,7 +165,7 @@ export default function SearchResultsTabs({
 
 function EmptyTab({ label, query }: { label: string; query: string }) {
   return (
-    <p className="px-5 py-12 text-center text-sm text-neutral-500">
+    <p className="px-4 py-12 text-center text-body text-[--ink-3]">
       No {label} match &ldquo;{query}&rdquo;.
     </p>
   );
