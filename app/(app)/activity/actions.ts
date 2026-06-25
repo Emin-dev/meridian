@@ -71,6 +71,30 @@ export async function addActivity(
   return { success: true };
 }
 
+export async function logAiTaskSuggestion(
+  subject: string,
+  contactId: number | null,
+  dealId: number | null,
+): Promise<{ success?: boolean; error?: string; noDb?: boolean }> {
+  if (!subject?.trim()) return { error: "Subject is required" };
+
+  const db = getDb();
+  if (!db) return { noDb: true };
+
+  await db.insert(schema.activities).values({
+    type: "task",
+    subject: subject.trim(),
+    contactId: contactId ?? null,
+    dealId: dealId ?? null,
+  });
+
+  revalidatePath("/activity");
+  if (contactId) revalidatePath(`/contacts/${contactId}`);
+  if (dealId) revalidatePath(`/deals/${dealId}`);
+
+  return { success: true };
+}
+
 export async function toggleActivityComplete(
   activityId: number,
   isCompleted: boolean,

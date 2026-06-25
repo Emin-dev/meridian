@@ -2,6 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { suggestDealNextAction, type DealNextActionState } from "./actions";
+import { logAiTaskSuggestion } from "@/app/(app)/activity/actions";
+import { useToast } from "@/components/toaster";
 
 interface Props {
   dealId: number;
@@ -17,6 +19,8 @@ export default function DealNextActionPanel({ dealId }: Props) {
   const [result, setResult] = useState<DealNextActionState>({});
   const [copied, setCopied] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [isLogging, startLogTransition] = useTransition();
+  const { toast } = useToast();
 
   function handleSuggest() {
     startTransition(async () => {
@@ -30,6 +34,20 @@ export default function DealNextActionPanel({ dealId }: Props) {
     navigator.clipboard.writeText(result.suggestedMessage).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  function handleLogAsTask() {
+    if (!result.action) return;
+    startLogTransition(async () => {
+      const r = await logAiTaskSuggestion(result.action!, null, dealId);
+      if (r.success) {
+        toast("Task logged successfully");
+      } else if (r.noDb) {
+        toast("Database not connected", "error");
+      } else {
+        toast(r.error ?? "Failed to log task", "error");
+      }
     });
   }
 
@@ -82,6 +100,16 @@ export default function DealNextActionPanel({ dealId }: Props) {
               )}
             </div>
           </div>
+
+          {/* Log as task */}
+          <button
+            type="button"
+            onClick={handleLogAsTask}
+            disabled={isLogging}
+            className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-xs font-medium text-neutral-300 transition-colors hover:border-neutral-600 hover:bg-neutral-700 hover:text-white disabled:opacity-50"
+          >
+            {isLogging ? "Logging…" : "Log as task"}
+          </button>
 
           {result.rationale && (
             <p className="text-xs text-neutral-400 leading-relaxed">{result.rationale}</p>
