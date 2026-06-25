@@ -6,6 +6,7 @@ import {
   enrichContact,
   applyContactEnrichment,
   type EnrichState,
+  type ApplyEnrichmentState,
 } from "../actions";
 
 interface Props {
@@ -16,10 +17,7 @@ export default function EnrichContactPanel({ contactId }: Props) {
   const router = useRouter();
   const [result, setResult] = useState<EnrichState>({});
   const [fields, setFields] = useState({ title: "", company: "", notes: "" });
-  const [saveState, setSaveState] = useState<{
-    success?: boolean;
-    error?: string;
-  }>({});
+  const [saveState, setSaveState] = useState<ApplyEnrichmentState>({});
   const [isPending, startTransition] = useTransition();
   const [isSaving, startSaveTransition] = useTransition();
 
@@ -144,6 +142,11 @@ export default function EnrichContactPanel({ contactId }: Props) {
             </div>
           </div>
 
+          {saveState.noDb && (
+            <p className="text-xs text-neutral-400">
+              Database not connected — cannot save changes.
+            </p>
+          )}
           {saveState.error && (
             <p className="text-xs text-red-400">{saveState.error}</p>
           )}
