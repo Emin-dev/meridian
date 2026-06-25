@@ -51,5 +51,6 @@ export async function markStepSent(
 
   revalidatePath(`/sequences/${sequenceId}`);
   revalidatePath(`/contacts/${contactId}`);
+  revalidatePath("/sequences");
   return {};
 }

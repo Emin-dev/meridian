@@ -1,8 +1,10 @@
 import Link from "next/link";
-import { desc, eq } from "drizzle-orm";
+import { asc, desc, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import type { Sequence } from "@/db/schema";
+import { getCrmSettings } from "@/lib/settings";
 import { SequenceStatusToggle } from "./sequence-status-toggle";
+import { DueStepsSection, type DueEnrollment } from "./due-steps-section";
 
 const STATUS_LABELS: Record<string, { label: string; className: string }> = {
   active: { label: "Active", className: "bg-emerald-500/10 text-emerald-400" },
@@ -11,27 +13,112 @@ const STATUS_LABELS: Record<string, { label: string; className: string }> = {
 
 export default async function SequencesPage() {
   const db = getDb();
+  const crmSettings = await getCrmSettings();
 
   let sequences: Sequence[] = [];
   let stepCounts: Map<number, number> = new Map();
+  let dueEnrollments: DueEnrollment[] = [];
 
   if (db) {
-    sequences = await db
-      .select()
-      .from(schema.sequences)
-      .orderBy(desc(schema.sequences.createdAt));
-
-    if (sequences.length > 0) {
-      const steps = await db
+    const [seqResults, allSteps, activeEnrollments] = await Promise.all([
+      db
+        .select()
+        .from(schema.sequences)
+        .orderBy(desc(schema.sequences.createdAt)),
+      db
+        .select()
+        .from(schema.sequenceSteps)
+        .orderBy(asc(schema.sequenceSteps.position)),
+      db
         .select({
-          sequenceId: schema.sequenceSteps.sequenceId,
+          id: schema.contactSequenceEnrollments.id,
+          contactId: schema.contactSequenceEnrollments.contactId,
+          sequenceId: schema.contactSequenceEnrollments.sequenceId,
+          enrolledAt: schema.contactSequenceEnrollments.enrolledAt,
+          currentStepPosition:
+            schema.contactSequenceEnrollments.currentStepPosition,
+          contactName: schema.contacts.name,
+          contactEmail: schema.contacts.email,
+          contactCompany: schema.contacts.company,
+          contactOwner: schema.contacts.owner,
+          sequenceName: schema.sequences.name,
         })
-        .from(schema.sequenceSteps);
+        .from(schema.contactSequenceEnrollments)
+        .innerJoin(
+          schema.contacts,
+          eq(
+            schema.contactSequenceEnrollments.contactId,
+            schema.contacts.id,
+          ),
+        )
+        .innerJoin(
+          schema.sequences,
+          eq(
+            schema.contactSequenceEnrollments.sequenceId,
+            schema.sequences.id,
+          ),
+        )
+        .where(eq(schema.contactSequenceEnrollments.status, "active")),
+    ]);
 
-      for (const step of steps) {
-        stepCounts.set(step.sequenceId, (stepCounts.get(step.sequenceId) ?? 0) + 1);
-      }
+    sequences = seqResults;
+
+    // Build step counts and a per-sequence steps map from a single query result
+    const stepsBySequence = new Map<number, typeof allSteps>();
+    for (const step of allSteps) {
+      stepCounts.set(step.sequenceId, (stepCounts.get(step.sequenceId) ?? 0) + 1);
+      const arr = stepsBySequence.get(step.sequenceId) ?? [];
+      arr.push(step);
+      stepsBySequence.set(step.sequenceId, arr);
     }
+
+    // Compute which active enrollments have a step that is currently due
+    const now = new Date();
+
+    for (const enrollment of activeEnrollments) {
+      const steps = stepsBySequence.get(enrollment.sequenceId) ?? [];
+      if (steps.length === 0) continue;
+
+      // Steps are already ordered by position (asc) from the query
+      const totalSteps = steps.length;
+      if (enrollment.currentStepPosition >= totalSteps) continue;
+
+      // Cumulative delay up to (and including) the current step position
+      let cumulative = 0;
+      for (let i = 0; i <= enrollment.currentStepPosition; i++) {
+        cumulative += steps[i].delayDays;
+      }
+
+      const dueDate = new Date(
+        enrollment.enrolledAt.getTime() + cumulative * 86_400_000,
+      );
+      if (dueDate > now) continue;
+
+      const daysOverdue = Math.floor(
+        (now.getTime() - dueDate.getTime()) / 86_400_000,
+      );
+      const currentStep = steps[enrollment.currentStepPosition];
+
+      dueEnrollments.push({
+        enrollmentId: enrollment.id,
+        sequenceId: enrollment.sequenceId,
+        sequenceName: enrollment.sequenceName,
+        contactId: enrollment.contactId,
+        contactName: enrollment.contactName,
+        contactEmail: enrollment.contactEmail ?? null,
+        contactCompany: enrollment.contactCompany ?? null,
+        contactOwner: enrollment.contactOwner ?? null,
+        stepSubjectTemplate: currentStep.subjectTemplate,
+        stepBodyTemplate: currentStep.bodyTemplate,
+        stepPosition: enrollment.currentStepPosition + 1,
+        newStepPosition: enrollment.currentStepPosition + 1,
+        totalSteps,
+        daysOverdue,
+      });
+    }
+
+    // Most overdue first
+    dueEnrollments.sort((a, b) => b.daysOverdue - a.daysOverdue);
   }
 
   return (
@@ -50,6 +137,12 @@ export default async function SequencesPage() {
           New sequence
         </Link>
       </div>
+
+      {/* Due Steps — only rendered when there are overdue enrollments */}
+      <DueStepsSection
+        dueEnrollments={dueEnrollments}
+        defaultOwnerName={crmSettings.displayName}
+      />
 
       <div className="rounded-xl border border-neutral-800 bg-neutral-900">
         <div className="border-b border-neutral-800 px-5 py-3">
