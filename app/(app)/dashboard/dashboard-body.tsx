@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { and, desc, eq, gte, inArray, isNotNull, isNull, lt, sql } from "drizzle-orm";
 import Link from "next/link";
 import { getDb, schema } from "@/db";
@@ -43,6 +44,22 @@ function formatCurrency(value: number) {
     currency: "USD",
     maximumFractionDigits: 0,
   }).format(safe);
+}
+
+function WidgetSkeleton({ title }: { title: string }) {
+  return (
+    <div className="rounded-xl border border-neutral-800 bg-neutral-900">
+      <div className="border-b border-neutral-800 px-5 py-3">
+        <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">
+          {title}
+        </p>
+      </div>
+      <div className="animate-pulse space-y-2 p-5">
+        <div className="h-10 w-full rounded-[--r-md] bg-neutral-800" />
+        <div className="h-10 w-3/4 rounded-[--r-md] bg-neutral-800" />
+      </div>
+    </div>
+  );
 }
 
 function KpiCard({
@@ -119,7 +136,18 @@ export default async function DashboardBody() {
       db
         .select({ value: sql<number>`count(*)` })
         .from(schema.contacts),
-      db.query.deals.findMany(),
+      // Only the columns the dashboard actually reads — avoids hauling
+      // notes/closeReason/currency/owner for every deal into memory.
+      db
+        .select({
+          title: schema.deals.title,
+          stage: schema.deals.stage,
+          value: schema.deals.value,
+          probability: schema.deals.probability,
+          expectedCloseDate: schema.deals.expectedCloseDate,
+          updatedAt: schema.deals.updatedAt,
+        })
+        .from(schema.deals),
       db
         .select({
           id: schema.activities.id,
@@ -396,8 +424,10 @@ export default async function DashboardBody() {
             </div>
           </div>
 
-          {/* Today's agenda */}
-          <TodayAgenda />
+          {/* Today's agenda — streams independently so KPIs paint first */}
+          <Suspense fallback={<WidgetSkeleton title="Today's Agenda" />}>
+            <TodayAgenda />
+          </Suspense>
 
           {/* Pipeline chart + AI digest */}
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
@@ -438,8 +468,10 @@ export default async function DashboardBody() {
             initialCachedAt={initialWeeklyCachedAt}
           />
 
-          {/* Stale deals */}
-          <StaleDeals />
+          {/* Stale deals — streams independently */}
+          <Suspense fallback={<WidgetSkeleton title="Needs Attention" />}>
+            <StaleDeals />
+          </Suspense>
 
           {/* Overdue activities alert */}
           {overdueActivities.length > 0 && (
