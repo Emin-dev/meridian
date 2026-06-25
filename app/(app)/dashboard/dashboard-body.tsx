@@ -2,6 +2,7 @@ import { and, desc, eq, gte, inArray, isNotNull, isNull, lt, sql } from "drizzle
 import Link from "next/link";
 import { getDb, schema } from "@/db";
 import AiDigest from "@/components/ai-digest";
+import WeeklyDigest from "@/components/weekly-digest";
 import PipelineChart from "@/components/pipeline-chart-wrapper";
 import { OnboardingBanner } from "@/components/onboarding-banner";
 import TodayAgenda from "./today-agenda";
@@ -100,6 +101,15 @@ export default async function DashboardBody() {
   }> = [];
   let initialDigestBullets: string[] | undefined;
   let initialDigestCachedAt: string | undefined;
+  let weeklyWins: { title: string; value: number }[] = [];
+  let weeklyAtRisk: {
+    title: string;
+    stage: string;
+    reason: string;
+    value: number;
+  }[] = [];
+  let initialWeeklyDigest: string | undefined;
+  let initialWeeklyCachedAt: string | undefined;
 
   if (db) {
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
@@ -220,6 +230,39 @@ export default async function DashboardBody() {
         .reduce((sum, d) => sum + parseFloat(d.value!), 0),
     }));
 
+    // ── Weekly digest inputs (derived from deals already in memory) ──
+    const dealValue = (d: (typeof allDeals)[number]) =>
+      d.value ? parseFloat(d.value) : 0;
+
+    // Wins: deals now closed-won that were updated within the last 7 days.
+    weeklyWins = allDeals
+      .filter((d) => d.stage === "won" && d.updatedAt >= sevenDaysAgo)
+      .sort((a, b) => dealValue(b) - dealValue(a))
+      .slice(0, 5)
+      .map((d) => ({ title: d.title, value: dealValue(d) }));
+
+    // At-risk: open deals whose expected close is overdue or imminent,
+    // or that have gone stale (no update in 14+ days). Highest value first.
+    const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+    const soon = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    weeklyAtRisk = openDeals
+      .map((d) => {
+        let reason: string | null = null;
+        if (d.expectedCloseDate && d.expectedCloseDate < now) {
+          reason = "expected close date passed";
+        } else if (d.expectedCloseDate && d.expectedCloseDate <= soon) {
+          reason = "closing within 7 days";
+        } else if (d.updatedAt < fourteenDaysAgo) {
+          reason = "no activity in 14+ days";
+        }
+        return reason
+          ? { title: d.title, stage: d.stage, reason, value: dealValue(d) }
+          : null;
+      })
+      .filter((d): d is NonNullable<typeof d> => d !== null)
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 5);
+
     if (activeEnrollmentRows.length > 0) {
       const seqIds = [...new Set(activeEnrollmentRows.map((e) => e.sequenceId))];
       const stepRows = await db
@@ -278,7 +321,14 @@ export default async function DashboardBody() {
       const digestRows = await db
         .select()
         .from(schema.appSettings)
-        .where(inArray(schema.appSettings.key, ["digestCache", "digestCachedAt"]));
+        .where(
+          inArray(schema.appSettings.key, [
+            "digestCache",
+            "digestCachedAt",
+            "weeklyDigestCache",
+            "weeklyDigestCachedAt",
+          ])
+        );
       const cacheMap: Record<string, string> = {};
       for (const row of digestRows) cacheMap[row.key] = row.value;
       if (cacheMap.digestCache && cacheMap.digestCachedAt) {
@@ -289,6 +339,14 @@ export default async function DashboardBody() {
             .map((line) => line.replace(/^[•\-\*]\s*/, "").trim())
             .filter(Boolean);
           initialDigestCachedAt = cacheMap.digestCachedAt;
+        }
+      }
+      if (cacheMap.weeklyDigestCache && cacheMap.weeklyDigestCachedAt) {
+        const age =
+          Date.now() - new Date(cacheMap.weeklyDigestCachedAt).getTime();
+        if (age < 24 * 60 * 60 * 1000) {
+          initialWeeklyDigest = cacheMap.weeklyDigestCache;
+          initialWeeklyCachedAt = cacheMap.weeklyDigestCachedAt;
         }
       }
     } catch {
@@ -365,6 +423,20 @@ export default async function DashboardBody() {
               />
             </div>
           </div>
+
+          {/* This week — AI weekly digest */}
+          <WeeklyDigest
+            wins={weeklyWins}
+            atRisk={weeklyAtRisk}
+            openDealsCount={openDealsCount}
+            pipelineValue={pipelineValue}
+            dealsByStage={dealsByStage}
+            activitiesThisWeek={weekActivityCount}
+            overdueCount={overdueCount}
+            topContacts={topContacts}
+            initialText={initialWeeklyDigest}
+            initialCachedAt={initialWeeklyCachedAt}
+          />
 
           {/* Stale deals */}
           <StaleDeals />

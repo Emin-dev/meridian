@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { getDb, schema } from "@/db";
 
 const DIGEST_CACHE_TTL_MS = 4 * 60 * 60 * 1000; // 4 hours
+const WEEKLY_DIGEST_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 type StageData = { stage: string; count: number; value: number };
 
@@ -131,6 +132,149 @@ What are my top priorities today to move deals forward and avoid anything slippi
         await db
           .insert(schema.appSettings)
           .values({ key: "digestCachedAt", value: cachedAt })
+          .onConflictDoUpdate({
+            target: schema.appSettings.key,
+            set: { value: cachedAt, updatedAt: now },
+          });
+      } catch {
+        // Non-fatal: digest still returned even if caching fails
+      }
+    }
+
+    return { digest, cachedAt };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    if (message.includes("DEEPSEEK_API_KEY")) return { noKey: true };
+    return { error: message };
+  }
+}
+
+export type WeeklyDigestInput = {
+  wins: { title: string; value: number }[];
+  atRisk: { title: string; stage: string; reason: string; value: number }[];
+  openDealsCount: number;
+  pipelineValue: number;
+  dealsByStage: StageData[];
+  activitiesThisWeek: number;
+  overdueCount: number;
+  topContacts: { name: string; leadScore: number }[];
+};
+
+export async function generateWeeklyDigest(
+  input: WeeklyDigestInput,
+  force = false
+): Promise<DigestResult> {
+  const db = getDb();
+
+  // Serve from cache if fresh and not forced
+  if (!force && db) {
+    try {
+      const rows = await db
+        .select()
+        .from(schema.appSettings)
+        .where(
+          inArray(schema.appSettings.key, [
+            "weeklyDigestCache",
+            "weeklyDigestCachedAt",
+          ])
+        );
+      const cacheMap: Record<string, string> = {};
+      for (const row of rows) cacheMap[row.key] = row.value;
+      if (cacheMap.weeklyDigestCache && cacheMap.weeklyDigestCachedAt) {
+        const age =
+          Date.now() - new Date(cacheMap.weeklyDigestCachedAt).getTime();
+        if (age < WEEKLY_DIGEST_CACHE_TTL_MS) {
+          return {
+            digest: cacheMap.weeklyDigestCache,
+            cachedAt: cacheMap.weeklyDigestCachedAt,
+          };
+        }
+      }
+    } catch {
+      // Fall through to regenerate
+    }
+  }
+
+  try {
+    const winsSummary =
+      input.wins.length > 0
+        ? input.wins
+            .map(
+              (w) =>
+                `${w.title}${
+                  w.value > 0 ? ` ($${w.value.toLocaleString()})` : ""
+                }`
+            )
+            .join(", ")
+        : "No deals closed-won this week";
+
+    const atRiskSummary =
+      input.atRisk.length > 0
+        ? input.atRisk
+            .map(
+              (d) =>
+                `${d.title} [${d.stage}${
+                  d.value > 0 ? `, $${d.value.toLocaleString()}` : ""
+                }] – ${d.reason}`
+            )
+            .join("\n")
+        : "No deals flagged at-risk";
+
+    const stagesSummary = input.dealsByStage
+      .filter((s) => s.count > 0)
+      .map(
+        (s) =>
+          `${s.stage}: ${s.count} deal(s)${
+            s.value > 0 ? ` worth $${s.value.toLocaleString()}` : ""
+          }`
+      )
+      .join(", ");
+
+    const topContactsSummary =
+      input.topContacts.length > 0
+        ? input.topContacts
+            .map((c) => `${c.name} (score: ${c.leadScore})`)
+            .join(", ")
+        : "None scored yet";
+
+    const digest = await chat([
+      {
+        role: "system",
+        content:
+          "You are a concise sales chief-of-staff. Write a brief weekly review with three labelled sections, each on its own line and prefixed exactly: 'Wins:', 'At risk:', 'Priorities:'. After each label give one tight sentence (no bullets, no markdown). Be specific — name deals, stages, or contacts. If a section has nothing notable, say so plainly.",
+      },
+      {
+        role: "user",
+        content: `This week's CRM snapshot:
+- Closed-won this week: ${winsSummary}
+- At-risk open deals:
+${atRiskSummary}
+- Open deals: ${input.openDealsCount} (pipeline: $${input.pipelineValue.toLocaleString()})
+- Pipeline by stage: ${stagesSummary || "No deals yet"}
+- Activities logged this week: ${input.activitiesThisWeek}
+- Overdue activities: ${input.overdueCount}
+- Top contacts by lead score: ${topContactsSummary}
+
+Summarize the week: what went well (Wins), what's slipping (At risk), and the top priorities for next week (Priorities).`,
+      },
+    ]);
+
+    const cachedAt = new Date().toISOString();
+
+    // Persist to cache
+    if (db) {
+      try {
+        const now = new Date();
+        await db
+          .insert(schema.appSettings)
+          .values({ key: "weeklyDigestCache", value: digest })
+          .onConflictDoUpdate({
+            target: schema.appSettings.key,
+            set: { value: digest, updatedAt: now },
+          });
+        await db
+          .insert(schema.appSettings)
+          .values({ key: "weeklyDigestCachedAt", value: cachedAt })
           .onConflictDoUpdate({
             target: schema.appSettings.key,
             set: { value: cachedAt, updatedAt: now },
