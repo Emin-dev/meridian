@@ -3,6 +3,15 @@ import Link from "next/link";
 import { getDb, schema } from "@/db";
 import TaskToggle from "./task-toggle";
 import TaskQuickAddForm from "./task-quick-add-form";
+import { EmptyState } from "@/components/empty-state";
+import { DemoDataButton } from "@/components/demo-data-button";
+
+const TaskIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="9 11 12 14 22 4" />
+    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+  </svg>
+);
 
 type TaskRow = {
   id: number;
@@ -121,13 +130,12 @@ export default async function TasksPage() {
       <div className="space-y-6">
         {header}
         {addCard}
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-5 py-8 text-center">
-          <p className="text-sm text-neutral-400">Database not connected.</p>
-          <p className="mt-1 text-xs text-neutral-600">
-            Set{" "}
-            <code className="rounded bg-neutral-800 px-1 py-0.5">DATABASE_URL</code>{" "}
-            to connect your Neon database.
-          </p>
+        <div className="rounded-xl border border-neutral-800 bg-neutral-900">
+          <EmptyState
+            icon={<TaskIcon />}
+            title="Database not connected"
+            description="Set DATABASE_URL to connect your Neon database."
+          />
         </div>
       </div>
     );
@@ -183,11 +191,18 @@ export default async function TasksPage() {
       {addCard}
 
       {total === 0 ? (
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-5 py-10 text-center">
-          <p className="text-sm text-neutral-400">No tasks yet.</p>
-          <p className="mt-1 text-xs text-neutral-600">
-            Add your first task above or log one from a contact or deal.
-          </p>
+        <div className="rounded-xl border border-neutral-800 bg-neutral-900">
+          <EmptyState
+            icon={<TaskIcon />}
+            title="No tasks yet"
+            description="Add your first task using the form above, or log one from a contact or deal."
+            action={
+              <DemoDataButton
+                label="Load demo data"
+                className="inline-flex items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-xs font-medium text-neutral-400 transition-colors hover:bg-neutral-700 hover:text-neutral-200 disabled:opacity-50"
+              />
+            }
+          />
         </div>
       ) : (
         <div className="space-y-4">

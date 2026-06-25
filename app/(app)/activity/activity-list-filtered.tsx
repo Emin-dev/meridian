@@ -77,6 +77,10 @@ export default function ActivityListFiltered({ rows, currentType, currentRange }
     return true;
   });
 
+  const isClientFilterZero = rows.length > 0 && contactQuery.trim() !== "" && filtered.length === 0;
+  const isServerFilterZero = rows.length === 0 && !!(currentType || currentRange);
+  const isNoData = rows.length === 0 && !currentType && !currentRange;
+
   return (
     <div className="rounded-xl border border-neutral-800 bg-neutral-900">
       {/* Filter bar */}
@@ -128,14 +132,47 @@ export default function ActivityListFiltered({ rows, currentType, currentRange }
       </div>
 
       {filtered.length === 0 ? (
-        <div className="px-5 py-8 text-center">
-          <p className="text-sm text-neutral-500">
-            {rows.length === 0
-              ? "No activity recorded yet."
-              : "No activities match the current filters."}
+        <div className="flex flex-col items-center gap-3 px-6 py-16 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-neutral-800 bg-neutral-800/50 text-neutral-500">
+            {isNoData ? (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+              </svg>
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+              </svg>
+            )}
+          </div>
+          <p className="text-sm font-medium text-neutral-300">
+            {isNoData
+              ? "No activity logged yet"
+              : isClientFilterZero
+              ? "No activities match your search"
+              : "No activities match the current filters"}
           </p>
-          {rows.length === 0 && (
-            <p className="mt-1 text-xs text-neutral-600">Log your first activity above.</p>
+          <p className="max-w-xs text-xs text-neutral-500">
+            {isNoData
+              ? "Use the form above to log your first call, email, or meeting."
+              : isClientFilterZero
+              ? "Try clearing the contact search or adjusting the filters."
+              : "Try adjusting the type or date range filters."}
+          </p>
+          {isServerFilterZero && (
+            <button
+              onClick={() => navigate("", "")}
+              className="mt-1 inline-flex items-center gap-1.5 rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-xs font-medium text-neutral-300 transition-colors hover:bg-neutral-700 hover:text-neutral-100"
+            >
+              Clear filters
+            </button>
+          )}
+          {isClientFilterZero && (
+            <button
+              onClick={() => setContactQuery("")}
+              className="mt-1 inline-flex items-center gap-1.5 rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-xs font-medium text-neutral-300 transition-colors hover:bg-neutral-700 hover:text-neutral-100"
+            >
+              Clear search
+            </button>
           )}
         </div>
       ) : (

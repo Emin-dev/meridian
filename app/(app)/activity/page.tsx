@@ -3,6 +3,13 @@ import type { SQL } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import AddActivityForm from "./add-activity-form";
 import ActivityListFiltered from "./activity-list-filtered";
+import { EmptyState } from "@/components/empty-state";
+
+const LightningIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+  </svg>
+);
 
 const VALID_TYPES = ["call", "email", "meeting", "note", "task"] as const;
 type ActivityType = (typeof VALID_TYPES)[number];
@@ -56,14 +63,11 @@ export default async function ActivityPage({
               Recent events
             </p>
           </div>
-          <div className="px-5 py-8 text-center">
-            <p className="text-sm text-neutral-400">Database not connected.</p>
-            <p className="mt-1 text-xs text-neutral-600">
-              Set{" "}
-              <code className="rounded bg-neutral-800 px-1 py-0.5">DATABASE_URL</code>{" "}
-              to connect your Neon database.
-            </p>
-          </div>
+          <EmptyState
+            icon={<LightningIcon />}
+            title="Database not connected"
+            description="Set DATABASE_URL to connect your Neon database."
+          />
         </div>
       </div>
     );
