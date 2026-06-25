@@ -848,6 +848,9 @@ export async function findDuplicateContacts(): Promise<FindDuplicatesState> {
   if (!db) return { noDb: true };
   if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
 
+  // Cap the scan size so the prompt can't grow unbounded with the contact base
+  // (context-window/cost/latency blowups). UI already handles partial results.
+  const MAX_DUP_SCAN = 500;
   const allContacts = await db
     .select({
       id: schema.contacts.id,
@@ -857,7 +860,8 @@ export async function findDuplicateContacts(): Promise<FindDuplicatesState> {
       phone: schema.contacts.phone,
     })
     .from(schema.contacts)
-    .orderBy(schema.contacts.createdAt);
+    .orderBy(schema.contacts.createdAt)
+    .limit(MAX_DUP_SCAN);
 
   if (allContacts.length < 2) return { pairs: [] };
 
