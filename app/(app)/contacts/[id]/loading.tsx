@@ -1,10 +1,12 @@
+import type { ReactNode } from "react";
+
 function Bone({ className }: { className?: string }) {
-  return <div className={`rounded bg-neutral-800 ${className ?? ""}`} />;
+  return <div className={`rounded-[--r-md] bg-neutral-800 ${className ?? ""}`} />;
 }
 
-function Card({ children }: { children: React.ReactNode }) {
+function SkeletonCard({ children }: { children: ReactNode }) {
   return (
-    <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-5">
+    <div className="card px-4 py-5 sm:px-6">
       {children}
     </div>
   );
@@ -16,34 +18,35 @@ export default function ContactDetailLoading() {
       {/* Breadcrumb */}
       <Bone className="h-4 w-20" />
 
+      {/* Title */}
       <div>
         <Bone className="h-7 w-44" />
         <Bone className="mt-2 h-4 w-36" />
       </div>
 
       {/* Edit card */}
-      <Card>
+      <SkeletonCard>
         <Bone className="mb-4 h-4 w-28" />
         <div className="space-y-4">
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i}>
               <Bone className="mb-1 h-3 w-16" />
-              <Bone className="h-9 w-full rounded-lg" />
+              <Bone className="h-10 w-full rounded-[--r-md]" />
             </div>
           ))}
         </div>
-      </Card>
+      </SkeletonCard>
 
       {/* AI panels */}
-      {Array.from({ length: 3 }).map((_, i) => (
-        <Card key={i}>
+      {Array.from({ length: 5 }).map((_, i) => (
+        <SkeletonCard key={i}>
           <Bone className="mb-3 h-4 w-32" />
-          <Bone className="h-16 w-full rounded-lg" />
-        </Card>
+          <Bone className="h-16 w-full rounded-[--r-md]" />
+        </SkeletonCard>
       ))}
 
       {/* Activity timeline */}
-      <Card>
+      <SkeletonCard>
         <Bone className="mb-4 h-4 w-36" />
         <div className="space-y-4">
           {Array.from({ length: 3 }).map((_, i) => (
@@ -56,7 +59,7 @@ export default function ContactDetailLoading() {
             </div>
           ))}
         </div>
-      </Card>
+      </SkeletonCard>
     </div>
   );
 }
