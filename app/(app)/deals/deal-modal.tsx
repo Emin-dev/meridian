@@ -26,6 +26,8 @@ interface DealModalProps {
   deal?: Deal & { contact: Contact | null };
   defaultCurrency?: string;
   defaultStage?: string;
+  defaultContactId?: number;
+  buttonLabel?: string;
 }
 
 function stageAgeInDays(updatedAt: Date): number {
@@ -57,7 +59,7 @@ type DealAction = (
 
 const initialState: DealFormState = {};
 
-export default function DealModal({ hasDb, contacts, deal, defaultCurrency = "USD", defaultStage = "lead" }: DealModalProps) {
+export default function DealModal({ hasDb, contacts, deal, defaultCurrency = "USD", defaultStage = "lead", defaultContactId, buttonLabel = "Add Deal" }: DealModalProps) {
   const isEdit = !!deal;
   const action: DealAction = deal
     ? (updateDeal.bind(null, deal.id) as DealAction)
@@ -162,7 +164,7 @@ export default function DealModal({ hasDb, contacts, deal, defaultCurrency = "US
           onClick={() => dialogRef.current?.showModal()}
           className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
         >
-          Add Deal
+          {buttonLabel}
         </button>
       )}
 
@@ -334,7 +336,7 @@ export default function DealModal({ hasDb, contacts, deal, defaultCurrency = "US
               <select
                 id="dm-contact"
                 name="contactId"
-                defaultValue={deal?.contactId?.toString() ?? ""}
+                defaultValue={deal?.contactId?.toString() ?? defaultContactId?.toString() ?? ""}
                 className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 focus:border-indigo-500 focus:outline-none"
               >
                 <option value="">— None —</option>
