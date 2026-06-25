@@ -124,6 +124,12 @@ export default function DealModal({ hasDb, contacts, deal }: DealModalProps) {
               })}
             </p>
           )}
+          <Link
+            href={`/deals/${deal.id}`}
+            className="mt-2 inline-block text-xs text-neutral-600 hover:text-indigo-400 transition-colors"
+          >
+            View details →
+          </Link>
         </div>
       ) : (
         <button

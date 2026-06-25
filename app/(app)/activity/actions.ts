@@ -11,6 +11,9 @@ const AddActivitySchema = z.object({
   contactId: z
     .string()
     .transform((v) => (v.trim() === "" ? null : parseInt(v, 10))),
+  dealId: z
+    .string()
+    .transform((v) => (v.trim() === "" ? null : parseInt(v, 10))),
   dueAt: z
     .string()
     .transform((v) => (v.trim() === "" ? null : new Date(v))),
@@ -32,6 +35,7 @@ export async function addActivity(
     subject: String(formData.get("subject") ?? ""),
     body: String(formData.get("body") ?? ""),
     contactId: String(formData.get("contactId") ?? ""),
+    dealId: String(formData.get("dealId") ?? ""),
     dueAt: String(formData.get("dueAt") ?? ""),
   };
 
@@ -51,13 +55,16 @@ export async function addActivity(
     subject: parsed.data.subject,
     body: parsed.data.body,
     contactId: parsed.data.contactId,
-    dealId: null,
+    dealId: parsed.data.dealId,
     dueAt: parsed.data.dueAt,
   });
 
   revalidatePath("/activity");
   if (parsed.data.contactId) {
     revalidatePath(`/contacts/${parsed.data.contactId}`);
+  }
+  if (parsed.data.dealId) {
+    revalidatePath(`/deals/${parsed.data.dealId}`);
   }
 
   return { success: true };

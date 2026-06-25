@@ -11,7 +11,13 @@ const inputCls =
   "w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none";
 const labelCls = "mb-1 block text-xs font-medium text-neutral-400";
 
-export default function AddActivityForm({ contactId }: { contactId?: number }) {
+export default function AddActivityForm({
+  contactId,
+  dealId,
+}: {
+  contactId?: number;
+  dealId?: number;
+}) {
   const [state, formAction, pending] = useActionState(addActivity, INIT);
   const [formKey, setFormKey] = useState(0);
   const { toast } = useToast();
@@ -39,6 +45,9 @@ export default function AddActivityForm({ contactId }: { contactId?: number }) {
       <form key={formKey} action={formAction} className="space-y-3">
         {contactId != null && (
           <input type="hidden" name="contactId" value={String(contactId)} />
+        )}
+        {dealId != null && (
+          <input type="hidden" name="dealId" value={String(dealId)} />
         )}
 
         <div className="flex flex-col gap-3 sm:flex-row">
