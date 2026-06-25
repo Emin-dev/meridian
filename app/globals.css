@@ -98,6 +98,10 @@ body {
 .card{ background:var(--surface-1); border:1px solid var(--line-1); border-radius:var(--r-lg); }
 .hairline{ border-color:var(--line-1); }
 
+/* Hide scrollbar while keeping scroll behavior (used in tab bars) */
+.no-scrollbar{ scrollbar-width:none; -ms-overflow-style:none; }
+.no-scrollbar::-webkit-scrollbar{ display:none; }
+
 /* Native dialog: always dark color scheme so system date/select pickers render dark */
 dialog { color-scheme: dark; }
 
