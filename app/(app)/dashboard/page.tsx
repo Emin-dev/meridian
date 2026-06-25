@@ -1,4 +1,4 @@
-import { desc, eq, gte, sql } from "drizzle-orm";
+import { and, desc, eq, gte, isNotNull, isNull, lt, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import AiDigest from "@/components/ai-digest";
 import PipelineChart from "@/components/pipeline-chart-wrapper";
@@ -74,11 +74,14 @@ export default async function DashboardPage() {
   }> = [];
   let dealsByStage: { stage: string; count: number; value: number }[] =
     STAGES.map((s) => ({ stage: s, count: 0, value: 0 }));
+  let overdueCount = 0;
+  let topContacts: { name: string; leadScore: number }[] = [];
 
   if (db) {
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const now = new Date();
 
-    const [contactRows, allDeals, activityRows, weekRows] = await Promise.all([
+    const [contactRows, allDeals, activityRows, weekRows, overdueRows, topContactRows] = await Promise.all([
       db
         .select({ value: sql<number>`count(*)` })
         .from(schema.contacts),
@@ -107,6 +110,21 @@ export default async function DashboardPage() {
         .select({ value: sql<number>`count(*)` })
         .from(schema.activities)
         .where(gte(schema.activities.createdAt, sevenDaysAgo)),
+      db
+        .select({ value: sql<number>`count(*)` })
+        .from(schema.activities)
+        .where(
+          and(
+            lt(schema.activities.dueAt, now),
+            isNull(schema.activities.completedAt)
+          )
+        ),
+      db
+        .select({ name: schema.contacts.name, leadScore: schema.contacts.leadScore })
+        .from(schema.contacts)
+        .where(isNotNull(schema.contacts.leadScore))
+        .orderBy(desc(schema.contacts.leadScore))
+        .limit(3),
     ]);
 
     totalContacts = Number(contactRows[0]?.value ?? 0);
@@ -122,6 +140,11 @@ export default async function DashboardPage() {
 
     weekActivityCount = Number(weekRows[0]?.value ?? 0);
     recentActivities = activityRows;
+    overdueCount = Number(overdueRows[0]?.value ?? 0);
+    topContacts = topContactRows.map((c) => ({
+      name: c.name,
+      leadScore: c.leadScore ?? 0,
+    }));
 
     dealsByStage = STAGES.map((stage: Stage) => ({
       stage,
@@ -190,6 +213,8 @@ export default async function DashboardPage() {
                   dealTitle: a.dealTitle,
                 }))}
                 dealsByStage={dealsByStage}
+                overdueCount={overdueCount}
+                topContacts={topContacts}
               />
             </div>
           </div>

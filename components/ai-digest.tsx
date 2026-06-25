@@ -16,10 +16,12 @@ type Props = {
     dealTitle?: string | null;
   }[];
   dealsByStage: StageData[];
+  overdueCount: number;
+  topContacts: { name: string; leadScore: number }[];
 };
 
 export default function AiDigest(props: Props) {
-  const [digest, setDigest] = useState<string | null>(null);
+  const [bullets, setBullets] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [noKey, setNoKey] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -30,7 +32,11 @@ export default function AiDigest(props: Props) {
     startTransition(async () => {
       const res = await generateDailyDigest(props);
       if ("digest" in res) {
-        setDigest(res.digest);
+        const parsed = res.digest
+          .split("\n")
+          .map((line) => line.replace(/^[•\-\*]\s*/, "").trim())
+          .filter(Boolean);
+        setBullets(parsed);
       } else if ("noKey" in res) {
         setNoKey(true);
       } else {
@@ -38,6 +44,8 @@ export default function AiDigest(props: Props) {
       }
     });
   }
+
+  const hasDigest = bullets.length > 0;
 
   return (
     <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-5">
@@ -53,11 +61,11 @@ export default function AiDigest(props: Props) {
           disabled={isPending}
           className="shrink-0 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
         >
-          {isPending ? "Generating…" : digest ? "Refresh" : "Generate"}
+          {isPending ? "Generating…" : hasDigest ? "Refresh" : "Generate"}
         </button>
       </div>
 
-      {!digest && !isPending && !noKey && !error && (
+      {!hasDigest && !isPending && !noKey && !error && (
         <p className="mt-4 text-xs text-neutral-600">
           Click Generate to get AI‑powered priorities for your day based on the
           current pipeline.
@@ -88,10 +96,15 @@ export default function AiDigest(props: Props) {
 
       {error && <p className="mt-4 text-xs text-red-400">{error}</p>}
 
-      {digest && (
-        <div className="mt-4 text-sm leading-relaxed text-neutral-300 whitespace-pre-wrap">
-          {digest}
-        </div>
+      {hasDigest && (
+        <ul className="mt-4 space-y-2.5">
+          {bullets.map((line, i) => (
+            <li key={i} className="flex gap-2 text-sm text-neutral-300">
+              <span className="mt-0.5 shrink-0 text-indigo-400">•</span>
+              <span>{line}</span>
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );

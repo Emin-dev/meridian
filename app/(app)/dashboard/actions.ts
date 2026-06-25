@@ -15,6 +15,8 @@ type DigestInput = {
     dealTitle?: string | null;
   }[];
   dealsByStage: StageData[];
+  overdueCount: number;
+  topContacts: { name: string; leadScore: number }[];
 };
 
 type DigestResult = { digest: string } | { error: string } | { noKey: true };
@@ -43,11 +45,18 @@ export async function generateDailyDigest(
       )
       .join("\n");
 
+    const topContactsSummary =
+      input.topContacts.length > 0
+        ? input.topContacts
+            .map((c) => `${c.name} (score: ${c.leadScore})`)
+            .join(", ")
+        : "None scored yet";
+
     const digest = await chat([
       {
         role: "system",
         content:
-          "You are a concise sales coach assistant. Respond with exactly 3–5 short bullet points (each starting with •). Be direct and actionable.",
+          "You are a concise sales coach assistant. Respond with exactly 3–5 short bullet points (each starting with •). Be direct and actionable. Reference specific contacts or stages when relevant.",
       },
       {
         role: "user",
@@ -55,6 +64,8 @@ export async function generateDailyDigest(
 - Total contacts: ${input.totalContacts}
 - Open deals: ${input.openDealsCount} (pipeline: $${input.pipelineValue.toLocaleString()})
 - Pipeline by stage: ${stagesSummary || "No deals yet"}
+- Overdue activities: ${input.overdueCount}
+- Top contacts by lead score: ${topContactsSummary}
 - Recent activity:
 ${activitiesSummary || "No recent activity"}
 
