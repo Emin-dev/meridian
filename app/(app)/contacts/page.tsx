@@ -2,6 +2,7 @@ import { and, eq, ilike, gte, sql } from "drizzle-orm";
 import type { SQL } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import type { Contact, Sequence } from "@/db/schema";
+export type LastContactedMap = Record<number, string | null>;
 import NewContactModal from "./new-contact-modal";
 import CsvImportModal from "./csv-import-modal";
 import ExportCsvButton from "./export-csv-button";
@@ -38,6 +39,7 @@ export default async function ContactsPage({
 
   let contacts: Contact[] = [];
   let sequences: Sequence[] = [];
+  let lastContactedMap: LastContactedMap = {};
 
   if (db) {
     const conditions: (SQL | undefined)[] = [
@@ -59,7 +61,7 @@ export default async function ContactsPage({
     ];
     const whereClause = and(...conditions);
 
-    [contacts, sequences] = await Promise.all([
+    const [contactRows, sequenceRows, activityRows] = await Promise.all([
       db
         .select()
         .from(schema.contacts)
@@ -70,7 +72,22 @@ export default async function ContactsPage({
         .from(schema.sequences)
         .where(eq(schema.sequences.status, "active"))
         .orderBy(schema.sequences.name),
+      db
+        .select({
+          contactId: schema.activities.contactId,
+          lastAt: sql<string | null>`max(${schema.activities.createdAt})`,
+        })
+        .from(schema.activities)
+        .groupBy(schema.activities.contactId),
     ]);
+
+    contacts = contactRows;
+    sequences = sequenceRows;
+    for (const row of activityRows) {
+      if (row.contactId != null) {
+        lastContactedMap[row.contactId] = row.lastAt;
+      }
+    }
   }
 
   const hasActiveFilters = !!(
@@ -141,6 +158,8 @@ export default async function ContactsPage({
           contacts={contacts}
           sequences={sequences}
           hasActiveFilters={hasActiveFilters}
+          lastContactedMap={lastContactedMap}
+          hasDb
         />
       )}
     </div>

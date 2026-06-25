@@ -3,9 +3,30 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import type { Contact, Sequence } from "@/db/schema";
+import type { LastContactedMap } from "./page";
 import LeadScoreBadge from "./lead-score-badge";
 import { tagColor } from "./tag-color";
 import { bulkChangeStatus, bulkAddTag, bulkEnrollInSequence } from "./actions";
+
+function getLastContactedMeta(dateStr: string | null): { text: string; dotClass: string } | null {
+  if (!dateStr) return null;
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+  const dotClass =
+    diffDays < 7
+      ? "bg-emerald-400"
+      : diffDays <= 30
+        ? "bg-amber-400"
+        : "bg-red-400";
+  const sameYear = date.getFullYear() === now.getFullYear();
+  const text = date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    ...(sameYear ? {} : { year: "numeric" }),
+  });
+  return { text, dotClass };
+}
 
 const SOURCE_LABELS: Record<string, string> = {
   website: "Website",
@@ -35,9 +56,11 @@ type Props = {
   contacts: Contact[];
   sequences: Sequence[];
   hasActiveFilters: boolean;
+  lastContactedMap: LastContactedMap;
+  hasDb: boolean;
 };
 
-export default function ContactsTable({ contacts, sequences, hasActiveFilters }: Props) {
+export default function ContactsTable({ contacts, sequences, hasActiveFilters, lastContactedMap, hasDb }: Props) {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [tagInput, setTagInput] = useState("");
   const [statusSelect, setStatusSelect] = useState<ContactStatus>("lead");
@@ -264,6 +287,11 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters }:
                 <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
                   Tags
                 </th>
+                {hasDb && (
+                  <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
+                    Last contact
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -336,6 +364,21 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters }:
                         <span className="text-neutral-600">—</span>
                       )}
                     </td>
+                    {hasDb && (() => {
+                      const meta = getLastContactedMeta(lastContactedMap[c.id] ?? null);
+                      return (
+                        <td className="px-5 py-3 whitespace-nowrap">
+                          {meta ? (
+                            <span className="flex items-center gap-1.5">
+                              <span className={`h-2 w-2 flex-shrink-0 rounded-full ${meta.dotClass}`} />
+                              <span className="text-xs text-neutral-400">{meta.text}</span>
+                            </span>
+                          ) : (
+                            <span className="text-neutral-600">—</span>
+                          )}
+                        </td>
+                      );
+                    })()}
                   </tr>
                 );
               })}
