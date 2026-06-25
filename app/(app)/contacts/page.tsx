@@ -4,6 +4,7 @@ import { getDb, schema } from "@/db";
 import type { Contact, Sequence } from "@/db/schema";
 import NewContactModal from "./new-contact-modal";
 import CsvImportModal from "./csv-import-modal";
+import ExportCsvButton from "./export-csv-button";
 import ContactFilters from "./contact-filters";
 import ContactsTable from "./contacts-table";
 
@@ -88,6 +89,14 @@ export default async function ContactsPage({
           <p className="mt-1 text-sm text-neutral-400">Manage your leads and customers.</p>
         </div>
         <div className="flex items-center gap-3">
+          <ExportCsvButton
+            hasDb={!!db}
+            status={status}
+            company={company}
+            minScore={minScore}
+            source={source}
+            tag={tag}
+          />
           <CsvImportModal hasDb={!!db} />
           <NewContactModal hasDb={!!db} />
         </div>
