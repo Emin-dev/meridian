@@ -30,8 +30,8 @@ function formatValue(value: string | null, currency: string) {
 }
 
 function ageBadgeClass(days: number): string {
-  if (days < 7) return "bg-green-500/15 text-green-400";
-  if (days <= 14) return "bg-amber-500/15 text-amber-400";
+  if (days <= 14) return "bg-neutral-500/15 text-neutral-400";
+  if (days <= 30) return "bg-amber-500/15 text-amber-400";
   return "bg-red-500/15 text-red-400";
 }
 
@@ -42,7 +42,7 @@ export default function KanbanCard({ deal }: { deal: DealWithContact }) {
 
   const formatted = formatValue(deal.value, deal.currency);
   const ageDays = Math.floor(
-    (Date.now() - new Date(deal.updatedAt).getTime()) / 86_400_000
+    (Date.now() - new Date(deal.createdAt).getTime()) / 86_400_000
   );
 
   function handleStageChange(e: React.ChangeEvent<HTMLSelectElement>) {

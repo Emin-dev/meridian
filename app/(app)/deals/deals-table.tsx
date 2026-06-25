@@ -27,14 +27,14 @@ const STAGE_COLORS: Record<string, string> = {
 type SortKey = "title" | "contact" | "stage" | "value" | "closeDate" | "age" | "owner";
 type SortDir = "asc" | "desc";
 
-function stageAgeInDays(updatedAt: Date): number {
-  const diffMs = Date.now() - new Date(updatedAt).getTime();
+function dealAgeInDays(createdAt: Date): number {
+  const diffMs = Date.now() - new Date(createdAt).getTime();
   return Math.floor(diffMs / 86_400_000);
 }
 
 function ageBadgeClass(days: number): string {
-  if (days < 7) return "bg-green-500/15 text-green-400";
-  if (days <= 14) return "bg-amber-500/15 text-amber-400";
+  if (days <= 14) return "bg-neutral-500/15 text-neutral-400";
+  if (days <= 30) return "bg-amber-500/15 text-amber-400";
   return "bg-red-500/15 text-red-400";
 }
 
@@ -92,7 +92,7 @@ export default function DealsTable({ deals }: { deals: DealWithContact[] }) {
         break;
       }
       case "age":
-        cmp = stageAgeInDays(a.updatedAt) - stageAgeInDays(b.updatedAt);
+        cmp = dealAgeInDays(a.createdAt) - dealAgeInDays(b.createdAt);
         break;
       case "owner":
         cmp = (a.owner ?? "").localeCompare(b.owner ?? "");
@@ -134,13 +134,13 @@ export default function DealsTable({ deals }: { deals: DealWithContact[] }) {
               Owner <SortIcon active={sortKey === "owner"} dir={sortDir} />
             </th>
             <th className={thClass} onClick={() => handleSort("age")}>
-              In Stage <SortIcon active={sortKey === "age"} dir={sortDir} />
+              Days open <SortIcon active={sortKey === "age"} dir={sortDir} />
             </th>
           </tr>
         </thead>
         <tbody>
           {sorted.map((deal, i) => {
-            const age = stageAgeInDays(deal.updatedAt);
+            const age = dealAgeInDays(deal.createdAt);
             const value = deal.value
               ? new Intl.NumberFormat("en-US", {
                   style: "currency",
