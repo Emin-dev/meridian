@@ -66,23 +66,25 @@ export default function AiDigest({
   const hasDigest = bullets.length > 0;
 
   return (
-    <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-5">
+    <div className="card p-4 sm:p-5">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-medium text-neutral-300">
+          <p className="text-sm font-medium text-[--ink-1]">
             What should I do today?
           </p>
-          <p className="mt-0.5 text-xs text-neutral-500">
+          <p className="mt-0.5 text-xs text-[--ink-2]">
             {cachedAt ? `Updated ${formatAge(cachedAt)}` : "AI daily digest"}
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
           {hasDigest && (
             <button
+              type="button"
               onClick={() => generate(true)}
               disabled={isPending}
+              aria-label="Refresh daily digest"
               title="Refresh digest"
-              className="rounded-lg p-1.5 text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-neutral-200 disabled:opacity-50"
+              className="tap grid place-items-center rounded-[--r-md] text-[--ink-2] transition-colors hover:bg-[--surface-2] hover:text-[--ink-1] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[--accent] disabled:opacity-50"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -100,9 +102,10 @@ export default function AiDigest({
           )}
           {!hasDigest && (
             <button
+              type="button"
               onClick={() => generate(false)}
               disabled={isPending}
-              className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
+              className="tap rounded-[--r-md] bg-[--accent] px-4 text-xs font-medium text-[--accent-ink] transition active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[--accent] disabled:opacity-50"
             >
               {isPending ? "Generating…" : "Generate"}
             </button>
@@ -111,7 +114,7 @@ export default function AiDigest({
       </div>
 
       {!hasDigest && !isPending && !noKey && !error && (
-        <p className="mt-4 text-xs text-neutral-600">
+        <p className="mt-4 text-xs text-[--ink-3]">
           Click Generate to get AI‑powered priorities for your day based on the
           current pipeline.
         </p>
@@ -122,7 +125,7 @@ export default function AiDigest({
           {[80, 65, 72].map((w, i) => (
             <div
               key={i}
-              className="h-3 animate-pulse rounded bg-neutral-800"
+              className="h-3 animate-pulse rounded-[--r-sm] bg-[--surface-2]"
               style={{ width: `${w}%` }}
             />
           ))}
@@ -130,22 +133,26 @@ export default function AiDigest({
       )}
 
       {noKey && (
-        <p className="mt-4 text-xs text-neutral-500">
+        <p className="mt-4 text-xs text-[--ink-2]">
           Set{" "}
-          <code className="rounded bg-neutral-800 px-1 py-0.5">
+          <code className="rounded-[--r-sm] bg-[--surface-2] px-1 py-0.5 text-[--ink-1]">
             DEEPSEEK_API_KEY
           </code>{" "}
           to enable this feature.
         </p>
       )}
 
-      {error && <p className="mt-4 text-xs text-red-400">{error}</p>}
+      {error && (
+        <p className="mt-4 text-xs text-[--bad]" role="alert">
+          {error}
+        </p>
+      )}
 
       {hasDigest && (
         <ul className="mt-4 space-y-2.5">
           {bullets.map((line, i) => (
-            <li key={i} className="flex gap-2 text-sm text-neutral-300">
-              <span className="mt-0.5 shrink-0 text-indigo-400">•</span>
+            <li key={i} className="flex gap-2 text-sm text-[--ink-1]">
+              <span className="mt-0.5 shrink-0 text-[--accent]">•</span>
               <span>{line}</span>
             </li>
           ))}
