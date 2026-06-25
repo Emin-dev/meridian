@@ -94,6 +94,7 @@ export const deals = pgTable("deals", {
   stage: dealStageEnum("stage").notNull().default("lead"),
   value: numeric("value", { precision: 12, scale: 2 }),
   currency: text("currency").notNull().default("USD"),
+  probability: integer("probability").notNull().default(10),
   contactId: integer("contact_id").references(() => contacts.id, { onDelete: "set null" }),
   expectedCloseDate: timestamp("expected_close_date", { withTimezone: true }),
   notes: text("notes"),

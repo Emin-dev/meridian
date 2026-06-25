@@ -124,6 +124,35 @@ export default function EditDealForm({ deal }: Props) {
         )}
       </div>
 
+      {/* Probability */}
+      <div>
+        <label htmlFor="ed-probability" className={labelCls}>
+          Probability (%)
+        </label>
+        <div className="flex items-center gap-3">
+          <input
+            id="ed-probability"
+            name="probability"
+            type="number"
+            min="0"
+            max="100"
+            step="1"
+            defaultValue={deal.probability}
+            className="w-24 rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none"
+          />
+          <div className="flex-1 overflow-hidden rounded-full bg-neutral-700 h-2">
+            <div
+              className="h-2 rounded-full bg-indigo-500 transition-all"
+              style={{ width: `${deal.probability}%` }}
+            />
+          </div>
+          <span className="w-10 text-right text-xs text-neutral-400">{deal.probability}%</span>
+        </div>
+        {state.fieldErrors?.probability && (
+          <p className="mt-1 text-xs text-red-400">{state.fieldErrors.probability[0]}</p>
+        )}
+      </div>
+
       {state.noDb && (
         <p className="text-xs text-red-400">
           Database not connected — changes cannot be saved.

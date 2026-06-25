@@ -23,12 +23,13 @@ const DealDetailsSchema = z.object({
   stage: z.enum(DEAL_STAGES),
   value: z.string().nullable(),
   expectedCloseDate: z.string().nullable(),
+  probability: z.number().int().min(0).max(100),
 });
 
 export type DealDetailsState = {
   error?: string;
   fieldErrors?: Partial<
-    Record<"title" | "stage" | "value" | "expectedCloseDate", string[]>
+    Record<"title" | "stage" | "value" | "expectedCloseDate" | "probability", string[]>
   >;
   success?: boolean;
   noDb?: boolean;
@@ -41,12 +42,14 @@ export async function updateDealDetails(
 ): Promise<DealDetailsState> {
   const valueRaw = String(formData.get("value") ?? "").trim();
   const dateRaw = String(formData.get("expectedCloseDate") ?? "").trim();
+  const probabilityRaw = String(formData.get("probability") ?? "10").trim();
 
   const raw = {
     title: String(formData.get("title") ?? "").trim(),
     stage: String(formData.get("stage") ?? "lead"),
     value: valueRaw === "" ? null : valueRaw,
     expectedCloseDate: dateRaw === "" ? null : dateRaw,
+    probability: probabilityRaw === "" ? 10 : parseInt(probabilityRaw, 10),
   };
 
   const parsed = DealDetailsSchema.safeParse(raw);
@@ -66,6 +69,7 @@ export async function updateDealDetails(
       title: parsed.data.title,
       stage: parsed.data.stage,
       value: parsed.data.value,
+      probability: parsed.data.probability,
       expectedCloseDate: parsed.data.expectedCloseDate
         ? new Date(parsed.data.expectedCloseDate)
         : null,

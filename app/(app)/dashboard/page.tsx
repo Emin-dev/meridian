@@ -63,6 +63,7 @@ export default async function DashboardPage() {
   let totalContacts = 0;
   let openDealsCount = 0;
   let pipelineValue = 0;
+  let weightedPipelineValue = 0;
   let weekActivityCount = 0;
   let recentActivities: Array<{
     id: number;
@@ -165,6 +166,10 @@ export default async function DashboardPage() {
       (sum, d) => sum + (d.value ? parseFloat(d.value) : 0),
       0
     );
+    weightedPipelineValue = openDeals.reduce(
+      (sum, d) => sum + (d.value ? parseFloat(d.value) * (d.probability / 100) : 0),
+      0
+    );
 
     weekActivityCount = Number(weekRows[0]?.value ?? 0);
     recentActivities = activityRows;
@@ -211,7 +216,7 @@ export default async function DashboardPage() {
       {db && totalContacts > 0 && (
         <>
           {/* KPI cards */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <KpiCard
               label="Total Contacts"
               value={totalContacts.toString()}
@@ -220,6 +225,10 @@ export default async function DashboardPage() {
             <KpiCard
               label="Pipeline Value"
               value={formatCurrency(pipelineValue)}
+            />
+            <KpiCard
+              label="Weighted Pipeline"
+              value={formatCurrency(weightedPipelineValue)}
             />
             <KpiCard
               label="Activities This Week"

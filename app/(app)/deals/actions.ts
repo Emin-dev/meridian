@@ -14,6 +14,15 @@ const DEAL_STAGES = [
   "lost",
 ] as const;
 
+const STAGE_PROBABILITY: Record<string, number> = {
+  lead: 10,
+  qualified: 20,
+  proposal: 50,
+  negotiation: 75,
+  won: 100,
+  lost: 0,
+};
+
 const DealSchema = z.object({
   title: z.string().min(1, "Title is required"),
   stage: z.enum(DEAL_STAGES),
@@ -85,6 +94,7 @@ export async function createDeal(
     stage,
     value: value ?? undefined,
     currency,
+    probability: STAGE_PROBABILITY[stage] ?? 10,
     expectedCloseDate: expectedCloseDate ? new Date(expectedCloseDate) : undefined,
     contactId: contactId ?? undefined,
     notes: notes ?? undefined,
@@ -111,6 +121,7 @@ export async function moveDealStage(
     .update(schema.deals)
     .set({
       stage: parsed.data,
+      probability: STAGE_PROBABILITY[parsed.data] ?? 10,
       closeReason: isTerminal ? (closeReason?.trim() || null) : null,
       updatedAt: new Date(),
     })
