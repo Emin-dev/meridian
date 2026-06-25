@@ -4,6 +4,7 @@ import type { SQL } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import type { Contact } from "@/db/schema";
 import NewContactModal from "./new-contact-modal";
+import CsvImportModal from "./csv-import-modal";
 import LeadScoreBadge from "./lead-score-badge";
 import ContactFilters from "./contact-filters";
 
@@ -68,7 +69,10 @@ export default async function ContactsPage({
           <h2 className="text-xl font-semibold text-neutral-100">Contacts</h2>
           <p className="mt-1 text-sm text-neutral-400">Manage your leads and customers.</p>
         </div>
-        <NewContactModal hasDb={!!db} />
+        <div className="flex items-center gap-3">
+          <CsvImportModal hasDb={!!db} />
+          <NewContactModal hasDb={!!db} />
+        </div>
       </div>
 
       {/* Filter bar */}

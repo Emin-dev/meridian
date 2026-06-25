@@ -66,6 +66,31 @@ export async function createContact(
   return { success: true };
 }
 
+const CsvRowSchema = z.object({
+  name: z.string().min(1),
+  email: z.string().email().or(z.literal("")).transform((v) => (v === "" ? null : v)),
+  phone: z.string().transform((v) => (v.trim() === "" ? null : v.trim())),
+  company: z.string().transform((v) => (v.trim() === "" ? null : v.trim())),
+});
+
+export async function bulkImportContacts(
+  rows: { name: string; email: string; phone: string; company: string }[]
+): Promise<{ count: number; error?: string }> {
+  const db = getDb();
+  if (!db) return { count: 0, error: "Database not connected" };
+
+  const valid = rows
+    .map((r) => CsvRowSchema.safeParse(r))
+    .filter((r) => r.success)
+    .map((r) => (r as { success: true; data: z.infer<typeof CsvRowSchema> }).data);
+
+  if (valid.length === 0) return { count: 0, error: "No valid rows to import" };
+
+  await db.insert(schema.contacts).values(valid).onConflictDoNothing();
+  revalidatePath("/contacts");
+  return { count: valid.length };
+}
+
 export async function updateContact(
   id: number,
   _prev: ContactFormState,
