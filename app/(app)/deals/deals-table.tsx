@@ -192,19 +192,17 @@ export default function DealsTable({
     <div className="space-y-3">
       {/* Bulk action bar */}
       {someSelected && (
-        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-4 py-2.5">
-          <span className="text-sm font-medium text-indigo-300">
+        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-4 py-2">
+          <span className="flex min-h-[44px] items-center text-sm font-medium text-indigo-300">
             {selectedIds.size} selected
           </span>
-
-          <div className="h-4 w-px bg-neutral-700" />
 
           {/* Move to stage */}
           <div className="flex items-center gap-1.5">
             <select
               value={stageSelect}
               onChange={(e) => setStageSelect(e.target.value)}
-              className="rounded border border-neutral-700 bg-neutral-900 px-2 py-1 text-xs text-neutral-200"
+              className="tap rounded border border-neutral-700 bg-neutral-900 px-2 text-xs text-neutral-200"
             >
               {STAGE_OPTIONS.map((s) => (
                 <option key={s.value} value={s.value}>
@@ -215,13 +213,11 @@ export default function DealsTable({
             <button
               onClick={handleMoveStage}
               disabled={isPending}
-              className="rounded bg-neutral-700 px-2.5 py-1 text-xs font-medium text-neutral-200 hover:bg-neutral-600 disabled:opacity-50"
+              className="tap flex items-center justify-center rounded bg-neutral-700 px-2.5 text-xs font-medium text-neutral-200 hover:bg-neutral-600 disabled:opacity-50"
             >
               Move to stage
             </button>
           </div>
-
-          <div className="h-4 w-px bg-neutral-700" />
 
           {/* Set owner */}
           <div className="flex items-center gap-1.5">
@@ -231,7 +227,7 @@ export default function DealsTable({
               onChange={(e) => setOwnerInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleChangeOwner()}
               placeholder="Owner name"
-              className="w-32 rounded border border-neutral-700 bg-neutral-900 px-2 py-1 text-xs text-neutral-200 placeholder-neutral-600 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="tap w-full rounded border border-neutral-700 bg-neutral-900 px-2 text-xs text-neutral-200 placeholder-neutral-600 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:w-32"
             />
             {owners.length > 0 && (
               <datalist id="deal-owners-list">
@@ -243,19 +239,17 @@ export default function DealsTable({
             <button
               onClick={handleChangeOwner}
               disabled={isPending}
-              className="rounded bg-neutral-700 px-2.5 py-1 text-xs font-medium text-neutral-200 hover:bg-neutral-600 disabled:opacity-50"
+              className="tap flex items-center justify-center rounded bg-neutral-700 px-2.5 text-xs font-medium text-neutral-200 hover:bg-neutral-600 disabled:opacity-50"
             >
               Set owner
             </button>
           </div>
 
-          <div className="h-4 w-px bg-neutral-700" />
-
           {/* Delete */}
           <button
             onClick={handleDelete}
             disabled={isPending}
-            className="rounded bg-red-500/15 px-2.5 py-1 text-xs font-medium text-red-400 hover:bg-red-500/25 disabled:opacity-50"
+            className="tap flex items-center justify-center rounded bg-red-500/15 px-2.5 text-xs font-medium text-red-400 hover:bg-red-500/25 disabled:opacity-50"
           >
             Delete
           </button>
@@ -268,7 +262,7 @@ export default function DealsTable({
             )}
             <button
               onClick={() => setSelectedIds(new Set())}
-              className="text-xs text-neutral-500 hover:text-neutral-300"
+              className="tap flex items-center justify-center text-xs text-neutral-500 hover:text-neutral-300"
             >
               Clear selection
             </button>

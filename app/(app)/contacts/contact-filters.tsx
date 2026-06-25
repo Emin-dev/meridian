@@ -81,7 +81,7 @@ export default function ContactFilters({
   }
 
   const inputClass =
-    "rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500";
+    "tap rounded-lg border border-neutral-700 bg-neutral-800 px-3 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500";
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -117,7 +117,7 @@ export default function ContactFilters({
         value={company}
         onChange={(e) => setCompany(e.target.value)}
         onKeyDown={handleKeyDown}
-        className={`${inputClass} w-44`}
+        className={`${inputClass} w-full sm:w-44`}
         aria-label="Filter by company"
       />
 
@@ -129,7 +129,7 @@ export default function ContactFilters({
         value={minScore}
         onChange={(e) => setMinScore(e.target.value)}
         onKeyDown={handleKeyDown}
-        className={`${inputClass} w-28`}
+        className={`${inputClass} w-full sm:w-28`}
         aria-label="Minimum lead score"
       />
 
@@ -139,14 +139,14 @@ export default function ContactFilters({
         value={tag}
         onChange={(e) => setTag(e.target.value)}
         onKeyDown={handleKeyDown}
-        className={`${inputClass} w-28`}
+        className={`${inputClass} w-full sm:w-28`}
         aria-label="Filter by tag"
       />
 
       <button
         onClick={apply}
         disabled={isPending}
-        className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-50"
+        className="tap flex items-center justify-center rounded-lg bg-indigo-600 px-3 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-50"
       >
         Apply
       </button>
@@ -155,7 +155,7 @@ export default function ContactFilters({
         <button
           onClick={clear}
           disabled={isPending}
-          className="rounded-lg border border-neutral-700 px-3 py-1.5 text-sm text-neutral-400 hover:border-neutral-600 hover:text-neutral-200 disabled:opacity-50"
+          className="tap flex items-center justify-center rounded-lg border border-neutral-700 px-3 text-sm text-neutral-400 hover:border-neutral-600 hover:text-neutral-200 disabled:opacity-50"
         >
           Clear
         </button>

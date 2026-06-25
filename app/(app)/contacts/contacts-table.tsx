@@ -202,19 +202,17 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
     <div className="space-y-3">
       {/* Bulk action bar — table view only */}
       {someSelected && view === "table" && (
-        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-4 py-2.5">
-          <span className="text-sm font-medium text-indigo-300">
+        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-4 py-2">
+          <span className="flex min-h-[44px] items-center text-sm font-medium text-indigo-300">
             {selectedIds.size} selected
           </span>
-
-          <div className="h-4 w-px bg-neutral-700" />
 
           {/* Change status */}
           <div className="flex items-center gap-1.5">
             <select
               value={statusSelect}
               onChange={(e) => setStatusSelect(e.target.value as ContactStatus)}
-              className="rounded border border-neutral-700 bg-neutral-900 px-2 py-1 text-xs text-neutral-200"
+              className="tap rounded border border-neutral-700 bg-neutral-900 px-2 text-xs text-neutral-200"
             >
               {STATUSES.map((s) => (
                 <option key={s.value} value={s.value}>
@@ -225,13 +223,11 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
             <button
               onClick={handleChangeStatus}
               disabled={isPending}
-              className="rounded bg-neutral-700 px-2.5 py-1 text-xs font-medium text-neutral-200 hover:bg-neutral-600 disabled:opacity-50"
+              className="tap flex items-center justify-center rounded bg-neutral-700 px-2.5 text-xs font-medium text-neutral-200 hover:bg-neutral-600 disabled:opacity-50"
             >
               Set status
             </button>
           </div>
-
-          <div className="h-4 w-px bg-neutral-700" />
 
           {/* Add tag */}
           <div className="flex items-center gap-1.5">
@@ -240,18 +236,16 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
               onChange={(e) => setTagInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleAddTag()}
               placeholder="Tag name"
-              className="w-28 rounded border border-neutral-700 bg-neutral-900 px-2 py-1 text-xs text-neutral-200 placeholder-neutral-600 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="tap w-full rounded border border-neutral-700 bg-neutral-900 px-2 text-xs text-neutral-200 placeholder-neutral-600 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:w-32"
             />
             <button
               onClick={handleAddTag}
               disabled={isPending || !tagInput.trim()}
-              className="rounded bg-neutral-700 px-2.5 py-1 text-xs font-medium text-neutral-200 hover:bg-neutral-600 disabled:opacity-50"
+              className="tap flex items-center justify-center rounded bg-neutral-700 px-2.5 text-xs font-medium text-neutral-200 hover:bg-neutral-600 disabled:opacity-50"
             >
               Add tag
             </button>
           </div>
-
-          <div className="h-4 w-px bg-neutral-700" />
 
           {/* Change owner */}
           <div className="flex items-center gap-1.5">
@@ -260,44 +254,39 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
               onChange={(e) => setOwnerInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleChangeOwner()}
               placeholder="Owner name"
-              className="w-28 rounded border border-neutral-700 bg-neutral-900 px-2 py-1 text-xs text-neutral-200 placeholder-neutral-600 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="tap w-full rounded border border-neutral-700 bg-neutral-900 px-2 text-xs text-neutral-200 placeholder-neutral-600 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:w-32"
             />
             <button
               onClick={handleChangeOwner}
               disabled={isPending}
-              className="rounded bg-neutral-700 px-2.5 py-1 text-xs font-medium text-neutral-200 hover:bg-neutral-600 disabled:opacity-50"
+              className="tap flex items-center justify-center rounded bg-neutral-700 px-2.5 text-xs font-medium text-neutral-200 hover:bg-neutral-600 disabled:opacity-50"
             >
               Set owner
             </button>
           </div>
 
           {sequences.length > 0 && (
-            <>
-              <div className="h-4 w-px bg-neutral-700" />
-
-              {/* Enroll in sequence */}
-              <div className="flex items-center gap-1.5">
-                <select
-                  value={sequenceSelect}
-                  onChange={(e) => setSequenceSelect(e.target.value)}
-                  className="rounded border border-neutral-700 bg-neutral-900 px-2 py-1 text-xs text-neutral-200"
-                >
-                  <option value="">Pick sequence…</option>
-                  {sequences.map((s) => (
-                    <option key={s.id} value={String(s.id)}>
-                      {s.name}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  onClick={handleEnrollSequence}
-                  disabled={isPending || !sequenceSelect}
-                  className="rounded bg-neutral-700 px-2.5 py-1 text-xs font-medium text-neutral-200 hover:bg-neutral-600 disabled:opacity-50"
-                >
-                  Enroll
-                </button>
-              </div>
-            </>
+            <div className="flex items-center gap-1.5">
+              <select
+                value={sequenceSelect}
+                onChange={(e) => setSequenceSelect(e.target.value)}
+                className="tap rounded border border-neutral-700 bg-neutral-900 px-2 text-xs text-neutral-200"
+              >
+                <option value="">Pick sequence…</option>
+                {sequences.map((s) => (
+                  <option key={s.id} value={String(s.id)}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={handleEnrollSequence}
+                disabled={isPending || !sequenceSelect}
+                className="tap flex items-center justify-center rounded bg-neutral-700 px-2.5 text-xs font-medium text-neutral-200 hover:bg-neutral-600 disabled:opacity-50"
+              >
+                Enroll
+              </button>
+            </div>
           )}
 
           <div className="ml-auto flex items-center gap-3">
@@ -310,7 +299,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
             )}
             <button
               onClick={() => setSelectedIds(new Set())}
-              className="text-xs text-neutral-500 hover:text-neutral-300"
+              className="tap flex items-center justify-center text-xs text-neutral-500 hover:text-neutral-300"
             >
               Clear selection
             </button>
