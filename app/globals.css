@@ -1,18 +1,103 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0a0a0a;
-  --foreground: #ededed;
+  /* ---- Surfaces (elevation, not hue) ---- */
+  --bg:        #0a0a0a;   /* app background */
+  --surface-1: #121212;   /* cards, list rows */
+  --surface-2: #1a1a1a;   /* raised: popovers, sheet, active row */
+  --surface-3: #232323;   /* highest: menus on sheets */
+
+  /* ---- Ink (text) ---- */
+  --ink-1: #ededed;  /* primary text */
+  --ink-2: #a3a3a3;  /* secondary text, labels */
+  --ink-3: #6b6b6b;  /* tertiary, meta, disabled */
+
+  /* ---- Hairlines ---- */
+  --line-1: rgba(255,255,255,0.08);  /* default border */
+  --line-2: rgba(255,255,255,0.14);  /* hover/active border */
+
+  /* ---- Accent (single iOS blue; one moment per screen) ---- */
+  --accent:        #0a84ff;
+  --accent-hover:  #3a9bff;
+  --accent-ink:    #ffffff;
+  --accent-tint:   rgba(10,132,255,0.14);
+
+  /* ---- Status (tint / dot / text only, never large fills) ---- */
+  --ok:    #30d158;  --ok-tint:   rgba(48,209,88,0.14);
+  --warn:  #ff9f0a;  --warn-tint: rgba(255,159,10,0.14);
+  --bad:   #ff453a;  --bad-tint:  rgba(255,69,58,0.14);
+  --info:  #64d2ff;  --info-tint: rgba(100,210,255,0.14);
+
+  /* ---- Radii ---- */
+  --r-sm: 6px; --r-md: 10px; --r-lg: 14px; --r-xl: 20px; --r-2xl: 28px;
+  --r-pill: 999px;
+
+  /* ---- Elevation (reserved for floating layers only) ---- */
+  --shadow-1: 0 1px 2px rgba(0,0,0,0.4);
+  --shadow-2: 0 8px 24px rgba(0,0,0,0.5);
+  --shadow-3: 0 24px 60px rgba(0,0,0,0.6);
+
+  /* ---- Spacing (8pt rhythm; maps onto Tailwind 4px steps) ---- */
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
+
+  /* ---- Fluid type scale (clamp, 360→1024px viewport) ---- */
+  --text-caption:   clamp(0.6875rem, 0.66rem + 0.12vw, 0.75rem);   /* 11→12 */
+  --text-footnote:  clamp(0.75rem,  0.72rem + 0.15vw, 0.8125rem);  /* 12→13 */
+  --text-body:      clamp(0.875rem, 0.85rem + 0.2vw,  0.9375rem);  /* 14→15 */
+  --text-callout:   clamp(0.9375rem,0.9rem + 0.3vw,   1.0625rem);  /* 15→17 */
+  --text-title3:    clamp(1.0625rem,1rem + 0.5vw,     1.25rem);    /* 17→20 */
+  --text-title2:    clamp(1.25rem,  1.1rem + 0.8vw,   1.5rem);     /* 20→24 */
+  --text-title1:    clamp(1.5rem,   1.3rem + 1.2vw,   1.875rem);   /* 24→30 */
+  --text-largetitle:clamp(1.875rem, 1.5rem + 2vw,     2.75rem);    /* 30→44 */
+
+  /* ---- Motion ---- */
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --dur-1: 120ms; --dur-2: 200ms; --dur-3: 320ms;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--bg);
+  --color-foreground: var(--ink-1);
+  /* keep legacy aliases compiling during migration */
 }
 
+html, body { overflow-x: hidden; }   /* overflow backstop */
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-    Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--ink-1);
+  font-family: ui-sans-serif, system-ui, -apple-system, "SF Pro Text",
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Type utilities — never set raw font-size in components */
+.text-caption{font-size:var(--text-caption);line-height:1.35}
+.text-footnote{font-size:var(--text-footnote);line-height:1.4}
+.text-body{font-size:var(--text-body);line-height:1.5}
+.text-callout{font-size:var(--text-callout);line-height:1.45}
+.text-title3{font-size:var(--text-title3);line-height:1.3;letter-spacing:-0.01em}
+.text-title2{font-size:var(--text-title2);line-height:1.25;letter-spacing:-0.015em}
+.text-title1{font-size:var(--text-title1);line-height:1.2;letter-spacing:-0.02em}
+.text-largetitle{font-size:var(--text-largetitle);line-height:1.1;letter-spacing:-0.025em}
+
+/* Glass (sticky chrome only) */
+.glass{
+  background: color-mix(in srgb, var(--surface-1) 72%, transparent);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))){
+  .glass{ background: var(--surface-1); }
+}
+
+/* Reusable primitives */
+.tap{ min-height:44px; min-width:44px; }       /* touch target */
+.card{ background:var(--surface-1); border:1px solid var(--line-1); border-radius:var(--r-lg); }
+.hairline{ border-color:var(--line-1); }
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{ animation-duration:.01ms!important; transition-duration:.01ms!important; }
 }
