@@ -118,6 +118,18 @@ export default function AddActivityForm({
           />
         </div>
 
+        <div className="flex items-center gap-2">
+          <input
+            id="af-completed"
+            name="completedAt"
+            type="checkbox"
+            className="h-3.5 w-3.5 rounded border-neutral-600 bg-neutral-800 accent-indigo-500"
+          />
+          <label htmlFor="af-completed" className="text-xs text-neutral-400 cursor-pointer select-none">
+            Mark as completed
+          </label>
+        </div>
+
         <div className="flex justify-end">
           <button
             type="submit"

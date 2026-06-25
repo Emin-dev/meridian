@@ -18,6 +18,9 @@ const AddActivitySchema = z.object({
   dueAt: z
     .string()
     .transform((v) => (v.trim() === "" ? null : new Date(v))),
+  completedAt: z
+    .string()
+    .transform((v) => (v === "on" ? new Date() : null)),
 });
 
 export type AddActivityState = {
@@ -38,6 +41,7 @@ export async function addActivity(
     contactId: String(formData.get("contactId") ?? ""),
     dealId: String(formData.get("dealId") ?? ""),
     dueAt: String(formData.get("dueAt") ?? ""),
+    completedAt: String(formData.get("completedAt") ?? ""),
   };
 
   const parsed = AddActivitySchema.safeParse(raw);
@@ -58,6 +62,7 @@ export async function addActivity(
     contactId: parsed.data.contactId,
     dealId: parsed.data.dealId,
     dueAt: parsed.data.dueAt,
+    completedAt: parsed.data.completedAt,
   });
 
   revalidatePath("/activity");

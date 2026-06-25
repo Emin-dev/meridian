@@ -3,7 +3,13 @@
 import { useState } from "react";
 import AddActivityForm from "@/app/(app)/activity/add-activity-form";
 
-export default function InlineActivityForm({ contactId }: { contactId: number }) {
+export default function InlineActivityForm({
+  contactId,
+  dealId,
+}: {
+  contactId?: number;
+  dealId?: number;
+}) {
   const [open, setOpen] = useState(false);
 
   if (!open) {
@@ -30,7 +36,7 @@ export default function InlineActivityForm({ contactId }: { contactId: number })
           ✕
         </button>
       </div>
-      <AddActivityForm contactId={contactId} onSuccess={() => setOpen(false)} />
+      <AddActivityForm contactId={contactId} dealId={dealId} onSuccess={() => setOpen(false)} />
     </div>
   );
 }
