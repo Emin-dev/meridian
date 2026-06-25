@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -116,6 +116,80 @@ export async function deleteContact(id: number): Promise<void> {
   await db.delete(schema.contacts).where(eq(schema.contacts.id, id));
   revalidatePath("/contacts");
   redirect("/contacts");
+}
+
+// ─── AI: Summarize contact notes & activity ──────────────────────────────────
+
+export type SummarizeState = {
+  summary?: string;
+  error?: string;
+  noDb?: boolean;
+  noKey?: boolean;
+};
+
+export async function summarizeContact(
+  contactId: number
+): Promise<SummarizeState> {
+  const db = getDb();
+  if (!db) return { noDb: true };
+
+  const [contact] = await db
+    .select()
+    .from(schema.contacts)
+    .where(eq(schema.contacts.id, contactId))
+    .limit(1);
+
+  if (!contact) return { error: "Contact not found." };
+
+  if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
+
+  const recentActivities = await db
+    .select()
+    .from(schema.activities)
+    .where(eq(schema.activities.contactId, contactId))
+    .orderBy(desc(schema.activities.createdAt))
+    .limit(10);
+
+  const lines: string[] = [
+    `Name: ${contact.name}`,
+    contact.title ? `Title: ${contact.title}` : null,
+    contact.company ? `Company: ${contact.company}` : null,
+    contact.email ? `Email: ${contact.email}` : null,
+    contact.notes ? `\nNotes:\n${contact.notes}` : null,
+  ].filter(Boolean) as string[];
+
+  if (recentActivities.length > 0) {
+    lines.push("\nRecent activities:");
+    for (const a of recentActivities) {
+      const date = a.createdAt.toISOString().slice(0, 10);
+      const entry = [
+        `[${date}] ${a.type.toUpperCase()}: ${a.subject}`,
+        a.body ?? null,
+      ]
+        .filter(Boolean)
+        .join(" — ");
+      lines.push(`- ${entry}`);
+    }
+  }
+
+  try {
+    const summary = await chat([
+      {
+        role: "system",
+        content:
+          "You are a CRM assistant. Given a contact's profile, notes, and recent activity, write a concise 3–5 sentence brief summarising who this person is, the relationship status, and any key next steps. Be direct and factual.",
+      },
+      {
+        role: "user",
+        content: `Summarise this contact:\n\n${lines.join("\n")}`,
+      },
+    ]);
+    return { summary };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown AI error.";
+    if (message.includes("DEEPSEEK_API_KEY")) return { noKey: true };
+    return { error: message };
+  }
 }
 
 // ─── AI: Draft outreach email ─────────────────────────────────────────────────
