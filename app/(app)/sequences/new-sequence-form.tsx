@@ -1,0 +1,211 @@
+"use client";
+
+import { useState, useActionState } from "react";
+import Link from "next/link";
+import { createSequence, type SequenceFormState } from "./actions";
+
+interface Step {
+  delayDays: number;
+  subjectTemplate: string;
+  bodyTemplate: string;
+}
+
+const defaultStep = (): Step => ({ delayDays: 0, subjectTemplate: "", bodyTemplate: "" });
+const initialState: SequenceFormState = {};
+
+export default function NewSequenceForm() {
+  const [state, formAction, pending] = useActionState(createSequence, initialState);
+  const [steps, setSteps] = useState<Step[]>([defaultStep()]);
+
+  function updateStep(index: number, field: keyof Step, value: string | number) {
+    setSteps((prev) =>
+      prev.map((s, i) => (i === index ? { ...s, [field]: value } : s))
+    );
+  }
+
+  function addStep() {
+    if (steps.length < 5) setSteps((prev) => [...prev, defaultStep()]);
+  }
+
+  function removeStep(index: number) {
+    if (steps.length > 1) setSteps((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  return (
+    <div className="max-w-2xl space-y-6">
+      <div className="flex items-center gap-3">
+        <Link
+          href="/sequences"
+          className="text-sm text-neutral-400 transition-colors hover:text-neutral-100"
+        >
+          ← Sequences
+        </Link>
+        <span className="text-neutral-700">/</span>
+        <h2 className="text-sm font-semibold text-neutral-100">New Sequence</h2>
+      </div>
+
+      {state.noDb && (
+        <div className="rounded-lg border border-amber-700/50 bg-amber-900/20 px-4 py-3 text-sm text-amber-300">
+          Database not connected. Set{" "}
+          <code className="rounded bg-neutral-800 px-1 py-0.5 text-xs">DATABASE_URL</code> to
+          save sequences.
+        </div>
+      )}
+
+      <form action={formAction} className="space-y-5">
+        {/* Sequence details */}
+        <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-5 space-y-4">
+          <h3 className="text-sm font-semibold text-neutral-200">Sequence details</h3>
+
+          <div>
+            <label
+              htmlFor="seq-name"
+              className="mb-1 block text-xs font-medium text-neutral-400"
+            >
+              Name <span className="text-red-400">*</span>
+            </label>
+            <input
+              id="seq-name"
+              name="name"
+              type="text"
+              required
+              placeholder="Welcome sequence"
+              className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none"
+            />
+            {state.fieldErrors?.["name"] && (
+              <p className="mt-1 text-xs text-red-400">{state.fieldErrors["name"][0]}</p>
+            )}
+          </div>
+        </div>
+
+        {/* Steps */}
+        <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-neutral-200">
+              Steps{" "}
+              <span className="ml-1 text-xs font-normal text-neutral-500">
+                ({steps.length}/5)
+              </span>
+            </h3>
+            <button
+              type="button"
+              onClick={addStep}
+              disabled={steps.length >= 5}
+              className="text-xs font-medium text-indigo-400 transition-colors hover:text-indigo-300 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              + Add step
+            </button>
+          </div>
+
+          <div className="space-y-3">
+            {steps.map((step, i) => (
+              <div
+                key={i}
+                className="rounded-lg border border-neutral-700 bg-neutral-800/40 p-4 space-y-3"
+              >
+                {/* Step header */}
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-neutral-400 uppercase tracking-wide">
+                    Step {i + 1}
+                  </span>
+                  {steps.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeStep(i)}
+                      className="text-xs text-neutral-600 transition-colors hover:text-red-400"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+
+                {/* Delay */}
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-neutral-500">
+                    Send after (days)
+                  </label>
+                  <input
+                    name={`step_${i}_delay`}
+                    type="number"
+                    min="0"
+                    value={step.delayDays}
+                    onChange={(e) =>
+                      updateStep(i, "delayDays", Math.max(0, parseInt(e.target.value, 10) || 0))
+                    }
+                    className="w-28 rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 focus:border-indigo-500 focus:outline-none"
+                  />
+                  {state.fieldErrors?.[`step_${i}_delay`] && (
+                    <p className="mt-1 text-xs text-red-400">
+                      {state.fieldErrors[`step_${i}_delay`][0]}
+                    </p>
+                  )}
+                </div>
+
+                {/* Subject template */}
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-neutral-500">
+                    Subject template <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    name={`step_${i}_subject`}
+                    type="text"
+                    placeholder="Hi {{first_name}}, quick question…"
+                    value={step.subjectTemplate}
+                    onChange={(e) => updateStep(i, "subjectTemplate", e.target.value)}
+                    className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none"
+                  />
+                  {state.fieldErrors?.[`step_${i}_subject`] && (
+                    <p className="mt-1 text-xs text-red-400">
+                      {state.fieldErrors[`step_${i}_subject`][0]}
+                    </p>
+                  )}
+                </div>
+
+                {/* Body template */}
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-neutral-500">
+                    Body template <span className="text-red-400">*</span>
+                  </label>
+                  <textarea
+                    name={`step_${i}_body`}
+                    rows={4}
+                    placeholder={`Hi {{first_name}},\n\n`}
+                    value={step.bodyTemplate}
+                    onChange={(e) => updateStep(i, "bodyTemplate", e.target.value)}
+                    className="w-full resize-y rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none"
+                  />
+                  {state.fieldErrors?.[`step_${i}_body`] && (
+                    <p className="mt-1 text-xs text-red-400">
+                      {state.fieldErrors[`step_${i}_body`][0]}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {state.error && (
+            <p className="text-xs text-red-400">{state.error}</p>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="flex justify-end gap-3">
+          <Link
+            href="/sequences"
+            className="rounded-lg px-4 py-2 text-sm text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-neutral-100"
+          >
+            Cancel
+          </Link>
+          <button
+            type="submit"
+            disabled={pending}
+            className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
+          >
+            {pending ? "Creating…" : "Create sequence"}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}

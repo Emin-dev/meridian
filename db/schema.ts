@@ -119,3 +119,43 @@ export const activitiesRelations = relations(activities, ({ one }) => ({
 
 export type Activity = InferSelectModel<typeof activities>;
 export type NewActivity = InferInsertModel<typeof activities>;
+
+// ─── Sequences ────────────────────────────────────────────────────────────────
+
+export const sequenceStatusEnum = pgEnum("sequence_status", ["active", "paused"]);
+
+export const sequences = pgTable("sequences", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  status: sequenceStatusEnum("status").notNull().default("active"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const sequencesRelations = relations(sequences, ({ many }) => ({
+  steps: many(sequenceSteps),
+}));
+
+export type Sequence = InferSelectModel<typeof sequences>;
+export type NewSequence = InferInsertModel<typeof sequences>;
+
+// ─── Sequence Steps ───────────────────────────────────────────────────────────
+
+export const sequenceSteps = pgTable("sequence_steps", {
+  id: serial("id").primaryKey(),
+  sequenceId: integer("sequence_id")
+    .notNull()
+    .references(() => sequences.id, { onDelete: "cascade" }),
+  position: integer("position").notNull(),
+  delayDays: integer("delay_days").notNull().default(0),
+  subjectTemplate: text("subject_template").notNull(),
+  bodyTemplate: text("body_template").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const sequenceStepsRelations = relations(sequenceSteps, ({ one }) => ({
+  sequence: one(sequences, { fields: [sequenceSteps.sequenceId], references: [sequences.id] }),
+}));
+
+export type SequenceStep = InferSelectModel<typeof sequenceSteps>;
+export type NewSequenceStep = InferInsertModel<typeof sequenceSteps>;
