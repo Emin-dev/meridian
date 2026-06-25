@@ -5,6 +5,7 @@ import { getDb, schema } from "@/db";
 import EditContactForm from "./edit-contact-form";
 import DraftEmailPanel from "./draft-email-panel";
 import SummarizePanel from "./summarize-panel";
+import LeadScorePanel from "./lead-score-panel";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -73,6 +74,15 @@ export default async function ContactDetailPage({ params }: Props) {
       <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-5">
         <h3 className="mb-4 text-sm font-medium text-neutral-300">Contact details</h3>
         <EditContactForm contact={contact} />
+      </div>
+
+      {/* AI lead score */}
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-5">
+        <LeadScorePanel
+          contactId={contact.id}
+          initialScore={contact.leadScore}
+          initialRationale={contact.leadScoreRationale}
+        />
       </div>
 
       {/* AI contact brief */}

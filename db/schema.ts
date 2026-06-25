@@ -39,6 +39,9 @@ export const contacts = pgTable("contacts", {
   company: text("company"),
   title: text("title"),
   notes: text("notes"),
+  leadScore: integer("lead_score"),
+  leadScoreRationale: text("lead_score_rationale"),
+  leadScoredAt: timestamp("lead_scored_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });

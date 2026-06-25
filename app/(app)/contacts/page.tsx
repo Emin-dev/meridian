@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getDb, schema } from "@/db";
 import NewContactModal from "./new-contact-modal";
+import LeadScoreBadge from "./lead-score-badge";
 
 export default async function ContactsPage() {
   const db = getDb();
@@ -57,6 +58,9 @@ export default async function ContactsPage() {
                   <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
                     Title
                   </th>
+                  <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
+                    Score
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -77,6 +81,13 @@ export default async function ContactsPage() {
                     <td className="px-5 py-3 text-neutral-400">{c.phone ?? "—"}</td>
                     <td className="px-5 py-3 text-neutral-400">{c.company ?? "—"}</td>
                     <td className="px-5 py-3 text-neutral-400">{c.title ?? "—"}</td>
+                    <td className="px-5 py-3">
+                      {c.leadScore != null ? (
+                        <LeadScoreBadge score={c.leadScore} />
+                      ) : (
+                        <span className="text-neutral-600">—</span>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>

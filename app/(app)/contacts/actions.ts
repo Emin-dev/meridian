@@ -192,6 +192,103 @@ export async function summarizeContact(
   }
 }
 
+// ─── AI: Lead scoring ────────────────────────────────────────────────────────
+
+export type ScoreState = {
+  score?: number;
+  rationale?: string;
+  error?: string;
+  noDb?: boolean;
+  noKey?: boolean;
+};
+
+export async function scoreContact(contactId: number): Promise<ScoreState> {
+  const db = getDb();
+  if (!db) return { noDb: true };
+
+  const [contact] = await db
+    .select()
+    .from(schema.contacts)
+    .where(eq(schema.contacts.id, contactId))
+    .limit(1);
+
+  if (!contact) return { error: "Contact not found." };
+
+  if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
+
+  const recentActivities = await db
+    .select()
+    .from(schema.activities)
+    .where(eq(schema.activities.contactId, contactId))
+    .orderBy(desc(schema.activities.createdAt))
+    .limit(20);
+
+  const lines: string[] = [
+    `Name: ${contact.name}`,
+    contact.title ? `Title: ${contact.title}` : null,
+    contact.company ? `Company: ${contact.company}` : null,
+    contact.email ? `Email: ${contact.email}` : null,
+    contact.phone ? `Phone: ${contact.phone}` : null,
+    contact.notes ? `\nNotes:\n${contact.notes}` : null,
+  ].filter(Boolean) as string[];
+
+  if (recentActivities.length > 0) {
+    lines.push("\nRecent activities:");
+    for (const a of recentActivities) {
+      const date = a.createdAt.toISOString().slice(0, 10);
+      const entry = [`[${date}] ${a.type.toUpperCase()}: ${a.subject}`, a.body ?? null]
+        .filter(Boolean)
+        .join(" — ");
+      lines.push(`- ${entry}`);
+    }
+  } else {
+    lines.push("\nNo recorded activities.");
+  }
+
+  try {
+    const raw = await chat(
+      [
+        {
+          role: "system",
+          content:
+            'You are a lead scoring expert. Score a sales lead 0–100 based on profile completeness, engagement signals, and relationship quality. 0 = cold/unknown, 100 = highly engaged, ready to buy. Return JSON with exactly two keys: "score" (integer 0–100) and "rationale" (one paragraph, max 80 words, explaining the score). No other text.',
+        },
+        {
+          role: "user",
+          content: `Score this lead:\n\n${lines.join("\n")}`,
+        },
+      ],
+      { json: true }
+    );
+
+    const parsed = JSON.parse(raw) as { score: unknown; rationale: unknown };
+    const score = Math.round(Number(parsed.score));
+    const rationale = String(parsed.rationale ?? "");
+
+    if (!Number.isFinite(score) || score < 0 || score > 100) {
+      return { error: "AI returned an invalid score." };
+    }
+
+    // Cache result to the contact row (best-effort — columns may not exist yet)
+    try {
+      await db
+        .update(schema.contacts)
+        .set({ leadScore: score, leadScoreRationale: rationale, leadScoredAt: new Date(), updatedAt: new Date() })
+        .where(eq(schema.contacts.id, contactId));
+      revalidatePath(`/contacts/${contactId}`);
+      revalidatePath("/contacts");
+    } catch {
+      // Ignore — DB columns may not yet be migrated
+    }
+
+    return { score, rationale };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown AI error.";
+    if (message.includes("DEEPSEEK_API_KEY")) return { noKey: true };
+    return { error: message };
+  }
+}
+
 // ─── AI: Draft outreach email ─────────────────────────────────────────────────
 
 export type DraftEmailState = {
