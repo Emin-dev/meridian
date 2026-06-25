@@ -1,9 +1,32 @@
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, gte } from "drizzle-orm";
+import type { SQL } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import AddActivityForm from "./add-activity-form";
 import ActivityListFiltered from "./activity-list-filtered";
 
-export default async function ActivityPage() {
+const VALID_TYPES = ["call", "email", "meeting", "note", "task"] as const;
+type ActivityType = (typeof VALID_TYPES)[number];
+
+export default async function ActivityPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ type?: string; range?: string }>;
+}) {
+  const { type: typeParam, range: rangeParam } = await searchParams;
+
+  const typeFilter =
+    typeParam && (VALID_TYPES as readonly string[]).includes(typeParam)
+      ? (typeParam as ActivityType)
+      : undefined;
+
+  const rangeFilter =
+    rangeParam && ["7", "30", "90"].includes(rangeParam)
+      ? parseInt(rangeParam, 10)
+      : undefined;
+
+  const currentType = typeFilter ?? "";
+  const currentRange = rangeFilter !== undefined ? String(rangeFilter) : "";
+
   const db = getDb();
 
   const header = (
@@ -46,6 +69,17 @@ export default async function ActivityPage() {
     );
   }
 
+  const cutoff =
+    rangeFilter !== undefined
+      ? new Date(Date.now() - rangeFilter * 24 * 60 * 60 * 1000)
+      : undefined;
+
+  const conditions: (SQL | undefined)[] = [
+    typeFilter ? eq(schema.activities.type, typeFilter) : undefined,
+    cutoff ? gte(schema.activities.createdAt, cutoff) : undefined,
+  ];
+  const whereClause = and(...conditions);
+
   const rows = await db
     .select({
       activity: schema.activities,
@@ -57,14 +91,11 @@ export default async function ActivityPage() {
       schema.contacts,
       eq(schema.activities.contactId, schema.contacts.id)
     )
-    .leftJoin(
-      schema.deals,
-      eq(schema.activities.dealId, schema.deals.id)
-    )
+    .leftJoin(schema.deals, eq(schema.activities.dealId, schema.deals.id))
+    .where(whereClause)
     .orderBy(desc(schema.activities.createdAt))
-    .limit(100);
+    .limit(200);
 
-  // Serialize Date objects so they can be passed to a Client Component
   const serialized = rows.map(({ activity, contactName, dealTitle }) => ({
     activity: {
       id: activity.id,
@@ -85,7 +116,11 @@ export default async function ActivityPage() {
     <div className="space-y-6">
       {header}
       {logCard}
-      <ActivityListFiltered rows={serialized} />
+      <ActivityListFiltered
+        rows={serialized}
+        currentType={currentType}
+        currentRange={currentRange}
+      />
     </div>
   );
 }
