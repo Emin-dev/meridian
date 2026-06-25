@@ -317,7 +317,7 @@ export default async function DealsPage({
             />
           </div>
         ) : (
-          <DealsTable deals={visibleDeals} />
+          <DealsTable deals={visibleDeals} owners={uniqueOwners} />
         )
       )}
     </div>

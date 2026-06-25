@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { revalidatePath } from "next/cache";
 
@@ -134,6 +134,71 @@ export async function moveDealStage(
   revalidatePath("/deals");
   revalidatePath(`/deals/${id}`);
   return {};
+}
+
+type BulkActionResult = { error?: string; count?: number; noDb?: boolean };
+
+const BulkIdsSchema = z.array(z.number().int().positive()).min(1);
+
+export async function bulkMoveStage(
+  ids: number[],
+  stage: string
+): Promise<BulkActionResult> {
+  const parsedIds = BulkIdsSchema.safeParse(ids);
+  if (!parsedIds.success) return { error: "Invalid deal IDs." };
+  const parsedStage = z.enum(DEAL_STAGES).safeParse(stage);
+  if (!parsedStage.success) return { error: "Invalid stage." };
+
+  const db = getDb();
+  if (!db) return { noDb: true };
+
+  await db
+    .update(schema.deals)
+    .set({
+      stage: parsedStage.data,
+      probability: STAGE_PROBABILITY[parsedStage.data] ?? 10,
+      updatedAt: new Date(),
+    })
+    .where(inArray(schema.deals.id, parsedIds.data));
+
+  revalidatePath("/deals");
+  return { count: parsedIds.data.length };
+}
+
+export async function bulkChangeOwner(
+  ids: number[],
+  owner: string
+): Promise<BulkActionResult> {
+  const parsedIds = BulkIdsSchema.safeParse(ids);
+  if (!parsedIds.success) return { error: "Invalid deal IDs." };
+
+  const db = getDb();
+  if (!db) return { noDb: true };
+
+  await db
+    .update(schema.deals)
+    .set({ owner: owner.trim() || null, updatedAt: new Date() })
+    .where(inArray(schema.deals.id, parsedIds.data));
+
+  revalidatePath("/deals");
+  return { count: parsedIds.data.length };
+}
+
+export async function bulkDeleteDeals(
+  ids: number[]
+): Promise<BulkActionResult> {
+  const parsedIds = BulkIdsSchema.safeParse(ids);
+  if (!parsedIds.success) return { error: "Invalid deal IDs." };
+
+  const db = getDb();
+  if (!db) return { noDb: true };
+
+  await db
+    .delete(schema.deals)
+    .where(inArray(schema.deals.id, parsedIds.data));
+
+  revalidatePath("/deals");
+  return { count: parsedIds.data.length };
 }
 
 export async function updateDeal(
