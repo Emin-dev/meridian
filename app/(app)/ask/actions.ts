@@ -137,16 +137,16 @@ ${context}`;
   const contactMap = new Map(contacts.map((c) => [c.id, c.name]));
   const dealMap = new Map(deals.map((d) => [d.id, d.title]));
 
-  const matchedContacts = (aiResponse.contactIds ?? [])
-    .filter((id) => contactMap.has(id))
+  const matchedContacts = (Array.isArray(aiResponse.contactIds) ? aiResponse.contactIds : [])
+    .filter((id): id is number => Number.isInteger(id) && contactMap.has(id))
     .map((id) => ({ id, name: contactMap.get(id)! }));
 
-  const matchedDeals = (aiResponse.dealIds ?? [])
-    .filter((id) => dealMap.has(id))
+  const matchedDeals = (Array.isArray(aiResponse.dealIds) ? aiResponse.dealIds : [])
+    .filter((id): id is number => Number.isInteger(id) && dealMap.has(id))
     .map((id) => ({ id, title: dealMap.get(id)! }));
 
   return {
-    answer: aiResponse.answer ?? "",
+    answer: typeof aiResponse.answer === "string" ? aiResponse.answer : "",
     contacts: matchedContacts,
     deals: matchedDeals,
   };
