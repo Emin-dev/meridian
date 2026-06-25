@@ -226,3 +226,56 @@ The 13-column contacts table and analytics fixed-width rows must not widen the p
 - Tokenize incrementally. A screen ticket may keep `bg-neutral-*` utilities until that screen's ticket touches it, but new markup uses tokens.
 - Never regress a screen already migrated. If a foundation token changes, sweep dependent screens in the same or next ticket.
 - Keep diffs small and reversible. One screen or one concern per ticket.
+
+---
+
+## 🎨 PALETTE REFRESH — 2026 "calm + warm" + iOS-27 Liquid Glass (OVERRIDES the colors in §1)
+
+Research-backed (Pantone 2026 "Cloud Dancer" warm calm whites; 2026 "quiet UI" / anti-overstimulation; Apple iOS 26→27 Liquid Glass with **reduced** transparency; Claude's warm terracotta + cream brand). Cold clinical blues are out — go **warm, calm, relaxed**. **Performance beats decoration.** Replace the §1 color tokens in `app/globals.css` with these exact values (everything else — type scale, spacing, radii — stays):
+
+```css
+:root {
+  /* Warm calm dark (Claude-inspired) — warm charcoal, never pure black */
+  --bg:        #181511;
+  --surface-1: #211d18;
+  --surface-2: #2a251f;
+  --surface-3: #332e26;
+
+  --ink-1: #ece6db;   /* warm off-white */
+  --ink-2: #b4a996;
+  --ink-3: #7e7466;
+
+  --line-1: rgba(236,230,219,0.08);
+  --line-2: rgba(236,230,219,0.14);
+
+  /* Accent: warm terracotta / clay (Claude) — calm, human */
+  --accent:       #c96442;
+  --accent-hover: #d87a5b;
+  --accent-ink:   #ffffff;
+  --accent-tint:  rgba(201,100,66,0.16);
+
+  /* Status — muted/warm, used as tint/dot/text only */
+  --ok:   #4cc38a;  --ok-tint:   rgba(76,195,138,0.15);
+  --warn: #e0a64b;  --warn-tint: rgba(224,166,75,0.15);
+  --bad:  #e5675a;  --bad-tint:  rgba(229,103,90,0.15);
+  --info: #6bb6c9;  --info-tint: rgba(107,182,201,0.15);
+}
+```
+
+### iOS-27 Liquid Glass — subtle + fast (chrome only)
+- Apply translucent "glass" ONLY to fixed chrome: top bar, mobile bottom tab bar, sheets / action sheets, dropdown & menu surfaces. **Never** on content cards or lists (keeps it calm AND fast).
+- iOS 27 dialed transparency *down* — keep it subtle: ~82% opaque + moderate warm blur.
+
+```css
+.glass {
+  background: color-mix(in srgb, var(--surface-1) 82%, transparent);
+  backdrop-filter: saturate(150%) blur(16px);
+  -webkit-backdrop-filter: saturate(150%) blur(16px);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass { background: var(--surface-1); }
+}
+@media (prefers-reduced-transparency: reduce) { .glass { background: var(--surface-1); } }
+```
+
+- **PERFORMANCE IS THE PRIORITY:** glass on a handful of chrome elements only; never animate `blur`; never stack many blurred layers; honor `prefers-reduced-transparency`. If glass costs FPS on mobile, drop the blur but KEEP the warm calm palette. Calm + instant beats flashy.
