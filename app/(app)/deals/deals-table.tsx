@@ -27,9 +27,15 @@ const STAGE_COLORS: Record<string, string> = {
 type SortKey = "title" | "contact" | "stage" | "value" | "closeDate" | "age";
 type SortDir = "asc" | "desc";
 
-function ageInDays(createdAt: Date): number {
-  const diffMs = Date.now() - new Date(createdAt).getTime();
+function stageAgeInDays(updatedAt: Date): number {
+  const diffMs = Date.now() - new Date(updatedAt).getTime();
   return Math.floor(diffMs / 86_400_000);
+}
+
+function ageBadgeClass(days: number): string {
+  if (days < 7) return "bg-green-500/15 text-green-400";
+  if (days <= 14) return "bg-amber-500/15 text-amber-400";
+  return "bg-red-500/15 text-red-400";
 }
 
 function SortIcon({ active, dir }: { active: boolean; dir: SortDir }) {
@@ -86,7 +92,7 @@ export default function DealsTable({ deals }: { deals: DealWithContact[] }) {
         break;
       }
       case "age":
-        cmp = ageInDays(a.createdAt) - ageInDays(b.createdAt);
+        cmp = stageAgeInDays(a.updatedAt) - stageAgeInDays(b.updatedAt);
         break;
     }
     return sortDir === "asc" ? cmp : -cmp;
@@ -122,13 +128,13 @@ export default function DealsTable({ deals }: { deals: DealWithContact[] }) {
               Close Date <SortIcon active={sortKey === "closeDate"} dir={sortDir} />
             </th>
             <th className={thClass} onClick={() => handleSort("age")}>
-              Age (days) <SortIcon active={sortKey === "age"} dir={sortDir} />
+              In Stage <SortIcon active={sortKey === "age"} dir={sortDir} />
             </th>
           </tr>
         </thead>
         <tbody>
           {sorted.map((deal, i) => {
-            const age = ageInDays(deal.createdAt);
+            const age = stageAgeInDays(deal.updatedAt);
             const value = deal.value
               ? new Intl.NumberFormat("en-US", {
                   style: "currency",
@@ -175,7 +181,11 @@ export default function DealsTable({ deals }: { deals: DealWithContact[] }) {
                 </td>
                 <td className="px-4 py-3 tabular-nums text-neutral-300">{value}</td>
                 <td className="px-4 py-3 tabular-nums text-neutral-300">{closeDate}</td>
-                <td className="px-4 py-3 tabular-nums text-neutral-400">{age}</td>
+                <td className="px-4 py-3 tabular-nums">
+                  <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${ageBadgeClass(age)}`}>
+                    {age}d
+                  </span>
+                </td>
               </tr>
             );
           })}

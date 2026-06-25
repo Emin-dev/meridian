@@ -26,6 +26,17 @@ interface DealModalProps {
   deal?: Deal & { contact: Contact | null };
 }
 
+function stageAgeInDays(updatedAt: Date): number {
+  const diffMs = Date.now() - new Date(updatedAt).getTime();
+  return Math.floor(diffMs / 86_400_000);
+}
+
+function ageBadgeClass(days: number): string {
+  if (days < 7) return "bg-green-500/15 text-green-400";
+  if (days <= 14) return "bg-amber-500/15 text-amber-400";
+  return "bg-red-500/15 text-red-400";
+}
+
 function formatValue(value: string | null, currency: string) {
   if (!value) return null;
   const num = parseFloat(value);
@@ -78,6 +89,15 @@ export default function DealModal({ hasDb, contacts, deal }: DealModalProps) {
             <p className="text-sm font-medium text-neutral-100 leading-snug">
               {deal.title}
             </p>
+            <div className="flex shrink-0 items-center gap-1.5">
+              {(() => {
+                const age = stageAgeInDays(deal.updatedAt);
+                return (
+                  <span className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium ${ageBadgeClass(age)}`}>
+                    {age}d
+                  </span>
+                );
+              })()}
             <button
               type="button"
               onClick={() => dialogRef.current?.showModal()}
@@ -98,6 +118,7 @@ export default function DealModal({ hasDb, contacts, deal }: DealModalProps) {
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
               </svg>
             </button>
+            </div>
           </div>
           {formatted && (
             <p className="mt-1 text-sm font-semibold text-indigo-400">
