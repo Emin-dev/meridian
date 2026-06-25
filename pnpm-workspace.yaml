@@ -1,0 +1,8 @@
+# Explicit build-script decisions.
+# esbuild: true  -> needed so drizzle-kit (migrations) can run locally.
+# sharp / unrs-resolver: false -> optional native addons; sharp's binary is
+# provided by Vercel's build image, so we skip building them.
+allowBuilds:
+  esbuild: true
+  sharp: false
+  unrs-resolver: false
