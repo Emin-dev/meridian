@@ -6,6 +6,7 @@ import EditNotesForm from "./edit-notes-form";
 import EditDealForm from "./edit-deal-form";
 import DeleteDealButton from "./delete-deal-button";
 import DealActivityTimeline from "./deal-activity-timeline";
+import DealChangeLog from "./deal-change-log";
 import DealSummarizePanel from "./deal-summarize-panel";
 import DealWinProbabilityPanel from "./deal-win-probability-panel";
 import DealNextActionPanel from "./deal-next-action-panel";
@@ -250,6 +251,11 @@ export default async function DealDetailPage({ params }: Props) {
       {/* Activity timeline */}
       <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-5">
         <DealActivityTimeline dealId={deal.id} />
+      </div>
+
+      {/* Change log */}
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-5">
+        <DealChangeLog dealId={deal.id} />
       </div>
     </div>
   );

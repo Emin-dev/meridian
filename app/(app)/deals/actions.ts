@@ -119,6 +119,12 @@ export async function moveDealStage(
   const db = getDb();
   if (!db) return { noDb: true };
 
+  const [current] = await db
+    .select({ stage: schema.deals.stage })
+    .from(schema.deals)
+    .where(eq(schema.deals.id, id))
+    .limit(1);
+
   const isTerminal = parsed.data === "won" || parsed.data === "lost";
 
   await db
@@ -130,6 +136,15 @@ export async function moveDealStage(
       updatedAt: new Date(),
     })
     .where(eq(schema.deals.id, id));
+
+  if (current && current.stage !== parsed.data) {
+    await db.insert(schema.dealEvents).values({
+      dealId: id,
+      field: "stage",
+      oldValue: current.stage,
+      newValue: parsed.data,
+    });
+  }
 
   revalidatePath("/deals");
   revalidatePath(`/deals/${id}`);
@@ -219,6 +234,12 @@ export async function updateDeal(
   const db = getDb();
   if (!db) return { noDb: true };
 
+  const [current] = await db
+    .select({ stage: schema.deals.stage, value: schema.deals.value })
+    .from(schema.deals)
+    .where(eq(schema.deals.id, id))
+    .limit(1);
+
   const { title, stage, value, currency, expectedCloseDate, contactId, notes, owner } =
     parsed.data;
 
@@ -237,6 +258,27 @@ export async function updateDeal(
     })
     .where(eq(schema.deals.id, id));
 
+  if (current) {
+    const events: Array<{ dealId: number; field: string; oldValue: string | null; newValue: string | null }> = [];
+    if (current.stage !== stage) {
+      events.push({ dealId: id, field: "stage", oldValue: current.stage, newValue: stage });
+    }
+    if (!_numericEqual(current.value, value)) {
+      events.push({ dealId: id, field: "value", oldValue: current.value ?? null, newValue: value ?? null });
+    }
+    if (events.length > 0) {
+      await db.insert(schema.dealEvents).values(events);
+    }
+  }
+
   revalidatePath("/deals");
   return { success: true };
+}
+
+function _numericEqual(a: string | null | undefined, b: string | null | undefined): boolean {
+  const an = a ?? null, bn = b ?? null;
+  if (an === null && bn === null) return true;
+  if (an === null || bn === null) return false;
+  const fa = parseFloat(an), fb = parseFloat(bn);
+  return (isNaN(fa) || isNaN(fb)) ? an === bn : fa === fb;
 }

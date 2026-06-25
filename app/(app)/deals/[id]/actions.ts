@@ -69,9 +69,9 @@ export async function updateDealDetails(
   const db = getDb();
   if (!db) return { noDb: true };
 
-  // Read current stage/notes before updating so we can detect close transitions.
+  // Read current state before updating so we can detect changes.
   const [current] = await db
-    .select({ stage: schema.deals.stage, notes: schema.deals.notes })
+    .select({ stage: schema.deals.stage, notes: schema.deals.notes, value: schema.deals.value })
     .from(schema.deals)
     .where(eq(schema.deals.id, id))
     .limit(1);
@@ -89,6 +89,20 @@ export async function updateDealDetails(
       updatedAt: new Date(),
     })
     .where(eq(schema.deals.id, id));
+
+  // Log stage and value changes.
+  if (current) {
+    const events: Array<{ dealId: number; field: string; oldValue: string | null; newValue: string | null }> = [];
+    if (current.stage !== parsed.data.stage) {
+      events.push({ dealId: id, field: "stage", oldValue: current.stage, newValue: parsed.data.stage });
+    }
+    if (!_numericEqual(current.value, parsed.data.value)) {
+      events.push({ dealId: id, field: "value", oldValue: current.value ?? null, newValue: parsed.data.value ?? null });
+    }
+    if (events.length > 0) {
+      await db.insert(schema.dealEvents).values(events);
+    }
+  }
 
   // Trigger AI win/loss analysis when the stage is newly changed to won or lost.
   const newStage = parsed.data.stage;
@@ -161,6 +175,14 @@ export async function updateDealNotes(
   revalidatePath(`/deals/${id}`);
   revalidatePath("/deals");
   return { success: true };
+}
+
+function _numericEqual(a: string | null | undefined, b: string | null | undefined): boolean {
+  const an = a ?? null, bn = b ?? null;
+  if (an === null && bn === null) return true;
+  if (an === null || bn === null) return false;
+  const fa = parseFloat(an), fb = parseFloat(bn);
+  return (isNaN(fa) || isNaN(fb)) ? an === bn : fa === fb;
 }
 
 // ─── AI: Win/Loss analysis ────────────────────────────────────────────────────

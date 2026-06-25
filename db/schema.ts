@@ -107,10 +107,29 @@ export const deals = pgTable("deals", {
 export const dealsRelations = relations(deals, ({ one, many }) => ({
   contact: one(contacts, { fields: [deals.contactId], references: [contacts.id] }),
   activities: many(activities),
+  events: many(dealEvents),
 }));
 
 export type Deal = InferSelectModel<typeof deals>;
 export type NewDeal = InferInsertModel<typeof deals>;
+
+// ─── Deal Events (change log) ─────────────────────────────────────────────────
+
+export const dealEvents = pgTable("deal_events", {
+  id: serial("id").primaryKey(),
+  dealId: integer("deal_id").notNull().references(() => deals.id, { onDelete: "cascade" }),
+  field: text("field").notNull(),
+  oldValue: text("old_value"),
+  newValue: text("new_value"),
+  changedAt: timestamp("changed_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const dealEventsRelations = relations(dealEvents, ({ one }) => ({
+  deal: one(deals, { fields: [dealEvents.dealId], references: [deals.id] }),
+}));
+
+export type DealEvent = InferSelectModel<typeof dealEvents>;
+export type NewDealEvent = InferInsertModel<typeof dealEvents>;
 
 // ─── Activities ───────────────────────────────────────────────────────────────
 
