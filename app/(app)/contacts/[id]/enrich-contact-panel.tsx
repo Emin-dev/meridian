@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   enrichContact,
   applyContactEnrichment,
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export default function EnrichContactPanel({ contactId }: Props) {
+  const router = useRouter();
   const [result, setResult] = useState<EnrichState>({});
   const [fields, setFields] = useState({ title: "", company: "", notes: "" });
   const [saveState, setSaveState] = useState<{
@@ -45,6 +47,9 @@ export default function EnrichContactPanel({ contactId }: Props) {
     startSaveTransition(async () => {
       const r = await applyContactEnrichment(contactId, fields);
       setSaveState(r);
+      if (r.success) {
+        router.refresh();
+      }
     });
   }
 
