@@ -231,7 +231,12 @@ export const contactSequenceEnrollments = pgTable(
       .notNull(),
     status: enrollmentStatusEnum("status").notNull().default("active"),
     currentStepPosition: integer("current_step_position").notNull().default(0),
-  }
+  },
+  (table) => [
+    index("cse_status_idx").on(table.status),
+    index("cse_contact_id_idx").on(table.contactId),
+    index("cse_sequence_id_idx").on(table.sequenceId),
+  ]
 );
 
 export const contactSequenceEnrollmentsRelations = relations(
