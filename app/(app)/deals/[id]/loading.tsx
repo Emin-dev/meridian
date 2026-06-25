@@ -6,7 +6,7 @@ function Bone({ className }: { className?: string }) {
 
 function SkeletonCard({ children }: { children: ReactNode }) {
   return (
-    <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-4 sm:p-5">
+    <div className="card p-4 sm:p-5">
       {children}
     </div>
   );
