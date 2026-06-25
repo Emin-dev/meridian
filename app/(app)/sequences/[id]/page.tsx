@@ -5,6 +5,7 @@ import { getDb, schema } from "@/db";
 import { StepCard, AddStepForm } from "./step-card";
 import { CancelEnrollmentButton } from "./cancel-enrollment-button";
 import { PreviewTab, type PreviewContact } from "./preview-tab";
+import { SendStepButton } from "./send-step-button";
 import { getCrmSettings } from "@/lib/settings";
 import { SequenceStatusToggle } from "../sequence-status-toggle";
 
@@ -24,42 +25,39 @@ const ENROLLMENT_STATUS_LABELS = {
     label: "Cancelled",
     className: "bg-neutral-700 text-neutral-400",
   },
+  completed: {
+    label: "Completed",
+    className: "bg-blue-500/10 text-blue-400",
+  },
 } as const;
 
 function computeProgress(
   enrolledAt: Date,
-  steps: { position: number; delayDays: number }[]
+  steps: { position: number; delayDays: number }[],
+  currentStepPosition: number,
 ) {
-  const now = new Date();
   const sorted = [...steps].sort((a, b) => a.position - b.position);
-  // cumulative delay in days for each step
+  const totalSteps = sorted.length;
+
   const cumulativeDelays = sorted.reduce<number[]>((acc, step) => {
     acc.push((acc.at(-1) ?? 0) + step.delayDays);
     return acc;
   }, []);
 
-  let completedSteps = 0;
-  for (const totalDelay of cumulativeDelays) {
-    const dueDate = new Date(
-      enrolledAt.getTime() + totalDelay * 86_400_000
-    );
-    if (dueDate <= now) completedSteps++;
-    else break;
-  }
+  const isComplete = currentStepPosition >= totalSteps;
 
-  const totalSteps = sorted.length;
-  const isComplete = completedSteps >= totalSteps;
-  const nextDueDate =
-    isComplete || totalSteps === 0
+  const currentStepDueDate =
+    isComplete || totalSteps === 0 || currentStepPosition >= cumulativeDelays.length
       ? null
-      : new Date(
-          enrolledAt.getTime() + cumulativeDelays[completedSteps] * 86_400_000
-        );
+      : new Date(enrolledAt.getTime() + cumulativeDelays[currentStepPosition] * 86_400_000);
+
+  const isDue = currentStepDueDate !== null && currentStepDueDate <= new Date();
 
   return {
-    completedSteps,
-    currentStep: isComplete ? totalSteps : completedSteps + 1, // 1-based
-    nextDueDate,
+    sentSteps: currentStepPosition,
+    currentStep: isComplete ? totalSteps : currentStepPosition + 1, // 1-based
+    currentStepDueDate,
+    isDue,
     isComplete,
     totalSteps,
   };
@@ -125,6 +123,7 @@ export default async function SequenceDetailPage({
         contactOwner: schema.contacts.owner,
         enrolledAt: schema.contactSequenceEnrollments.enrolledAt,
         status: schema.contactSequenceEnrollments.status,
+        currentStepPosition: schema.contactSequenceEnrollments.currentStepPosition,
       })
       .from(schema.contactSequenceEnrollments)
       .innerJoin(
@@ -283,15 +282,23 @@ export default async function SequenceDetailPage({
                     ENROLLMENT_STATUS_LABELS[enrollment.status];
                   const progress = computeProgress(
                     enrollment.enrolledAt,
-                    steps
+                    steps,
+                    enrollment.currentStepPosition,
                   );
                   const pct =
                     progress.totalSteps > 0
                       ? Math.round(
-                          (progress.completedSteps / progress.totalSteps) * 100
+                          (progress.sentSteps / progress.totalSteps) * 100
                         )
                       : 0;
                   const isCancelled = enrollment.status === "cancelled";
+                  const isCompleted = enrollment.status === "completed";
+                  const currentStep = steps[enrollment.currentStepPosition];
+                  const showSendButton =
+                    enrollment.status === "active" &&
+                    !progress.isComplete &&
+                    progress.isDue &&
+                    currentStep !== undefined;
                   return (
                     <li key={enrollment.id} className="px-4 py-4">
                       <div className="flex items-start justify-between gap-4">
@@ -309,7 +316,7 @@ export default async function SequenceDetailPage({
                             </p>
                           )}
                         </div>
-                        {/* Right: step position + status + cancel */}
+                        {/* Right: step position + status + actions */}
                         <div className="flex shrink-0 items-center gap-3">
                           {progress.totalSteps > 0 && (
                             <div className="text-right">
@@ -318,17 +325,18 @@ export default async function SequenceDetailPage({
                                   ? "Complete"
                                   : `Step ${progress.currentStep} of ${progress.totalSteps}`}
                               </p>
-                              {progress.nextDueDate && !isCancelled && (
+                              {progress.currentStepDueDate && !isCancelled && !isCompleted && (
                                 <p className="text-xs text-neutral-500">
-                                  Due{" "}
-                                  {progress.nextDueDate.toLocaleDateString(
-                                    "en-US",
-                                    {
-                                      month: "short",
-                                      day: "numeric",
-                                      year: "numeric",
-                                    }
-                                  )}
+                                  {progress.isDue
+                                    ? "Due now"
+                                    : `Due ${progress.currentStepDueDate.toLocaleDateString(
+                                        "en-US",
+                                        {
+                                          month: "short",
+                                          day: "numeric",
+                                          year: "numeric",
+                                        }
+                                      )}`}
                                 </p>
                               )}
                             </div>
@@ -338,6 +346,23 @@ export default async function SequenceDetailPage({
                           >
                             {enrStatus.label}
                           </span>
+                          {showSendButton && currentStep && (
+                            <SendStepButton
+                              enrollmentId={enrollment.id}
+                              sequenceId={numId}
+                              contactId={enrollment.contactId}
+                              contactName={enrollment.contactName}
+                              contactEmail={enrollment.contactEmail ?? null}
+                              contactCompany={enrollment.contactCompany ?? null}
+                              contactOwner={enrollment.contactOwner ?? null}
+                              stepSubjectTemplate={currentStep.subjectTemplate}
+                              stepBodyTemplate={currentStep.bodyTemplate}
+                              stepPosition={enrollment.currentStepPosition + 1}
+                              newStepPosition={enrollment.currentStepPosition + 1}
+                              totalSteps={progress.totalSteps}
+                              defaultOwnerName={crmSettings.displayName}
+                            />
+                          )}
                           {enrollment.status === "active" && (
                             <CancelEnrollmentButton
                               enrollmentId={enrollment.id}
@@ -353,7 +378,7 @@ export default async function SequenceDetailPage({
                             className={`h-full rounded-full transition-all ${
                               isCancelled
                                 ? "bg-neutral-600"
-                                : progress.isComplete
+                                : isCompleted || progress.isComplete
                                   ? "bg-emerald-500"
                                   : "bg-emerald-500/70"
                             }`}

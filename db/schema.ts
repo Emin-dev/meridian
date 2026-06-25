@@ -180,6 +180,7 @@ export type NewSequenceStep = InferInsertModel<typeof sequenceSteps>;
 export const enrollmentStatusEnum = pgEnum("enrollment_status", [
   "active",
   "cancelled",
+  "completed",
 ]);
 
 export const contactSequenceEnrollments = pgTable(
@@ -196,6 +197,7 @@ export const contactSequenceEnrollments = pgTable(
       .defaultNow()
       .notNull(),
     status: enrollmentStatusEnum("status").notNull().default("active"),
+    currentStepPosition: integer("current_step_position").notNull().default(0),
   }
 );
 
