@@ -93,6 +93,17 @@ const NAV = [
   },
 ];
 
+// Bottom tab bar shows the 4 primary destinations + More
+const BOTTOM_TABS = NAV.slice(0, 4);
+
+const MoreIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true">
+    <circle cx="5" cy="12" r="1.5" />
+    <circle cx="12" cy="12" r="1.5" />
+    <circle cx="19" cy="12" r="1.5" />
+  </svg>
+);
+
 export default function AppShell({ children, overdueCount = 0, overdueTaskCount = 0 }: { children: React.ReactNode; overdueCount?: number; overdueTaskCount?: number }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -125,9 +136,75 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
 
   const pageLabel = NAV.find((n) => pathname === n.href || pathname.startsWith(n.href + "/"))?.label ?? "Meridian";
 
+  // "More" is active when the current route isn't one of the 4 primary tabs
+  const isMoreActive = !BOTTOM_TABS.some(
+    (tab) => pathname === tab.href || pathname.startsWith(tab.href + "/")
+  );
+
   return (
     <div className="flex h-dvh bg-neutral-950 text-neutral-100 overflow-hidden">
-      {/* Mobile overlay */}
+      {/* Bottom tab bar — rendered before overlay so overlay stacks above it (same z-40, DOM order wins) */}
+      <nav
+        aria-label="Mobile navigation"
+        className="fixed bottom-0 inset-x-0 z-40 lg:hidden glass border-t border-[--line-1] pb-[env(safe-area-inset-bottom)]"
+      >
+        <div className="flex items-stretch">
+          {BOTTOM_TABS.map((item) => {
+            const active = pathname === item.href || pathname.startsWith(item.href + "/");
+            const badge =
+              item.href === "/activity" && overdueCount > 0
+                ? overdueCount
+                : 0;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setMobileOpen(false)}
+                aria-current={active ? "page" : undefined}
+                className="tap flex flex-1 flex-col items-center justify-center gap-0.5 py-2 relative"
+                style={{ color: active ? "var(--accent)" : "var(--ink-2)" }}
+              >
+                <span
+                  className={[
+                    "flex items-center justify-center rounded-full px-3 py-1 relative",
+                    active ? "bg-[--accent-tint]" : "",
+                  ].join(" ")}
+                >
+                  {item.icon}
+                  {badge > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-red-600 px-0.5 text-[10px] font-semibold text-white leading-none">
+                      {badge > 99 ? "99+" : badge}
+                    </span>
+                  )}
+                </span>
+                <span className="text-caption leading-none">{item.label}</span>
+              </Link>
+            );
+          })}
+
+          {/* More — opens the full 8-item drawer */}
+          <button
+            type="button"
+            onClick={() => setMobileOpen(true)}
+            aria-label="More navigation options"
+            aria-expanded={mobileOpen}
+            className="tap flex flex-1 flex-col items-center justify-center gap-0.5 py-2"
+            style={{ color: isMoreActive ? "var(--accent)" : "var(--ink-2)" }}
+          >
+            <span
+              className={[
+                "flex items-center justify-center rounded-full px-3 py-1",
+                isMoreActive ? "bg-[--accent-tint]" : "",
+              ].join(" ")}
+            >
+              <MoreIcon />
+            </span>
+            <span className="text-caption leading-none">More</span>
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile overlay — same z-40 but later in DOM, so appears above bottom tab bar */}
       {mobileOpen && (
         <div
           className="fixed inset-0 bg-black/60 z-40 lg:hidden"
@@ -214,7 +291,7 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
               <line x1="4" x2="20" y1="18" y2="18" />
             </svg>
           </button>
-          <h1 className="flex-1 text-sm font-semibold text-neutral-100">{pageLabel}</h1>
+          <h1 className="flex-1 truncate min-w-0 text-sm font-semibold text-neutral-100">{pageLabel}</h1>
           <button
             onClick={() => setSearchOpen(true)}
             className="flex items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-800/60 px-3 py-1.5 text-xs text-neutral-400 transition-colors hover:border-neutral-600 hover:text-neutral-200"
@@ -231,8 +308,10 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
           </button>
         </header>
 
-        {/* Page content */}
-        <main className="flex-1 overflow-auto p-4 sm:p-6">{children}</main>
+        {/* Page content — bottom padding reserves space for the tab bar on mobile */}
+        <main className="flex-1 overflow-auto px-4 pt-4 sm:px-6 sm:pt-6 pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-6">
+          {children}
+        </main>
       </div>
 
       <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
