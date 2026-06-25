@@ -82,5 +82,6 @@ export async function updateSequenceStatus(
     .where(eq(schema.sequences.id, id));
 
   revalidatePath("/sequences");
+  revalidatePath(`/sequences/${id}`);
   return {};
 }

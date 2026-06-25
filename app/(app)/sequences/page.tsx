@@ -2,6 +2,7 @@ import Link from "next/link";
 import { desc, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import type { Sequence } from "@/db/schema";
+import { SequenceStatusToggle } from "./sequence-status-toggle";
 
 const STATUS_LABELS: Record<string, { label: string; className: string }> = {
   active: { label: "Active", className: "bg-emerald-500/10 text-emerald-400" },
@@ -113,11 +114,14 @@ export default async function SequencesPage() {
                         </Link>
                       </td>
                       <td className="px-5 py-3">
-                        <span
-                          className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${statusMeta.className}`}
-                        >
-                          {statusMeta.label}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${statusMeta.className}`}
+                          >
+                            {statusMeta.label}
+                          </span>
+                          <SequenceStatusToggle id={seq.id} status={seq.status} />
+                        </div>
                       </td>
                       <td className="px-5 py-3 text-neutral-400">
                         {count} {count === 1 ? "step" : "steps"}

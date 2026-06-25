@@ -6,6 +6,7 @@ import { StepCard, AddStepForm } from "./step-card";
 import { CancelEnrollmentButton } from "./cancel-enrollment-button";
 import { PreviewTab, type PreviewContact } from "./preview-tab";
 import { getCrmSettings } from "@/lib/settings";
+import { SequenceStatusToggle } from "../sequence-status-toggle";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -174,6 +175,7 @@ export default async function SequenceDetailPage({
             >
               {statusMeta.label}
             </span>
+            <SequenceStatusToggle id={numId} status={sequence.status} />
             <span className="text-xs text-neutral-500">
               {steps.length} {steps.length === 1 ? "step" : "steps"}
             </span>
