@@ -9,7 +9,8 @@
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "db:seed": "tsx db/seed.ts"
+    "db:seed": "tsx db/seed.ts",
+    "db:seed:demo": "tsx db/seed.ts --demo"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

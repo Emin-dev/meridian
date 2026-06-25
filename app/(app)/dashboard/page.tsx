@@ -2,6 +2,7 @@ import { desc, eq, gte, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import AiDigest from "@/components/ai-digest";
 import PipelineChart from "@/components/pipeline-chart-wrapper";
+import { OnboardingBanner } from "@/components/onboarding-banner";
 
 const STAGES = [
   "lead",
@@ -151,7 +152,9 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      {db && (
+      {db && totalContacts === 0 && <OnboardingBanner />}
+
+      {db && totalContacts > 0 && (
         <>
           {/* KPI cards */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

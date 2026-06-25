@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { getDb } from "./index";
 import { users } from "./schema";
 import { hashPassword } from "../lib/auth";
+import { insertDemoData } from "./demo-data";
 
 async function main() {
   const db = getDb();
@@ -24,14 +25,19 @@ async function main() {
 
   if (existing) {
     console.log("Seed user already exists:", email);
-    return;
+  } else {
+    const hash = await hashPassword(password);
+    await db.insert(users).values({ email, passwordHash: hash });
+    console.log("Created seed user:", email);
+    console.log("  Email:   ", email);
+    console.log("  Password:", password);
   }
 
-  const hash = await hashPassword(password);
-  await db.insert(users).values({ email, passwordHash: hash });
-  console.log("Created seed user:", email);
-  console.log("  Email:   ", email);
-  console.log("  Password:", password);
+  if (process.argv.includes("--demo")) {
+    console.log("Loading demo data…");
+    await insertDemoData(db);
+    console.log("Demo data loaded: 8 contacts, 8 deals, 16 activities.");
+  }
 }
 
 main().catch((e) => {
