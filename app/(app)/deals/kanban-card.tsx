@@ -108,7 +108,7 @@ export default function KanbanCard({
         {deal.contact && (
           <div className="mt-2 flex items-center gap-1.5 text-xs text-neutral-500">
             <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-neutral-700 text-[10px] font-medium text-neutral-300">
-              {deal.contact.name[0].toUpperCase()}
+              {(deal.contact.name[0] ?? "?").toUpperCase()}
             </span>
             <span className="truncate">{deal.contact.name}</span>
           </div>
