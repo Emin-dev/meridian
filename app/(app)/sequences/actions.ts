@@ -3,6 +3,7 @@
 import { getDb, schema } from "@/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { chat } from "@/lib/ai";
 
 export type SequenceFormState = {
   error?: string;
@@ -66,6 +67,73 @@ export async function createSequence(
 
   revalidatePath("/sequences");
   redirect("/sequences");
+}
+
+export type AIDraftResult = {
+  name?: string;
+  steps?: Array<{
+    delayDays: number;
+    subjectTemplate: string;
+    bodyTemplate: string;
+  }>;
+  error?: string;
+};
+
+export async function generateSequenceWithAI(goal: string): Promise<AIDraftResult> {
+  if (!goal.trim()) return { error: "Please enter a goal." };
+
+  try {
+    const raw = await chat(
+      [
+        {
+          role: "system",
+          content: `You are a sales sequence designer. Given a goal, output a complete email sequence as valid JSON with this exact structure:
+{
+  "name": "sequence name",
+  "steps": [
+    {
+      "delayDays": 0,
+      "subjectTemplate": "subject using {{first_name}} where natural",
+      "bodyTemplate": "email body using {{first_name}} and {{company}} as merge fields"
+    }
+  ]
+}
+Rules: max 5 steps, use {{first_name}} and {{company}} as merge fields, keep emails brief and conversational, first step has delayDays 0, subsequent steps spaced 3-7 days apart.`,
+        },
+        {
+          role: "user",
+          content: `Design an email sequence for this goal: ${goal}`,
+        },
+      ],
+      { json: true }
+    );
+
+    const parsed = JSON.parse(raw) as { name?: unknown; steps?: unknown };
+
+    if (
+      typeof parsed.name !== "string" ||
+      !Array.isArray(parsed.steps) ||
+      parsed.steps.length === 0
+    ) {
+      return { error: "AI returned an unexpected format. Please try again." };
+    }
+
+    const steps = (parsed.steps as unknown[]).slice(0, 5).map((s) => {
+      const step = s as Record<string, unknown>;
+      return {
+        delayDays:
+          typeof step.delayDays === "number" ? Math.max(0, step.delayDays) : 0,
+        subjectTemplate:
+          typeof step.subjectTemplate === "string" ? step.subjectTemplate : "",
+        bodyTemplate:
+          typeof step.bodyTemplate === "string" ? step.bodyTemplate : "",
+      };
+    });
+
+    return { name: parsed.name, steps };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "AI generation failed." };
+  }
 }
 
 export async function updateSequenceStatus(

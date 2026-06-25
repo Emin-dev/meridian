@@ -1,8 +1,12 @@
 "use client";
 
-import { useState, useActionState } from "react";
+import { useState, useActionState, useTransition } from "react";
 import Link from "next/link";
-import { createSequence, type SequenceFormState } from "./actions";
+import {
+  createSequence,
+  generateSequenceWithAI,
+  type SequenceFormState,
+} from "./actions";
 
 interface Step {
   delayDays: number;
@@ -16,6 +20,14 @@ const initialState: SequenceFormState = {};
 export default function NewSequenceForm() {
   const [state, formAction, pending] = useActionState(createSequence, initialState);
   const [steps, setSteps] = useState<Step[]>([defaultStep()]);
+  const [seqName, setSeqName] = useState("");
+
+  // AI generation state
+  const [goal, setGoal] = useState("");
+  const [showAI, setShowAI] = useState(true);
+  const [aiError, setAiError] = useState("");
+  const [aiFilled, setAiFilled] = useState(false);
+  const [aiPending, startAiTransition] = useTransition();
 
   function updateStep(index: number, field: keyof Step, value: string | number) {
     setSteps((prev) =>
@@ -31,6 +43,23 @@ export default function NewSequenceForm() {
     if (steps.length > 1) setSteps((prev) => prev.filter((_, i) => i !== index));
   }
 
+  function handleGenerate() {
+    if (!goal.trim()) return;
+    setAiError("");
+    setAiFilled(false);
+    startAiTransition(async () => {
+      const result = await generateSequenceWithAI(goal.trim());
+      if (result.error) {
+        setAiError(result.error);
+      } else if (result.name && result.steps) {
+        setSeqName(result.name);
+        setSteps(result.steps);
+        setAiFilled(true);
+        setShowAI(false);
+      }
+    });
+  }
+
   return (
     <div className="max-w-2xl space-y-6">
       <div className="flex items-center gap-3">
@@ -38,11 +67,57 @@ export default function NewSequenceForm() {
           href="/sequences"
           className="text-sm text-neutral-400 transition-colors hover:text-neutral-100"
         >
-          ← Sequences
+          &larr; Sequences
         </Link>
         <span className="text-neutral-700">/</span>
         <h2 className="text-sm font-semibold text-neutral-100">New Sequence</h2>
       </div>
+
+      {/* AI generation panel */}
+      <div className="rounded-xl border border-indigo-800/50 bg-indigo-950/20 p-5 space-y-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-semibold text-indigo-300">Generate with AI</h3>
+            <p className="text-xs text-indigo-400/70 mt-0.5">
+              Describe your goal and DeepSeek will draft the full sequence for you.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowAI((v) => !v)}
+            className="text-xs font-medium text-indigo-400 transition-colors hover:text-indigo-300"
+          >
+            {showAI ? "Hide" : "Show"}
+          </button>
+        </div>
+
+        {showAI && (
+          <div className="space-y-3 pt-1">
+            <textarea
+              value={goal}
+              onChange={(e) => setGoal(e.target.value)}
+              rows={3}
+              placeholder="e.g. cold outreach to SaaS founders, 3 steps"
+              className="w-full resize-y rounded-lg border border-indigo-700/50 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none"
+            />
+            {aiError && <p className="text-xs text-red-400">{aiError}</p>}
+            <button
+              type="button"
+              onClick={handleGenerate}
+              disabled={aiPending || !goal.trim()}
+              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {aiPending ? "Generating…" : "Generate sequence"}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {aiFilled && (
+        <div className="rounded-lg border border-green-700/50 bg-green-900/20 px-4 py-3 text-sm text-green-300">
+          Sequence drafted by AI &mdash; review and edit below, then save.
+        </div>
+      )}
 
       {state.noDb && (
         <div className="rounded-lg border border-amber-700/50 bg-amber-900/20 px-4 py-3 text-sm text-amber-300">
@@ -70,6 +145,8 @@ export default function NewSequenceForm() {
               type="text"
               required
               placeholder="Welcome sequence"
+              value={seqName}
+              onChange={(e) => setSeqName(e.target.value)}
               className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none"
             />
             {state.fieldErrors?.["name"] && (
