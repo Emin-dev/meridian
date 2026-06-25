@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { addActivity, type AddActivityState } from "./actions";
+import { useToast } from "@/components/toaster";
 
 const INIT: AddActivityState = {};
 const ACTIVITY_TYPES = ["call", "email", "meeting", "note", "task"] as const;
@@ -13,20 +14,18 @@ const labelCls = "mb-1 block text-xs font-medium text-neutral-400";
 export default function AddActivityForm({ contactId }: { contactId?: number }) {
   const [state, formAction, pending] = useActionState(addActivity, INIT);
   const [formKey, setFormKey] = useState(0);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (state.success) {
       setFormKey((k) => k + 1);
+      toast("Activity logged");
     }
-  }, [state]);
+    if (state.error) toast(state.error, "error");
+  }, [state.success, state.error, toast]);
 
   return (
     <div className="space-y-3">
-      {state.success && (
-        <div className="rounded-lg border border-emerald-800 bg-emerald-900/30 px-3 py-2">
-          <p className="text-xs text-emerald-400">Activity logged.</p>
-        </div>
-      )}
       {state.noDb && (
         <div className="rounded-lg border border-amber-800 bg-amber-900/20 px-3 py-2">
           <p className="text-xs text-amber-400">
@@ -36,16 +35,13 @@ export default function AddActivityForm({ contactId }: { contactId?: number }) {
           </p>
         </div>
       )}
-      {state.error && (
-        <p className="text-xs text-red-400">{state.error}</p>
-      )}
 
       <form key={formKey} action={formAction} className="space-y-3">
         {contactId != null && (
           <input type="hidden" name="contactId" value={String(contactId)} />
         )}
 
-        <div className="flex gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row">
           <div>
             <label htmlFor="af-type" className={labelCls}>
               Type

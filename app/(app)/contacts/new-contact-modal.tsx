@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef } from "react";
 import { createContact, type ContactFormState } from "./actions";
+import { useToast } from "@/components/toaster";
 
 const initialState: ContactFormState = {};
 
@@ -13,13 +14,15 @@ export default function NewContactModal({ hasDb }: Props) {
   const [state, formAction, pending] = useActionState(createContact, initialState);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (state.success) {
       dialogRef.current?.close();
       formRef.current?.reset();
+      toast("Contact created");
     }
-  }, [state.success]);
+  }, [state.success, toast]);
 
   const noDb = !hasDb || state.noDb;
 
@@ -139,7 +142,7 @@ export default function NewContactModal({ hasDb }: Props) {
             </div>
 
             {/* Company + Title */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <label
                   htmlFor="nc-company"

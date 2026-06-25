@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { updateContact, deleteContact, type ContactFormState } from "../actions";
 import type { Contact } from "@/db/schema";
+import { useToast } from "@/components/toaster";
 
 const initialState: ContactFormState = {};
 
@@ -13,6 +14,12 @@ interface Props {
 export default function EditContactForm({ contact }: Props) {
   const boundUpdate = updateContact.bind(null, contact.id);
   const [state, formAction, pending] = useActionState(boundUpdate, initialState);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (state.success) toast("Contact saved");
+    if (state.error) toast(state.error, "error");
+  }, [state.success, state.error, toast]);
 
   async function handleDelete() {
     if (!window.confirm(`Delete "${contact.name}"? This cannot be undone.`)) return;
@@ -75,7 +82,7 @@ export default function EditContactForm({ contact }: Props) {
       </div>
 
       {/* Company + Title */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
           <label htmlFor="ec-company" className={labelCls}>
             Company
@@ -116,12 +123,8 @@ export default function EditContactForm({ contact }: Props) {
         />
       </div>
 
-      {state.error && <p className="text-xs text-red-400">{state.error}</p>}
       {state.noDb && (
         <p className="text-xs text-red-400">Database not connected — changes cannot be saved.</p>
-      )}
-      {state.success && (
-        <p className="text-xs text-emerald-400">Contact saved.</p>
       )}
 
       {/* Actions */}
