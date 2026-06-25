@@ -1,8 +1,11 @@
 import { getDb, schema } from "@/db";
+import NewContactModal from "./new-contact-modal";
 
 export default async function ContactsPage() {
   const db = getDb();
-  const contacts = db ? await db.select().from(schema.contacts).orderBy(schema.contacts.createdAt) : [];
+  const contacts = db
+    ? await db.select().from(schema.contacts).orderBy(schema.contacts.createdAt)
+    : [];
 
   return (
     <div className="space-y-6">
@@ -11,14 +14,14 @@ export default async function ContactsPage() {
           <h2 className="text-xl font-semibold text-neutral-100">Contacts</h2>
           <p className="mt-1 text-sm text-neutral-400">Manage your leads and customers.</p>
         </div>
-        <button className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500">
-          New contact
-        </button>
+        <NewContactModal hasDb={!!db} />
       </div>
 
       <div className="rounded-xl border border-neutral-800 bg-neutral-900">
         <div className="border-b border-neutral-800 px-5 py-3">
-          <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">All Contacts</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">
+            All Contacts
+          </p>
         </div>
 
         {contacts.length === 0 ? (
@@ -31,20 +34,28 @@ export default async function ContactsPage() {
                 ? "Click “New contact” to add your first contact."
                 : "Set DATABASE_URL to connect your Neon database."}
             </p>
-            <button className="mt-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500">
-              New contact
-            </button>
+            {db && <NewContactModal hasDb={!!db} />}
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-neutral-800 text-left">
-                  <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">Name</th>
-                  <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">Email</th>
-                  <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">Phone</th>
-                  <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">Company</th>
-                  <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">Title</th>
+                  <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
+                    Name
+                  </th>
+                  <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
+                    Email
+                  </th>
+                  <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
+                    Phone
+                  </th>
+                  <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
+                    Company
+                  </th>
+                  <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
+                    Title
+                  </th>
                 </tr>
               </thead>
               <tbody>
