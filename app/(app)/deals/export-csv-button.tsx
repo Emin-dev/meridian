@@ -2,14 +2,26 @@
 
 import { useState } from "react";
 
-export default function DealsExportCsvButton({ hasDb }: { hasDb: boolean }) {
+export default function DealsExportCsvButton({
+  hasDb,
+  owner,
+  stage,
+}: {
+  hasDb: boolean;
+  owner?: string;
+  stage?: string;
+}) {
   const [loading, setLoading] = useState(false);
 
   async function handleExport() {
     if (loading) return;
     setLoading(true);
     try {
-      const res = await fetch("/api/deals/export");
+      const params = new URLSearchParams();
+      if (owner) params.set("owner", owner);
+      if (stage) params.set("stage", stage);
+      const qs = params.toString();
+      const res = await fetch(`/api/deals/export${qs ? `?${qs}` : ""}`);
       if (!res.ok) throw new Error("Export failed");
 
       const blob = await res.blob();

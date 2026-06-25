@@ -147,7 +147,13 @@ export default async function DealsPage({
               stageParam={stageMatch?.key || undefined}
             />
 
-            {isTable && <DealsExportCsvButton hasDb={!!db} />}
+            {isTable && (
+              <DealsExportCsvButton
+                hasDb={!!db}
+                owner={ownerFilter || undefined}
+                stage={stageMatch?.key || undefined}
+              />
+            )}
 
             <DealModal
               hasDb={!!db}

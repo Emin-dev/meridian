@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { and, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 
 function escapeCsv(value: string | null | undefined): string {
@@ -10,14 +11,24 @@ function escapeCsv(value: string | null | undefined): string {
   return str;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const db = getDb();
   if (!db) {
     return new NextResponse("Database not connected", { status: 503 });
   }
 
+  const { searchParams } = new URL(request.url);
+  const owner = searchParams.get("owner")?.trim() || "";
+  const stageParam = searchParams.get("stage")?.trim() || "";
+  const stage = schema.dealStageEnum.enumValues.find((s) => s === stageParam) ?? null;
+
+  const conditions = [];
+  if (owner) conditions.push(eq(schema.deals.owner, owner));
+  if (stage) conditions.push(eq(schema.deals.stage, stage));
+
   const deals = await db.query.deals.findMany({
     with: { contact: true },
+    where: conditions.length ? and(...conditions) : undefined,
     orderBy: (deals, { asc }) => [asc(deals.createdAt)],
   });
 
