@@ -94,6 +94,26 @@ export async function createDeal(
   return { success: true };
 }
 
+export async function moveDealStage(
+  id: number,
+  newStage: string
+): Promise<{ error?: string; noDb?: boolean }> {
+  const parsed = z.enum(DEAL_STAGES).safeParse(newStage);
+  if (!parsed.success) return { error: "Invalid stage" };
+
+  const db = getDb();
+  if (!db) return { noDb: true };
+
+  await db
+    .update(schema.deals)
+    .set({ stage: parsed.data, updatedAt: new Date() })
+    .where(eq(schema.deals.id, id));
+
+  revalidatePath("/deals");
+  revalidatePath(`/deals/${id}`);
+  return {};
+}
+
 export async function updateDeal(
   id: number,
   _prev: DealFormState,

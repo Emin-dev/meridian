@@ -5,6 +5,7 @@ import { useActionState, useEffect, useRef } from "react";
 import { createDeal, updateDeal, type DealFormState } from "./actions";
 import { useToast } from "@/components/toaster";
 import type { Deal, Contact } from "@/db/schema";
+import StageControl from "./stage-control";
 
 const STAGES = [
   { value: "lead", label: "Lead" },
@@ -130,6 +131,7 @@ export default function DealModal({ hasDb, contacts, deal }: DealModalProps) {
           >
             View details →
           </Link>
+          <StageControl dealId={deal.id} stage={deal.stage} />
         </div>
       ) : (
         <button
