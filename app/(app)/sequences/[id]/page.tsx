@@ -252,7 +252,12 @@ export default async function SequenceDetailPage({
             </div>
           )}
 
-          <AddStepForm sequenceId={numId} />
+          <AddStepForm
+            sequenceId={numId}
+            sequenceName={sequence.name}
+            nextPosition={steps.length + 1}
+            hasAiKey={!!process.env.DEEPSEEK_API_KEY}
+          />
         </div>
       ) : (
         /* Enrolled Contacts */

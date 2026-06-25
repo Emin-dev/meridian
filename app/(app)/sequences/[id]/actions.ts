@@ -3,6 +3,7 @@
 import { getDb, schema } from "@/db";
 import { revalidatePath } from "next/cache";
 import { eq, asc } from "drizzle-orm";
+import { chat } from "@/lib/ai";
 
 export type StepFormState = {
   error?: string;
@@ -110,4 +111,48 @@ export async function deleteStep(
 
   revalidatePath(`/sequences/${sequenceId}`);
   return {};
+}
+
+export type DraftStepResult = {
+  subjectTemplate?: string;
+  bodyTemplate?: string;
+  error?: string;
+};
+
+export async function draftStepContent(
+  sequenceName: string,
+  stepPosition: number
+): Promise<DraftStepResult> {
+  try {
+    const raw = await chat(
+      [
+        {
+          role: "system",
+          content:
+            "You are a sales email copywriter. Output valid JSON only with keys subjectTemplate and bodyTemplate. Use {{first_name}} and {{company}} as merge fields where natural. Keep emails brief and conversational.",
+        },
+        {
+          role: "user",
+          content: `Write step ${stepPosition} of a sales outreach email sequence called "${sequenceName}". Return JSON with subjectTemplate and bodyTemplate.`,
+        },
+      ],
+      { json: true }
+    );
+    const parsed = JSON.parse(raw) as {
+      subjectTemplate?: unknown;
+      bodyTemplate?: unknown;
+    };
+    if (
+      typeof parsed.subjectTemplate !== "string" ||
+      typeof parsed.bodyTemplate !== "string"
+    ) {
+      return { error: "AI returned incomplete content." };
+    }
+    return {
+      subjectTemplate: parsed.subjectTemplate,
+      bodyTemplate: parsed.bodyTemplate,
+    };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "AI draft failed." };
+  }
 }

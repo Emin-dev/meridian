@@ -2,7 +2,13 @@
 
 import { useState, useActionState, useEffect, startTransition } from "react";
 import type { SequenceStep } from "@/db/schema";
-import { addStep, updateStep, deleteStep, type StepFormState } from "./actions";
+import {
+  addStep,
+  updateStep,
+  deleteStep,
+  draftStepContent,
+  type StepFormState,
+} from "./actions";
 
 const INIT: StepFormState = {};
 
@@ -153,14 +159,46 @@ export function StepCard({
   );
 }
 
-export function AddStepForm({ sequenceId }: { sequenceId: number }) {
+export function AddStepForm({
+  sequenceId,
+  sequenceName,
+  nextPosition,
+  hasAiKey,
+}: {
+  sequenceId: number;
+  sequenceName: string;
+  nextPosition: number;
+  hasAiKey: boolean;
+}) {
   const [open, setOpen] = useState(false);
+  const [subject, setSubject] = useState("");
+  const [body, setBody] = useState("");
+  const [drafting, setDrafting] = useState(false);
+  const [draftError, setDraftError] = useState<string | null>(null);
+
   const boundAdd = addStep.bind(null, sequenceId);
   const [state, formAction, pending] = useActionState(boundAdd, INIT);
 
   useEffect(() => {
-    if (state.success) setOpen(false);
+    if (state.success) {
+      setOpen(false);
+      setSubject("");
+      setBody("");
+    }
   }, [state.success]);
+
+  async function handleAiDraft() {
+    setDrafting(true);
+    setDraftError(null);
+    const result = await draftStepContent(sequenceName, nextPosition);
+    setDrafting(false);
+    if (result.error) {
+      setDraftError(result.error);
+    } else {
+      if (result.subjectTemplate) setSubject(result.subjectTemplate);
+      if (result.bodyTemplate) setBody(result.bodyTemplate);
+    }
+  }
 
   if (!open) {
     return (
@@ -176,7 +214,29 @@ export function AddStepForm({ sequenceId }: { sequenceId: number }) {
 
   return (
     <div className="rounded-xl border border-neutral-700 bg-neutral-900 p-5">
-      <p className="mb-4 text-sm font-medium text-neutral-300">New step</p>
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <p className="text-sm font-medium text-neutral-300">New step</p>
+        {hasAiKey && (
+          <button
+            type="button"
+            onClick={handleAiDraft}
+            disabled={drafting}
+            className="flex items-center gap-1.5 rounded-lg border border-indigo-700/50 bg-indigo-600/10 px-3 py-1.5 text-xs font-medium text-indigo-400 transition-colors hover:bg-indigo-600/20 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {drafting ? (
+              <>
+                <span className="inline-block h-3 w-3 animate-spin rounded-full border border-indigo-400 border-t-transparent" />
+                Drafting…
+              </>
+            ) : (
+              <>✦ AI draft</>
+            )}
+          </button>
+        )}
+      </div>
+      {draftError && (
+        <p className="mb-3 text-xs text-red-400">{draftError}</p>
+      )}
       <form
         action={(fd) => startTransition(() => formAction(fd))}
         className="space-y-3"
@@ -208,6 +268,8 @@ export function AddStepForm({ sequenceId }: { sequenceId: number }) {
           <input
             type="text"
             name="subjectTemplate"
+            value={subject}
+            onChange={(e) => setSubject(e.target.value)}
             placeholder="e.g. Quick question, {{first_name}}"
             className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none"
           />
@@ -224,6 +286,8 @@ export function AddStepForm({ sequenceId }: { sequenceId: number }) {
           <textarea
             name="bodyTemplate"
             rows={4}
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
             placeholder={"Hi {{first_name}},\n\n…"}
             className="w-full resize-none rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none"
           />
@@ -243,7 +307,12 @@ export function AddStepForm({ sequenceId }: { sequenceId: number }) {
           </button>
           <button
             type="button"
-            onClick={() => setOpen(false)}
+            onClick={() => {
+              setOpen(false);
+              setSubject("");
+              setBody("");
+              setDraftError(null);
+            }}
             className="rounded-lg border border-neutral-700 px-4 py-2 text-sm font-medium text-neutral-300 transition-colors hover:bg-neutral-700"
           >
             Cancel
