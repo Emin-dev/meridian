@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { and, eq, ilike, gte, sql } from "drizzle-orm";
+import { and, eq, ilike, gte, isNull, sql } from "drizzle-orm";
 import type { SQL } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 
@@ -27,6 +27,8 @@ export async function GET(request: NextRequest) {
   const minScore = sp.get("minScore") ?? undefined;
   const source = sp.get("source") ?? undefined;
   const tag = sp.get("tag") ?? undefined;
+  const unscored = sp.get("unscored") ?? undefined;
+  const noActivity = sp.get("noActivity") ?? undefined;
 
   const statusFilter =
     status && (VALID_STATUSES as readonly string[]).includes(status)
@@ -40,6 +42,9 @@ export async function GET(request: NextRequest) {
   const minScoreFilter =
     minScore && !isNaN(parseInt(minScore)) ? parseInt(minScore) : undefined;
   const tagFilter = tag?.trim() || undefined;
+  const unscoredFilter = unscored === "1";
+  const noActivityDays =
+    noActivity && !isNaN(parseInt(noActivity)) ? parseInt(noActivity) : undefined;
 
   const conditions: (SQL | undefined)[] = [
     statusFilter !== undefined ? eq(schema.contacts.status, statusFilter) : undefined,
@@ -53,13 +58,37 @@ export async function GET(request: NextRequest) {
     tagFilter !== undefined
       ? sql`${schema.contacts.tags} @> ARRAY[${tagFilter}]::text[]`
       : undefined,
+    unscoredFilter ? isNull(schema.contacts.leadScore) : undefined,
   ];
 
-  const contacts = await db
+  let contacts = await db
     .select()
     .from(schema.contacts)
     .where(and(...conditions))
     .orderBy(schema.contacts.createdAt);
+
+  if (noActivityDays !== undefined) {
+    const activityRows = await db
+      .select({
+        contactId: schema.activities.contactId,
+        lastAt: sql<string | null>`max(${schema.activities.createdAt})`,
+      })
+      .from(schema.activities)
+      .groupBy(schema.activities.contactId);
+
+    const lastContactedMap: Record<number, string | null> = {};
+    for (const row of activityRows) {
+      if (row.contactId != null) {
+        lastContactedMap[row.contactId] = row.lastAt;
+      }
+    }
+
+    const cutoff = new Date(Date.now() - noActivityDays * 24 * 60 * 60 * 1000);
+    contacts = contacts.filter((c) => {
+      const lastAt = lastContactedMap[c.id];
+      return !lastAt || new Date(lastAt) < cutoff;
+    });
+  }
 
   const header = [
     "Name",

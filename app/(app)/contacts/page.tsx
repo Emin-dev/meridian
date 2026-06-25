@@ -173,6 +173,8 @@ export default async function ContactsPage({
               minScore={minScore}
               source={source}
               tag={tag}
+              unscored={unscored}
+              noActivity={noActivity}
             />
           </div>
           {/* Overflow menu — mobile only */}
@@ -184,6 +186,8 @@ export default async function ContactsPage({
             minScore={minScore}
             source={source}
             tag={tag}
+            unscored={unscored}
+            noActivity={noActivity}
           />
           {/* Primary actions — always visible */}
           <CsvImportModal hasDb={!!db} />

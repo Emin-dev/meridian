@@ -9,6 +9,8 @@ interface ExportCsvButtonProps {
   minScore?: string;
   source?: string;
   tag?: string;
+  unscored?: string;
+  noActivity?: string;
 }
 
 export default function ExportCsvButton({
@@ -18,6 +20,8 @@ export default function ExportCsvButton({
   minScore,
   source,
   tag,
+  unscored,
+  noActivity,
 }: ExportCsvButtonProps) {
   const [loading, setLoading] = useState(false);
 
@@ -31,6 +35,8 @@ export default function ExportCsvButton({
       if (minScore) params.set("minScore", minScore);
       if (source) params.set("source", source);
       if (tag) params.set("tag", tag);
+      if (unscored) params.set("unscored", unscored);
+      if (noActivity) params.set("noActivity", noActivity);
 
       const res = await fetch(`/api/contacts/export?${params.toString()}`);
       if (!res.ok) throw new Error("Export failed");

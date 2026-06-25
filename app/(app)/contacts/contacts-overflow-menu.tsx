@@ -13,6 +13,8 @@ interface Props {
   minScore?: string;
   source?: string;
   tag?: string;
+  unscored?: string;
+  noActivity?: string;
 }
 
 export default function ContactsOverflowMenu({
@@ -23,6 +25,8 @@ export default function ContactsOverflowMenu({
   minScore,
   source,
   tag,
+  unscored,
+  noActivity,
 }: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -66,6 +70,8 @@ export default function ContactsOverflowMenu({
             minScore={minScore}
             source={source}
             tag={tag}
+            unscored={unscored}
+            noActivity={noActivity}
           />
         </div>
       )}
