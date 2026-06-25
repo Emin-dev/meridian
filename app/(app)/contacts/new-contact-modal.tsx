@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef } from "react";
 import { createContact, type ContactFormState } from "./actions";
 import { useToast } from "@/components/toaster";
+import TagInput from "./tag-input";
 
 const initialState: ContactFormState = {};
 
@@ -229,6 +230,14 @@ export default function NewContactModal({ hasDb }: Props) {
                 placeholder="Any notes about this contact…"
                 className="w-full resize-none rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none"
               />
+            </div>
+
+            {/* Tags */}
+            <div>
+              <label className="mb-1 block text-xs font-medium text-neutral-400">
+                Tags
+              </label>
+              <TagInput name="tags" />
             </div>
 
             {state.error && (

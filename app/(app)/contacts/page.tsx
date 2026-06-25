@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { and, eq, ilike, gte } from "drizzle-orm";
+import { and, eq, ilike, gte, sql } from "drizzle-orm";
 import type { SQL } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import type { Contact } from "@/db/schema";
@@ -7,6 +7,7 @@ import NewContactModal from "./new-contact-modal";
 import CsvImportModal from "./csv-import-modal";
 import LeadScoreBadge from "./lead-score-badge";
 import ContactFilters from "./contact-filters";
+import { tagColor } from "./tag-color";
 
 const SOURCE_LABELS: Record<string, string> = {
   website: "Website",
@@ -32,9 +33,9 @@ type ContactStatus = (typeof VALID_STATUSES)[number];
 export default async function ContactsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; company?: string; minScore?: string; source?: string }>;
+  searchParams: Promise<{ status?: string; company?: string; minScore?: string; source?: string; tag?: string }>;
 }) {
-  const { status, company, minScore, source } = await searchParams;
+  const { status, company, minScore, source, tag } = await searchParams;
 
   const statusFilter =
     status && (VALID_STATUSES as readonly string[]).includes(status)
@@ -47,6 +48,7 @@ export default async function ContactsPage({
   const companyFilter = company?.trim() || undefined;
   const minScoreFilter =
     minScore && !isNaN(parseInt(minScore)) ? parseInt(minScore) : undefined;
+  const tagFilter = tag?.trim() || undefined;
 
   const db = getDb();
 
@@ -65,6 +67,9 @@ export default async function ContactsPage({
       minScoreFilter !== undefined
         ? gte(schema.contacts.leadScore, minScoreFilter)
         : undefined,
+      tagFilter !== undefined
+        ? sql`${schema.contacts.tags} @> ARRAY[${tagFilter}]::text[]`
+        : undefined,
     ];
     const whereClause = and(...conditions);
     contacts = await db
@@ -78,7 +83,8 @@ export default async function ContactsPage({
     statusFilter ||
     sourceFilter ||
     companyFilter ||
-    minScoreFilter !== undefined
+    minScoreFilter !== undefined ||
+    tagFilter
   );
 
   return (
@@ -100,6 +106,7 @@ export default async function ContactsPage({
         initialCompany={company ?? ""}
         initialMinScore={minScore ?? ""}
         initialSource={source ?? ""}
+        initialTag={tag ?? ""}
       />
 
       <div className="rounded-xl border border-neutral-800 bg-neutral-900">
@@ -164,6 +171,9 @@ export default async function ContactsPage({
                   <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
                     Score
                   </th>
+                  <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
+                    Tags
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -204,6 +214,22 @@ export default async function ContactsPage({
                       <td className="px-5 py-3">
                         {c.leadScore != null ? (
                           <LeadScoreBadge score={c.leadScore} />
+                        ) : (
+                          <span className="text-neutral-600">—</span>
+                        )}
+                      </td>
+                      <td className="px-5 py-3">
+                        {(c.tags ?? []).length > 0 ? (
+                          <div className="flex flex-wrap gap-1">
+                            {(c.tags ?? []).map((t) => (
+                              <span
+                                key={t}
+                                className={`rounded-full px-2 py-0.5 text-xs font-medium ${tagColor(t)}`}
+                              >
+                                {t}
+                              </span>
+                            ))}
+                          </div>
                         ) : (
                           <span className="text-neutral-600">—</span>
                         )}

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { asc, desc, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
+import { tagColor } from "../tag-color";
 import EditContactForm from "./edit-contact-form";
 import DraftEmailPanel from "./draft-email-panel";
 import SummarizePanel from "./summarize-panel";
@@ -99,6 +100,18 @@ export default async function ContactDetailPage({ params }: Props) {
           <p className="mt-1 text-sm text-neutral-400">
             {[contact.title, contact.company].filter(Boolean).join(" · ")}
           </p>
+        )}
+        {(contact.tags ?? []).length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {(contact.tags ?? []).map((t) => (
+              <span
+                key={t}
+                className={`rounded-full px-2 py-0.5 text-xs font-medium ${tagColor(t)}`}
+              >
+                {t}
+              </span>
+            ))}
+          </div>
         )}
       </div>
 

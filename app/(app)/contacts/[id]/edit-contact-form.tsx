@@ -4,6 +4,7 @@ import { useActionState, useEffect } from "react";
 import { updateContact, deleteContact, type ContactFormState } from "../actions";
 import type { Contact } from "@/db/schema";
 import { useToast } from "@/components/toaster";
+import TagInput from "../tag-input";
 
 const initialState: ContactFormState = {};
 
@@ -156,6 +157,12 @@ export default function EditContactForm({ contact }: Props) {
           defaultValue={contact.notes ?? ""}
           className={`${inputCls} resize-none`}
         />
+      </div>
+
+      {/* Tags */}
+      <div>
+        <label className={labelCls}>Tags</label>
+        <TagInput name="tags" defaultValue={contact.tags ?? []} />
       </div>
 
       {state.noDb && (

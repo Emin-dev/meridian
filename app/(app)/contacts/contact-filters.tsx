@@ -25,6 +25,7 @@ interface Props {
   initialCompany: string;
   initialMinScore: string;
   initialSource: string;
+  initialTag: string;
 }
 
 export default function ContactFilters({
@@ -32,6 +33,7 @@ export default function ContactFilters({
   initialCompany,
   initialMinScore,
   initialSource,
+  initialTag,
 }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -40,8 +42,9 @@ export default function ContactFilters({
   const [company, setCompany] = useState(initialCompany);
   const [minScore, setMinScore] = useState(initialMinScore);
   const [source, setSource] = useState(initialSource);
+  const [tag, setTag] = useState(initialTag);
 
-  const hasFilters = status !== "" || company !== "" || minScore !== "" || source !== "";
+  const hasFilters = status !== "" || company !== "" || minScore !== "" || source !== "" || tag !== "";
 
   function apply() {
     const params = new URLSearchParams();
@@ -49,6 +52,7 @@ export default function ContactFilters({
     if (company.trim()) params.set("company", company.trim());
     if (minScore) params.set("minScore", minScore);
     if (source) params.set("source", source);
+    if (tag.trim()) params.set("tag", tag.trim());
     const qs = params.toString();
     startTransition(() => {
       router.push(qs ? `/contacts?${qs}` : "/contacts");
@@ -60,6 +64,7 @@ export default function ContactFilters({
     setCompany("");
     setMinScore("");
     setSource("");
+    setTag("");
     startTransition(() => {
       router.push("/contacts");
     });
@@ -120,6 +125,16 @@ export default function ContactFilters({
         onKeyDown={handleKeyDown}
         className={`${inputClass} w-28`}
         aria-label="Minimum lead score"
+      />
+
+      <input
+        type="text"
+        placeholder="Tag…"
+        value={tag}
+        onChange={(e) => setTag(e.target.value)}
+        onKeyDown={handleKeyDown}
+        className={`${inputClass} w-28`}
+        aria-label="Filter by tag"
       />
 
       <button

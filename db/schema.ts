@@ -69,6 +69,7 @@ export const contacts = pgTable("contacts", {
   status: contactStatusEnum("status").default("lead"),
   source: contactSourceEnum("source"),
   owner: text("owner"),
+  tags: text("tags").array().notNull().default([]),
   leadScore: integer("lead_score"),
   leadScoreRationale: text("lead_score_rationale"),
   leadScoredAt: timestamp("lead_scored_at", { withTimezone: true }),

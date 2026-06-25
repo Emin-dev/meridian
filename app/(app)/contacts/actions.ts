@@ -36,6 +36,20 @@ export type ContactFormState = {
   noDb?: boolean;
 };
 
+function parseTags(formData: FormData): string[] {
+  try {
+    const raw = String(formData.get("tags") ?? "[]");
+    const arr = JSON.parse(raw);
+    if (!Array.isArray(arr)) return [];
+    return arr
+      .filter((t): t is string => typeof t === "string")
+      .map((t) => t.trim())
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
 export async function createContact(
   _prev: ContactFormState,
   formData: FormData
@@ -71,6 +85,7 @@ export async function createContact(
     notes: parsed.data.notes,
     source: parsed.data.source,
     owner: parsed.data.owner,
+    tags: parseTags(formData),
   });
 
   revalidatePath("/contacts");
@@ -140,6 +155,7 @@ export async function updateContact(
       notes: parsed.data.notes,
       source: parsed.data.source,
       owner: parsed.data.owner,
+      tags: parseTags(formData),
       updatedAt: new Date(),
     })
     .where(eq(schema.contacts.id, id));
