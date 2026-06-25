@@ -175,6 +175,45 @@ export default function NewContactModal({ hasDb }: Props) {
               </div>
             </div>
 
+            {/* Source + Owner */}
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div>
+                <label
+                  htmlFor="nc-source"
+                  className="mb-1 block text-xs font-medium text-neutral-400"
+                >
+                  Source
+                </label>
+                <select
+                  id="nc-source"
+                  name="source"
+                  className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 focus:border-indigo-500 focus:outline-none"
+                >
+                  <option value="">— Select —</option>
+                  <option value="website">Website</option>
+                  <option value="referral">Referral</option>
+                  <option value="linkedin">LinkedIn</option>
+                  <option value="cold-outreach">Cold Outreach</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label
+                  htmlFor="nc-owner"
+                  className="mb-1 block text-xs font-medium text-neutral-400"
+                >
+                  Owner
+                </label>
+                <input
+                  id="nc-owner"
+                  name="owner"
+                  type="text"
+                  placeholder="Assigned rep"
+                  className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none"
+                />
+              </div>
+            </div>
+
             {/* Notes */}
             <div>
               <label

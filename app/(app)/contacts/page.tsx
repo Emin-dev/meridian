@@ -8,6 +8,17 @@ import CsvImportModal from "./csv-import-modal";
 import LeadScoreBadge from "./lead-score-badge";
 import ContactFilters from "./contact-filters";
 
+const SOURCE_LABELS: Record<string, string> = {
+  website: "Website",
+  referral: "Referral",
+  linkedin: "LinkedIn",
+  "cold-outreach": "Cold Outreach",
+  other: "Other",
+};
+
+const VALID_SOURCES = ["website", "referral", "linkedin", "cold-outreach", "other"] as const;
+type ContactSource = (typeof VALID_SOURCES)[number];
+
 const STATUS_LABELS: Record<string, { label: string; className: string }> = {
   lead: { label: "Lead", className: "bg-blue-500/10 text-blue-400" },
   active: { label: "Active", className: "bg-emerald-500/10 text-emerald-400" },
@@ -21,13 +32,17 @@ type ContactStatus = (typeof VALID_STATUSES)[number];
 export default async function ContactsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; company?: string; minScore?: string }>;
+  searchParams: Promise<{ status?: string; company?: string; minScore?: string; source?: string }>;
 }) {
-  const { status, company, minScore } = await searchParams;
+  const { status, company, minScore, source } = await searchParams;
 
   const statusFilter =
     status && (VALID_STATUSES as readonly string[]).includes(status)
       ? (status as ContactStatus)
+      : undefined;
+  const sourceFilter =
+    source && (VALID_SOURCES as readonly string[]).includes(source)
+      ? (source as ContactSource)
       : undefined;
   const companyFilter = company?.trim() || undefined;
   const minScoreFilter =
@@ -40,6 +55,9 @@ export default async function ContactsPage({
     const conditions: (SQL | undefined)[] = [
       statusFilter !== undefined
         ? eq(schema.contacts.status, statusFilter)
+        : undefined,
+      sourceFilter !== undefined
+        ? eq(schema.contacts.source, sourceFilter)
         : undefined,
       companyFilter !== undefined
         ? ilike(schema.contacts.company, `%${companyFilter}%`)
@@ -58,6 +76,7 @@ export default async function ContactsPage({
 
   const hasActiveFilters = !!(
     statusFilter ||
+    sourceFilter ||
     companyFilter ||
     minScoreFilter !== undefined
   );
@@ -80,6 +99,7 @@ export default async function ContactsPage({
         initialStatus={status ?? ""}
         initialCompany={company ?? ""}
         initialMinScore={minScore ?? ""}
+        initialSource={source ?? ""}
       />
 
       <div className="rounded-xl border border-neutral-800 bg-neutral-900">
@@ -136,6 +156,12 @@ export default async function ContactsPage({
                     Title
                   </th>
                   <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
+                    Source
+                  </th>
+                  <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
+                    Owner
+                  </th>
+                  <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
                     Score
                   </th>
                 </tr>
@@ -171,6 +197,10 @@ export default async function ContactsPage({
                       <td className="px-5 py-3 text-neutral-400">{c.phone ?? "—"}</td>
                       <td className="px-5 py-3 text-neutral-400">{c.company ?? "—"}</td>
                       <td className="px-5 py-3 text-neutral-400">{c.title ?? "—"}</td>
+                      <td className="px-5 py-3 text-neutral-400">
+                        {c.source ? SOURCE_LABELS[c.source] ?? c.source : "—"}
+                      </td>
+                      <td className="px-5 py-3 text-neutral-400">{c.owner ?? "—"}</td>
                       <td className="px-5 py-3">
                         {c.leadScore != null ? (
                           <LeadScoreBadge score={c.leadScore} />

@@ -11,16 +11,27 @@ const STATUS_OPTIONS = [
   { value: "churned", label: "Churned" },
 ] as const;
 
+const SOURCE_OPTIONS = [
+  { value: "", label: "All sources" },
+  { value: "website", label: "Website" },
+  { value: "referral", label: "Referral" },
+  { value: "linkedin", label: "LinkedIn" },
+  { value: "cold-outreach", label: "Cold Outreach" },
+  { value: "other", label: "Other" },
+] as const;
+
 interface Props {
   initialStatus: string;
   initialCompany: string;
   initialMinScore: string;
+  initialSource: string;
 }
 
 export default function ContactFilters({
   initialStatus,
   initialCompany,
   initialMinScore,
+  initialSource,
 }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -28,14 +39,16 @@ export default function ContactFilters({
   const [status, setStatus] = useState(initialStatus);
   const [company, setCompany] = useState(initialCompany);
   const [minScore, setMinScore] = useState(initialMinScore);
+  const [source, setSource] = useState(initialSource);
 
-  const hasFilters = status !== "" || company !== "" || minScore !== "";
+  const hasFilters = status !== "" || company !== "" || minScore !== "" || source !== "";
 
   function apply() {
     const params = new URLSearchParams();
     if (status) params.set("status", status);
     if (company.trim()) params.set("company", company.trim());
     if (minScore) params.set("minScore", minScore);
+    if (source) params.set("source", source);
     const qs = params.toString();
     startTransition(() => {
       router.push(qs ? `/contacts?${qs}` : "/contacts");
@@ -46,6 +59,7 @@ export default function ContactFilters({
     setStatus("");
     setCompany("");
     setMinScore("");
+    setSource("");
     startTransition(() => {
       router.push("/contacts");
     });
@@ -67,6 +81,19 @@ export default function ContactFilters({
         aria-label="Filter by status"
       >
         {STATUS_OPTIONS.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+
+      <select
+        value={source}
+        onChange={(e) => setSource(e.target.value)}
+        className={inputClass}
+        aria-label="Filter by source"
+      >
+        {SOURCE_OPTIONS.map((o) => (
           <option key={o.value} value={o.value}>
             {o.label}
           </option>

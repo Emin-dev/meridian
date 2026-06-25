@@ -7,6 +7,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { chat } from "@/lib/ai";
 
+const SOURCE_VALUES = ["website", "referral", "linkedin", "cold-outreach", "other"] as const;
+
 const ContactSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z
@@ -18,12 +20,17 @@ const ContactSchema = z.object({
   company: z.string().transform((v) => (v === "" ? null : v)),
   title: z.string().transform((v) => (v === "" ? null : v)),
   notes: z.string().transform((v) => (v === "" ? null : v)),
+  source: z
+    .enum(SOURCE_VALUES)
+    .or(z.literal(""))
+    .transform((v) => (v === "" ? null : v)),
+  owner: z.string().transform((v) => (v === "" ? null : v)),
 });
 
 export type ContactFormState = {
   error?: string;
   fieldErrors?: Partial<
-    Record<"name" | "email" | "phone" | "company" | "title" | "notes", string[]>
+    Record<"name" | "email" | "phone" | "company" | "title" | "notes" | "source" | "owner", string[]>
   >;
   success?: boolean;
   noDb?: boolean;
@@ -40,6 +47,8 @@ export async function createContact(
     company: String(formData.get("company") ?? ""),
     title: String(formData.get("title") ?? ""),
     notes: String(formData.get("notes") ?? ""),
+    source: String(formData.get("source") ?? ""),
+    owner: String(formData.get("owner") ?? ""),
   };
 
   const parsed = ContactSchema.safeParse(raw);
@@ -60,6 +69,8 @@ export async function createContact(
     company: parsed.data.company,
     title: parsed.data.title,
     notes: parsed.data.notes,
+    source: parsed.data.source,
+    owner: parsed.data.owner,
   });
 
   revalidatePath("/contacts");
@@ -103,6 +114,8 @@ export async function updateContact(
     company: String(formData.get("company") ?? ""),
     title: String(formData.get("title") ?? ""),
     notes: String(formData.get("notes") ?? ""),
+    source: String(formData.get("source") ?? ""),
+    owner: String(formData.get("owner") ?? ""),
   };
 
   const parsed = ContactSchema.safeParse(raw);
@@ -125,6 +138,8 @@ export async function updateContact(
       company: parsed.data.company,
       title: parsed.data.title,
       notes: parsed.data.notes,
+      source: parsed.data.source,
+      owner: parsed.data.owner,
       updatedAt: new Date(),
     })
     .where(eq(schema.contacts.id, id));

@@ -109,6 +109,41 @@ export default function EditContactForm({ contact }: Props) {
         </div>
       </div>
 
+      {/* Source + Owner */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div>
+          <label htmlFor="ec-source" className={labelCls}>
+            Source
+          </label>
+          <select
+            id="ec-source"
+            name="source"
+            defaultValue={contact.source ?? ""}
+            className={inputCls}
+          >
+            <option value="">— Select —</option>
+            <option value="website">Website</option>
+            <option value="referral">Referral</option>
+            <option value="linkedin">LinkedIn</option>
+            <option value="cold-outreach">Cold Outreach</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="ec-owner" className={labelCls}>
+            Owner
+          </label>
+          <input
+            id="ec-owner"
+            name="owner"
+            type="text"
+            placeholder="Assigned rep"
+            defaultValue={contact.owner ?? ""}
+            className={inputCls}
+          />
+        </div>
+      </div>
+
       {/* Notes */}
       <div>
         <label htmlFor="ec-notes" className={labelCls}>

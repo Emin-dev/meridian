@@ -36,6 +36,14 @@ export const contactStatusEnum = pgEnum("contact_status", [
   "churned",
 ]);
 
+export const contactSourceEnum = pgEnum("contact_source", [
+  "website",
+  "referral",
+  "linkedin",
+  "cold-outreach",
+  "other",
+]);
+
 // ─── Users ────────────────────────────────────────────────────────────────────
 
 export const users = pgTable("users", {
@@ -59,6 +67,8 @@ export const contacts = pgTable("contacts", {
   title: text("title"),
   notes: text("notes"),
   status: contactStatusEnum("status").default("lead"),
+  source: contactSourceEnum("source"),
+  owner: text("owner"),
   leadScore: integer("lead_score"),
   leadScoreRationale: text("lead_score_rationale"),
   leadScoredAt: timestamp("lead_scored_at", { withTimezone: true }),
