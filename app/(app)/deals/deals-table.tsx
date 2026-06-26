@@ -155,6 +155,20 @@ export default function DealsTable({
     });
   }
 
+  // Mobile bulk sheet: tap a stage to move the selection straight away — the
+  // action-sheet picker pattern, replacing the nested native <select>. Desktop
+  // keeps its inline select + "Move to stage" button (handleMoveStage above).
+  function applyStage(stage: string) {
+    startTransition(async () => {
+      const result = await bulkMoveStage(Array.from(selectedIds), stage);
+      if (result.error) flash(result.error, false);
+      else flash(`Moved ${result.count} deal(s) to ${STAGE_LABELS[stage]}.`);
+      setSelectedIds(new Set());
+      setSheetOpen(false);
+      setSelectMode(false);
+    });
+  }
+
   function handleChangeOwner() {
     startTransition(async () => {
       const result = await bulkChangeOwner(Array.from(selectedIds), ownerInput);
@@ -516,27 +530,25 @@ export default function DealsTable({
         title={`${selectedIds.size} selected`}
       >
         <div className="flex flex-col gap-3">
-          {/* Move to stage */}
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <select
-              aria-label="Set stage for selected deals"
-              value={stageSelect}
-              onChange={(e) => setStageSelect(e.target.value)}
-              className="min-h-[44px] min-w-0 flex-1 rounded-lg border border-[var(--line-1)] bg-[var(--surface-1)] px-3 text-sm text-[var(--ink-1)]"
-            >
-              {STAGES.map((s) => (
-                <option key={s.key} value={s.key}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
-            <button
-              onClick={handleMoveStage}
-              disabled={isPending}
-              className="tap flex shrink-0 items-center justify-center rounded-lg bg-[var(--surface-2)] px-4 text-sm font-medium text-[var(--ink-1)] hover:bg-[var(--surface-3)] disabled:opacity-50"
-            >
+          {/* Move to stage — tap a stage to apply (action-sheet picker) */}
+          <div>
+            <p className="mb-1.5 text-caption uppercase tracking-wider text-[var(--ink-3)]">
               Move to stage
-            </button>
+            </p>
+            <div className="flex flex-col divide-y divide-[var(--line-1)]">
+              {STAGES.map((s) => (
+                <button
+                  key={s.key}
+                  type="button"
+                  onClick={() => applyStage(s.key)}
+                  disabled={isPending}
+                  className="tap press flex min-h-[44px] items-center gap-3 px-1 text-left text-sm text-[var(--ink-1)] transition-colors hover:text-[var(--accent)] disabled:opacity-40"
+                >
+                  <span className={`h-2 w-2 shrink-0 rounded-full ${s.dot}`} />
+                  <span className="flex-1">{s.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Set owner */}
