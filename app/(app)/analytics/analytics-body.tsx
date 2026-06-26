@@ -87,8 +87,10 @@ function MobileBarRow({
     <div className="py-2.5">
       <div className="flex items-center gap-2">
         <span className={`h-2 w-2 shrink-0 rounded-full ${dot}`} />
-        <span className="text-callout text-[var(--ink-2)]">{label}</span>
-        <span className="ml-auto text-callout font-semibold text-[var(--ink-1)]">
+        <span className="min-w-0 flex-1 truncate text-callout text-[var(--ink-2)]">
+          {label}
+        </span>
+        <span className="shrink-0 text-callout font-semibold text-[var(--ink-1)]">
           {count}
         </span>
       </div>
@@ -517,10 +519,10 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                     <span
                       className={`h-2 w-2 shrink-0 rounded-full ${stage.dot}`}
                     />
-                    <span className="text-callout text-[var(--ink-2)]">
+                    <span className="min-w-0 flex-1 truncate text-callout text-[var(--ink-2)]">
                       {stage.label}
                     </span>
-                    <span className="ml-auto text-callout font-semibold text-[var(--ink-1)]">
+                    <span className="shrink-0 text-callout font-semibold text-[var(--ink-1)]">
                       {stage.count}
                     </span>
                   </div>
@@ -535,12 +537,14 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                       }}
                     />
                   </div>
-                  <div className="mt-1 flex items-center justify-between text-footnote">
-                    <span className="text-[var(--ink-2)]">
+                  <div className="mt-1 flex items-center justify-between gap-2 text-footnote">
+                    <span className="min-w-0 flex-1 truncate text-[var(--ink-2)]">
                       {stage.value > 0 ? fmtMoney(stage.value) : "—"}
                     </span>
                     {conv != null && (
-                      <span className={convColor}>{conv.toFixed(0)}% conv.</span>
+                      <span className={`shrink-0 ${convColor}`}>
+                        {conv.toFixed(0)}% conv.
+                      </span>
                     )}
                   </div>
                 </div>
@@ -615,11 +619,11 @@ export default async function AnalyticsBody({ days }: { days: string }) {
               <div className="divide-y divide-[var(--line-1)]">
                 {forecastMonths.map((b) => (
                   <div key={`${b.year}-${b.month}`} className="py-2.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-callout text-[var(--ink-2)]">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="min-w-0 flex-1 truncate text-callout text-[var(--ink-2)]">
                         {b.label}
                       </span>
-                      <span className="text-callout font-semibold text-[var(--ink-1)]">
+                      <span className="shrink-0 text-callout font-semibold text-[var(--ink-1)]">
                         {b.raw > 0 ? fmtMoney(b.raw) : "—"}
                       </span>
                     </div>
@@ -662,11 +666,11 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                     key={`${bucket.year}-${bucket.month}`}
                     className="py-2.5"
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="text-callout text-[var(--ink-2)]">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="min-w-0 flex-1 truncate text-callout text-[var(--ink-2)]">
                         {bucket.label}
                       </span>
-                      <span className="text-callout font-semibold text-[var(--ink-1)]">
+                      <span className="shrink-0 text-callout font-semibold text-[var(--ink-1)]">
                         {bucket.count}
                       </span>
                     </div>

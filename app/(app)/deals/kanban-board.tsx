@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { moveDealStage } from "./actions";
 import { useToast } from "@/components/toaster";
 import MobileActionSheet from "@/components/mobile-action-sheet";
@@ -27,6 +27,43 @@ export default function KanbanBoard({
 
   // Phone view: which stage column is selected
   const [selectedStage, setSelectedStage] = useState<StageKey>("lead");
+
+  // Phone view: scroll affordance for the stage tablist. The tabs overflow on
+  // narrow screens, so we fade whichever edge still has stages off-screen to
+  // signal "scroll for more". Purely visual — never affects stage selection.
+  const tablistRef = useRef<HTMLDivElement>(null);
+  const [tabEdges, setTabEdges] = useState({ left: false, right: false });
+
+  const updateTabEdges = useCallback(() => {
+    const el = tablistRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    const left = scrollLeft > 1;
+    const right = scrollLeft < scrollWidth - clientWidth - 1;
+    setTabEdges((prev) =>
+      prev.left === left && prev.right === right ? prev : { left, right }
+    );
+  }, []);
+
+  useEffect(() => {
+    updateTabEdges();
+    const el = tablistRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(updateTabEdges);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [updateTabEdges]);
+
+  // Fade the leading/trailing edge only when stages are hidden there. With both
+  // edges solid (everything fits) the mask is omitted entirely.
+  const tabMask =
+    tabEdges.left || tabEdges.right
+      ? `linear-gradient(to right, ${
+          tabEdges.left ? "transparent" : "#000"
+        }, #000 1.25rem, #000 calc(100% - 1.25rem), ${
+          tabEdges.right ? "transparent" : "#000"
+        })`
+      : undefined;
 
   // Phone view: bottom sheet for moving a deal to a different stage
   const [sheetDealId, setSheetDealId] = useState<number | null>(null);
@@ -137,8 +174,15 @@ export default function KanbanBoard({
         {/* Sticky segmented stage control */}
         <div className="sticky top-0 z-10 min-w-0 glass border-b border-[var(--line-1)] py-2">
           <div
+            ref={tablistRef}
             role="tablist"
             aria-label="Pipeline stages"
+            onScroll={updateTabEdges}
+            style={
+              tabMask
+                ? { maskImage: tabMask, WebkitMaskImage: tabMask }
+                : undefined
+            }
             className="no-scrollbar flex gap-1.5 overflow-x-auto"
           >
             {STAGES.map((stage) => {
