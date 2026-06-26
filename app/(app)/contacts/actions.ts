@@ -425,22 +425,25 @@ export async function summarizeContact(
   const db = getDb();
   if (!db) return { noDb: true };
 
-  const [contact] = await db
-    .select()
-    .from(schema.contacts)
-    .where(eq(schema.contacts.id, contactId))
-    .limit(1);
+  // The contact row and its recent activities are both keyed on contactId and
+  // independent, so fetch them together to cut a round-trip of request latency.
+  const [[contact], recentActivities] = await Promise.all([
+    db
+      .select()
+      .from(schema.contacts)
+      .where(eq(schema.contacts.id, contactId))
+      .limit(1),
+    db
+      .select()
+      .from(schema.activities)
+      .where(eq(schema.activities.contactId, contactId))
+      .orderBy(desc(schema.activities.createdAt))
+      .limit(10),
+  ]);
 
   if (!contact) return { error: "Contact not found." };
 
   if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
-
-  const recentActivities = await db
-    .select()
-    .from(schema.activities)
-    .where(eq(schema.activities.contactId, contactId))
-    .orderBy(desc(schema.activities.createdAt))
-    .limit(10);
 
   const lines: string[] = [
     `Name: ${contact.name}`,
