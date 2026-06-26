@@ -13,12 +13,12 @@ import {
 type StageData = { stage: string; count: number; value: number };
 
 const STAGE_COLORS: Record<string, string> = {
-  lead: "#3b82f6",
-  qualified: "#8b5cf6",
-  proposal: "#eab308",
-  negotiation: "#f97316",
-  won: "#22c55e",
-  lost: "#ef4444",
+  lead: "#2b2a55",
+  qualified: "#4a3fb0",
+  proposal: "#6d5cf5",
+  negotiation: "#8273ff",
+  won: "#a99cff",
+  lost: "#4b4f5e",
 };
 
 const STAGE_LABELS: Record<string, string> = {
@@ -81,7 +81,7 @@ export default function PipelineChart({ data }: { data: StageData[] }) {
               {chartData.map((entry) => (
                 <Cell
                   key={entry.stage}
-                  fill={STAGE_COLORS[entry.stage] ?? "#6366f1"}
+                  fill={STAGE_COLORS[entry.stage] ?? "#6d5cf5"}
                 />
               ))}
             </Bar>
