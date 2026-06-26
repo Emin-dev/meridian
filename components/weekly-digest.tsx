@@ -130,7 +130,7 @@ export default function WeeklyDigest({
               type="button"
               onClick={() => generate(false)}
               disabled={isPending}
-              className="tap rounded-[var(--r-md)] bg-[var(--accent)] px-4 text-body font-medium text-[var(--accent-ink)] transition active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)] disabled:opacity-50"
+              className="tap press inline-flex items-center justify-center rounded-lg bg-[var(--accent)] px-4 text-sm font-medium text-[var(--accent-ink)] transition hover:bg-[var(--accent-hover)] disabled:opacity-50"
             >
               {isPending ? "Generating…" : "Generate"}
             </button>

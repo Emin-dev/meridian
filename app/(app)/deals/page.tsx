@@ -198,7 +198,7 @@ export default async function DealsPage({
 
             {/* Stage filter chip — shown when arriving from analytics funnel */}
             {stageMatch && (
-              <div className="flex items-center gap-1.5 rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-2.5 text-xs text-[var(--ink-2)]">
+              <div className="flex min-h-[44px] items-center gap-1.5 rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-2.5 py-1.5 text-xs text-[var(--ink-2)]">
                 <span className={`h-2 w-2 shrink-0 rounded-full ${stageMatch.dot}`} />
                 <span>{stageMatch.label}</span>
                 <Link

@@ -32,7 +32,7 @@ export function DemoDataButton({
         disabled={pending}
         className={
           className ??
-          "press inline-flex items-center gap-2 rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-ink)] hover:bg-[var(--accent-hover)] disabled:opacity-50"
+          "tap press inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--accent)] px-4 text-sm font-medium text-[var(--accent-ink)] hover:bg-[var(--accent-hover)] disabled:opacity-50"
         }
       >
         {pending ? (
