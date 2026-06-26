@@ -9,6 +9,7 @@ import { OnboardingBanner } from "@/components/onboarding-banner";
 import TodayAgenda from "./today-agenda";
 import StaleDeals from "./stale-deals";
 import MobileKpiTiles from "./mobile-kpi-tiles";
+import { formatCurrency } from "@/lib/format";
 
 const STAGES = [
   "lead",
@@ -37,15 +38,6 @@ const TYPE_META: Record<string, { label: string; color: string; bg: string }> =
     note: { label: "Note", color: "text-[--warn]", bg: "bg-[--warn-tint]" },
     task: { label: "Task", color: "text-[--info]", bg: "bg-[--info-tint]" },
   };
-
-function formatCurrency(value: number) {
-  const safe = Number.isFinite(value) ? value : 0;
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(safe);
-}
 
 function WidgetSkeleton({ title }: { title: string }) {
   return (

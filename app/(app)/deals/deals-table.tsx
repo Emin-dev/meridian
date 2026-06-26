@@ -6,6 +6,7 @@ import { bulkMoveStage, bulkChangeOwner, bulkDeleteDeals } from "./actions";
 import type { DealWithContact } from "./types";
 import MobileActionSheet from "@/components/mobile-action-sheet";
 import { STAGES, STAGE_LABELS, STAGE_COLORS } from "./stages";
+import { formatCurrency } from "@/lib/format";
 
 type SortKey = "title" | "contact" | "stage" | "value" | "closeDate" | "age" | "owner";
 type SortDir = "asc" | "desc";
@@ -17,11 +18,7 @@ function dealAgeInDays(createdAt: Date): number {
 
 function formatDealValue(deal: DealWithContact): string {
   return deal.value
-    ? new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: deal.currency,
-        maximumFractionDigits: 0,
-      }).format(parseFloat(deal.value))
+    ? formatCurrency(parseFloat(deal.value), deal.currency)
     : "—";
 }
 
@@ -477,11 +474,7 @@ export default function DealsTable({
               const age = dealAgeInDays(deal.createdAt);
               const isSelected = selectedIds.has(deal.id);
               const value = deal.value
-                ? new Intl.NumberFormat("en-US", {
-                    style: "currency",
-                    currency: deal.currency,
-                    maximumFractionDigits: 0,
-                  }).format(parseFloat(deal.value))
+                ? formatCurrency(parseFloat(deal.value), deal.currency)
                 : "—";
               const closeDate = deal.expectedCloseDate
                 ? new Date(deal.expectedCloseDate).toLocaleDateString("en-US", {

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 
 import MobileActionSheet from "@/components/mobile-action-sheet";
+import { formatCurrency } from "@/lib/format";
 
 type ContactItem = { name: string; company: string | null };
 type DealItem = { title: string; stage: string; value: number };
@@ -35,15 +36,6 @@ const STAGE_LABEL: Record<string, string> = {
   won: "Won",
   lost: "Lost",
 };
-
-function formatCurrency(value: number) {
-  const safe = Number.isFinite(value) ? value : 0;
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(safe);
-}
 
 function EmptyRow({ children }: { children: string }) {
   return (

@@ -13,6 +13,7 @@ import { STAGES } from "./stages";
 import { getCrmSettings } from "@/lib/settings";
 import { EmptyState } from "@/components/empty-state";
 import EmptyStateActions from "@/components/empty-state-actions";
+import { formatCurrency } from "@/lib/format";
 
 const PipelineIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -97,12 +98,6 @@ export default async function DealsPage({
   const totalValue = parseFloat(totalsRows[0]?.pipeline ?? "0");
   const weightedValue = parseFloat(totalsRows[0]?.weighted ?? "0");
 
-  const fmtCurrency = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  });
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -120,14 +115,14 @@ export default async function DealsPage({
               <span>
                 Pipeline:{" "}
                 <span className="font-semibold text-[--ink-1]">
-                  {fmtCurrency.format(totalValue)}
+                  {formatCurrency(totalValue)}
                 </span>
               </span>
               <span aria-hidden className="text-[--ink-3]">|</span>
               <span>
                 Weighted:{" "}
                 <span className="font-semibold text-[--accent]">
-                  {fmtCurrency.format(weightedValue)}
+                  {formatCurrency(weightedValue)}
                 </span>
               </span>
             </div>

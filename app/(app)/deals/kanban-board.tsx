@@ -8,12 +8,7 @@ import KanbanColumn from "./kanban-column";
 import KanbanCard from "./kanban-card";
 import type { DealWithContact } from "./types";
 import { STAGES, type StageKey } from "./stages";
-
-const fmtUSD = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 0,
-});
+import { formatCurrency } from "@/lib/format";
 
 export default function KanbanBoard({
   initialDeals,
@@ -187,7 +182,7 @@ export default function KanbanBoard({
                 {stageTotal > 0 && (
                   <div className="border-b border-[--line-1] px-4 py-2">
                     <p className="text-xs text-[--ink-3]">
-                      {fmtUSD.format(stageTotal)}
+                      {formatCurrency(stageTotal)}
                     </p>
                   </div>
                 )}

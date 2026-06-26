@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import type { DealWithContact } from "./types";
 import { STAGES, type StageKey } from "./stages";
+import { formatCurrency } from "@/lib/format";
 
 type StageValue = StageKey;
 
@@ -11,11 +12,7 @@ function formatValue(value: string | null, currency: string) {
   if (!value) return null;
   const num = parseFloat(value);
   if (isNaN(num)) return null;
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  }).format(num);
+  return formatCurrency(num, currency);
 }
 
 function ageBadgeClass(days: number): string {
