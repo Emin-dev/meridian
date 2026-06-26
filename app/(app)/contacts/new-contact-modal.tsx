@@ -1,11 +1,19 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { createContact, type ContactFormState } from "./actions";
 import { useToast } from "@/components/toaster";
 import TagInput from "./tag-input";
+import { SOURCE_LABELS } from "./constants";
+import MobileActionSheet from "@/components/mobile-action-sheet";
 
 const initialState: ContactFormState = {};
+
+/** Source picker options (empty = unset), shared by the desktop select and mobile sheet. */
+const SOURCE_OPTIONS: { value: string; label: string }[] = [
+  { value: "", label: "— Select —" },
+  ...Object.entries(SOURCE_LABELS).map(([value, label]) => ({ value, label })),
+];
 
 interface Props {
   hasDb: boolean;
@@ -16,11 +24,15 @@ export default function NewContactModal({ hasDb }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const { toast } = useToast();
+  const [source, setSource] = useState<string>("");
+  const [sourceSheetOpen, setSourceSheetOpen] = useState(false);
 
   useEffect(() => {
     if (state.success) {
       dialogRef.current?.close();
       formRef.current?.reset();
+      // Controlled select isn't cleared by native form.reset(); reset it here.
+      setSource("");
       toast("Contact created");
     }
     if (state.error) toast(state.error, "error");
@@ -221,18 +233,42 @@ export default function NewContactModal({ hasDb }: Props) {
                   >
                     Source
                   </label>
+                  {/* Desktop: native select. Hidden on mobile but still submits `source`. */}
                   <select
                     id="nc-source"
                     name="source"
-                    className="w-full rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--ink-1)] focus:border-[var(--accent)] focus:outline-none"
+                    value={source}
+                    onChange={(e) => setSource(e.target.value)}
+                    className="hidden w-full rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--ink-1)] focus:border-[var(--accent)] focus:outline-none sm:block"
                   >
-                    <option value="">— Select —</option>
-                    <option value="website">Website</option>
-                    <option value="referral">Referral</option>
-                    <option value="linkedin">LinkedIn</option>
-                    <option value="cold-outreach">Cold Outreach</option>
-                    <option value="other">Other</option>
+                    {SOURCE_OPTIONS.map(({ value, label }) => (
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
+                    ))}
                   </select>
+                  {/* Mobile: 44px button opening an action sheet instead of a native dropdown. */}
+                  <button
+                    type="button"
+                    onClick={() => setSourceSheetOpen(true)}
+                    className="tap flex w-full items-center justify-between gap-2 rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 text-left text-sm text-[var(--ink-1)] focus:border-[var(--accent)] focus:outline-none sm:hidden"
+                  >
+                    <span>{SOURCE_LABELS[source] ?? "— Select —"}</span>
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="shrink-0 text-[var(--ink-3)]"
+                      aria-hidden="true"
+                    >
+                      <path d="M6 9l6 6 6-6" />
+                    </svg>
+                  </button>
                 </div>
                 <div>
                   <label
@@ -301,6 +337,52 @@ export default function NewContactModal({ hasDb }: Props) {
           </form>
         )}
       </dialog>
+
+      {/* Mobile: source picker bottom sheet (desktop uses the native select). */}
+      <div className="sm:hidden">
+        <MobileActionSheet
+          open={sourceSheetOpen}
+          onClose={() => setSourceSheetOpen(false)}
+          title="Source"
+        >
+          <div className="flex flex-col gap-2">
+            {SOURCE_OPTIONS.map(({ value, label }) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => {
+                  setSource(value);
+                  setSourceSheetOpen(false);
+                }}
+                aria-pressed={source === value}
+                className={`tap flex items-center justify-between rounded-lg px-3 text-left text-body transition-colors ${
+                  source === value
+                    ? "bg-[var(--surface-3)] text-[var(--ink-1)]"
+                    : "text-[var(--ink-2)] hover:bg-[var(--surface-3)]"
+                }`}
+              >
+                <span>{label}</span>
+                {source === value && (
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="shrink-0 text-[var(--accent)]"
+                    aria-hidden="true"
+                  >
+                    <path d="M20 6L9 17l-5-5" />
+                  </svg>
+                )}
+              </button>
+            ))}
+          </div>
+        </MobileActionSheet>
+      </div>
     </>
   );
 }
