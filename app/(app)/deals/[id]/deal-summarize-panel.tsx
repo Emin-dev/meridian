@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { summarizeDeal, type DealSummarizeState } from "./actions";
+import AiPanelStatus from "@/components/ai-panel-status";
 
 interface Props {
   dealId: number;
@@ -18,8 +19,12 @@ export default function DealSummarizePanel({ dealId, initialSummary, initialSumm
 
   function handleSummarize() {
     startTransition(async () => {
-      const r = await summarizeDeal(dealId);
-      setResult(r);
+      try {
+        const r = await summarizeDeal(dealId);
+        setResult(r);
+      } catch {
+        setResult((prev) => ({ ...prev, error: "Something went wrong — please try again." }));
+      }
     });
   }
 
@@ -37,27 +42,25 @@ export default function DealSummarizePanel({ dealId, initialSummary, initialSumm
         </button>
       </div>
 
-      {result.noDb && (
-        <p className="text-xs text-[var(--ink-2)]">
-          Database not connected — cannot load deal data.
-        </p>
+      <AiPanelStatus
+        noDb={result.noDb}
+        noKey={result.noKey}
+        error={result.error}
+        keyHint="enable AI summaries."
+        hasResult={Boolean(result.summary)}
+        isPending={isPending}
+        emptyHint={
+          <p className="text-xs text-[var(--ink-3)]">
+            Click &ldquo;Summarise&rdquo; to generate an AI brief of this deal&apos;s status and recent activity.
+          </p>
+        }
+      />
+
+      {isPending && !result.summary && (
+        <p className="text-xs text-[var(--ink-3)]">Generating AI brief…</p>
       )}
 
-      {result.noKey && (
-        <p className="text-xs text-[var(--warn)]">
-          Set{" "}
-          <code className="rounded bg-[var(--surface-2)] px-1 py-0.5">
-            DEEPSEEK_API_KEY
-          </code>{" "}
-          in your environment to enable AI summaries.
-        </p>
-      )}
-
-      {result.error && (
-        <p className="text-xs text-[var(--bad)]">{result.error}</p>
-      )}
-
-      {result.summary ? (
+      {result.summary && (
         <div className="space-y-1.5">
           <p className="text-sm text-[var(--ink-1)] leading-relaxed whitespace-pre-wrap">
             {result.summary}
@@ -73,15 +76,6 @@ export default function DealSummarizePanel({ dealId, initialSummary, initialSumm
             </p>
           )}
         </div>
-      ) : (
-        !result.noDb &&
-        !result.noKey &&
-        !result.error &&
-        !isPending && (
-          <p className="text-xs text-[var(--ink-3)]">
-            Click &ldquo;Summarise&rdquo; to generate an AI brief of this deal&apos;s status and recent activity.
-          </p>
-        )
       )}
     </div>
   );

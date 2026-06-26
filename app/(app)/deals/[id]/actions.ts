@@ -9,6 +9,7 @@ import { chat } from "@/lib/ai";
 import { parseAiJson } from "@/lib/ai-json";
 import { numericEqual } from "@/lib/format";
 import { dealValueSchema } from "../value-schema";
+import { DEAL_STAGES } from "../stages";
 
 import {
   WIN_LOSS_MARKER,
@@ -20,15 +21,6 @@ import {
 const idSchema = z.coerce.number().int().positive();
 
 // ─── Update deal details (title, stage, value, close date) ───────────────────
-
-const DEAL_STAGES = [
-  "lead",
-  "qualified",
-  "proposal",
-  "negotiation",
-  "won",
-  "lost",
-] as const;
 
 const DealDetailsSchema = z.object({
   title: z.string().min(1, "Title is required"),
