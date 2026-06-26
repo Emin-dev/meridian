@@ -138,6 +138,10 @@ dialog { color-scheme: dark; }
   ::view-transition-new(root) { animation: _vt-in  var(--dur-2) var(--ease) both; }
   @keyframes _vt-out { to   { opacity: 0; transform: translateY(-4px); } }
   @keyframes _vt-in  { from { opacity: 0; transform: translateY(8px);  } }
+
+  /* Mobile nav drawer: slide in from the left edge. */
+  @keyframes _drawer-in { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+  .animate-drawer-in { animation: _drawer-in var(--dur-2) var(--ease) both; }
 }
 
 @media (prefers-reduced-motion: reduce){
