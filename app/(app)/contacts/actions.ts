@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { eq, desc, inArray, and, isNull, notInArray, sql } from "drizzle-orm";
+import { eq, desc, inArray, and, isNull, notInArray, sql, lte, getTableColumns } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -594,21 +594,35 @@ export async function bulkScoreContacts(): Promise<BulkScoreState> {
 
   if (contactsToScore.length === 0) return { count: 0 };
 
-  // Fetch the activities for all those contacts in one query, then group them
-  // per contact (newest-first, capped at 20 to match scoreContact's behaviour).
+  // Fetch only the recent activities the scoring prompt actually uses: rank each
+  // contact's activities newest-first and keep the top SCORING_WINDOW per contact
+  // (matching scoreContact's limit(20)) inside the query, so the DB returns at
+  // most 20 rows per contact instead of every activity row to filter in memory.
+  const SCORING_WINDOW = 20;
   const contactIds = contactsToScore.map((c) => c.id);
-  const activityRows = await db
-    .select()
+  const ranked = db
+    .select({
+      ...getTableColumns(schema.activities),
+      rn: sql<number>`row_number() over (partition by ${schema.activities.contactId} order by ${schema.activities.createdAt} desc)`.as(
+        "rn"
+      ),
+    })
     .from(schema.activities)
     .where(inArray(schema.activities.contactId, contactIds))
-    .orderBy(desc(schema.activities.createdAt));
+    .as("ranked");
+
+  const activityRows = await db
+    .select()
+    .from(ranked)
+    .where(lte(ranked.rn, SCORING_WINDOW))
+    .orderBy(desc(ranked.createdAt));
 
   const activitiesByContact = new Map<number, typeof activityRows>();
   for (const a of activityRows) {
     if (a.contactId == null) continue;
     const list = activitiesByContact.get(a.contactId);
     if (list) {
-      if (list.length < 20) list.push(a);
+      list.push(a);
     } else {
       activitiesByContact.set(a.contactId, [a]);
     }
