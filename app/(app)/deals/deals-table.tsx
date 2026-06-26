@@ -190,7 +190,7 @@ export default function DealsTable({
     <div className="space-y-3">
       {/* Bulk action bar */}
       {someSelected && (
-        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-4 py-2">
+        <div className="sticky top-0 z-30 flex flex-wrap items-center gap-2 rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 shadow-sm shadow-black/20 backdrop-blur">
           <span className="flex min-h-[44px] items-center text-sm font-medium text-indigo-300">
             {selectedIds.size} selected
           </span>
