@@ -62,7 +62,7 @@ export function DemoDataButton({
           label
         )}
       </button>
-      {error && <p className="text-xs text-red-400">{error}</p>}
+      {error && <p className="text-xs text-[--bad]">{error}</p>}
     </div>
   );
 }
