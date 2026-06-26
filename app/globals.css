@@ -10,7 +10,7 @@
   /* ---- Ink (text) ---- */
   --ink-1: #f2f4f8;  /* primary text (crisp near-white) */
   --ink-2: #9ba2b1;  /* secondary text, labels */
-  --ink-3: #646b7a;  /* tertiary, meta, disabled */
+  --ink-3: #7c8494;  /* tertiary, meta, disabled (AA: 4.81:1 on surface-1, 5.23:1 on bg) */
 
   /* ---- Hairlines ---- */
   --line-1: rgba(255,255,255,0.06);  /* default border */
