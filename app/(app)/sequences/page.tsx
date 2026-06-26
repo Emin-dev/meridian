@@ -8,6 +8,12 @@ import { DueStepsSection, type DueEnrollment } from "./due-steps-section";
 import { EmptyState } from "@/components/empty-state";
 import EmptyStateActions from "@/components/empty-state-actions";
 
+// Bound the active-enrollment read so the page never pulls every active
+// enrollment (with joined contact fields) into memory to compute due steps.
+// We surface the oldest-enrolled first — those are the most likely overdue —
+// which keeps the read cheap and well under the 10s limit at scale.
+const ACTIVE_ENROLLMENTS_LIMIT = 200;
+
 const STATUS_LABELS: Record<string, { label: string; className: string }> = {
   active: { label: "Active", className: "bg-[var(--ok-tint)] text-[var(--ok)]" },
   paused: { label: "Paused", className: "bg-[var(--surface-2)] text-[var(--ink-3)]" },
@@ -94,7 +100,9 @@ export default async function SequencesPage() {
             eq(schema.contactSequenceEnrollments.status, "active"),
             eq(schema.sequences.status, "active"),
           ),
-        ),
+        )
+        .orderBy(asc(schema.contactSequenceEnrollments.enrolledAt))
+        .limit(ACTIVE_ENROLLMENTS_LIMIT),
     ]);
 
     sequences = seqResults;

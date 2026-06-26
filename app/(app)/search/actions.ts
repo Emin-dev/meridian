@@ -1,10 +1,14 @@
 "use server";
 
-import { or, ilike } from "drizzle-orm";
+import { or, ilike, desc } from "drizzle-orm";
 import { z } from "zod";
 import { getDb, schema } from "@/db";
 import { requireSession } from "@/lib/require-session";
-import { SEARCH_PAGE_SIZE, SEARCH_MAX_PAGE } from "./constants";
+import {
+  SEARCH_PAGE_SIZE,
+  SEARCH_MAX_PAGE,
+  SEARCH_SCAN_ROW_CAP,
+} from "./constants";
 
 // Bound the query length so empty/oversized inputs can't trigger needless
 // ilike table scans (every char widens the LIKE pattern). Require at least
@@ -86,47 +90,87 @@ export async function searchGlobal(
   const dealsWindow = clampPage(pages.deals) * SEARCH_PAGE_SIZE;
   const activitiesWindow = clampPage(pages.activities) * SEARCH_PAGE_SIZE;
 
-  const contactsWhere = or(
-    ilike(schema.contacts.name, q),
-    ilike(schema.contacts.email, q),
-    ilike(schema.contacts.company, q),
-  );
-  const dealsWhere = ilike(schema.deals.title, q);
-  const activitiesWhere = or(
-    ilike(schema.activities.subject, q),
-    ilike(schema.activities.body, q),
-  );
+  // Bound each table's candidate set to its newest SEARCH_SCAN_ROW_CAP rows
+  // (cheap PK-index range on `id`) BEFORE applying the un-indexable leading-
+  // wildcard ilike, so a near-miss term can't force a full sequential scan.
+  // Selecting only the needed columns here keeps the materialized subquery small.
+  const contactCandidates = db
+    .select({
+      id: schema.contacts.id,
+      name: schema.contacts.name,
+      email: schema.contacts.email,
+      company: schema.contacts.company,
+    })
+    .from(schema.contacts)
+    .orderBy(desc(schema.contacts.id))
+    .limit(SEARCH_SCAN_ROW_CAP)
+    .as("contact_candidates");
+
+  const dealCandidates = db
+    .select({
+      id: schema.deals.id,
+      title: schema.deals.title,
+      stage: schema.deals.stage,
+      value: schema.deals.value,
+    })
+    .from(schema.deals)
+    .orderBy(desc(schema.deals.id))
+    .limit(SEARCH_SCAN_ROW_CAP)
+    .as("deal_candidates");
+
+  const activityCandidates = db
+    .select({
+      id: schema.activities.id,
+      type: schema.activities.type,
+      subject: schema.activities.subject,
+      body: schema.activities.body,
+    })
+    .from(schema.activities)
+    .orderBy(desc(schema.activities.id))
+    .limit(SEARCH_SCAN_ROW_CAP)
+    .as("activity_candidates");
 
   const [contactRows, dealRows, activityRows] = await Promise.all([
     db
       .select({
-        id: schema.contacts.id,
-        name: schema.contacts.name,
-        email: schema.contacts.email,
-        company: schema.contacts.company,
+        id: contactCandidates.id,
+        name: contactCandidates.name,
+        email: contactCandidates.email,
+        company: contactCandidates.company,
       })
-      .from(schema.contacts)
-      .where(contactsWhere)
+      .from(contactCandidates)
+      .where(
+        or(
+          ilike(contactCandidates.name, q),
+          ilike(contactCandidates.email, q),
+          ilike(contactCandidates.company, q),
+        ),
+      )
       .limit(contactsWindow + 1),
     db
       .select({
-        id: schema.deals.id,
-        title: schema.deals.title,
-        stage: schema.deals.stage,
-        value: schema.deals.value,
+        id: dealCandidates.id,
+        title: dealCandidates.title,
+        stage: dealCandidates.stage,
+        value: dealCandidates.value,
       })
-      .from(schema.deals)
-      .where(dealsWhere)
+      .from(dealCandidates)
+      .where(ilike(dealCandidates.title, q))
       .limit(dealsWindow + 1),
     db
       .select({
-        id: schema.activities.id,
-        type: schema.activities.type,
-        subject: schema.activities.subject,
-        body: schema.activities.body,
+        id: activityCandidates.id,
+        type: activityCandidates.type,
+        subject: activityCandidates.subject,
+        body: activityCandidates.body,
       })
-      .from(schema.activities)
-      .where(activitiesWhere)
+      .from(activityCandidates)
+      .where(
+        or(
+          ilike(activityCandidates.subject, q),
+          ilike(activityCandidates.body, q),
+        ),
+      )
       .limit(activitiesWindow + 1),
   ]);
 

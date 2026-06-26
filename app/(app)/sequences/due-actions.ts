@@ -8,18 +8,32 @@ import { interpolate, contactToVars } from "@/lib/template";
 import { getCrmSettings } from "@/lib/settings";
 import { requireSession } from "@/lib/require-session";
 
+// Cap how many due enrollments a single "Log All as Sent" invocation processes.
+// Each enrollment contributes 2 statements (insert activity + update enrollment)
+// to one Neon batch, so 50 keeps the batch at <=100 statements and the request
+// comfortably under Vercel's 10s limit even with thousands of due enrollments.
+// Anything beyond the cap is reported back via `remaining` so the user can
+// re-run to continue, mirroring bulkScoreContacts.
+const SEND_ALL_DUE_BATCH = 50;
+
 export async function sendAllDueSteps(
   enrollmentIds: number[],
-): Promise<{ error?: string; sent: number }> {
+): Promise<{ error?: string; sent: number; remaining: number }> {
   await requireSession();
 
-  if (enrollmentIds.length === 0) return { sent: 0 };
+  if (enrollmentIds.length === 0) return { sent: 0, remaining: 0 };
 
   const db = getDb();
-  if (!db) return { error: "No database", sent: 0 };
+  if (!db) return { error: "No database", sent: 0, remaining: 0 };
 
   const crmSettings = await getCrmSettings();
   const ownerFallback = crmSettings.displayName || "[Owner Name]";
+
+  // Process at most one capped slice per invocation. The page passes ids sorted
+  // most-overdue first, so slicing the head handles the most urgent steps now;
+  // the untouched tail is returned as `remaining`.
+  const idsToProcess = enrollmentIds.slice(0, SEND_ALL_DUE_BATCH);
+  const remaining = enrollmentIds.length - idsToProcess.length;
 
   const enrollments = await db
     .select({
@@ -43,13 +57,13 @@ export async function sendAllDueSteps(
     )
     .where(
       and(
-        inArray(schema.contactSequenceEnrollments.id, enrollmentIds),
+        inArray(schema.contactSequenceEnrollments.id, idsToProcess),
         eq(schema.contactSequenceEnrollments.status, "active"),
         eq(schema.sequences.status, "active"),
       ),
     );
 
-  if (enrollments.length === 0) return { sent: 0 };
+  if (enrollments.length === 0) return { sent: 0, remaining };
 
   const sequenceIds = [...new Set(enrollments.map((e) => e.sequenceId))];
 
@@ -134,5 +148,5 @@ export async function sendAllDueSteps(
   }
   revalidatePath("/sequences");
 
-  return { sent };
+  return { sent, remaining };
 }

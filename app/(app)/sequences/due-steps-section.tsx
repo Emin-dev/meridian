@@ -31,6 +31,7 @@ export function DueStepsSection({ dueEnrollments, defaultOwnerName }: Props) {
   const [isPending, startTransition] = useTransition();
   const [batchError, setBatchError] = useState<string | null>(null);
   const [batchDone, setBatchDone] = useState<number | null>(null);
+  const [batchRemaining, setBatchRemaining] = useState(0);
 
   if (dueEnrollments.length === 0) return null;
 
@@ -44,6 +45,7 @@ export function DueStepsSection({ dueEnrollments, defaultOwnerName }: Props) {
         setBatchError(result.error);
       } else {
         setBatchDone(result.sent);
+        setBatchRemaining(result.remaining);
       }
     });
   }
@@ -83,6 +85,9 @@ export function DueStepsSection({ dueEnrollments, defaultOwnerName }: Props) {
       {batchDone !== null && (
         <p className="border-b border-[var(--line-1)] px-4 py-2 text-xs text-[var(--ok)]">
           Logged {batchDone} {batchDone === 1 ? "step" : "steps"} as sent.
+          {batchRemaining > 0
+            ? ` ${batchRemaining} remaining — click again to continue.`
+            : ""}
         </p>
       )}
 
