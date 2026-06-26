@@ -175,9 +175,20 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
               <span role="status" className="sr-only">Searching…</span>
             </>
           )}
-          <kbd className="shrink-0 rounded border border-[var(--line-1)] px-1.5 py-0.5 font-mono text-caption text-[var(--ink-3)]">
+          {/* Desktop advertises Esc; touch gets a tappable close (Esc is unreachable on mobile). */}
+          <kbd className="hidden shrink-0 rounded border border-[var(--line-1)] px-1.5 py-0.5 font-mono text-caption text-[var(--ink-3)] sm:inline-block">
             Esc
           </kbd>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close search"
+            className="tap -mr-2 flex shrink-0 items-center justify-center text-[var(--ink-3)] transition-colors hover:text-[var(--ink-1)] sm:hidden"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
         {/* Results list — scrollable */}

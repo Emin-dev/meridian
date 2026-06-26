@@ -334,8 +334,8 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
 
   return (
     <div className="space-y-3">
-      {/* Bulk action bar — desktop table view only (mobile uses the action sheet) */}
-      {someSelected && view === "table" && (
+      {/* Bulk action bar — desktop only (table & cards views); mobile uses the action sheet */}
+      {someSelected && (
         <div className="sticky top-0 z-30 hidden flex-wrap items-center gap-2 rounded-lg border border-[var(--accent)]/30 bg-[var(--accent-tint)] px-4 py-2 shadow-sm shadow-black/20 backdrop-blur lg:flex">
           <span className="flex min-h-[44px] items-center text-sm font-medium text-[var(--accent)]">
             {selectedIds.size} selected
@@ -527,10 +527,48 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
           />
         </div>
 
-        {/* Desktop card view */}
+        {/* Desktop card view — keeps bulk-select parity with the table view and
+            the mobile cards (selecting surfaces the bulk action bar above). */}
         {view === "cards" && (
           <div className="hidden lg:block">
-            <ContactCards contacts={contacts} />
+            <div className="flex items-center gap-3 border-b border-[var(--line-1)] px-5 py-2">
+              {selectMode ? (
+                <>
+                  <label className="tap flex cursor-pointer items-center gap-2 text-xs font-medium text-[var(--ink-1)]">
+                    <input
+                      type="checkbox"
+                      checked={allSelected}
+                      ref={(el) => {
+                        if (el) el.indeterminate = someSelected && !allSelected;
+                      }}
+                      onChange={toggleAll}
+                      aria-label="Select all contacts"
+                      className="h-4 w-4 cursor-pointer rounded border-[var(--line-2)] accent-[var(--accent)]"
+                    />
+                    {selectedIds.size > 0 ? `${selectedIds.size} selected` : "Select all"}
+                  </label>
+                  <button
+                    onClick={exitSelectMode}
+                    className="tap ml-auto flex items-center justify-center text-xs text-[var(--ink-2)] hover:text-[var(--ink-1)]"
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => setSelectMode(true)}
+                  className="tap ml-auto flex items-center justify-center text-xs font-medium text-[var(--ink-3)] hover:text-[var(--ink-1)]"
+                >
+                  Select
+                </button>
+              )}
+            </div>
+            <ContactCards
+              contacts={contacts}
+              selectMode={selectMode}
+              selectedIds={selectedIds}
+              onToggle={toggle}
+            />
           </div>
         )}
 
