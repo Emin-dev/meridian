@@ -196,7 +196,7 @@ export default function StageControl({
               type="button"
               disabled={pending}
               onClick={confirmMove}
-              className={`flex min-h-[28px] flex-1 items-center justify-center rounded px-2 py-1.5 text-[11px] font-medium transition-colors disabled:pointer-events-none disabled:opacity-40 ${confirmBtnClass}`}
+              className={`flex min-h-[44px] flex-1 items-center justify-center rounded px-2 py-1.5 text-[11px] font-medium transition-colors disabled:pointer-events-none disabled:opacity-40 ${confirmBtnClass}`}
             >
               Confirm {reasonLabel}
             </button>
@@ -204,7 +204,7 @@ export default function StageControl({
               type="button"
               disabled={pending}
               onClick={cancelMove}
-              className="flex min-h-[28px] items-center justify-center rounded px-2 py-1.5 text-[11px] text-[var(--ink-2)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)] disabled:pointer-events-none disabled:opacity-40"
+              className="flex min-h-[44px] items-center justify-center rounded px-2 py-1.5 text-[11px] text-[var(--ink-2)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)] disabled:pointer-events-none disabled:opacity-40"
             >
               Cancel
             </button>
