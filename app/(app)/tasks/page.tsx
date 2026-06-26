@@ -1,4 +1,4 @@
-import { and, eq, isNotNull, asc } from "drizzle-orm";
+import { and, eq, isNotNull, isNull, asc, desc } from "drizzle-orm";
 import Link from "next/link";
 import { getDb, schema } from "@/db";
 import TaskToggle from "./task-toggle";
@@ -26,8 +26,9 @@ type TaskRow = {
 
 function TaskItem({ task }: { task: TaskRow }) {
   const completed = !!task.completedAt;
-  const dueDate = new Date(task.dueAt);
-  const formatted = dueDate.toLocaleDateString("en-US", {
+  // Completed tasks surface when they were finished; open tasks surface the due date.
+  const stamp = completed && task.completedAt ? task.completedAt : task.dueAt;
+  const formatted = new Date(stamp).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
   });
@@ -68,7 +69,9 @@ function TaskItem({ task }: { task: TaskRow }) {
           </div>
         )}
       </div>
-      <span className="shrink-0 text-footnote text-[--ink-3]">{formatted}</span>
+      <span className="shrink-0 text-footnote text-[--ink-3]">
+        {completed ? `Done ${formatted}` : formatted}
+      </span>
     </div>
   );
 }
@@ -141,24 +144,48 @@ export default async function TasksPage() {
     );
   }
 
-  const rows = await db
-    .select({
-      activity: schema.activities,
-      contactName: schema.contacts.name,
-      dealTitle: schema.deals.title,
-    })
-    .from(schema.activities)
-    .leftJoin(schema.contacts, eq(schema.activities.contactId, schema.contacts.id))
-    .leftJoin(schema.deals, eq(schema.activities.dealId, schema.deals.id))
-    .where(
+  const selection = {
+    activity: schema.activities,
+    contactName: schema.contacts.name,
+    dealTitle: schema.deals.title,
+  };
+  const taskBase = (where: ReturnType<typeof and>) =>
+    db
+      .select(selection)
+      .from(schema.activities)
+      .leftJoin(
+        schema.contacts,
+        eq(schema.activities.contactId, schema.contacts.id)
+      )
+      .leftJoin(schema.deals, eq(schema.activities.dealId, schema.deals.id))
+      .where(where);
+
+  // Open tasks drive the time buckets; completed tasks are kept separate and
+  // capped so the page stays bounded as history grows.
+  const [activeRows, completedRows] = await Promise.all([
+    taskBase(
       and(
         eq(schema.activities.type, "task"),
-        isNotNull(schema.activities.dueAt)
+        isNotNull(schema.activities.dueAt),
+        isNull(schema.activities.completedAt)
+      )
+    ).orderBy(asc(schema.activities.dueAt)),
+    taskBase(
+      and(
+        eq(schema.activities.type, "task"),
+        isNotNull(schema.activities.dueAt),
+        isNotNull(schema.activities.completedAt)
       )
     )
-    .orderBy(asc(schema.activities.dueAt));
+      .orderBy(desc(schema.activities.completedAt))
+      .limit(25),
+  ]);
 
-  const tasks: TaskRow[] = rows.map(({ activity, contactName, dealTitle }) => ({
+  const toTask = ({
+    activity,
+    contactName,
+    dealTitle,
+  }: (typeof activeRows)[number]): TaskRow => ({
     id: activity.id,
     subject: activity.subject,
     dueAt: activity.dueAt!.toISOString(),
@@ -167,23 +194,24 @@ export default async function TasksPage() {
     dealId: activity.dealId ?? null,
     contactName: contactName ?? null,
     dealTitle: dealTitle ?? null,
-  }));
+  });
 
-  const now = new Date();
-  const todayStart = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
-  );
+  const activeTasks = activeRows.map(toTask);
+  const completedTasks = completedRows.map(toTask);
+
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
   const tomorrowStart = new Date(todayStart);
-  tomorrowStart.setUTCDate(tomorrowStart.getUTCDate() + 1);
+  tomorrowStart.setDate(tomorrowStart.getDate() + 1);
 
-  const overdue = tasks.filter((t) => new Date(t.dueAt) < todayStart);
-  const dueToday = tasks.filter((t) => {
+  const overdue = activeTasks.filter((t) => new Date(t.dueAt) < todayStart);
+  const dueToday = activeTasks.filter((t) => {
     const d = new Date(t.dueAt);
     return d >= todayStart && d < tomorrowStart;
   });
-  const upcoming = tasks.filter((t) => new Date(t.dueAt) >= tomorrowStart);
+  const upcoming = activeTasks.filter((t) => new Date(t.dueAt) >= tomorrowStart);
 
-  const total = tasks.length;
+  const total = activeTasks.length + completedTasks.length;
 
   return (
     <div className="space-y-6">
@@ -224,6 +252,14 @@ export default async function TasksPage() {
             dotClass="bg-[--accent]"
             emptyLabel="No upcoming tasks."
           />
+          {completedTasks.length > 0 && (
+            <TaskGroup
+              title="Completed"
+              tasks={completedTasks}
+              dotClass="bg-[--ok]"
+              emptyLabel="No completed tasks."
+            />
+          )}
         </div>
       )}
     </div>
