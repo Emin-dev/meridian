@@ -1,6 +1,6 @@
 "use server";
 
-import { count, desc, gte, max } from "drizzle-orm";
+import { count, desc, gte } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { chat } from "@/lib/ai";
 
@@ -20,11 +20,13 @@ type AiResponse = {
 
 // The dataset block (contacts/deals/activities) is expensive to load — up to
 // 600 rows formatted into a prompt context. Cache it briefly, keyed on a cheap
-// dataset signature (row counts + latest timestamps), so repeated questions in
-// a session reuse the same context and skip the heavy re-fetch. The signature
-// invalidates the cache the moment the underlying data changes; the TTL bounds
-// staleness and keeps the map from holding data indefinitely. Mirrors the
-// in-memory cache pattern in lib/ai.ts.
+// dataset signature (row counts + a coarse time bucket), so repeated questions
+// in a session reuse the same context and skip the heavy re-fetch. The counts
+// invalidate the cache when rows are added/removed; the time bucket forces a
+// periodic refresh to pick up edits to existing rows — deliberately coarse so
+// routine field edits (which only bump updatedAt) don't thrash the cache. The
+// TTL bounds staleness and keeps the map from holding data indefinitely.
+// Mirrors the in-memory cache pattern in lib/ai.ts.
 type LoadedDataset = {
   /** Dataset lines without the dynamic "Today:" header (prepended per call). */
   context: string;
@@ -34,6 +36,10 @@ type LoadedDataset = {
 
 const DATASET_CACHE_TTL_MS = 60 * 1000;
 const DATASET_CACHE_MAX_ENTRIES = 8;
+// Coarse refresh window: edits to existing rows only get picked up once the
+// wall-clock crosses a bucket boundary, so a flurry of edits in the same window
+// reuses one cached context instead of busting it on every save.
+const DATASET_SIGNATURE_BUCKET_MS = 5 * 60 * 1000;
 
 type DatasetCacheEntry = { value: LoadedDataset; expires: number };
 const datasetCache = new Map<string, DatasetCacheEntry>();
@@ -63,16 +69,15 @@ function setCachedDataset(signature: string, value: LoadedDataset): void {
   }
 }
 
-/** Cheap signature query: counts + latest timestamps, no row transfer. */
+/** Cheap signature query: row counts + a coarse time bucket, no row transfer. */
 async function datasetSignature(db: Db): Promise<string> {
   const [c, d, a] = await Promise.all([
-    db.select({ n: count(), m: max(schema.contacts.updatedAt) }).from(schema.contacts),
-    db.select({ n: count(), m: max(schema.deals.updatedAt) }).from(schema.deals),
-    db.select({ n: count(), m: max(schema.activities.createdAt) }).from(schema.activities),
+    db.select({ n: count() }).from(schema.contacts),
+    db.select({ n: count() }).from(schema.deals),
+    db.select({ n: count() }).from(schema.activities),
   ]);
-  const sig = (row: { n: number; m: Date | null }) =>
-    `${row.n}:${row.m ? row.m.getTime() : 0}`;
-  return `${sig(c[0])}|${sig(d[0])}|${sig(a[0])}`;
+  const bucket = Math.floor(Date.now() / DATASET_SIGNATURE_BUCKET_MS);
+  return `${c[0].n}:${d[0].n}:${a[0].n}@${bucket}`;
 }
 
 /** Load and format the CRM dataset, reusing the cache when the signature hits. */
