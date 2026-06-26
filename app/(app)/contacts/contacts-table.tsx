@@ -625,7 +625,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
                             {statusMeta.label}
                           </span>
                         ) : (
-                          <span className="text-[var(--ink-3)]">—</span>
+                          <span className="text-[var(--ink-2)]">—</span>
                         )}
                       </td>
                       <td className="px-4 py-3 text-[var(--ink-2)]">{c.email ?? "—"}</td>
@@ -640,7 +640,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
                         {c.leadScore != null ? (
                           <LeadScoreBadge score={c.leadScore} />
                         ) : (
-                          <span className="text-[var(--ink-3)]">—</span>
+                          <span className="text-[var(--ink-2)]">—</span>
                         )}
                       </td>
                       <td className="px-4 py-3">
@@ -656,7 +656,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
                             ))}
                           </div>
                         ) : (
-                          <span className="text-[var(--ink-3)]">—</span>
+                          <span className="text-[var(--ink-2)]">—</span>
                         )}
                       </td>
                       {hasDb && (() => {
@@ -669,12 +669,12 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
                                 <span className="text-xs text-[var(--ink-2)]">{meta.text}</span>
                               </span>
                             ) : (
-                              <span className="text-[var(--ink-3)]">—</span>
+                              <span className="text-[var(--ink-2)]">—</span>
                             )}
                           </td>
                         );
                       })()}
-                      <td className="px-4 py-3 whitespace-nowrap text-xs text-[var(--ink-3)]">
+                      <td className="px-4 py-3 whitespace-nowrap text-xs text-[var(--ink-2)]">
                         {formatShortDate(c.createdAt)}
                       </td>
                     </tr>
