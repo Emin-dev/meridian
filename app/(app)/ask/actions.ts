@@ -17,7 +17,7 @@ type AiResponse = {
 };
 
 export async function askCrm(question: string): Promise<AskResult> {
-  const q = question.trim();
+  const q = question.trim().slice(0, 500);
   if (!q) return { answer: "", contacts: [], deals: [] };
 
   const db = getDb();

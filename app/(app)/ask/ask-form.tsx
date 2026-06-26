@@ -67,6 +67,7 @@ export default function AskForm({
           type="text"
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
+          maxLength={500}
           placeholder="Ask anything about your CRM…"
           disabled={isPending || !canAsk}
           aria-label="Ask your CRM"
