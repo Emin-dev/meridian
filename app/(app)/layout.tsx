@@ -34,5 +34,5 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     overdueCount = Number(row.overdue);
     overdueTaskCount = Number(row.overdueTask);
   }
-  return <AppShell signedIn={session !== null} overdueCount={overdueCount} overdueTaskCount={overdueTaskCount}>{children}</AppShell>;
+  return <AppShell signedIn={session !== null} overdueCount={overdueCount} overdueTaskCount={overdueTaskCount} dbConnected={db !== null}>{children}</AppShell>;
 }

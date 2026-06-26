@@ -32,7 +32,7 @@ const NAV = [
   { href: "/settings", label: "Settings", icon: <SettingsIcon size={18} aria-hidden="true" /> },
 ];
 
-export default function AppShell({ children, signedIn = false, overdueCount = 0, overdueTaskCount = 0 }: { children: React.ReactNode; signedIn?: boolean; overdueCount?: number; overdueTaskCount?: number }) {
+export default function AppShell({ children, signedIn = false, overdueCount = 0, overdueTaskCount = 0, dbConnected = false }: { children: React.ReactNode; signedIn?: boolean; overdueCount?: number; overdueTaskCount?: number; dbConnected?: boolean }) {
   const [navOpen, setNavOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [isMac, setIsMac] = useState(true);
@@ -175,7 +175,7 @@ export default function AppShell({ children, signedIn = false, overdueCount = 0,
         overdueTaskCount={overdueTaskCount}
       />
 
-      <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
+      <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} dbConnected={dbConnected} />
     </div>
   );
 }
@@ -214,12 +214,8 @@ function MobileNavDrawer({
         role="dialog"
         aria-modal="true"
         aria-label="Navigation"
-        // Explicit opaque background: the `bg-[var(--token)]` shorthand is a no-op in
-        // this Tailwind v4 setup, which is invisible for the in-flow sidebar (it
-        // sits over the near-identical dark body) but would let page content bleed
-        // through this overlay drawer.
-        style={{ backgroundColor: "var(--surface-1)" }}
-        className="animate-drawer-in fixed inset-y-0 left-0 z-50 flex w-[min(80vw,18rem)] flex-col border-r border-[var(--line-1)] shadow-[var(--shadow-3)] pb-[env(safe-area-inset-bottom)]"
+        // Opaque background so page content can't bleed through this overlay drawer.
+        className="animate-drawer-in fixed inset-y-0 left-0 z-50 flex w-[min(80vw,18rem)] flex-col bg-[var(--surface-1)] border-r border-[var(--line-1)] shadow-[var(--shadow-3)] pb-[env(safe-area-inset-bottom)]"
       >
         {/* Logo */}
         <div className="flex items-center gap-2.5 px-4 py-4 border-b border-[var(--line-1)] shrink-0 pt-[calc(1rem+env(safe-area-inset-top))]">
