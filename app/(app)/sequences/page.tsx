@@ -5,11 +5,20 @@ import type { Sequence } from "@/db/schema";
 import { getCrmSettings } from "@/lib/settings";
 import { SequenceStatusToggle } from "./sequence-status-toggle";
 import { DueStepsSection, type DueEnrollment } from "./due-steps-section";
+import { EmptyState } from "@/components/empty-state";
+import EmptyStateActions from "@/components/empty-state-actions";
 
 const STATUS_LABELS: Record<string, { label: string; className: string }> = {
   active: { label: "Active", className: "bg-[--ok-tint] text-[--ok]" },
   paused: { label: "Paused", className: "bg-[--surface-2] text-[--ink-3]" },
 };
+
+const SequenceIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="4" width="20" height="16" rx="2" />
+    <path d="m2 7 10 6 10-6" />
+  </svg>
+);
 
 export default async function SequencesPage() {
   const db = getDb();
@@ -178,24 +187,31 @@ export default async function SequencesPage() {
         </div>
 
         {sequences.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 px-5 py-16 text-center">
-            <p className="text-body text-[--ink-2]">
-              {db ? "No sequences yet." : "Database not connected."}
-            </p>
-            <p className="text-footnote text-[--ink-3]">
-              {db
-                ? 'Click "New sequence" to create your first email sequence.'
-                : "Set DATABASE_URL to connect your Neon database."}
-            </p>
-            {db && (
-              <Link
-                href="/sequences/new"
-                className="tap press mt-1 flex items-center justify-center rounded-[--r-md] bg-[--accent] px-4 text-body font-medium text-[--accent-ink] hover:bg-[--accent-hover]"
-              >
-                New sequence
-              </Link>
-            )}
-          </div>
+          !db ? (
+            <EmptyState
+              icon={<SequenceIcon />}
+              title="Database not connected"
+              description="Set DATABASE_URL to connect your Neon database."
+            />
+          ) : (
+            <EmptyState
+              icon={<SequenceIcon />}
+              title="No sequences yet"
+              description="Create your first automated email sequence to start running outreach campaigns."
+              action={
+                <EmptyStateActions
+                  primaryAction={
+                    <Link
+                      href="/sequences/new"
+                      className="tap press flex items-center justify-center rounded-[--r-md] bg-[--accent] px-4 text-body font-medium text-[--accent-ink] hover:bg-[--accent-hover]"
+                    >
+                      New sequence
+                    </Link>
+                  }
+                />
+              }
+            />
+          )
         ) : (
           <>
             {/* Mobile: card list */}
