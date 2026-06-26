@@ -167,8 +167,8 @@ export default async function DealsPage({
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-[var(--ink-1)]">Deals</h2>
-          <p className="mt-1 text-sm text-[var(--ink-2)]">
+          <h2 className="text-title2 font-semibold text-[var(--ink-1)]">Deals</h2>
+          <p className="text-body mt-1 text-[var(--ink-2)]">
             Track your pipeline and close more revenue.
           </p>
         </div>

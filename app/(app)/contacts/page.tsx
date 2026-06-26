@@ -215,8 +215,8 @@ export default async function ContactsPage({
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-[var(--ink-1)]">Contacts</h2>
-          <p className="mt-1 text-sm text-[var(--ink-2)]">Manage your leads and customers.</p>
+          <h2 className="text-title2 font-semibold text-[var(--ink-1)]">Contacts</h2>
+          <p className="text-body mt-1 text-[var(--ink-2)]">Manage your leads and customers.</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {/* Secondary actions — visible on sm+ */}

@@ -55,7 +55,7 @@ function StatCard({
   subtext: string;
 }) {
   return (
-    <div className="card px-5 py-4">
+    <div className="card px-5 py-4 hover:border-[var(--line-1)]">
       <p className="text-footnote font-medium uppercase tracking-wide text-[var(--ink-3)]">
         {label}
       </p>
@@ -726,12 +726,14 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                           : conv >= 25
                             ? "text-[var(--warn)]"
                             : "text-[var(--bad)]";
-                    return (
-                      <Link
-                        key={stage.key}
-                        href={`/deals?stage=${stage.key}`}
-                        className="block px-4 py-3 transition-colors hover:bg-[var(--surface-2)] @[30rem]:flex @[30rem]:items-center @[30rem]:gap-4 @[30rem]:px-6"
-                      >
+                    const isZero = stage.count === 0;
+                    const rowClass = `block px-4 py-3 @[30rem]:flex @[30rem]:items-center @[30rem]:gap-4 @[30rem]:px-6${
+                      isZero
+                        ? ""
+                        : " transition-colors hover:bg-[var(--surface-2)]"
+                    }`;
+                    const rowInner = (
+                      <>
                         {/* Label + mobile trailing stats */}
                         <div className="flex items-center gap-2 @[30rem]:w-28 @[30rem]:shrink-0">
                           <span
@@ -758,19 +760,20 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                           </div>
                         </div>
 
-                        {/* Progress bar: full-width on mobile, flex-1 on desktop */}
+                        {/* Progress bar: full-width on mobile, flex-1 on desktop.
+                            Zero-count stages render no track so the row reads as a
+                            deliberate empty state, not a broken/skeleton bar. */}
                         <div className="mt-1.5 @[30rem]:mt-0 @[30rem]:flex-1">
-                          <div className="h-1.5 rounded-full bg-[var(--surface-3)]">
-                            <div
-                              className={`h-1.5 rounded-full ${stage.dot} opacity-60 transition-all duration-300`}
-                              style={{
-                                width:
-                                  stage.count > 0
-                                    ? `${(stage.count / maxCount) * 100}%`
-                                    : "0%",
-                              }}
-                            />
-                          </div>
+                          {!isZero && (
+                            <div className="h-1.5 rounded-full bg-[var(--surface-3)]">
+                              <div
+                                className={`h-1.5 rounded-full ${stage.dot} opacity-60 transition-all duration-300`}
+                                style={{
+                                  width: `${(stage.count / maxCount) * 100}%`,
+                                }}
+                              />
+                            </div>
+                          )}
                         </div>
 
                         {/* Desktop-only trailing stats */}
@@ -789,6 +792,19 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                             <span className="text-[var(--ink-3)]">—</span>
                           )}
                         </div>
+                      </>
+                    );
+                    return isZero ? (
+                      <div key={stage.key} className={rowClass}>
+                        {rowInner}
+                      </div>
+                    ) : (
+                      <Link
+                        key={stage.key}
+                        href={`/deals?stage=${stage.key}`}
+                        className={rowClass}
+                      >
+                        {rowInner}
                       </Link>
                     );
                   })}

@@ -61,8 +61,8 @@ export default function DashboardPage() {
     <div className="space-y-6">
       {/* Header — renders immediately, before DB query starts */}
       <div>
-        <h2 className="text-title3 font-semibold text-[var(--ink-1)]">Dashboard</h2>
-        <p className="text-footnote mt-1 text-[var(--ink-2)]">Your sales overview.</p>
+        <h2 className="text-title2 font-semibold text-[var(--ink-1)]">Dashboard</h2>
+        <p className="text-body mt-1 text-[var(--ink-2)]">Your sales overview.</p>
       </div>
 
       {/* Heavy metrics stream in behind a Suspense boundary */}

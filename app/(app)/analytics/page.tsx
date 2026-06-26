@@ -137,8 +137,8 @@ export default async function AnalyticsPage({
       {/* Header — renders immediately before DB queries start */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-xl font-semibold text-[var(--ink-1)]">Analytics</h2>
-          <p className="mt-1 text-sm text-[var(--ink-2)]">
+          <h2 className="text-title2 font-semibold text-[var(--ink-1)]">Analytics</h2>
+          <p className="text-body mt-1 text-[var(--ink-2)]">
             Pipeline performance and deal conversion metrics.
           </p>
         </div>
