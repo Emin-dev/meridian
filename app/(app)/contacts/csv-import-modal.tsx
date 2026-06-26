@@ -18,7 +18,10 @@ function parseCsv(text: string): {
   skipped: ImportSkippedRow[];
   error?: string;
 } {
-  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  const lines = text
+    .split(/\r?\n/)
+    .map((l, idx) => ({ raw: l.trim(), lineNo: idx + 1 }))
+    .filter((e) => e.raw);
   if (lines.length < 2) return { rows: [], skipped: [], error: "Paste at least a header row and one data row." };
 
   const parseFields = (line: string): string[] => {
@@ -45,7 +48,7 @@ function parseCsv(text: string): {
     return fields;
   };
 
-  const headers = parseFields(lines[0]).map((h) => h.toLowerCase().replace(/\s+/g, ""));
+  const headers = parseFields(lines[0].raw).map((h) => h.toLowerCase().replace(/\s+/g, ""));
   const colIndex = (candidates: string[]) =>
     candidates.reduce((found, c) => (found !== -1 ? found : headers.indexOf(c)), -1);
 
@@ -60,8 +63,8 @@ function parseCsv(text: string): {
   const skipped: ImportSkippedRow[] = [];
 
   for (let i = 1; i < lines.length; i++) {
-    const csvLineNumber = i + 1; // header = line 1, first data row = line 2
-    const fields = parseFields(lines[i]);
+    const csvLineNumber = lines[i].lineNo; // original paste line, blank lines preserved
+    const fields = parseFields(lines[i].raw);
     const name = nameIdx !== -1 ? (fields[nameIdx] ?? "") : "";
     if (!name) {
       skipped.push({ row: csvLineNumber, name: "(empty)", reason: "Missing name" });
