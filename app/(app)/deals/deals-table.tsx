@@ -517,7 +517,7 @@ export default function DealsTable({
       >
         <div className="flex flex-col gap-3">
           {/* Move to stage */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <select
               aria-label="Set stage for selected deals"
               value={stageSelect}
@@ -540,7 +540,7 @@ export default function DealsTable({
           </div>
 
           {/* Set owner */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <input
               list="deal-owners-list-sheet"
               aria-label="New owner name"
