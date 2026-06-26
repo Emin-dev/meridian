@@ -1,32 +1,32 @@
 @import "tailwindcss";
 
 :root {
-  /* ---- Surfaces (warm charcoal — elevation, not hue) ---- */
-  --bg:        #181511;   /* app background */
-  --surface-1: #211d18;   /* cards, list rows */
-  --surface-2: #2a251f;   /* raised: popovers, sheet, active row */
-  --surface-3: #332e26;   /* highest: menus on sheets */
+  /* ---- Surfaces (premium cool charcoal — elevation, not hue) ---- */
+  --bg:        #0a0b0f;   /* app background */
+  --surface-1: #14161c;   /* cards, list rows */
+  --surface-2: #1c1f27;   /* raised: popovers, sheet, active row */
+  --surface-3: #262a34;   /* highest: menus on sheets */
 
   /* ---- Ink (text) ---- */
-  --ink-1: #ece6db;  /* primary text (warm off-white) */
-  --ink-2: #b4a996;  /* secondary text, labels */
-  --ink-3: #7e7466;  /* tertiary, meta, disabled */
+  --ink-1: #f2f4f8;  /* primary text (crisp near-white) */
+  --ink-2: #9ba2b1;  /* secondary text, labels */
+  --ink-3: #646b7a;  /* tertiary, meta, disabled */
 
   /* ---- Hairlines ---- */
-  --line-1: rgba(236,230,219,0.08);  /* default border */
-  --line-2: rgba(236,230,219,0.14);  /* hover/active border */
+  --line-1: rgba(255,255,255,0.06);  /* default border */
+  --line-2: rgba(255,255,255,0.11);  /* hover/active border */
 
-  /* ---- Accent (warm terracotta — one moment per screen) ---- */
-  --accent:        #c96442;
-  --accent-hover:  #d87a5b;
+  /* ---- Accent (refined indigo-violet — premium AI signal, one moment per screen) ---- */
+  --accent:        #6d5cf5;
+  --accent-hover:  #8273ff;
   --accent-ink:    #ffffff;
-  --accent-tint:   rgba(201,100,66,0.16);
+  --accent-tint:   rgba(109,92,245,0.16);
 
   /* ---- Status (tint / dot / text only, never large fills) ---- */
-  --ok:    #4cc38a;  --ok-tint:   rgba(76,195,138,0.15);
-  --warn:  #e0a64b;  --warn-tint: rgba(224,166,75,0.15);
-  --bad:   #e5675a;  --bad-tint:  rgba(229,103,90,0.15);
-  --info:  #6bb6c9;  --info-tint: rgba(107,182,201,0.15);
+  --ok:    #2dd4a7;  --ok-tint:   rgba(45,212,167,0.14);
+  --warn:  #f5b13d;  --warn-tint: rgba(245,177,61,0.14);
+  --bad:   #f4675f;  --bad-tint:  rgba(244,103,95,0.14);
+  --info:  #5b9dff;  --info-tint: rgba(91,157,255,0.14);
 
   /* ---- Radii ---- */
   --r-sm: 6px; --r-md: 10px; --r-lg: 14px; --r-xl: 20px; --r-2xl: 28px;
