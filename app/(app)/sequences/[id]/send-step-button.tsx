@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { interpolate, contactToVars } from "@/lib/template";
 import { markStepSent } from "./enrollment-actions";
 import { useOverlayDismiss } from "@/hooks/use-overlay-dismiss";
@@ -66,10 +66,17 @@ function SendStepModal({
   const subject = interpolate(stepSubjectTemplate, vars);
   const body = interpolate(stepBodyTemplate, vars);
 
+  // Reset the "Copied!" label after 2s, with cleanup so the timer can't fire
+  // on an unmounted component when the modal closes mid-countdown.
+  useEffect(() => {
+    if (!copied) return;
+    const t = setTimeout(() => setCopied(null), 2000);
+    return () => clearTimeout(t);
+  }, [copied]);
+
   function copyToClipboard(text: string, field: "subject" | "body") {
     navigator.clipboard.writeText(text).then(() => {
       setCopied(field);
-      setTimeout(() => setCopied(null), 2000);
     });
   }
 

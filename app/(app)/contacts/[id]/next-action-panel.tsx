@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { suggestNextAction, type NextActionState } from "../actions";
 import { logAiTaskSuggestion } from "@/app/(app)/activity/actions";
 import { useToast } from "@/components/toaster";
@@ -71,11 +71,18 @@ export default function NextActionPanel({
     });
   }
 
+  // Reset the "Copied!" label after 2s, with cleanup so the timer can't fire
+  // on an unmounted component when the user navigates away mid-countdown.
+  useEffect(() => {
+    if (!copied) return;
+    const t = setTimeout(() => setCopied(false), 2000);
+    return () => clearTimeout(t);
+  }, [copied]);
+
   function handleCopy() {
     if (!result.suggestedMessage) return;
     navigator.clipboard.writeText(result.suggestedMessage).then(() => {
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     });
   }
 
