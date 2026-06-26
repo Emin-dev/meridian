@@ -200,10 +200,10 @@ export default function KanbanBoard({
                 onDrop={(id) => handleDrop(id, stage.key)}
               >
                 {/* Column header */}
-                <div className="flex items-center justify-between border-b border-[var(--line-1)] px-4 py-3">
+                <div className="flex items-center justify-between border-b border-[var(--line-1)] px-5 py-3">
                   <div className="flex items-center gap-2">
                     <span className={`h-2 w-2 rounded-full ${stage.dot}`} />
-                    <span className="text-xs font-medium uppercase tracking-wide text-[var(--ink-2)]">
+                    <span className="text-xs font-medium uppercase tracking-wide text-[var(--ink-3)]">
                       {stage.label}
                     </span>
                   </div>

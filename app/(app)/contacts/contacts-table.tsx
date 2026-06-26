@@ -448,7 +448,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
       {/* Table / Card container — edge-to-edge grouped-list on phones, boxed table from sm up */}
       <div className="border-y border-[var(--line-1)] bg-[var(--surface-1)] sm:rounded-xl sm:border">
         {/* Header row */}
-        <div className="flex items-center justify-between border-b border-[var(--line-1)] px-4 py-3">
+        <div className="flex items-center justify-between border-b border-[var(--line-1)] px-5 py-3">
           <p className="text-xs font-medium uppercase tracking-wide text-[var(--ink-3)]">
             {hasActiveFilters ? "Filtered contacts" : "All Contacts"}
             {hasActiveFilters && (

@@ -52,7 +52,7 @@ function WidgetSkeleton({ title }: { title: string }) {
   return (
     <div className="card">
       <div className="border-b border-[var(--line-1)] px-5 py-3">
-        <p className="text-xs font-medium uppercase tracking-wide text-[var(--ink-2)]">
+        <p className="text-xs font-medium uppercase tracking-wide text-[var(--ink-3)]">
           {title}
         </p>
       </div>
@@ -739,7 +739,7 @@ export default async function DashboardBody() {
           {/* Recent activity */}
           <div className="card">
             <div className="border-b border-[var(--line-1)] px-5 py-3">
-              <p className="text-xs font-medium uppercase tracking-wide text-[var(--ink-2)]">
+              <p className="text-xs font-medium uppercase tracking-wide text-[var(--ink-3)]">
                 Recent Activity
               </p>
             </div>

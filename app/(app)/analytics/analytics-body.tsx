@@ -55,11 +55,11 @@ function StatCard({
   subtext: string;
 }) {
   return (
-    <div className="card px-5 py-4 hover:border-[var(--line-1)]">
-      <p className="text-footnote font-medium uppercase tracking-wide text-[var(--ink-3)]">
+    <div className="card p-3 sm:p-4 hover:border-[var(--line-1)]">
+      <p className="text-caption font-medium uppercase tracking-wide text-[var(--ink-3)]">
         {label}
       </p>
-      <p className="mt-2 text-title3 font-bold text-[var(--ink-1)]">{value}</p>
+      <p className="mt-2 text-title3 font-semibold text-[var(--ink-1)]">{value}</p>
       <p className="mt-1 text-footnote text-[var(--ink-3)]">{subtext}</p>
     </div>
   );
@@ -681,7 +681,7 @@ export default async function AnalyticsBody({ days }: { days: string }) {
 
           {/* Stage funnel — @container for responsive rows */}
           <div className="@container card">
-            <div className="border-b border-[var(--line-1)] px-6 py-4">
+            <div className="border-b border-[var(--line-1)] px-5 py-3">
               <h3 className="text-callout font-semibold text-[var(--ink-1)]">
                 Stage Funnel
               </h3>
@@ -823,7 +823,7 @@ export default async function AnalyticsBody({ days }: { days: string }) {
 
           {/* Won deals per month */}
           <div className="card">
-            <div className="border-b border-[var(--line-1)] px-6 py-4">
+            <div className="border-b border-[var(--line-1)] px-5 py-3">
               <h3 className="text-callout font-semibold text-[var(--ink-1)]">
                 Deals Closed Per Month
               </h3>
@@ -884,7 +884,7 @@ export default async function AnalyticsBody({ days }: { days: string }) {
           </div>
 
           <div className="card">
-            <div className="border-b border-[var(--line-1)] px-6 py-4">
+            <div className="border-b border-[var(--line-1)] px-5 py-3">
               <h3 className="text-callout font-semibold text-[var(--ink-1)]">
                 Pipeline Forecast
               </h3>
@@ -988,7 +988,7 @@ export default async function AnalyticsBody({ days }: { days: string }) {
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {/* Status distribution — @container for responsive rows */}
             <div className="@container card">
-              <div className="border-b border-[var(--line-1)] px-6 py-4">
+              <div className="border-b border-[var(--line-1)] px-5 py-3">
                 <h3 className="text-callout font-semibold text-[var(--ink-1)]">
                   Status Distribution
                 </h3>
@@ -1048,7 +1048,7 @@ export default async function AnalyticsBody({ days }: { days: string }) {
 
             {/* Source breakdown — @container for responsive rows */}
             <div className="@container card">
-              <div className="border-b border-[var(--line-1)] px-6 py-4">
+              <div className="border-b border-[var(--line-1)] px-5 py-3">
                 <h3 className="text-callout font-semibold text-[var(--ink-1)]">
                   Source Breakdown
                 </h3>
