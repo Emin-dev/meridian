@@ -189,6 +189,12 @@ export async function updateDealNotes(
 // ─── AI: Win/Loss analysis ────────────────────────────────────────────────────
 
 type Db = NonNullable<ReturnType<typeof getDb>>;
+type DealRow = typeof schema.deals.$inferSelect;
+type ActivityRow = typeof schema.activities.$inferSelect;
+
+// Friendly message returned when a DB read for the AI actions fails, so the
+// action surfaces the existing error union instead of throwing to the client.
+const LOAD_ERROR = "Couldn't load the deal. Please try again.";
 
 // ─── Per-deal AI result cache ─────────────────────────────────────────────────
 // Reuses the appSettings key/value store (the same pattern the dashboard digests
@@ -414,39 +420,44 @@ export async function scoreDeal(dealId: number): Promise<DealScoreState> {
   const db = getDb();
   if (!db) return { noDb: true };
 
-  const [deal] = await db
-    .select()
-    .from(schema.deals)
-    .where(eq(schema.deals.id, dealId))
-    .limit(1);
+  let deal: DealRow | undefined;
+  let contactInfo: string | null = null;
+  try {
+    [deal] = await db
+      .select()
+      .from(schema.deals)
+      .where(eq(schema.deals.id, dealId))
+      .limit(1);
+
+    if (deal?.contactId) {
+      const [c] = await db
+        .select({
+          name: schema.contacts.name,
+          title: schema.contacts.title,
+          company: schema.contacts.company,
+          status: schema.contacts.status,
+          leadScore: schema.contacts.leadScore,
+        })
+        .from(schema.contacts)
+        .where(eq(schema.contacts.id, deal.contactId))
+        .limit(1);
+      if (c) {
+        const parts = [
+          c.name,
+          c.title && c.company
+            ? `${c.title} at ${c.company}`
+            : (c.company ?? c.title),
+          c.status ? `status: ${c.status}` : null,
+          c.leadScore != null ? `lead score: ${c.leadScore}` : null,
+        ].filter(Boolean);
+        contactInfo = parts.join(", ");
+      }
+    }
+  } catch {
+    return { error: LOAD_ERROR };
+  }
 
   if (!deal) return { error: "Deal not found." };
-
-  let contactInfo: string | null = null;
-  if (deal.contactId) {
-    const [c] = await db
-      .select({
-        name: schema.contacts.name,
-        title: schema.contacts.title,
-        company: schema.contacts.company,
-        status: schema.contacts.status,
-        leadScore: schema.contacts.leadScore,
-      })
-      .from(schema.contacts)
-      .where(eq(schema.contacts.id, deal.contactId))
-      .limit(1);
-    if (c) {
-      const parts = [
-        c.name,
-        c.title && c.company
-          ? `${c.title} at ${c.company}`
-          : (c.company ?? c.title),
-        c.status ? `status: ${c.status}` : null,
-        c.leadScore != null ? `lead score: ${c.leadScore}` : null,
-      ].filter(Boolean);
-      contactInfo = parts.join(", ");
-    }
-  }
 
   const userNotes = extractUserNotes(deal.notes ?? null);
 
