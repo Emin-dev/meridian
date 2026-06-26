@@ -177,7 +177,7 @@ export default function KanbanCard({
               <button
                 type="button"
                 onClick={confirmTerminal}
-                className={`tap flex-1 rounded px-2 text-[11px] font-medium transition-colors ${
+                className={`tap flex-1 inline-flex min-h-[44px] items-center justify-center rounded px-3 text-[11px] font-medium transition-colors ${
                   pendingTerminal === "won"
                     ? "bg-[var(--ok-tint)] hover:opacity-80 text-[var(--ok)]"
                     : "bg-[var(--bad-tint)] hover:opacity-80 text-[var(--bad)]"
@@ -191,7 +191,7 @@ export default function KanbanCard({
                   setPendingTerminal(null);
                   setReason("");
                 }}
-                className="tap rounded px-2 text-[11px] text-[var(--ink-2)] hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)] transition-colors"
+                className="tap inline-flex min-h-[44px] items-center justify-center rounded px-3 text-[11px] text-[var(--ink-2)] hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)] transition-colors"
               >
                 Cancel
               </button>

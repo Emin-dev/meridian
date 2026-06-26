@@ -281,7 +281,7 @@ export default function DealsTable({
         <div className="flex items-center gap-3 px-4 py-2 sm:border-b sm:border-[var(--line-1)]">
           {selectMode ? (
             <>
-              <label className="tap flex cursor-pointer items-center gap-2 text-xs font-medium text-[var(--ink-1)]">
+              <label className="tap flex min-h-[44px] cursor-pointer items-center gap-2 text-xs font-medium text-[var(--ink-1)]">
                 <input
                   type="checkbox"
                   checked={allSelected}
@@ -298,13 +298,13 @@ export default function DealsTable({
                 <button
                   onClick={() => setSheetOpen(true)}
                   disabled={!someSelected}
-                  className="tap flex items-center justify-center rounded-lg bg-[var(--accent)] px-3 text-xs font-medium text-[var(--accent-ink)] hover:bg-[var(--accent-hover)] disabled:opacity-40"
+                  className="tap flex min-h-[44px] items-center justify-center rounded-lg bg-[var(--accent)] px-3 text-xs font-medium text-[var(--accent-ink)] hover:bg-[var(--accent-hover)] disabled:opacity-40"
                 >
                   Actions
                 </button>
                 <button
                   onClick={exitSelectMode}
-                  className="tap flex items-center justify-center text-xs text-[var(--ink-2)] hover:text-[var(--ink-1)]"
+                  className="tap flex min-h-[44px] items-center justify-center text-xs text-[var(--ink-2)] hover:text-[var(--ink-1)]"
                 >
                   Cancel
                 </button>
