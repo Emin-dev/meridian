@@ -619,7 +619,7 @@ export default function DealsTable({
               </div>
             </div>
 
-            <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
+            <dl className="grid grid-cols-1 min-[360px]:grid-cols-2 gap-x-4 gap-y-3">
               <DetailField label="Value" value={formatDealValue(detailDeal)} />
               <DetailField label="Probability" value={`${detailDeal.probability}%`} />
               <DetailField label="Contact" value={detailDeal.contact?.name ?? "—"} />
