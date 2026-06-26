@@ -22,8 +22,12 @@ export default function DealWinProbabilityPanel({ dealId, initialScore }: Props)
 
   function handleScore() {
     startTransition(async () => {
-      const r = await scoreDeal(dealId);
-      setResult(r);
+      try {
+        const r = await scoreDeal(dealId);
+        setResult(r);
+      } catch {
+        setResult((prev) => ({ ...prev, error: "Something went wrong — please try again." }));
+      }
     });
   }
 

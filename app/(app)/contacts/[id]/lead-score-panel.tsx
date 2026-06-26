@@ -20,8 +20,12 @@ export default function LeadScorePanel({ contactId, initialScore, initialRationa
 
   function handleScore() {
     startTransition(async () => {
-      const r = await scoreContact(contactId);
-      setResult(r);
+      try {
+        const r = await scoreContact(contactId);
+        setResult(r);
+      } catch {
+        setResult((prev) => ({ ...prev, error: "Something went wrong — please try again." }));
+      }
     });
   }
 

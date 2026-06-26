@@ -19,8 +19,12 @@ export default function SummarizePanel({ contactId, initialSummary, initialSumma
 
   function handleSummarize() {
     startTransition(async () => {
-      const r = await summarizeContact(contactId);
-      setResult(r);
+      try {
+        const r = await summarizeContact(contactId);
+        setResult(r);
+      } catch {
+        setResult((prev) => ({ ...prev, error: "Something went wrong — please try again." }));
+      }
     });
   }
 

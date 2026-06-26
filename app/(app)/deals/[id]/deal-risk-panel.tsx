@@ -34,8 +34,12 @@ export default function DealRiskPanel({ dealId }: Props) {
 
   function handleAssess() {
     startTransition(async () => {
-      const r = await assessDealRisk(dealId);
-      setResult(r);
+      try {
+        const r = await assessDealRisk(dealId);
+        setResult(r);
+      } catch {
+        setResult((prev) => ({ ...prev, error: "Something went wrong — please try again." }));
+      }
     });
   }
 

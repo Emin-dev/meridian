@@ -15,9 +15,13 @@ export default function DraftEmailPanel({ contactId }: Props) {
 
   function handleDraft() {
     startTransition(async () => {
-      const r = await draftOutreachEmail(contactId);
-      setResult(r);
-      if (r.draft) setDraftText(r.draft);
+      try {
+        const r = await draftOutreachEmail(contactId);
+        setResult(r);
+        if (r.draft) setDraftText(r.draft);
+      } catch {
+        setResult((prev) => ({ ...prev, error: "Something went wrong — please try again." }));
+      }
     });
   }
 

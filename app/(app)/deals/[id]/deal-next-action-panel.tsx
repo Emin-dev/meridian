@@ -61,8 +61,12 @@ export default function DealNextActionPanel({
 
   function handleSuggest() {
     startTransition(async () => {
-      const r = await suggestDealNextAction(dealId);
-      setResult(r);
+      try {
+        const r = await suggestDealNextAction(dealId);
+        setResult(r);
+      } catch {
+        setResult((prev) => ({ ...prev, error: "Something went wrong — please try again." }));
+      }
     });
   }
 

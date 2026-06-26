@@ -30,14 +30,18 @@ export default function EnrichContactPanel({ contactId }: Props) {
   function handleEnrich() {
     setSaveState({});
     startTransition(async () => {
-      const r = await enrichContact(contactId);
-      setResult(r);
-      if (r.title !== undefined || r.company !== undefined || r.notes !== undefined) {
-        setFields({
-          title: r.title ?? "",
-          company: r.company ?? "",
-          notes: r.notes ?? "",
-        });
+      try {
+        const r = await enrichContact(contactId);
+        setResult(r);
+        if (r.title !== undefined || r.company !== undefined || r.notes !== undefined) {
+          setFields({
+            title: r.title ?? "",
+            company: r.company ?? "",
+            notes: r.notes ?? "",
+          });
+        }
+      } catch {
+        setResult((prev) => ({ ...prev, error: "Something went wrong — please try again." }));
       }
     });
   }

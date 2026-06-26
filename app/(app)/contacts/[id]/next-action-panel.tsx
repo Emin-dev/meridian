@@ -62,8 +62,12 @@ export default function NextActionPanel({
 
   function handleSuggest() {
     startTransition(async () => {
-      const r = await suggestNextAction(contactId);
-      setResult(r);
+      try {
+        const r = await suggestNextAction(contactId);
+        setResult(r);
+      } catch {
+        setResult((prev) => ({ ...prev, error: "Something went wrong — please try again." }));
+      }
     });
   }
 
