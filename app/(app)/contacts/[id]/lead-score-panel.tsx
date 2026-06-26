@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { scoreContact, type ScoreState } from "../actions";
 import LeadScoreBadge from "../lead-score-badge";
+import AiPanelStatus from "@/components/ai-panel-status";
 
 interface Props {
   contactId: number;
@@ -43,34 +44,23 @@ export default function LeadScorePanel({ contactId, initialScore, initialRationa
         </button>
       </div>
 
-      {result.noDb && (
-        <p className="text-xs text-[--ink-2]">
-          Database not connected — cannot load contact data.
-        </p>
-      )}
-
-      {result.noKey && (
-        <p className="text-xs text-[--warn]">
-          Set{" "}
-          <code className="rounded bg-[--surface-2] px-1 py-0.5">DEEPSEEK_API_KEY</code>{" "}
-          in your environment to enable lead scoring.
-        </p>
-      )}
-
-      {result.error && <p className="text-xs text-[--bad]">{result.error}</p>}
-
-      {hasScore && result.rationale ? (
-        <p className="text-sm text-[--ink-1] leading-relaxed">{result.rationale}</p>
-      ) : (
-        !result.noDb &&
-        !result.noKey &&
-        !result.error &&
-        !isPending && (
+      <AiPanelStatus
+        noDb={result.noDb}
+        noKey={result.noKey}
+        error={result.error}
+        keyHint="enable lead scoring."
+        hasResult={hasScore && Boolean(result.rationale)}
+        isPending={isPending}
+        emptyHint={
           <p className="text-xs text-[--ink-3]">
             Click &ldquo;Score lead&rdquo; to generate an AI-powered 0–100 lead score based on
             this contact&apos;s profile and activity.
           </p>
-        )
+        }
+      />
+
+      {hasScore && result.rationale && (
+        <p className="text-sm text-[--ink-1] leading-relaxed">{result.rationale}</p>
       )}
     </div>
   );

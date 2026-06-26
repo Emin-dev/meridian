@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { summarizeContact, type SummarizeState } from "../actions";
+import AiPanelStatus from "@/components/ai-panel-status";
 
 interface Props {
   contactId: number;
@@ -37,27 +38,21 @@ export default function SummarizePanel({ contactId, initialSummary, initialSumma
         </button>
       </div>
 
-      {result.noDb && (
-        <p className="text-xs text-[--ink-2]">
-          Database not connected — cannot load contact data.
-        </p>
-      )}
+      <AiPanelStatus
+        noDb={result.noDb}
+        noKey={result.noKey}
+        error={result.error}
+        keyHint="enable AI summaries."
+        hasResult={Boolean(result.summary)}
+        isPending={isPending}
+        emptyHint={
+          <p className="text-xs text-[--ink-3]">
+            Click &ldquo;Summarise&rdquo; to generate an AI brief of this contact&apos;s notes and recent activity.
+          </p>
+        }
+      />
 
-      {result.noKey && (
-        <p className="text-xs text-[--warn]">
-          Set{" "}
-          <code className="rounded bg-[--surface-2] px-1 py-0.5">
-            DEEPSEEK_API_KEY
-          </code>{" "}
-          in your environment to enable AI summaries.
-        </p>
-      )}
-
-      {result.error && (
-        <p className="text-xs text-[--bad]">{result.error}</p>
-      )}
-
-      {result.summary ? (
+      {result.summary && (
         <div className="space-y-1.5">
           <p className="text-sm text-[--ink-1] leading-relaxed whitespace-pre-wrap">
             {result.summary}
@@ -73,15 +68,6 @@ export default function SummarizePanel({ contactId, initialSummary, initialSumma
             </p>
           )}
         </div>
-      ) : (
-        !result.noDb &&
-        !result.noKey &&
-        !result.error &&
-        !isPending && (
-          <p className="text-xs text-[--ink-3]">
-            Click &ldquo;Summarise&rdquo; to generate an AI brief of this contact&apos;s notes and recent activity.
-          </p>
-        )
       )}
     </div>
   );

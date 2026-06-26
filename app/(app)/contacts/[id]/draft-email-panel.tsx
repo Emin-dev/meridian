@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { draftOutreachEmail, type DraftEmailState } from "../actions";
+import AiPanelStatus from "@/components/ai-panel-status";
 
 interface Props {
   contactId: number;
@@ -37,27 +38,21 @@ export default function DraftEmailPanel({ contactId }: Props) {
         </button>
       </div>
 
-      {result.noDb && (
-        <p className="text-xs text-[--ink-2]">
-          Database not connected — cannot load contact data.
-        </p>
-      )}
+      <AiPanelStatus
+        noDb={result.noDb}
+        noKey={result.noKey}
+        error={result.error}
+        keyHint="enable AI email drafting."
+        hasResult={Boolean(draftText)}
+        isPending={isPending}
+        emptyHint={
+          <p className="text-xs text-[--ink-3]">
+            Click &ldquo;Draft email&rdquo; to generate a personalized AI outreach email using this contact&apos;s details.
+          </p>
+        }
+      />
 
-      {result.noKey && (
-        <p className="text-xs text-[--warn]">
-          Set{" "}
-          <code className="rounded bg-[--surface-2] px-1 py-0.5">
-            DEEPSEEK_API_KEY
-          </code>{" "}
-          in your environment to enable AI email drafting.
-        </p>
-      )}
-
-      {result.error && (
-        <p className="text-xs text-[--bad]">{result.error}</p>
-      )}
-
-      {draftText ? (
+      {draftText && (
         <div className="space-y-1.5">
           <p className="text-xs text-[--ink-3]">
             Edit the draft below before sending.
@@ -69,15 +64,6 @@ export default function DraftEmailPanel({ contactId }: Props) {
             className={textareaCls}
           />
         </div>
-      ) : (
-        !result.noDb &&
-        !result.noKey &&
-        !result.error &&
-        !isPending && (
-          <p className="text-xs text-[--ink-3]">
-            Click &ldquo;Draft email&rdquo; to generate a personalized AI outreach email using this contact&apos;s details.
-          </p>
-        )
       )}
     </div>
   );

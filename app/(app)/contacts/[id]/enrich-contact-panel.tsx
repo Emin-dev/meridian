@@ -8,6 +8,7 @@ import {
   type EnrichState,
   type ApplyEnrichmentState,
 } from "../actions";
+import AiPanelStatus from "@/components/ai-panel-status";
 
 interface Props {
   contactId: number;
@@ -71,27 +72,22 @@ export default function EnrichContactPanel({ contactId }: Props) {
         </button>
       </div>
 
-      {result.noDb && (
-        <p className="text-xs text-[--ink-2]">
-          Database not connected — cannot load contact data.
-        </p>
-      )}
+      <AiPanelStatus
+        noDb={result.noDb}
+        noKey={result.noKey}
+        error={result.error}
+        keyHint="enable AI contact enrichment."
+        hasResult={hasResult}
+        isPending={isPending}
+        emptyHint={
+          <p className="text-xs text-[--ink-3]">
+            Click &ldquo;Enrich with AI&rdquo; to infer missing fields (title,
+            company, notes) from this contact&apos;s name, email, and activity.
+          </p>
+        }
+      />
 
-      {result.noKey && (
-        <p className="text-xs text-[--warn]">
-          Set{" "}
-          <code className="rounded bg-[--surface-2] px-1 py-0.5">
-            DEEPSEEK_API_KEY
-          </code>{" "}
-          in your environment to enable AI contact enrichment.
-        </p>
-      )}
-
-      {result.error && (
-        <p className="text-xs text-[--bad]">{result.error}</p>
-      )}
-
-      {hasResult ? (
+      {hasResult && (
         <div className="space-y-3">
           <p className="text-xs text-[--ink-3]">
             Review the AI suggestions below, edit if needed, then apply.
@@ -165,16 +161,6 @@ export default function EnrichContactPanel({ contactId }: Props) {
             {isSaving ? "Applying…" : "Apply suggestions"}
           </button>
         </div>
-      ) : (
-        !result.noDb &&
-        !result.noKey &&
-        !result.error &&
-        !isPending && (
-          <p className="text-xs text-[--ink-3]">
-            Click &ldquo;Enrich with AI&rdquo; to infer missing fields (title,
-            company, notes) from this contact&apos;s name, email, and activity.
-          </p>
-        )
       )}
     </div>
   );

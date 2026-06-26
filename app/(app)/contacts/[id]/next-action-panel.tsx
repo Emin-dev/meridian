@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { suggestNextAction, type NextActionState } from "../actions";
 import { logAiTaskSuggestion } from "@/app/(app)/activity/actions";
 import { useToast } from "@/components/toaster";
+import AiPanelStatus from "@/components/ai-panel-status";
 
 interface Props {
   contactId: number;
@@ -113,25 +114,22 @@ export default function NextActionPanel({
         </button>
       </div>
 
-      {result.noDb && (
-        <p className="text-xs text-[--ink-2]">
-          Database not connected — cannot load contact data.
-        </p>
-      )}
+      <AiPanelStatus
+        noDb={result.noDb}
+        noKey={result.noKey}
+        error={result.error}
+        keyHint="enable AI suggestions."
+        hasResult={hasResult}
+        isPending={isPending}
+        emptyHint={
+          <p className="text-xs text-[--ink-3]">
+            Click &ldquo;Suggest action&rdquo; to get an AI-recommended next step based on this
+            contact&apos;s profile, lead score, and recent activity.
+          </p>
+        }
+      />
 
-      {result.noKey && (
-        <p className="text-xs text-[--warn]">
-          Set{" "}
-          <code className="rounded bg-[--surface-2] px-1 py-0.5">DEEPSEEK_API_KEY</code>{" "}
-          in your environment to enable AI suggestions.
-        </p>
-      )}
-
-      {result.error && (
-        <p className="text-xs text-[--bad]">{result.error}</p>
-      )}
-
-      {hasResult ? (
+      {hasResult && (
         <div className="space-y-3">
           {/* Recommended action */}
           <div className="flex items-start gap-3 rounded-lg border border-[--accent]/30 bg-[--accent-tint] px-4 py-3">
@@ -193,16 +191,6 @@ export default function NextActionPanel({
             </div>
           )}
         </div>
-      ) : (
-        !result.noDb &&
-        !result.noKey &&
-        !result.error &&
-        !isPending && (
-          <p className="text-xs text-[--ink-3]">
-            Click &ldquo;Suggest action&rdquo; to get an AI-recommended next step based on this
-            contact&apos;s profile, lead score, and recent activity.
-          </p>
-        )
       )}
     </div>
   );
