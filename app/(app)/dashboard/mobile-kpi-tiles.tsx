@@ -263,7 +263,7 @@ export default function MobileKpiTiles({
         onClose={() => setActive(null)}
         title={active ? SHEET_TITLE[active] : undefined}
       >
-        <div className="max-h-[70svh] overflow-y-auto">
+        <div className="max-h-[75svh] overflow-y-auto">
           {active && renderSheet(active)}
         </div>
       </MobileActionSheet>

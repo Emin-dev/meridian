@@ -138,7 +138,7 @@ export default function AppShell({ children, signedIn = false, overdueCount = 0,
             aria-label="Open navigation menu"
             aria-expanded={navOpen}
             aria-controls="mobile-nav-drawer"
-            className="tap press relative -ml-1 flex items-center justify-center rounded-lg text-[var(--ink-2)] hover:text-[var(--ink-1)] lg:hidden"
+            className="press relative -ml-1 flex h-11 w-11 items-center justify-center rounded-lg text-[var(--ink-2)] hover:text-[var(--ink-1)] lg:hidden"
           >
             <MenuIcon size={20} aria-hidden="true" />
             {overdueTotal > 0 && (
