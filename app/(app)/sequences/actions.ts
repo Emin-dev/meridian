@@ -1,6 +1,7 @@
 "use server";
 
 import { getDb, schema } from "@/db";
+import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { chat } from "@/lib/ai";
@@ -55,15 +56,21 @@ export async function createSequence(
     .values({ name })
     .returning({ id: schema.sequences.id });
 
-  await db.insert(schema.sequenceSteps).values(
-    steps.map((step, i) => ({
-      sequenceId: seq.id,
-      position: i + 1,
-      delayDays: step.delayDays,
-      subjectTemplate: step.subjectTemplate,
-      bodyTemplate: step.bodyTemplate,
-    }))
-  );
+  try {
+    await db.insert(schema.sequenceSteps).values(
+      steps.map((step, i) => ({
+        sequenceId: seq.id,
+        position: i + 1,
+        delayDays: step.delayDays,
+        subjectTemplate: step.subjectTemplate,
+        bodyTemplate: step.bodyTemplate,
+      }))
+    );
+  } catch {
+    // neon-http has no interactive transactions; roll back the orphan sequence by hand.
+    await db.delete(schema.sequences).where(eq(schema.sequences.id, seq.id));
+    return { error: "Couldn't save the sequence steps. Please try again." };
+  }
 
   revalidatePath("/sequences");
   redirect("/sequences");
