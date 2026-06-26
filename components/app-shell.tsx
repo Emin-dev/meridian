@@ -73,7 +73,7 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
   );
 
   return (
-    <div className="flex h-dvh bg-neutral-950 text-neutral-100 overflow-hidden">
+    <div className="flex h-dvh bg-[--bg] text-[--ink-1] overflow-hidden">
       {/* Bottom tab bar — rendered before overlay so overlay stacks above it (same z-40, DOM order wins) */}
       <nav
         aria-label="Mobile navigation"
@@ -151,17 +151,17 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
       {/* Sidebar */}
       <aside
         className={[
-          "fixed inset-y-0 left-0 z-50 flex w-60 flex-col bg-neutral-900 border-r border-neutral-800 transition-transform duration-200 ease-in-out",
+          "fixed inset-y-0 left-0 z-50 flex w-60 flex-col bg-[--surface-1] border-r border-[--line-1] transition-transform duration-200 ease-in-out",
           "lg:relative lg:translate-x-0",
           mobileOpen ? "translate-x-0" : "-translate-x-full",
         ].join(" ")}
       >
         {/* Logo */}
-        <div className="flex items-center gap-2.5 px-4 py-4 border-b border-neutral-800 shrink-0">
+        <div className="flex items-center gap-2.5 px-4 py-4 border-b border-[--line-1] shrink-0">
           <div className="flex h-7 w-7 items-center justify-center rounded-md bg-indigo-600 text-sm font-bold text-white">
             M
           </div>
-          <span className="text-sm font-semibold tracking-tight text-neutral-100">Meridian</span>
+          <span className="text-sm font-semibold tracking-tight text-[--ink-1]">Meridian</span>
         </div>
 
         {/* Nav */}
@@ -183,7 +183,7 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
                   "press flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium",
                   active
                     ? "bg-indigo-600 text-white"
-                    : "text-neutral-400 hover:bg-neutral-800 hover:text-neutral-100",
+                    : "text-[--ink-2] hover:bg-[--surface-2] hover:text-[--ink-1]",
                 ].join(" ")}
               >
                 <span className="shrink-0">{item.icon}</span>
@@ -199,12 +199,12 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
         </nav>
 
         {/* Sidebar footer */}
-        <div className="shrink-0 border-t border-neutral-800 px-4 py-3 flex items-center justify-between">
-          <p className="text-xs text-neutral-600">v0.1.0</p>
+        <div className="shrink-0 border-t border-[--line-1] px-4 py-3 flex items-center justify-between">
+          <p className="text-xs text-[--ink-3]">v0.1.0</p>
           <form action={logout}>
             <button
               type="submit"
-              className="text-xs text-neutral-500 transition-colors hover:text-neutral-300"
+              className="text-xs text-[--ink-3] transition-colors hover:text-[--ink-1]"
             >
               Sign out
             </button>
@@ -223,7 +223,7 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
           >
             <MenuIcon size={20} aria-hidden="true" />
           </button>
-          <h1 className="flex-1 truncate min-w-0 text-sm font-semibold text-neutral-100">{pageLabel}</h1>
+          <h1 className="flex-1 truncate min-w-0 text-sm font-semibold text-[--ink-1]">{pageLabel}</h1>
           <button
             onClick={() => setSearchOpen(true)}
             className="tap press flex items-center gap-2 rounded-lg border border-[--line-1] bg-[--surface-2] px-3 text-xs text-[--ink-2] hover:border-[--line-2] hover:text-[--ink-1]"
@@ -231,7 +231,7 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
           >
             <SearchIcon size={13} aria-hidden="true" />
             <span className="hidden sm:inline">Search</span>
-            <kbd className="hidden rounded border border-neutral-600 px-1 font-mono text-xs sm:inline">
+            <kbd className="hidden rounded border border-[--line-1] px-1 font-mono text-xs sm:inline">
               {isMac ? "⌘K" : "Ctrl+K"}
             </kbd>
           </button>
