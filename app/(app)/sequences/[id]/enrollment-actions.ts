@@ -55,7 +55,10 @@ export async function markStepSent(
   // Server-authoritative guard: only advance the step the client actually saw.
   // Protects against stale pages / double-clicks re-logging a sent step or
   // moving the position backward.
-  if (!enrollment || enrollment.status !== "active") return {};
+  if (!enrollment) return {};
+  if (enrollment.status !== "active") {
+    return { error: "Enrollment is no longer active" };
+  }
   if (newStepPosition !== enrollment.currentStepPosition + 1) return {};
 
   const isCompleted = newStepPosition >= totalSteps;
