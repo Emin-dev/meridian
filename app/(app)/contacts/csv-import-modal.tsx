@@ -100,6 +100,11 @@ export default function CsvImportModal({ hasDb }: Props) {
           if (e.target === dialogRef.current && !isPending)
             dialogRef.current?.close();
         }}
+        onCancel={(e) => {
+          // Escape fires the dialog's cancel event; block it mid-import so the
+          // running import isn't abandoned and its results stay visible.
+          if (isPending) e.preventDefault();
+        }}
         className="m-0 inset-x-0 bottom-0 top-auto w-full max-w-none rounded-t-[var(--r-2xl)] max-h-[90dvh] overflow-hidden flex flex-col border border-[var(--line-1)] bg-[var(--surface-1)] p-0 text-[var(--ink-1)] shadow-2xl backdrop:bg-black/60 sm:m-auto sm:inset-0 sm:max-w-2xl sm:w-full sm:rounded-xl"
       >
         {mode === "results" ? (
