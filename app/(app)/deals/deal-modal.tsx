@@ -144,7 +144,7 @@ export default function DealModal({
             </div>
           </div>
           {formatted && (
-            <p className="mt-1 text-sm font-semibold text-indigo-400">
+            <p className="mt-1 text-sm font-semibold text-[--accent]">
               {formatted}
             </p>
           )}
@@ -171,7 +171,7 @@ export default function DealModal({
           )}
           <Link
             href={`/deals/${deal.id}`}
-            className="mt-2 inline-block text-xs text-neutral-600 hover:text-indigo-400 transition-colors"
+            className="mt-2 inline-block text-xs text-neutral-600 hover:text-[--accent] transition-colors"
           >
             View details →
           </Link>
@@ -181,7 +181,7 @@ export default function DealModal({
         <button
           type="button"
           onClick={openModal}
-          className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
+          className="rounded-lg bg-[--accent] px-4 py-2 text-sm font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover]"
         >
           {buttonLabel}
         </button>
@@ -275,7 +275,7 @@ export default function DealModal({
                   required
                   placeholder="Acme Corp — Enterprise"
                   defaultValue={deal?.title ?? ""}
-                  className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none"
+                  className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-[--accent] focus:outline-none"
                 />
                 {state.fieldErrors?.title && (
                   <p className="mt-1 text-xs text-red-400">
@@ -296,7 +296,7 @@ export default function DealModal({
                   id="dm-stage"
                   name="stage"
                   defaultValue={deal?.stage ?? defaultStage}
-                  className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 focus:border-indigo-500 focus:outline-none"
+                  className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 focus:border-[--accent] focus:outline-none"
                 >
                   {STAGES.map((s) => (
                     <option key={s.value} value={s.value}>
@@ -323,7 +323,7 @@ export default function DealModal({
                     step="0.01"
                     placeholder="10000"
                     defaultValue={deal?.value ?? ""}
-                    className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none"
+                    className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-[--accent] focus:outline-none"
                   />
                 </div>
                 <div>
@@ -337,7 +337,7 @@ export default function DealModal({
                     id="dm-currency"
                     name="currency"
                     defaultValue={deal?.currency ?? defaultCurrency}
-                    className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 focus:border-indigo-500 focus:outline-none"
+                    className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 focus:border-[--accent] focus:outline-none"
                   >
                     {CURRENCIES.map((c) => (
                       <option key={c} value={c}>
@@ -361,7 +361,7 @@ export default function DealModal({
                   name="expectedCloseDate"
                   type="date"
                   defaultValue={defaultDate}
-                  className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 focus:border-indigo-500 focus:outline-none"
+                  className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 focus:border-[--accent] focus:outline-none"
                 />
               </div>
 
@@ -381,7 +381,7 @@ export default function DealModal({
                     defaultContactId?.toString() ??
                     ""
                   }
-                  className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 focus:border-indigo-500 focus:outline-none"
+                  className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 focus:border-[--accent] focus:outline-none"
                 >
                   <option value="">— None —</option>
                   {contacts.map((c) => (
@@ -406,7 +406,7 @@ export default function DealModal({
                   type="text"
                   placeholder="Assigned rep"
                   defaultValue={deal?.owner ?? ""}
-                  className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none"
+                  className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-[--accent] focus:outline-none"
                 />
               </div>
 
@@ -424,7 +424,7 @@ export default function DealModal({
                   rows={3}
                   placeholder="Any notes about this deal…"
                   defaultValue={extractUserNotes(deal?.notes ?? null) ?? ""}
-                  className="w-full resize-none rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none"
+                  className="w-full resize-none rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-[--accent] focus:outline-none"
                 />
               </div>
 
@@ -445,7 +445,7 @@ export default function DealModal({
               <button
                 type="submit"
                 disabled={pending}
-                className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
+                className="rounded-lg bg-[--accent] px-4 py-2 text-sm font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
               >
                 {pending ? "Saving…" : isEdit ? "Save changes" : "Create deal"}
               </button>

@@ -17,7 +17,7 @@ export default function KanbanColumn({
     <div
       className={`flex w-[min(80vw,320px)] flex-none snap-start flex-col rounded-xl border transition-colors ${
         over
-          ? "border-indigo-500/40 bg-indigo-950/20"
+          ? "border-[--accent]/40 bg-[--accent-tint]"
           : "border-neutral-800 bg-neutral-900"
       }`}
       onDragOver={(e) => {

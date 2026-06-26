@@ -38,7 +38,7 @@ export default function OwnerFilter({ owners, selected }: OwnerFilterProps) {
         <select
           value={selected}
           onChange={handleChange}
-          className="tap rounded-lg border border-neutral-700 bg-neutral-900 px-3 text-xs text-neutral-300 focus:border-indigo-500 focus:outline-none"
+          className="tap rounded-lg border border-neutral-700 bg-neutral-900 px-3 text-xs text-neutral-300 focus:border-[--accent] focus:outline-none"
           aria-label="Filter by owner"
         >
           <option value="">All owners</option>
@@ -55,7 +55,7 @@ export default function OwnerFilter({ owners, selected }: OwnerFilterProps) {
         type="button"
         onClick={() => setSheetOpen(true)}
         aria-label="Filter by owner"
-        className="tap lg:hidden rounded-lg border border-neutral-700 bg-neutral-900 px-3 text-xs text-neutral-300 transition-colors hover:bg-neutral-800 focus:border-indigo-500 focus:outline-none"
+        className="tap lg:hidden rounded-lg border border-neutral-700 bg-neutral-900 px-3 text-xs text-neutral-300 transition-colors hover:bg-neutral-800 focus:border-[--accent] focus:outline-none"
       >
         {selected || "All owners"}
       </button>
