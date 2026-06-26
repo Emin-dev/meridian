@@ -166,7 +166,7 @@ export default function CsvImportModal({ hasDb }: Props) {
       <button
         type="button"
         onClick={handleOpen}
-        className="rounded-lg border border-neutral-700 bg-neutral-800 px-4 py-2 text-sm font-medium text-neutral-300 transition-colors hover:bg-neutral-700 hover:text-neutral-100"
+        className="rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-4 py-2 text-sm font-medium text-[var(--ink-2)] transition-colors hover:bg-[var(--surface-3)] hover:text-[var(--ink-1)]"
       >
         Import CSV
       </button>
@@ -177,17 +177,17 @@ export default function CsvImportModal({ hasDb }: Props) {
           if (e.target === dialogRef.current && !isPending)
             dialogRef.current?.close();
         }}
-        className="m-0 inset-x-0 bottom-0 top-auto w-full max-w-none rounded-t-[var(--r-2xl)] max-h-[90dvh] overflow-hidden flex flex-col border border-neutral-800 bg-neutral-900 p-0 text-neutral-100 shadow-2xl backdrop:bg-black/60 sm:m-auto sm:inset-0 sm:max-w-2xl sm:w-full sm:rounded-xl"
+        className="m-0 inset-x-0 bottom-0 top-auto w-full max-w-none rounded-t-[var(--r-2xl)] max-h-[90dvh] overflow-hidden flex flex-col border border-[var(--line-1)] bg-[var(--surface-1)] p-0 text-[var(--ink-1)] shadow-2xl backdrop:bg-black/60 sm:m-auto sm:inset-0 sm:max-w-2xl sm:w-full sm:rounded-xl"
       >
         {mode === "results" ? (
           <>
             {/* Results header */}
-            <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-4 shrink-0">
+            <div className="flex items-center justify-between border-b border-[var(--line-1)] px-6 py-4 shrink-0">
               <h2 className="text-base font-semibold">Import Complete</h2>
               <button
                 type="button"
                 onClick={handleClose}
-                className="tap flex items-center justify-center rounded-lg text-neutral-400 hover:bg-neutral-800 hover:text-neutral-100 transition-colors"
+                className="tap flex items-center justify-center rounded-lg text-[var(--ink-2)] hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)] transition-colors"
                 aria-label="Close"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -199,35 +199,35 @@ export default function CsvImportModal({ hasDb }: Props) {
             <div className="flex-1 overflow-y-auto space-y-4 px-6 py-5">
               {/* Summary counts */}
               <div className="flex gap-4">
-                <div className="flex-1 rounded-lg border border-green-800/40 bg-green-900/20 px-4 py-3 text-center">
-                  <p className="text-2xl font-bold text-green-400">{importCount}</p>
-                  <p className="mt-0.5 text-xs text-green-600">imported</p>
+                <div className="flex-1 rounded-lg border border-[var(--ok-tint)] bg-[var(--ok-tint)] px-4 py-3 text-center">
+                  <p className="text-2xl font-bold text-[var(--ok)]">{importCount}</p>
+                  <p className="mt-0.5 text-xs text-[var(--ok)]">imported</p>
                 </div>
-                <div className="flex-1 rounded-lg border border-neutral-700 bg-neutral-800/50 px-4 py-3 text-center">
-                  <p className="text-2xl font-bold text-neutral-300">{allSkipped.length}</p>
-                  <p className="mt-0.5 text-xs text-neutral-500">skipped</p>
+                <div className="flex-1 rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-4 py-3 text-center">
+                  <p className="text-2xl font-bold text-[var(--ink-1)]">{allSkipped.length}</p>
+                  <p className="mt-0.5 text-xs text-[var(--ink-3)]">skipped</p>
                 </div>
               </div>
 
               {/* Skipped rows list */}
               {allSkipped.length > 0 && (
                 <div>
-                  <p className="mb-2 text-xs font-medium text-neutral-400">Skipped rows</p>
-                  <div className="max-h-56 overflow-x-auto overflow-y-auto rounded-lg border border-neutral-800">
+                  <p className="mb-2 text-xs font-medium text-[var(--ink-2)]">Skipped rows</p>
+                  <div className="max-h-56 overflow-x-auto overflow-y-auto rounded-lg border border-[var(--line-1)]">
                     <table className="w-full text-xs">
-                      <thead className="sticky top-0 bg-neutral-900">
-                        <tr className="border-b border-neutral-800 bg-neutral-800/60">
-                          <th className="w-16 px-3 py-2 text-left font-medium uppercase tracking-wide text-neutral-500">Row</th>
-                          <th className="px-3 py-2 text-left font-medium uppercase tracking-wide text-neutral-500">Name</th>
-                          <th className="px-3 py-2 text-left font-medium uppercase tracking-wide text-neutral-500">Reason</th>
+                      <thead className="sticky top-0 bg-[var(--surface-1)]">
+                        <tr className="border-b border-[var(--line-1)] bg-[var(--surface-2)]">
+                          <th className="w-16 px-3 py-2 text-left font-medium uppercase tracking-wide text-[var(--ink-3)]">Row</th>
+                          <th className="px-3 py-2 text-left font-medium uppercase tracking-wide text-[var(--ink-3)]">Name</th>
+                          <th className="px-3 py-2 text-left font-medium uppercase tracking-wide text-[var(--ink-3)]">Reason</th>
                         </tr>
                       </thead>
                       <tbody>
                         {allSkipped.map((s, i) => (
-                          <tr key={i} className="border-b border-neutral-800 last:border-0">
-                            <td className="px-3 py-2 tabular-nums text-neutral-500">{s.row}</td>
-                            <td className="px-3 py-2 font-medium text-neutral-300">{s.name}</td>
-                            <td className="px-3 py-2 text-amber-400">{s.reason}</td>
+                          <tr key={i} className="border-b border-[var(--line-1)] last:border-0">
+                            <td className="px-3 py-2 tabular-nums text-[var(--ink-3)]">{s.row}</td>
+                            <td className="px-3 py-2 font-medium text-[var(--ink-1)]">{s.name}</td>
+                            <td className="px-3 py-2 text-[var(--warn)]">{s.reason}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -237,11 +237,11 @@ export default function CsvImportModal({ hasDb }: Props) {
               )}
 
               {allSkipped.length === 0 && (
-                <p className="text-center text-xs text-neutral-500">All rows imported successfully — no rows were skipped.</p>
+                <p className="text-center text-xs text-[var(--ink-3)]">All rows imported successfully — no rows were skipped.</p>
               )}
             </div>
 
-            <div className="flex justify-end border-t border-neutral-800 px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] shrink-0">
+            <div className="flex justify-end border-t border-[var(--line-1)] px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] shrink-0">
               <button
                 type="button"
                 onClick={handleClose}
@@ -254,20 +254,20 @@ export default function CsvImportModal({ hasDb }: Props) {
         ) : (
           <>
             {/* Input header */}
-            <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-4 shrink-0">
+            <div className="flex items-center justify-between border-b border-[var(--line-1)] px-6 py-4 shrink-0">
               <div>
                 <h2 className="text-base font-semibold">Import Contacts from CSV</h2>
-                <p className="mt-0.5 text-xs text-neutral-500">
-                  Columns: <code className="rounded bg-neutral-800 px-1">name</code>,{" "}
-                  <code className="rounded bg-neutral-800 px-1">email</code>,{" "}
-                  <code className="rounded bg-neutral-800 px-1">phone</code>,{" "}
-                  <code className="rounded bg-neutral-800 px-1">company</code>
+                <p className="mt-0.5 text-xs text-[var(--ink-3)]">
+                  Columns: <code className="rounded bg-[var(--surface-2)] px-1">name</code>,{" "}
+                  <code className="rounded bg-[var(--surface-2)] px-1">email</code>,{" "}
+                  <code className="rounded bg-[var(--surface-2)] px-1">phone</code>,{" "}
+                  <code className="rounded bg-[var(--surface-2)] px-1">company</code>
                 </p>
               </div>
               <button
                 type="button"
                 onClick={handleClose}
-                className="tap flex items-center justify-center rounded-lg text-neutral-400 hover:bg-neutral-800 hover:text-neutral-100 transition-colors"
+                className="tap flex items-center justify-center rounded-lg text-[var(--ink-2)] hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)] transition-colors"
                 aria-label="Close"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -279,16 +279,16 @@ export default function CsvImportModal({ hasDb }: Props) {
             <div className="flex-1 overflow-y-auto space-y-4 px-6 py-5">
               {!hasDb ? (
                 <div className="space-y-2 py-6 text-center">
-                  <p className="text-sm text-neutral-300">Database not connected.</p>
-                  <p className="text-xs text-neutral-500">
-                    Set <code className="rounded bg-neutral-800 px-1 py-0.5">DATABASE_URL</code> to
+                  <p className="text-sm text-[var(--ink-2)]">Database not connected.</p>
+                  <p className="text-xs text-[var(--ink-3)]">
+                    Set <code className="rounded bg-[var(--surface-2)] px-1 py-0.5">DATABASE_URL</code> to
                     import contacts.
                   </p>
                 </div>
               ) : (
                 <>
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-neutral-400">
+                    <label className="mb-1 block text-xs font-medium text-[var(--ink-2)]">
                       Paste CSV text
                     </label>
                     <textarea
@@ -296,34 +296,34 @@ export default function CsvImportModal({ hasDb }: Props) {
                       value={csvText}
                       onChange={(e) => handleTextChange(e.target.value)}
                       placeholder={"name,email,phone,company\nJane Smith,jane@example.com,+1 555 0001,Acme Corp"}
-                      className="w-full resize-y rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 font-mono text-xs text-neutral-100 placeholder-neutral-600 focus:border-[--accent] focus:outline-none"
+                      className="w-full resize-y rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 font-mono text-xs text-[var(--ink-1)] placeholder-[var(--ink-3)] focus:border-[--accent] focus:outline-none"
                     />
                   </div>
 
                   {parseError && (
-                    <p className="text-xs text-red-400">{parseError}</p>
+                    <p className="text-xs text-[var(--bad)]">{parseError}</p>
                   )}
 
                   {parseSkipped.length > 0 && (
-                    <p className="text-xs text-amber-400">
+                    <p className="text-xs text-[var(--warn)]">
                       {parseSkipped.length} row{parseSkipped.length !== 1 ? "s" : ""} will be skipped (missing name).
                     </p>
                   )}
 
                   {parsed.length > 0 && (
                     <div>
-                      <p className="mb-2 text-xs font-medium text-neutral-400">
+                      <p className="mb-2 text-xs font-medium text-[var(--ink-2)]">
                         Preview — {parsed.length} row{parsed.length !== 1 ? "s" : ""}
                         {parsed.length > PREVIEW_LIMIT && ` (showing first ${PREVIEW_LIMIT})`}
                       </p>
-                      <div className="overflow-x-auto rounded-lg border border-neutral-800">
+                      <div className="overflow-x-auto rounded-lg border border-[var(--line-1)]">
                         <table className="w-full text-xs">
                           <thead>
-                            <tr className="border-b border-neutral-800 bg-neutral-800/50">
+                            <tr className="border-b border-[var(--line-1)] bg-[var(--surface-2)]">
                               {["Name", "Email", "Phone", "Company"].map((h) => (
                                 <th
                                   key={h}
-                                  className="px-3 py-2 text-left font-medium uppercase tracking-wide text-neutral-500"
+                                  className="px-3 py-2 text-left font-medium uppercase tracking-wide text-[var(--ink-3)]"
                                 >
                                   {h}
                                 </th>
@@ -334,12 +334,12 @@ export default function CsvImportModal({ hasDb }: Props) {
                             {parsed.slice(0, PREVIEW_LIMIT).map((row, i) => (
                               <tr
                                 key={i}
-                                className="border-b border-neutral-800 last:border-0"
+                                className="border-b border-[var(--line-1)] last:border-0"
                               >
-                                <td className="px-3 py-2 font-medium text-neutral-200">{row.name || "—"}</td>
-                                <td className="px-3 py-2 text-neutral-400">{row.email || "—"}</td>
-                                <td className="px-3 py-2 text-neutral-400">{row.phone || "—"}</td>
-                                <td className="px-3 py-2 text-neutral-400">{row.company || "—"}</td>
+                                <td className="px-3 py-2 font-medium text-[var(--ink-1)]">{row.name || "—"}</td>
+                                <td className="px-3 py-2 text-[var(--ink-2)]">{row.email || "—"}</td>
+                                <td className="px-3 py-2 text-[var(--ink-2)]">{row.phone || "—"}</td>
+                                <td className="px-3 py-2 text-[var(--ink-2)]">{row.company || "—"}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -352,11 +352,11 @@ export default function CsvImportModal({ hasDb }: Props) {
             </div>
 
             {/* Footer */}
-            <div className="flex justify-end gap-3 border-t border-neutral-800 px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] shrink-0">
+            <div className="flex justify-end gap-3 border-t border-[var(--line-1)] px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] shrink-0">
               <button
                 type="button"
                 onClick={handleClose}
-                className="tap flex items-center justify-center rounded-lg px-4 text-sm text-neutral-400 hover:bg-neutral-800 hover:text-neutral-100"
+                className="tap flex items-center justify-center rounded-lg px-4 text-sm text-[var(--ink-2)] hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)]"
               >
                 Cancel
               </button>
