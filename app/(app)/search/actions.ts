@@ -3,13 +3,7 @@
 import { or, ilike } from "drizzle-orm";
 import { z } from "zod";
 import { getDb, schema } from "@/db";
-
-// Hard per-entity cap. `ilike('%term%')` can't use an index, so an unbounded
-// match-count over a large connected DB is a full sequential scan that can blow
-// the Vercel 10s budget. Bounding every query to this many rows keeps the work
-// proportional to the cap, not the table size. Totals are derived from the
-// capped result set; the UI shows `N+` when a bucket reaches the limit.
-export const SEARCH_RESULT_LIMIT = 25;
+import { SEARCH_RESULT_LIMIT } from "./constants";
 
 // Bound the query length so empty/oversized inputs can't trigger needless
 // ilike table scans (every char widens the LIKE pattern). Require at least

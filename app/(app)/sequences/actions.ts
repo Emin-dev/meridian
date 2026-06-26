@@ -157,7 +157,9 @@ Rules: max 5 steps, use {{firstName}} and {{company}} as merge fields, keep emai
       const step = s as Record<string, unknown>;
       return {
         delayDays:
-          typeof step.delayDays === "number" ? Math.max(0, step.delayDays) : 0,
+          typeof step.delayDays === "number" && Number.isInteger(step.delayDays)
+            ? Math.max(0, step.delayDays)
+            : 0,
         subjectTemplate:
           typeof step.subjectTemplate === "string" ? step.subjectTemplate : "",
         bodyTemplate:

@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { SEARCH_RESULT_LIMIT, type SearchResults } from "./actions";
+import type { SearchResults } from "./actions";
+import { SEARCH_RESULT_LIMIT } from "./constants";
 
 type Tab = "contacts" | "deals" | "activities";
 const VALID_TABS: Tab[] = ["contacts", "deals", "activities"];
