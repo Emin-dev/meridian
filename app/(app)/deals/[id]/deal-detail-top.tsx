@@ -133,7 +133,7 @@ export default function DealDetailTop({ initialDeal, deleteButton }: Props) {
           onSaved={handleFormSaved}
           onRollback={handleFormRollback}
         />
-        <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 border-t border-[var(--line-1)] pt-4 text-sm sm:grid-cols-2">
+        <dl className="mt-5 grid grid-cols-1 gap-x-6 gap-y-3 border-t border-[var(--line-1)] pt-4 text-sm sm:grid-cols-2">
           <div>
             <dt className="text-xs text-[var(--ink-3)]">Created</dt>
             <dd className="mt-0.5 text-[var(--ink-1)]">
