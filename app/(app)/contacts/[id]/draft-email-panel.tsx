@@ -21,32 +21,32 @@ export default function DraftEmailPanel({ contactId }: Props) {
   }
 
   const textareaCls =
-    "w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none resize-none leading-relaxed";
+    "w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] placeholder-[--ink-3] focus:border-[--accent] focus:outline-none resize-none leading-relaxed";
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-neutral-300">AI outreach email</h3>
+        <h3 className="text-sm font-medium text-[--ink-1]">AI outreach email</h3>
         <button
           type="button"
           onClick={handleDraft}
           disabled={isPending}
-          className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
+          className="rounded-lg bg-[--accent] px-3 py-1.5 text-xs font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
         >
           {isPending ? "Drafting…" : draftText ? "Re-draft" : "Draft email"}
         </button>
       </div>
 
       {result.noDb && (
-        <p className="text-xs text-neutral-400">
+        <p className="text-xs text-[--ink-2]">
           Database not connected — cannot load contact data.
         </p>
       )}
 
       {result.noKey && (
-        <p className="text-xs text-amber-400">
+        <p className="text-xs text-[--warn]">
           Set{" "}
-          <code className="rounded bg-neutral-800 px-1 py-0.5">
+          <code className="rounded bg-[--surface-2] px-1 py-0.5">
             DEEPSEEK_API_KEY
           </code>{" "}
           in your environment to enable AI email drafting.
@@ -54,12 +54,12 @@ export default function DraftEmailPanel({ contactId }: Props) {
       )}
 
       {result.error && (
-        <p className="text-xs text-red-400">{result.error}</p>
+        <p className="text-xs text-[--bad]">{result.error}</p>
       )}
 
       {draftText ? (
         <div className="space-y-1.5">
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-[--ink-3]">
             Edit the draft below before sending.
           </p>
           <textarea
@@ -74,7 +74,7 @@ export default function DraftEmailPanel({ contactId }: Props) {
         !result.noKey &&
         !result.error &&
         !isPending && (
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-[--ink-3]">
             Click &ldquo;Draft email&rdquo; to generate a personalized AI outreach email using this contact&apos;s details.
           </p>
         )

@@ -26,27 +26,27 @@ export default function SummarizePanel({ contactId, initialSummary, initialSumma
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-neutral-300">AI contact brief</h3>
+        <h3 className="text-sm font-medium text-[--ink-1]">AI contact brief</h3>
         <button
           type="button"
           onClick={handleSummarize}
           disabled={isPending}
-          className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
+          className="rounded-lg bg-[--accent] px-3 py-1.5 text-xs font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
         >
           {isPending ? "Summarising…" : result.summary ? "Regenerate" : "Summarise"}
         </button>
       </div>
 
       {result.noDb && (
-        <p className="text-xs text-neutral-400">
+        <p className="text-xs text-[--ink-2]">
           Database not connected — cannot load contact data.
         </p>
       )}
 
       {result.noKey && (
-        <p className="text-xs text-amber-400">
+        <p className="text-xs text-[--warn]">
           Set{" "}
-          <code className="rounded bg-neutral-800 px-1 py-0.5">
+          <code className="rounded bg-[--surface-2] px-1 py-0.5">
             DEEPSEEK_API_KEY
           </code>{" "}
           in your environment to enable AI summaries.
@@ -54,16 +54,16 @@ export default function SummarizePanel({ contactId, initialSummary, initialSumma
       )}
 
       {result.error && (
-        <p className="text-xs text-red-400">{result.error}</p>
+        <p className="text-xs text-[--bad]">{result.error}</p>
       )}
 
       {result.summary ? (
         <div className="space-y-1.5">
-          <p className="text-sm text-neutral-300 leading-relaxed whitespace-pre-wrap">
+          <p className="text-sm text-[--ink-1] leading-relaxed whitespace-pre-wrap">
             {result.summary}
           </p>
           {result.summaryAt && (
-            <p className="text-[11px] text-neutral-500">
+            <p className="text-[11px] text-[--ink-3]">
               Cached brief from{" "}
               {new Date(result.summaryAt).toLocaleString(undefined, {
                 dateStyle: "medium",
@@ -78,7 +78,7 @@ export default function SummarizePanel({ contactId, initialSummary, initialSumma
         !result.noKey &&
         !result.error &&
         !isPending && (
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-[--ink-3]">
             Click &ldquo;Summarise&rdquo; to generate an AI brief of this contact&apos;s notes and recent activity.
           </p>
         )
