@@ -67,6 +67,8 @@ export async function savePreferences(
   }
 
   revalidatePath("/settings");
+  revalidatePath("/deals");
+  revalidatePath("/dashboard");
   return { success: true };
 }
 
