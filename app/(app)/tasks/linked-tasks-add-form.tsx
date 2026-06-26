@@ -12,8 +12,8 @@ interface Props {
 const INIT: AddTaskState = {};
 
 const inputCls =
-  "w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-[--accent] focus:outline-none";
-const labelCls = "mb-1 block text-xs font-medium text-neutral-400";
+  "w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] placeholder:text-[--ink-3] focus:border-[--accent] focus:outline-none";
+const labelCls = "mb-1 block text-xs font-medium text-[--ink-2]";
 
 export default function LinkedTaskAddForm({ contactId, dealId }: Props) {
   const [state, formAction, pending] = useActionState(addLinkedTask, INIT);

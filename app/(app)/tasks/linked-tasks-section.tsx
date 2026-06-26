@@ -48,15 +48,15 @@ export default async function LinkedTasksSection({ contactId, dealId }: Props) {
   return (
     <details className="group" open>
       <summary className="flex cursor-pointer list-none items-center gap-3 [&::-webkit-details-marker]:hidden">
-        <h3 className="flex-1 text-sm font-medium text-neutral-300">
+        <h3 className="flex-1 text-sm font-medium text-[--ink-2]">
           Tasks
           {count > 0 && (
-            <span className="ml-2 rounded-full bg-neutral-800 px-1.5 py-0.5 text-xs font-normal text-neutral-500">
+            <span className="ml-2 rounded-full bg-[--surface-2] px-1.5 py-0.5 text-xs font-normal text-[--ink-3]">
               {count}
             </span>
           )}
         </h3>
-        <span className="text-xs text-neutral-500 transition-transform duration-150 group-open:rotate-180">
+        <span className="text-xs text-[--ink-3] transition-transform duration-150 group-open:rotate-180">
           ▾
         </span>
       </summary>
@@ -71,7 +71,7 @@ export default async function LinkedTasksSection({ contactId, dealId }: Props) {
             {count === 0 ? (
               <p className="text-sm text-[--ink-3]">No tasks yet.</p>
             ) : (
-              <ul className="divide-y divide-neutral-800">
+              <ul className="divide-y divide-[--line-1]">
                 {tasks.map((task) => {
                   const completed = !!task.completedAt;
                   const dueStr = task.dueAt
@@ -94,14 +94,14 @@ export default async function LinkedTasksSection({ contactId, dealId }: Props) {
                       <span
                         className={`flex-1 text-sm ${
                           completed
-                            ? "text-neutral-500 line-through"
-                            : "text-neutral-200"
+                            ? "text-[--ink-3] line-through"
+                            : "text-[--ink-1]"
                         }`}
                       >
                         {task.subject}
                       </span>
                       {dueStr && (
-                        <span className="shrink-0 text-xs text-neutral-500">
+                        <span className="shrink-0 text-xs text-[--ink-3]">
                           {dueStr}
                         </span>
                       )}
