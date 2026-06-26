@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, count, desc, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import type { Sequence } from "@/db/schema";
 import { getCrmSettings } from "@/lib/settings";
@@ -20,14 +20,36 @@ export default async function SequencesPage() {
   let dueEnrollments: DueEnrollment[] = [];
 
   if (db) {
-    const [seqResults, allSteps, activeEnrollments] = await Promise.all([
+    const [seqResults, stepCountRows, activeSteps, activeEnrollments] =
+      await Promise.all([
       db
         .select()
         .from(schema.sequences)
         .orderBy(desc(schema.sequences.createdAt)),
+      // Grouped count per sequence for the list display — avoids loading every step row.
       db
-        .select()
+        .select({
+          sequenceId: schema.sequenceSteps.sequenceId,
+          count: count(),
+        })
         .from(schema.sequenceSteps)
+        .groupBy(schema.sequenceSteps.sequenceId),
+      // Step rows are only needed to compute due steps, which apply solely to
+      // active sequences — so scope the row load to those.
+      db
+        .select({
+          sequenceId: schema.sequenceSteps.sequenceId,
+          position: schema.sequenceSteps.position,
+          delayDays: schema.sequenceSteps.delayDays,
+          subjectTemplate: schema.sequenceSteps.subjectTemplate,
+          bodyTemplate: schema.sequenceSteps.bodyTemplate,
+        })
+        .from(schema.sequenceSteps)
+        .innerJoin(
+          schema.sequences,
+          eq(schema.sequenceSteps.sequenceId, schema.sequences.id),
+        )
+        .where(eq(schema.sequences.status, "active"))
         .orderBy(asc(schema.sequenceSteps.position)),
       db
         .select({
@@ -68,9 +90,12 @@ export default async function SequencesPage() {
 
     sequences = seqResults;
 
-    const stepsBySequence = new Map<number, typeof allSteps>();
-    for (const step of allSteps) {
-      stepCounts.set(step.sequenceId, (stepCounts.get(step.sequenceId) ?? 0) + 1);
+    for (const row of stepCountRows) {
+      stepCounts.set(row.sequenceId, row.count);
+    }
+
+    const stepsBySequence = new Map<number, typeof activeSteps>();
+    for (const step of activeSteps) {
       const arr = stepsBySequence.get(step.sequenceId) ?? [];
       arr.push(step);
       stepsBySequence.set(step.sequenceId, arr);
