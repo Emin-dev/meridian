@@ -9,6 +9,10 @@ import { useOverlayDismiss } from "@/hooks/use-overlay-dismiss";
 interface GlobalSearchProps {
   open: boolean;
   onClose: () => void;
+  // Whether a database is configured. When false, searchGlobal can only ever
+  // return empty results, so the overlay shows a "connect the database" state
+  // (matching the /search page) instead of a misleading "No results".
+  dbConnected?: boolean;
 }
 
 type FlatItem =
@@ -17,7 +21,7 @@ type FlatItem =
   | { kind: "activity"; id: number; href: string }
   | { kind: "see-all"; category: "contacts" | "deals" | "activities"; href: string };
 
-export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
+export function GlobalSearch({ open, onClose, dbConnected = true }: GlobalSearchProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResults | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -47,9 +51,19 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
 
   // Debounced search
   useEffect(() => {
-    if (!query.trim()) {
-      // Invalidate any in-flight request so a late response can't repopulate
-      // the list after the user has cleared the input.
+    // Mirror the server's querySchema.min(2) guard: a 0–1 char term can only
+    // ever return EMPTY_RESULTS, so skip the round-trip and stay in the prompt
+    // state instead of flashing a misleading "No results". Also invalidate any
+    // in-flight request so a late response can't repopulate a cleared input.
+    if (query.trim().length < 2) {
+      requestIdRef.current++;
+      setResults(null);
+      setSelectedIndex(0);
+      return;
+    }
+    // No database: searchGlobal returns empty regardless, so don't waste a
+    // round-trip — the render shows the "connect the database" state.
+    if (!dbConnected) {
       requestIdRef.current++;
       setResults(null);
       setSelectedIndex(0);
@@ -66,7 +80,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
       });
     }, 300);
     return () => clearTimeout(t);
-  }, [query]);
+  }, [query, dbConnected]);
 
   // Scroll selected item into view when selection changes via keyboard
   useEffect(() => {
@@ -201,17 +215,22 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
 
         {/* Results list — scrollable */}
         <div ref={listRef} className="flex-1 min-h-0 overflow-y-auto" role="listbox" aria-label="Search results">
-          {!results && (
+          {!dbConnected && query.trim().length >= 2 ? (
+            <div role="status" className="px-6 py-8 text-center">
+              <p className="text-body text-[var(--ink-2)]">Database not connected.</p>
+              <p className="mt-1 text-footnote text-[var(--ink-3)]">
+                Set DATABASE_URL to enable search.
+              </p>
+            </div>
+          ) : !results ? (
             <p role="status" className="py-8 text-center text-body text-[var(--ink-3)]">
               Type to search contacts, deals and activities
             </p>
-          )}
-
-          {results && allItems.length === 0 && (
+          ) : allItems.length === 0 ? (
             <p role="status" className="py-8 text-center text-body text-[var(--ink-3)]">
               No results for &ldquo;{query}&rdquo;
             </p>
-          )}
+          ) : null}
 
           {/* Contacts section */}
           {results && results.contacts.length > 0 && (

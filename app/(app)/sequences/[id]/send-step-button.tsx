@@ -113,7 +113,10 @@ function SendStepModal({
   return (
     <div
       className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 sm:items-center sm:p-4"
-      onClick={(e) => {
+      // Dismiss on the press target (not click) so selecting text inside the
+      // panel and releasing on the backdrop can't spuriously close it —
+      // matches the global-search overlay pattern.
+      onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >

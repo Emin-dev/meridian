@@ -103,7 +103,10 @@ export default function FindDuplicatesButton({ hasDb }: { hasDb: boolean }) {
       {open && (
         <div
           className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/70 p-4 pt-16 backdrop-blur-sm"
-          onClick={(e) => {
+          // Dismiss on the press target (not click) so selecting text inside the
+          // panel and releasing on the backdrop can't spuriously close it —
+          // matches the global-search overlay pattern.
+          onMouseDown={(e) => {
             if (e.target === e.currentTarget) setOpen(false);
           }}
         >
