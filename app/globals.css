@@ -133,6 +133,14 @@ body {
 /* Native dialog: always dark color scheme so system date/select pickers render dark */
 dialog { color-scheme: dark; }
 
+/* A closed native <dialog> must stay hidden even when layout utilities set its
+   display (our modals use `flex flex-col` for the header/body/footer column).
+   Author utilities live in `@layer utilities`; this rule is intentionally
+   unlayered so it outranks them and restores the UA "hidden until open"
+   behaviour — the dialog only becomes visible once showModal()/show() adds the
+   [open] attribute. Without this, the form renders inline on page load. */
+dialog:not([open]) { display: none; }
+
 /* View Transitions — native-feel cross-fade with a subtle iOS-style lift on the
    incoming view (opacity + transform only, per DESIGN §7). `navigation: auto`
    drives full-document navigations (initial load, hard refresh, cross-document
