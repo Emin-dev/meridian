@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { and, eq, gte, isNotNull, notInArray, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
+import MobileAnalyticsTiles, {
+  type AnalyticsTile,
+} from "./mobile-analytics-tiles";
 
 const CONTACT_STATUSES = [
   { key: "lead" as const, label: "Lead", dot: "bg-[--info]" },
@@ -59,6 +62,54 @@ function StatCard({
       <p className="mt-2 text-title3 font-bold text-[--ink-1]">{value}</p>
       <p className="mt-1 text-footnote text-[--ink-3]">{subtext}</p>
     </div>
+  );
+}
+
+// ── Mobile sheet building blocks ─────────────────────────────────────────────
+function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-[--r-lg] bg-[--surface-3] px-3 py-2.5">
+      <p className="text-caption uppercase tracking-wide text-[--ink-3]">
+        {label}
+      </p>
+      <p className="mt-1 text-callout font-semibold text-[--ink-1]">{value}</p>
+    </div>
+  );
+}
+
+function MobileBarRow({
+  label,
+  dot,
+  count,
+  max,
+}: {
+  label: string;
+  dot: string;
+  count: number;
+  max: number;
+}) {
+  return (
+    <div className="py-2.5">
+      <div className="flex items-center gap-2">
+        <span className={`h-2 w-2 shrink-0 rounded-full ${dot}`} />
+        <span className="text-callout text-[--ink-2]">{label}</span>
+        <span className="ml-auto text-callout font-semibold text-[--ink-1]">
+          {count}
+        </span>
+      </div>
+      <div className="mt-1.5 h-1.5 rounded-full bg-[--surface-3]">
+        <div
+          className={`h-1.5 rounded-full ${dot} opacity-60`}
+          style={{ width: count > 0 ? `${(count / max) * 100}%` : "0%" }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function SheetEmpty({ children }: { children: string }) {
+  return (
+    <p className="py-8 text-center text-callout text-[--ink-3]">{children}</p>
   );
 }
 
@@ -308,6 +359,244 @@ export default async function AnalyticsBody({ days }: { days: string }) {
       prevCount > 0 ? ((countByKey[curr] ?? 0) / prevCount) * 100 : null;
   }
 
+  // ── Mobile summary tiles (one per section) ───────────────────────────────────
+  const forecastTotalRaw = forecastMonths.reduce((s, b) => s + b.raw, 0);
+
+  const mobileTiles: AnalyticsTile[] = [
+    {
+      key: "conversion",
+      label: "Win Rate",
+      value: winRate !== null ? `${winRate.toFixed(1)}%` : "—",
+      subtext:
+        closedCount > 0 ? `${wonCount}/${closedCount} closed` : "No closed deals",
+      sheetTitle: "Conversion & Performance",
+      content: (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-2.5">
+            <MiniStat
+              label="Win Rate"
+              value={winRate !== null ? `${winRate.toFixed(1)}%` : "—"}
+            />
+            <MiniStat
+              label="Avg Won Deal"
+              value={avgWonValue !== null ? fmtUSD(avgWonValue) : "—"}
+            />
+            <MiniStat label="Pipeline Value" value={fmtUSD(totalPipeline)} />
+            <MiniStat
+              label="Avg Days to Close"
+              value={
+                avgDaysToClose !== null ? `${Math.round(avgDaysToClose)}d` : "—"
+              }
+            />
+          </div>
+          <p className="text-footnote text-[--ink-3]">
+            {closedCount > 0
+              ? `${wonCount} won of ${closedCount} closed deals · ${activeDealsCount} still active.`
+              : days
+                ? "No closed deals in this range yet."
+                : "No closed deals yet."}
+          </p>
+        </div>
+      ),
+    },
+    {
+      key: "funnel",
+      label: "Pipeline",
+      value: fmtUSD(totalPipeline),
+      subtext: `${activeDealsCount} active deal${activeDealsCount !== 1 ? "s" : ""}`,
+      sheetTitle: "Stage Funnel",
+      content:
+        totalDeals === 0 ? (
+          <SheetEmpty>
+            {days ? "No deals in this time range." : "No deals found."}
+          </SheetEmpty>
+        ) : (
+          <div className="divide-y divide-[--line-1]">
+            {stageRows.map((stage) => {
+              const conv = conversionRate[stage.key];
+              const convColor =
+                conv == null
+                  ? ""
+                  : conv >= 50
+                    ? "text-[--ok]"
+                    : conv >= 25
+                      ? "text-[--warn]"
+                      : "text-[--bad]";
+              return (
+                <div key={stage.key} className="py-2.5">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`h-2 w-2 shrink-0 rounded-full ${stage.dot}`}
+                    />
+                    <span className="text-callout text-[--ink-2]">
+                      {stage.label}
+                    </span>
+                    <span className="ml-auto text-callout font-semibold text-[--ink-1]">
+                      {stage.count}
+                    </span>
+                  </div>
+                  <div className="mt-1.5 h-1.5 rounded-full bg-[--surface-3]">
+                    <div
+                      className={`h-1.5 rounded-full ${stage.dot} opacity-60`}
+                      style={{
+                        width:
+                          stage.count > 0
+                            ? `${(stage.count / maxCount) * 100}%`
+                            : "0%",
+                      }}
+                    />
+                  </div>
+                  <div className="mt-1 flex items-center justify-between text-footnote">
+                    <span className="text-[--ink-2]">
+                      {stage.value > 0 ? fmtUSD(stage.value) : "—"}
+                    </span>
+                    {conv != null && (
+                      <span className={convColor}>{conv.toFixed(0)}% conv.</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ),
+    },
+    {
+      key: "sources",
+      label: "Contacts",
+      value: totalContacts.toString(),
+      subtext: "Status & sources",
+      sheetTitle: "Contacts",
+      content:
+        totalContacts === 0 ? (
+          <SheetEmpty>
+            {days ? "No contacts in this time range." : "No contacts found."}
+          </SheetEmpty>
+        ) : (
+          <div className="space-y-5">
+            <div>
+              <p className="mb-1 text-caption uppercase tracking-wide text-[--ink-3]">
+                Status distribution
+              </p>
+              <div className="divide-y divide-[--line-1]">
+                {statusRows.map((row) => (
+                  <MobileBarRow
+                    key={row.key}
+                    label={row.label}
+                    dot={row.dot}
+                    count={row.count}
+                    max={maxStatusCount}
+                  />
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="mb-1 text-caption uppercase tracking-wide text-[--ink-3]">
+                Source breakdown
+              </p>
+              <div className="divide-y divide-[--line-1]">
+                {sourceRows.map((row) => (
+                  <MobileBarRow
+                    key={row.key}
+                    label={row.label}
+                    dot={row.dot}
+                    count={row.count}
+                    max={maxSourceCount}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        ),
+    },
+    {
+      key: "forecast",
+      label: "Forecast",
+      value: fmtUSD(forecastTotalRaw),
+      subtext: "Next 6 months",
+      sheetTitle: "Revenue Forecast",
+      content: (
+        <div className="space-y-5">
+          <div>
+            <p className="mb-1 text-caption uppercase tracking-wide text-[--ink-3]">
+              Expected revenue (next 6 mo)
+            </p>
+            {!hasForecastData ? (
+              <SheetEmpty>No open deals with expected close dates.</SheetEmpty>
+            ) : (
+              <div className="divide-y divide-[--line-1]">
+                {forecastMonths.map((b) => (
+                  <div key={`${b.year}-${b.month}`} className="py-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-callout text-[--ink-2]">
+                        {b.label}
+                      </span>
+                      <span className="text-callout font-semibold text-[--ink-1]">
+                        {b.raw > 0 ? fmtUSD(b.raw) : "—"}
+                      </span>
+                    </div>
+                    <div className="mt-1.5 h-1.5 rounded-full bg-[--surface-3]">
+                      <div
+                        className="h-1.5 rounded-full bg-[--accent] opacity-70"
+                        style={{
+                          width:
+                            b.raw > 0
+                              ? `${(b.raw / maxForecastVal) * 100}%`
+                              : "0%",
+                        }}
+                      />
+                    </div>
+                    {b.weighted > 0 && (
+                      <p className="mt-1 text-footnote text-[--ink-3]">
+                        Weighted {fmtUSD(b.weighted)}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <div>
+            <p className="mb-1 text-caption uppercase tracking-wide text-[--ink-3]">
+              Deals closed per month
+            </p>
+            {!hasMonthData ? (
+              <SheetEmpty>No won deals yet.</SheetEmpty>
+            ) : (
+              <div className="divide-y divide-[--line-1]">
+                {monthBuckets.map((bucket) => (
+                  <div
+                    key={`${bucket.year}-${bucket.month}`}
+                    className="py-2.5"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-callout text-[--ink-2]">
+                        {bucket.label}
+                      </span>
+                      <span className="text-callout font-semibold text-[--ink-1]">
+                        {bucket.count}
+                      </span>
+                    </div>
+                    <div className="mt-1.5 h-1.5 rounded-full bg-[--surface-3]">
+                      <div
+                        className="h-1.5 rounded-full bg-[--ok] opacity-60"
+                        style={{
+                          width:
+                            bucket.count > 0
+                              ? `${(bucket.count / maxMonthCount) * 100}%`
+                              : "0%",
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <>
       {/* No DB state */}
@@ -337,6 +626,13 @@ export default async function AnalyticsBody({ days }: { days: string }) {
 
       {db && (
         <>
+          {/* Mobile (<lg): calm summary tiles that tap-expand into sheets */}
+          <div className="lg:hidden">
+            <MobileAnalyticsTiles tiles={mobileTiles} />
+          </div>
+
+          {/* Desktop (lg+): full charts and tables — layout unchanged */}
+          <div className="hidden space-y-8 lg:block">
           {/* Summary stat cards — container query: 1→2→4 cols */}
           <div className="@container">
             <div className="grid grid-cols-1 gap-4 @sm:grid-cols-2 @xl:grid-cols-4">
@@ -793,6 +1089,7 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                 </div>
               )}
             </div>
+          </div>
           </div>
         </>
       )}
