@@ -137,7 +137,7 @@ export async function deleteStep(
       .where(eq(schema.sequenceSteps.id, stepId))
       .limit(1);
 
-    if (!target) return {};
+    if (!target) return { error: "Step not found." };
 
     await db
       .delete(schema.sequenceSteps)
