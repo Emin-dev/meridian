@@ -188,7 +188,7 @@ export default function KanbanCard({
           <select
             value={deal.stage}
             onChange={handleStageChange}
-            className="w-full rounded border border-[--line-1] bg-[--surface-2] px-2 py-1 text-xs text-[--ink-2] focus:border-[--accent] focus:outline-none cursor-pointer"
+            className="min-h-[44px] w-full rounded border border-[--line-1] bg-[--surface-2] px-2 py-1 text-xs text-[--ink-2] focus:border-[--accent] focus:outline-none cursor-pointer"
             aria-label="Move to stage"
           >
             {STAGES.map((s) => (
