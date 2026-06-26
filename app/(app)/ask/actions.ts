@@ -248,13 +248,22 @@ ${context}`;
     return { answer: friendly, contacts: [], deals: [] };
   }
 
+  // Resolve each AI-referenced id against the loaded maps and drop any that are
+  // absent: the model can echo an id that has since left the cached dataset
+  // (query drift), and a force-unwrap would surface an undefined-named card.
   const matchedContacts = (Array.isArray(aiResponse.contactIds) ? aiResponse.contactIds : [])
-    .filter((id): id is number => Number.isInteger(id) && contactMap.has(id))
-    .map((id) => ({ id, name: contactMap.get(id)! }));
+    .filter((id): id is number => Number.isInteger(id))
+    .flatMap((id) => {
+      const name = contactMap.get(id);
+      return name === undefined ? [] : [{ id, name }];
+    });
 
   const matchedDeals = (Array.isArray(aiResponse.dealIds) ? aiResponse.dealIds : [])
-    .filter((id): id is number => Number.isInteger(id) && dealMap.has(id))
-    .map((id) => ({ id, title: dealMap.get(id)! }));
+    .filter((id): id is number => Number.isInteger(id))
+    .flatMap((id) => {
+      const title = dealMap.get(id);
+      return title === undefined ? [] : [{ id, title }];
+    });
 
   return {
     answer: typeof aiResponse.answer === "string" ? aiResponse.answer : "",
