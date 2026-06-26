@@ -84,8 +84,13 @@ export default function DealModal({
   // picker share a single source of truth (both submit via name="stage"/"currency").
   const [stage, setStage] = useState<string>(deal?.stage ?? defaultStage);
   const [currency, setCurrency] = useState<string>(deal?.currency ?? defaultCurrency);
+  const [contactId, setContactId] = useState<string>(
+    deal?.contactId?.toString() ?? defaultContactId?.toString() ?? ""
+  );
   const [stageSheetOpen, setStageSheetOpen] = useState(false);
   const [currencySheetOpen, setCurrencySheetOpen] = useState(false);
+  const [contactSheetOpen, setContactSheetOpen] = useState(false);
+  const [contactQuery, setContactQuery] = useState("");
 
   useEffect(() => {
     if (state.success) {
@@ -96,10 +101,13 @@ export default function DealModal({
       if (!isEdit) {
         setStage(defaultStage);
         setCurrency(defaultCurrency);
+        setContactId(defaultContactId?.toString() ?? "");
       }
+      setContactSheetOpen(false);
+      setContactQuery("");
       toast(isEdit ? "Deal saved" : "Deal created");
     }
-  }, [state.success, isEdit, defaultStage, defaultCurrency, toast]);
+  }, [state.success, isEdit, defaultStage, defaultCurrency, defaultContactId, toast]);
 
   const openModal = () => {
     // Never let two modals stack/overlap: close any other open dialog first.
@@ -437,15 +445,13 @@ export default function DealModal({
                 >
                   Contact
                 </label>
+                {/* Desktop: native select. Hidden on mobile but still submits `contactId`. */}
                 <select
                   id="dm-contact"
                   name="contactId"
-                  defaultValue={
-                    deal?.contactId?.toString() ??
-                    defaultContactId?.toString() ??
-                    ""
-                  }
-                  className="w-full rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--ink-1)] focus:border-[var(--accent)] focus:outline-none"
+                  value={contactId}
+                  onChange={(e) => setContactId(e.target.value)}
+                  className="hidden w-full rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--ink-1)] focus:border-[var(--accent)] focus:outline-none sm:block"
                 >
                   <option value="">— None —</option>
                   {contacts.map((c) => (
@@ -454,6 +460,31 @@ export default function DealModal({
                     </option>
                   ))}
                 </select>
+                {/* Mobile: 44px button opening a searchable action sheet. */}
+                <button
+                  type="button"
+                  onClick={() => setContactSheetOpen(true)}
+                  className="tap flex w-full items-center justify-between gap-2 rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 text-left text-sm text-[var(--ink-1)] focus:border-[var(--accent)] focus:outline-none sm:hidden"
+                >
+                  <span className="truncate">
+                    {contacts.find((c) => c.id.toString() === contactId)?.name ??
+                      "— None —"}
+                  </span>
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="shrink-0 text-[var(--ink-3)]"
+                    aria-hidden="true"
+                  >
+                    <path d="M6 9l6 6 6-6" />
+                  </svg>
+                </button>
               </div>
 
               {/* Owner */}
@@ -610,6 +641,85 @@ export default function DealModal({
                       )}
                     </button>
                   ))}
+                </div>
+              </MobileActionSheet>
+
+              <MobileActionSheet
+                open={contactSheetOpen}
+                onClose={() => {
+                  setContactSheetOpen(false);
+                  setContactQuery("");
+                }}
+                title="Contact"
+              >
+                <input
+                  type="text"
+                  inputMode="search"
+                  value={contactQuery}
+                  onChange={(e) => setContactQuery(e.target.value)}
+                  placeholder="Search contacts…"
+                  aria-label="Search contacts"
+                  className="mb-2 w-full rounded-lg border border-[var(--line-1)] bg-[var(--surface-3)] px-3 py-2 text-sm text-[var(--ink-1)] placeholder:text-[var(--ink-3)] focus:border-[var(--accent)] focus:outline-none"
+                />
+                <div
+                  role="radiogroup"
+                  aria-label="Contact"
+                  className="flex max-h-[40dvh] flex-col gap-2 overflow-y-auto"
+                >
+                  {[{ id: 0, name: "— None —" }, ...contacts]
+                    .filter(
+                      (c) =>
+                        c.id === 0 ||
+                        c.name.toLowerCase().includes(contactQuery.trim().toLowerCase())
+                    )
+                    .map((c) => {
+                      const cid = c.id === 0 ? "" : c.id.toString();
+                      const selected = contactId === cid;
+                      return (
+                        <button
+                          key={c.id}
+                          type="button"
+                          role="radio"
+                          onClick={() => {
+                            setContactId(cid);
+                            setContactSheetOpen(false);
+                            setContactQuery("");
+                          }}
+                          aria-checked={selected}
+                          className={`tap flex items-center justify-between gap-2 rounded-lg px-3 text-left text-body transition-colors ${
+                            selected
+                              ? "bg-[var(--surface-3)] text-[var(--ink-1)]"
+                              : "text-[var(--ink-2)] hover:bg-[var(--surface-3)]"
+                          }`}
+                        >
+                          <span className="truncate">{c.name}</span>
+                          {selected && (
+                            <svg
+                              width="18"
+                              height="18"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className="shrink-0 text-[var(--accent)]"
+                              aria-hidden="true"
+                            >
+                              <path d="M20 6L9 17l-5-5" />
+                            </svg>
+                          )}
+                        </button>
+                      );
+                    })}
+                  {contacts.length > 0 &&
+                    contacts.filter((c) =>
+                      c.name.toLowerCase().includes(contactQuery.trim().toLowerCase())
+                    ).length === 0 && (
+                      <p className="px-3 py-2 text-xs text-[var(--ink-3)]">
+                        No contacts match “{contactQuery.trim()}”.
+                      </p>
+                    )}
                 </div>
               </MobileActionSheet>
             </div>
