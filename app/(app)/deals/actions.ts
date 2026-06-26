@@ -33,6 +33,17 @@ const DealSchema = z.object({
   owner: z.string().transform((v) => (v === "" ? null : v)),
 });
 
+// Guard change-log rows before they hit the dealEvents table: the field must be
+// one of the tracked columns and values are nullable strings. Validating here
+// turns a bad field name / malformed value into a clear, surfaced error instead
+// of a silent failure inside the surrounding catch.
+const DealEventSchema = z.object({
+  dealId: z.number().int().positive(),
+  field: z.enum(["stage", "value", "probability"]),
+  oldValue: z.string().nullable(),
+  newValue: z.string().nullable(),
+});
+
 export type DealFormState = {
   error?: string;
   fieldErrors?: Partial<
@@ -153,12 +164,16 @@ export async function moveDealStage(
   // and its dealEvents record never drift apart.
   try {
     if (current.stage !== parsed.data) {
-      const eventStmt = db.insert(schema.dealEvents).values({
+      const event = DealEventSchema.safeParse({
         dealId: id,
         field: "stage",
         oldValue: current.stage,
         newValue: parsed.data,
       });
+      if (!event.success) {
+        return { error: "Could not update the deal stage. Please try again." };
+      }
+      const eventStmt = db.insert(schema.dealEvents).values(event.data);
       await db.batch([updateStmt, eventStmt]);
     } else {
       await db.batch([updateStmt]);
@@ -371,7 +386,11 @@ export async function updateDeal(
       });
     }
     if (events.length > 0) {
-      await db.insert(schema.dealEvents).values(events);
+      const parsedEvents = z.array(DealEventSchema).safeParse(events);
+      if (!parsedEvents.success) {
+        return { error: "Couldn't save the deal. Please try again." };
+      }
+      await db.insert(schema.dealEvents).values(parsedEvents.data);
     }
   } catch {
     return { error: "Couldn't save the deal. Please try again." };

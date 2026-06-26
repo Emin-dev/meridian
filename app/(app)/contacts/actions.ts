@@ -1382,11 +1382,23 @@ export async function findDuplicateContacts(): Promise<FindDuplicatesState> {
   // (true fuzzy candidates: similar names, shared company, typo'd emails) go to
   // the model, which shrinks the prompt and the token bill.
   const { pairs: exactPairs, claimed } = exactDuplicatePairs(allContacts);
-  const remaining = allContacts.filter((c) => !claimed.has(c.id));
+  const allRemaining = allContacts.filter((c) => !claimed.has(c.id));
 
   // Fewer than two contacts left to compare — nothing fuzzy to find, so skip
   // the AI call entirely and return whatever exact matches we found.
-  if (remaining.length < 2) return { pairs: exactPairs };
+  if (allRemaining.length < 2) return { pairs: exactPairs };
+
+  // Cap the fuzzy candidate list sent to the model. Prompt size and token cost
+  // scale linearly with the remainder, so on large workspaces we'd otherwise
+  // ship ~500 rows to DeepSeek. Contacts are ordered most-recently-updated
+  // first, so this keeps the freshest records; the rest are skipped this pass.
+  const FUZZY_CANDIDATE_CAP = 150;
+  const remaining = allRemaining.slice(0, FUZZY_CANDIDATE_CAP);
+  if (allRemaining.length > FUZZY_CANDIDATE_CAP) {
+    console.info(
+      `[findDuplicateContacts] capped fuzzy candidates to ${FUZZY_CANDIDATE_CAP} of ${allRemaining.length} unclaimed contacts`
+    );
+  }
 
   const contactList = remaining
     .map(
