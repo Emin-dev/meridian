@@ -33,8 +33,8 @@ export default function EditContactForm({ contact, onSaved, onRollback }: Props)
   >({});
 
   const inputCls =
-    "w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-[--accent] focus:outline-none";
-  const labelCls = "mb-1 block text-xs font-medium text-neutral-400";
+    "w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] placeholder:text-[--ink-3] focus:border-[--accent] focus:outline-none";
+  const labelCls = "mb-1 block text-xs font-medium text-[--ink-2]";
 
   async function handleDelete() {
     if (!window.confirm(`Delete "${contact.name}"? This cannot be undone.`)) return;
@@ -101,7 +101,7 @@ export default function EditContactForm({ contact, onSaved, onRollback }: Props)
       {/* Name */}
       <div>
         <label htmlFor="ec-name" className={labelCls}>
-          Name <span className="text-red-400">*</span>
+          Name <span className="text-[--bad]">*</span>
         </label>
         <input
           id="ec-name"
@@ -112,7 +112,7 @@ export default function EditContactForm({ contact, onSaved, onRollback }: Props)
           className={inputCls}
         />
         {fieldErrors.name && (
-          <p className="mt-1 text-xs text-red-400">{fieldErrors.name[0]}</p>
+          <p className="mt-1 text-xs text-[--bad]">{fieldErrors.name[0]}</p>
         )}
       </div>
 
@@ -129,7 +129,7 @@ export default function EditContactForm({ contact, onSaved, onRollback }: Props)
           className={inputCls}
         />
         {fieldErrors.email && (
-          <p className="mt-1 text-xs text-red-400">{fieldErrors.email[0]}</p>
+          <p className="mt-1 text-xs text-[--bad]">{fieldErrors.email[0]}</p>
         )}
       </div>
 
@@ -211,7 +211,7 @@ export default function EditContactForm({ contact, onSaved, onRollback }: Props)
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="shrink-0 text-neutral-500"
+              className="shrink-0 text-[--ink-3]"
               aria-hidden="true"
             >
               <path d="M6 9l6 6 6-6" />
@@ -247,7 +247,7 @@ export default function EditContactForm({ contact, onSaved, onRollback }: Props)
         <button
           type="button"
           onClick={handleDelete}
-          className="rounded-lg border border-red-800 px-4 py-2 text-sm text-red-400 transition-colors hover:bg-red-900/30 hover:text-red-300"
+          className="rounded-lg border border-[--bad]/40 px-4 py-2 text-sm text-[--bad] transition-colors hover:bg-[--bad-tint] hover:text-[--bad]"
         >
           Delete contact
         </button>

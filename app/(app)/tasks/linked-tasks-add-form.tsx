@@ -38,7 +38,7 @@ export default function LinkedTaskAddForm({ contactId, dealId }: Props) {
 
       <div className="flex-1">
         <label htmlFor={`ltf-subject-${uid}`} className={labelCls}>
-          New task <span className="text-red-400">*</span>
+          New task <span className="text-[--bad]">*</span>
         </label>
         <input
           id={`ltf-subject-${uid}`}
@@ -49,13 +49,13 @@ export default function LinkedTaskAddForm({ contactId, dealId }: Props) {
           className={inputCls}
         />
         {state.fieldErrors?.subject && (
-          <p className="mt-1 text-xs text-red-400">{state.fieldErrors.subject[0]}</p>
+          <p className="mt-1 text-xs text-[--bad]">{state.fieldErrors.subject[0]}</p>
         )}
       </div>
 
       <div>
         <label htmlFor={`ltf-due-${uid}`} className={labelCls}>
-          Due date <span className="text-red-400">*</span>
+          Due date <span className="text-[--bad]">*</span>
         </label>
         <input
           id={`ltf-due-${uid}`}
@@ -65,7 +65,7 @@ export default function LinkedTaskAddForm({ contactId, dealId }: Props) {
           className={`${inputCls} [color-scheme:dark] sm:w-36`}
         />
         {state.fieldErrors?.dueAt && (
-          <p className="mt-1 text-xs text-red-400">{state.fieldErrors.dueAt[0]}</p>
+          <p className="mt-1 text-xs text-[--bad]">{state.fieldErrors.dueAt[0]}</p>
         )}
       </div>
 

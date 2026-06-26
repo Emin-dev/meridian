@@ -38,7 +38,7 @@ export default function ContactNotesSection({
           <button
             type="button"
             onClick={() => setIsEditing(true)}
-            className="rounded-lg border border-neutral-700 px-3 py-1.5 text-xs text-neutral-400 transition-colors hover:border-neutral-600 hover:text-neutral-200"
+            className="rounded-lg border border-[--line-1] px-3 py-1.5 text-xs text-[--ink-2] transition-colors hover:border-[--line-2] hover:text-[--ink-1]"
           >
             Edit
           </button>
@@ -50,7 +50,7 @@ export default function ContactNotesSection({
   return (
     <form action={formAction} className="space-y-3">
       {state.noDb && (
-        <p className="text-xs text-amber-400">
+        <p className="text-xs text-[--warn]">
           Database not connected — notes cannot be saved.
         </p>
       )}
@@ -59,14 +59,14 @@ export default function ContactNotesSection({
         rows={4}
         placeholder="Add notes about this contact…"
         defaultValue={initialNotes ?? ""}
-        className="w-full resize-none rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-[--accent] focus:outline-none"
+        className="w-full resize-none rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] placeholder:text-[--ink-3] focus:border-[--accent] focus:outline-none"
       />
       <div className="flex items-center justify-end gap-2">
         {initialNotes && (
           <button
             type="button"
             onClick={() => setIsEditing(false)}
-            className="rounded-lg border border-neutral-700 px-3 py-1.5 text-xs text-neutral-400 transition-colors hover:border-neutral-600 hover:text-neutral-200"
+            className="rounded-lg border border-[--line-1] px-3 py-1.5 text-xs text-[--ink-2] transition-colors hover:border-[--line-2] hover:text-[--ink-1]"
           >
             Cancel
           </button>

@@ -47,7 +47,7 @@ export default function ContactDetailClient({
     <>
       {/* Contact details form */}
       <div className="card p-4 sm:p-5">
-        <h3 className="mb-4 text-sm font-medium text-neutral-300">
+        <h3 className="mb-4 text-sm font-medium text-[--ink-1]">
           Contact details
         </h3>
         <EditContactForm
@@ -68,11 +68,11 @@ export default function ContactDetailClient({
       {/* ── Contact header (rendered from local state) ──────────────────────── */}
       <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <h1 className="mt-1 truncate text-xl font-semibold text-neutral-100">
+          <h1 className="mt-1 truncate text-xl font-semibold text-[--ink-1]">
             {contact.name}
           </h1>
           {(contact.title || contact.company) && (
-            <p className="mt-0.5 text-sm text-neutral-400">
+            <p className="mt-0.5 text-sm text-[--ink-2]">
               {[contact.title, contact.company].filter(Boolean).join(" · ")}
             </p>
           )}
