@@ -19,10 +19,10 @@ const STAGE_LABELS: Record<string, string> = {
 };
 
 const STAGE_COLORS: Record<string, string> = {
-  lead: "bg-neutral-800 text-neutral-400",
-  qualified: "bg-blue-900/30 text-blue-400",
-  proposal: "bg-purple-900/30 text-purple-400",
-  negotiation: "bg-amber-900/30 text-amber-400",
+  lead: "bg-[--surface-2] text-[--ink-2]",
+  qualified: "bg-[--info-tint] text-[--info]",
+  proposal: "bg-[--accent-tint] text-[--accent]",
+  negotiation: "bg-[--warn-tint] text-[--warn]",
 };
 
 export default async function StaleDeals() {
@@ -30,17 +30,17 @@ export default async function StaleDeals() {
 
   if (!db) {
     return (
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900">
-        <div className="border-b border-neutral-800 px-5 py-3">
-          <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">
+      <div className="card">
+        <div className="border-b border-[--line-1] px-5 py-3">
+          <p className="text-xs font-medium uppercase tracking-wide text-[--ink-3]">
             Needs Attention
           </p>
         </div>
         <div className="flex flex-col items-center gap-2 px-5 py-8 text-center">
-          <p className="text-sm text-neutral-500">Database not connected.</p>
-          <p className="text-xs text-neutral-600">
+          <p className="text-sm text-[--ink-3]">Database not connected.</p>
+          <p className="text-xs text-[--ink-3]">
             Set{" "}
-            <code className="rounded bg-neutral-800 px-1 py-0.5">
+            <code className="rounded bg-[--surface-2] px-1 py-0.5">
               DATABASE_URL
             </code>{" "}
             to see stale deals.
@@ -80,13 +80,13 @@ export default async function StaleDeals() {
     .limit(10);
 
   return (
-    <div className="rounded-xl border border-amber-800/40 bg-neutral-900">
-      <div className="flex items-center gap-2 border-b border-amber-800/40 px-5 py-3">
+    <div className="card border-[--warn]/40">
+      <div className="flex items-center gap-2 border-b border-[--warn]/40 px-5 py-3">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 20 20"
           fill="currentColor"
-          className="h-4 w-4 shrink-0 text-amber-400"
+          className="h-4 w-4 shrink-0 text-[--warn]"
         >
           <path
             fillRule="evenodd"
@@ -94,35 +94,35 @@ export default async function StaleDeals() {
             clipRule="evenodd"
           />
         </svg>
-        <p className="text-xs font-medium uppercase tracking-wide text-amber-400">
+        <p className="text-xs font-medium uppercase tracking-wide text-[--warn]">
           Needs Attention
         </p>
-        <span className="ml-auto text-xs text-neutral-500">
+        <span className="ml-auto text-xs text-[--ink-3]">
           No activity in 14+ days
         </span>
       </div>
 
       {staleDeals.length === 0 ? (
         <div className="px-5 py-8 text-center">
-          <p className="text-sm text-neutral-500">All deals are up to date.</p>
-          <p className="mt-1 text-xs text-neutral-600">
+          <p className="text-sm text-[--ink-3]">All deals are up to date.</p>
+          <p className="mt-1 text-xs text-[--ink-3]">
             No open deals have gone stale in the past 14 days.
           </p>
         </div>
       ) : (
-        <ul className="divide-y divide-neutral-800">
+        <ul className="divide-y divide-[--line-1]">
           {staleDeals.map((deal) => {
             const stageColor =
-              STAGE_COLORS[deal.stage] ?? "bg-neutral-800 text-neutral-400";
+              STAGE_COLORS[deal.stage] ?? "bg-[--surface-2] text-[--ink-2]";
             const stageLabel = STAGE_LABELS[deal.stage] ?? deal.stage;
             return (
               <li key={deal.id}>
                 <Link
                   href={`/deals/${deal.id}`}
-                  className="flex min-h-11 items-center gap-4 px-5 py-3 transition-colors hover:bg-neutral-800/50"
+                  className="flex min-h-11 items-center gap-4 px-5 py-3 transition-colors hover:bg-[--surface-2]"
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-neutral-200">
+                    <p className="truncate text-sm font-medium text-[--ink-1]">
                       {deal.title}
                     </p>
                     <span
@@ -133,18 +133,18 @@ export default async function StaleDeals() {
                   </div>
                   <div className="shrink-0 text-right">
                     {deal.value ? (
-                      <p className="text-sm font-semibold text-neutral-100">
+                      <p className="text-sm font-semibold text-[--ink-1]">
                         {formatCurrency(deal.value)}
                       </p>
                     ) : (
-                      <p className="text-sm text-neutral-600">—</p>
+                      <p className="text-sm text-[--ink-3]">—</p>
                     )}
                   </div>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 20 20"
                     fill="currentColor"
-                    className="h-4 w-4 shrink-0 text-neutral-600"
+                    className="h-4 w-4 shrink-0 text-[--ink-3]"
                   >
                     <path
                       fillRule="evenodd"
