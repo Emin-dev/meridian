@@ -161,9 +161,13 @@ Rules: max 5 steps, use {{firstName}} and {{company}} as merge fields, keep emai
     }
 
     const steps = (parsed.steps as unknown[])
+      // Drop any non-object element (null, string, number) before reading
+      // fields — a malformed model response must never throw a TypeError here.
+      .filter(
+        (s): s is Record<string, unknown> => typeof s === "object" && s !== null,
+      )
       .slice(0, 5)
-      .map((s) => {
-        const step = s as Record<string, unknown>;
+      .map((step) => {
         return {
           delayDays:
             typeof step.delayDays === "number" &&
