@@ -1,4 +1,4 @@
-﻿import { and, eq, ilike, gte, isNull, sql, asc, desc } from "drizzle-orm";
+﻿import { and, eq, ilike, gte, isNull, inArray, sql, asc, desc } from "drizzle-orm";
 import type { SQL } from "drizzle-orm";
 import Link from "next/link";
 import { getDb, schema } from "@/db";
@@ -105,7 +105,7 @@ export default async function ContactsPage({
     }[sortColKey];
     const orderByExpr = sortDir === "desc" ? desc(sortColExpr) : asc(sortColExpr);
 
-    const [contactRows, sequenceRows, activityRows] = await Promise.all([
+    const [contactRows, sequenceRows] = await Promise.all([
       db
         .select()
         .from(schema.contacts)
@@ -116,20 +116,26 @@ export default async function ContactsPage({
         .from(schema.sequences)
         .where(eq(schema.sequences.status, "active"))
         .orderBy(schema.sequences.name),
-      db
+    ]);
+
+    contacts = contactRows;
+    sequences = sequenceRows;
+
+    const visibleContactIds = contacts.map((c) => c.id);
+    if (visibleContactIds.length > 0) {
+      const activityRows = await db
         .select({
           contactId: schema.activities.contactId,
           lastAt: sql<string | null>`max(${schema.activities.createdAt})`,
         })
         .from(schema.activities)
-        .groupBy(schema.activities.contactId),
-    ]);
+        .where(inArray(schema.activities.contactId, visibleContactIds))
+        .groupBy(schema.activities.contactId);
 
-    contacts = contactRows;
-    sequences = sequenceRows;
-    for (const row of activityRows) {
-      if (row.contactId != null) {
-        lastContactedMap[row.contactId] = row.lastAt;
+      for (const row of activityRows) {
+        if (row.contactId != null) {
+          lastContactedMap[row.contactId] = row.lastAt;
+        }
       }
     }
 
