@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logout } from "@/app/login/actions";
 import { GlobalSearch } from "@/components/global-search";
-import { useOverlayDismiss } from "@/hooks/use-overlay-dismiss";
+import MobileActionSheet from "@/components/mobile-action-sheet";
 import {
   DashboardIcon,
   UsersIcon,
@@ -16,7 +16,6 @@ import {
   BarChartIcon,
   SparklesIcon,
   SettingsIcon,
-  MenuIcon,
   SearchIcon,
   MoreIcon,
 } from "@/components/icons";
@@ -35,13 +34,14 @@ const NAV = [
 
 // Bottom tab bar shows the 4 primary destinations + More
 const BOTTOM_TABS = NAV.slice(0, 4);
+// "More" action sheet holds the 5 secondary destinations
+const SECONDARY_NAV = NAV.slice(4);
 
 export default function AppShell({ children, overdueCount = 0, overdueTaskCount = 0 }: { children: React.ReactNode; overdueCount?: number; overdueTaskCount?: number }) {
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [isMac, setIsMac] = useState(true);
   const pathname = usePathname();
-  const drawerRef = useOverlayDismiss<HTMLElement>(mobileOpen, () => setMobileOpen(false));
 
   useEffect(() => {
     setIsMac(/Mac|iPhone|iPad|iPod/.test(navigator.platform));
@@ -83,7 +83,6 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={() => setMobileOpen(false)}
                 aria-current={active ? "page" : undefined}
                 className="tap press flex flex-1 flex-col items-center justify-center gap-0.5 py-2 relative"
                 style={{ color: active ? "var(--accent)" : "var(--ink-2)" }}
@@ -106,13 +105,13 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
             );
           })}
 
-          {/* More — opens the full 8-item drawer */}
+          {/* More — opens the secondary-nav action sheet */}
           <button
             type="button"
-            onClick={() => setMobileOpen(true)}
+            onClick={() => setMoreOpen(true)}
             aria-label="More navigation options"
-            aria-expanded={mobileOpen}
-            aria-controls="mobile-nav-drawer"
+            aria-expanded={moreOpen}
+            aria-controls="more-nav-sheet"
             className="tap press flex flex-1 flex-col items-center justify-center gap-0.5 py-2"
             style={{ color: isMoreActive ? "var(--accent)" : "var(--ink-2)" }}
           >
@@ -134,26 +133,10 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
         </div>
       </nav>
 
-      {/* Mobile overlay — same z-40 but later in DOM, so appears above bottom tab bar */}
-      {mobileOpen && (
-        <div
-          className="fixed inset-0 bg-black/60 z-40 lg:hidden"
-          onClick={() => setMobileOpen(false)}
-        />
-      )}
-
-      {/* Sidebar */}
+      {/* Desktop sidebar (lg+) — permanent, in-flow. Mobile uses the bottom tab bar + "More" sheet instead. */}
       <aside
-        ref={drawerRef}
-        id="mobile-nav-drawer"
-        role="dialog"
-        aria-modal="true"
         aria-label="Navigation"
-        className={[
-          "fixed inset-y-0 left-0 z-50 flex w-60 flex-col bg-[--surface-1] border-r border-[--line-1] transition-transform duration-200 ease-in-out",
-          "lg:relative lg:translate-x-0",
-          mobileOpen ? "translate-x-0" : "-translate-x-full",
-        ].join(" ")}
+        className="hidden w-60 shrink-0 flex-col bg-[--surface-1] border-r border-[--line-1] lg:flex"
       >
         {/* Logo */}
         <div className="flex items-center gap-2.5 px-4 py-4 border-b border-[--line-1] shrink-0">
@@ -178,7 +161,6 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
                 key={item.href}
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                onClick={() => setMobileOpen(false)}
                 className={[
                   "press flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium",
                   active
@@ -216,15 +198,6 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         {/* Topbar */}
         <header className="sticky top-0 z-30 glass border-b border-[--line-1] flex items-center gap-3 px-4 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top))]">
-          <button
-            className="tap press flex items-center justify-center rounded-lg text-[--ink-2] hover:bg-[--surface-2] hover:text-[--ink-1] lg:hidden"
-            onClick={() => setMobileOpen(true)}
-            aria-label="Open navigation"
-            aria-expanded={mobileOpen}
-            aria-controls="mobile-nav-drawer"
-          >
-            <MenuIcon size={20} aria-hidden="true" />
-          </button>
           <h1 className="flex-1 truncate min-w-0 text-sm font-semibold text-[--ink-1]">{pageLabel}</h1>
           <button
             onClick={() => setSearchOpen(true)}
@@ -243,6 +216,56 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
         <main className="flex-1 overflow-auto px-4 pt-4 sm:px-6 sm:pt-6 pb-[calc(72px+env(safe-area-inset-bottom))] lg:pb-6">
           {children}
         </main>
+      </div>
+
+      {/* Mobile "More" — secondary nav as a bottom action sheet (no sidebar on mobile, per MOBILE.md) */}
+      <div id="more-nav-sheet" className="lg:hidden">
+        <MobileActionSheet
+          open={moreOpen}
+          onClose={() => setMoreOpen(false)}
+          title="More"
+        >
+          <div className="flex flex-col gap-1">
+            {SECONDARY_NAV.map((item) => {
+              const active = pathname === item.href || pathname.startsWith(item.href + "/");
+              const badge =
+                item.href === "/tasks" && overdueTaskCount > 0 ? overdueTaskCount : 0;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={active ? "page" : undefined}
+                  onClick={() => setMoreOpen(false)}
+                  className={[
+                    "press flex min-h-[44px] items-center gap-3 rounded-lg px-3 text-sm font-medium",
+                    active
+                      ? "bg-[--accent] text-[--accent-ink]"
+                      : "text-[--ink-2] hover:bg-[--surface-1] hover:text-[--ink-1]",
+                  ].join(" ")}
+                >
+                  <span className="shrink-0">{item.icon}</span>
+                  {item.label}
+                  {badge > 0 && (
+                    <span className="ml-auto inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-[--bad] px-1 text-xs font-semibold text-[--accent-ink]">
+                      {badge > 99 ? "99+" : badge}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
+
+            <div className="my-1 h-px bg-[--line-1]" />
+
+            <form action={logout}>
+              <button
+                type="submit"
+                className="press flex min-h-[44px] w-full items-center gap-3 rounded-lg px-3 text-sm font-medium text-[--ink-2] hover:bg-[--surface-1] hover:text-[--ink-1]"
+              >
+                Sign out
+              </button>
+            </form>
+          </div>
+        </MobileActionSheet>
       </div>
 
       <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
