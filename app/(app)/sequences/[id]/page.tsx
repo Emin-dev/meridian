@@ -191,10 +191,10 @@ export default async function SequenceDetailPage({
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-[--line-1]">
+      <div className="flex overflow-x-auto border-b border-[--line-1] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <Link
           href={`/sequences/${numId}`}
-          className={`-mb-px px-4 py-2 text-sm font-medium transition-colors ${
+          className={`-mb-px shrink-0 whitespace-nowrap px-4 py-2 text-sm font-medium transition-colors ${
             !isContactsTab && !isPreviewTab
               ? "border-b-2 border-[--accent] text-[--ink-1]"
               : "text-[--ink-2] hover:text-[--ink-1]"
@@ -204,7 +204,7 @@ export default async function SequenceDetailPage({
         </Link>
         <Link
           href={`/sequences/${numId}?tab=contacts`}
-          className={`-mb-px px-4 py-2 text-sm font-medium transition-colors ${
+          className={`-mb-px shrink-0 whitespace-nowrap px-4 py-2 text-sm font-medium transition-colors ${
             isContactsTab
               ? "border-b-2 border-[--accent] text-[--ink-1]"
               : "text-[--ink-2] hover:text-[--ink-1]"
@@ -219,7 +219,7 @@ export default async function SequenceDetailPage({
         </Link>
         <Link
           href={`/sequences/${numId}?tab=preview`}
-          className={`-mb-px px-4 py-2 text-sm font-medium transition-colors ${
+          className={`-mb-px shrink-0 whitespace-nowrap px-4 py-2 text-sm font-medium transition-colors ${
             isPreviewTab
               ? "border-b-2 border-[--accent] text-[--ink-1]"
               : "text-[--ink-2] hover:text-[--ink-1]"

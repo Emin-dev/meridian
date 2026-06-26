@@ -175,7 +175,7 @@ function SendStepModal({
         </div>
 
         {/* Footer */}
-        <div className="shrink-0 flex items-center justify-between border-t border-[--line-1] px-4 py-3">
+        <div className="shrink-0 flex flex-wrap items-center justify-between gap-2 border-t border-[--line-1] px-4 py-3">
           <div>
             {mailtoHref ? (
               <a

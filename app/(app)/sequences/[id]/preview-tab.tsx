@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { SequenceStep } from "@/db/schema";
+import MobileActionSheet from "@/components/mobile-action-sheet";
 import {
   interpolate,
   contactToVars,
@@ -49,6 +50,7 @@ export function PreviewTab({
   const [selectedId, setSelectedId] = useState<number | null>(
     contacts.length > 0 ? contacts[0].id : null
   );
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   const selectedContact = contacts.find((c) => c.id === selectedId) ?? null;
   const vars = buildVars(selectedContact, defaultOwnerName);
@@ -56,7 +58,7 @@ export function PreviewTab({
   return (
     <div className="space-y-5">
       {/* Contact picker */}
-      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-[--line-1] bg-[--surface-1] px-4 py-3">
+      <div className="flex min-w-0 flex-wrap items-center gap-3 rounded-xl border border-[--line-1] bg-[--surface-1] px-4 py-3">
         <span className="shrink-0 text-xs font-medium text-[--ink-2]">
           Preview as:
         </span>
@@ -65,20 +67,69 @@ export function PreviewTab({
             No contacts enrolled — showing labelled placeholders
           </span>
         ) : (
-          <select
-            value={selectedId ?? ""}
-            onChange={(e) => setSelectedId(Number(e.target.value))}
-            className="tap rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-3 text-body text-[--ink-1] focus:border-[--accent] focus:outline-none [color-scheme:dark]"
-          >
-            {contacts.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-                {c.email ? ` (${c.email})` : ""}
-              </option>
-            ))}
-          </select>
+          <>
+            {/* Desktop: native select */}
+            <select
+              value={selectedId ?? ""}
+              onChange={(e) => setSelectedId(Number(e.target.value))}
+              className="tap hidden max-w-full rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-3 text-body text-[--ink-1] focus:border-[--accent] focus:outline-none [color-scheme:dark] lg:block"
+            >
+              {contacts.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                  {c.email ? ` (${c.email})` : ""}
+                </option>
+              ))}
+            </select>
+
+            {/* Mobile: action-sheet trigger */}
+            <button
+              type="button"
+              onClick={() => setSheetOpen(true)}
+              aria-label="Preview as contact"
+              className="tap flex min-w-0 max-w-full items-center gap-1.5 rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-3 text-body text-[--ink-1] transition-colors hover:bg-[--surface-1] focus:border-[--accent] focus:outline-none lg:hidden"
+            >
+              <span className="truncate">
+                {selectedContact?.name ?? "Select contact"}
+              </span>
+              <span className="shrink-0 text-[--ink-3]">▾</span>
+            </button>
+          </>
         )}
       </div>
+
+      <MobileActionSheet
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        title="Preview as"
+      >
+        <div className="flex max-h-[60dvh] flex-col gap-1 overflow-y-auto">
+          {contacts.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => {
+                setSelectedId(c.id);
+                setSheetOpen(false);
+              }}
+              className={`tap flex min-h-[44px] w-full min-w-0 flex-col items-start justify-center rounded-lg px-3 text-left transition-colors ${
+                c.id === selectedId
+                  ? "bg-[--surface-1] text-[--ink-1]"
+                  : "text-[--ink-2] hover:bg-[--surface-1]"
+              }`}
+            >
+              <span className="w-full truncate text-sm font-medium">
+                {c.name}
+              </span>
+              {c.email && (
+                <span className="w-full truncate text-xs text-[--ink-3]">
+                  {c.email}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      </MobileActionSheet>
 
       {/* Variable resolution table */}
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
