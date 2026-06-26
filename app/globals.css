@@ -133,6 +133,28 @@ body {
 /* Native dialog: always dark color scheme so system date/select pickers render dark */
 dialog { color-scheme: dark; }
 
+/* Native date/time inputs: the [color-scheme:dark] utility already renders the
+   picker dark, but the OS calendar glyph is a stark default. Tint it toward the
+   muted secondary ink at rest and the indigo-violet accent on hover/focus, and
+   enlarge the hit area so it reads on-brand without a JS date-picker dependency
+   (DESIGN §5 forbids new runtime deps). The glyph is a monochrome icon whose
+   colour can't be set via `color`, so we tint via `filter`: reduced opacity
+   reads as --ink-2 grey; the hover/focus filter pushes the light (dark-scheme)
+   glyph toward --accent. (The global reduced-motion block zeroes the transition.) */
+::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  padding: 4px;
+  margin-right: -2px;
+  border-radius: var(--r-sm);
+  opacity: 0.55;
+  transition: opacity var(--dur-1) var(--ease), filter var(--dur-1) var(--ease);
+}
+::-webkit-calendar-picker-indicator:hover,
+input:focus-visible::-webkit-calendar-picker-indicator {
+  opacity: 1;
+  filter: sepia(1) saturate(6) hue-rotate(212deg) brightness(0.95);
+}
+
 /* A closed native <dialog> must stay hidden even when layout utilities set its
    display (our modals use `flex flex-col` for the header/body/footer column).
    Author utilities live in `@layer utilities`; this rule is intentionally
