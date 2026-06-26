@@ -29,17 +29,17 @@ const STEPS = [
 
 export function OnboardingBanner() {
   return (
-    <div className="rounded-xl border border-indigo-900/50 bg-indigo-950/20 p-6 space-y-6">
+    <div className="rounded-xl border border-[--line-1] bg-[--accent-tint] p-6 space-y-6">
       {/* Header */}
       <div className="flex items-start gap-4">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-600 text-lg font-bold text-white">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[--accent] text-lg font-bold text-[--accent-ink]">
           M
         </div>
         <div>
-          <h3 className="text-base font-semibold text-neutral-100">
+          <h3 className="text-base font-semibold text-[--ink-1]">
             Welcome to Meridian
           </h3>
-          <p className="mt-0.5 text-sm text-neutral-400">
+          <p className="mt-0.5 text-sm text-[--ink-2]">
             Your AI-first sales CRM. Follow the steps below to get started, or
             load realistic demo data to explore the app right away.
           </p>
@@ -51,20 +51,20 @@ export function OnboardingBanner() {
         {STEPS.map((step) => (
           <div
             key={step.n}
-            className="rounded-lg border border-neutral-800 bg-neutral-900 p-4 space-y-2"
+            className="card p-4 space-y-2"
           >
             <div className="flex items-center gap-2">
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600/20 text-xs font-semibold text-indigo-400">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[--accent-tint] text-xs font-semibold text-[--accent]">
                 {step.n}
               </span>
-              <p className="text-sm font-medium text-neutral-200">
+              <p className="text-sm font-medium text-[--ink-1]">
                 {step.title}
               </p>
             </div>
-            <p className="text-xs text-neutral-500">{step.desc}</p>
+            <p className="text-xs text-[--ink-3]">{step.desc}</p>
             <Link
               href={step.href}
-              className="text-xs font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
+              className="text-xs font-medium text-[--accent] hover:text-[--accent-hover] transition-colors"
             >
               {step.cta}
             </Link>
@@ -73,12 +73,12 @@ export function OnboardingBanner() {
       </div>
 
       {/* Demo data CTA */}
-      <div className="flex flex-col gap-2 rounded-lg border border-neutral-800 bg-neutral-900/60 p-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="card flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm font-medium text-neutral-200">
+          <p className="text-sm font-medium text-[--ink-1]">
             Just want to explore?
           </p>
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-[--ink-3]">
             Load 8 contacts, 8 deals, and 16 activities so you can see the full
             app in action.
           </p>
