@@ -30,6 +30,14 @@ const FilterIcon = () => (
   </svg>
 );
 
+// Bound the deals query so a request never triggers an un-paginated full-table
+// scan. We fetch the most recent deals up to this cap; older ones stay reachable
+// via the owner/stage filters, and a "showing N of M" note flags when capped.
+const DEALS_LIMIT = 200;
+// Cap the contact-picker options for the new-deal modal; it only needs a usable
+// shortlist, not the entire contacts table.
+const CONTACTS_LIMIT = 500;
+
 export default async function DealsPage({
   searchParams,
 }: {
@@ -49,14 +57,17 @@ export default async function DealsPage({
     stageMatch ? eq(deals.stage, stageMatch.key) : undefined,
   );
 
-  const [visibleDeals, totalsRows, ownerRows, countRows, allContacts, settings] =
+  const [visibleDealsDesc, totalsRows, ownerRows, countRows, allContacts, settings] =
     await Promise.all([
-      // Filtered list (uses deals_owner_idx / deals_stage_idx).
+      // Filtered list (uses deals_owner_idx / deals_stage_idx), capped at
+      // DEALS_LIMIT. Fetch newest-first so the cap keeps the most recent deals;
+      // we reverse below to restore the ascending display order.
       db
         ? db.query.deals.findMany({
             where: listFilter,
             with: { contact: true },
-            orderBy: (d, { asc }) => [asc(d.createdAt)],
+            orderBy: (d, { desc }) => [desc(d.createdAt)],
+            limit: DEALS_LIMIT,
           })
         : Promise.resolve([] as DealWithContact[]),
       // Pipeline + weighted totals over open (non-lost) deals matching the filter.
@@ -77,24 +88,32 @@ export default async function DealsPage({
             .where(isNotNull(deals.owner))
             .orderBy(asc(deals.owner))
         : Promise.resolve([] as { owner: string | null }[]),
-      // Total deal count — drives whether the stats block renders.
+      // Count of deals matching the filter — drives the stats block and the
+      // "showing N of M" affordance when the list is capped.
       db
-        ? db.select({ count: sql<number>`count(*)::int` }).from(deals)
+        ? db
+            .select({ count: sql<number>`count(*)::int` })
+            .from(deals)
+            .where(listFilter)
         : Promise.resolve([{ count: 0 }]),
       db
         ? db.query.contacts.findMany({
             columns: { id: true, name: true },
             orderBy: (contacts, { asc }) => [asc(contacts.name)],
+            limit: CONTACTS_LIMIT,
           })
         : Promise.resolve([] as { id: number; name: string }[]),
       getCrmSettings(),
     ]);
 
+  // Restore ascending (oldest-first) display order after the newest-first fetch.
+  const visibleDeals = visibleDealsDesc.slice().reverse();
+
   const uniqueOwners = ownerRows
     .map((r) => r.owner)
     .filter((o): o is string => !!o);
 
-  const totalDealCount = countRows[0]?.count ?? 0;
+  const matchingDealCount = countRows[0]?.count ?? 0;
   const totalValue = parseFloat(totalsRows[0]?.pipeline ?? "0");
   const weightedValue = parseFloat(totalsRows[0]?.weighted ?? "0");
 
@@ -110,7 +129,7 @@ export default async function DealsPage({
         </div>
         <div className="flex flex-col gap-2 sm:items-end">
           {/* Pipeline / Weighted stats — stack above controls on mobile */}
-          {totalDealCount > 0 && (
+          {matchingDealCount > 0 && (
             <div className="flex flex-wrap items-center gap-4 text-sm text-[--ink-2]">
               <span>
                 Pipeline:{" "}
@@ -263,6 +282,14 @@ export default async function DealsPage({
         ) : (
           <DealsTable deals={visibleDeals} owners={uniqueOwners} />
         )
+      )}
+
+      {/* Capped-list affordance — only when more deals match than are shown */}
+      {db && visibleDeals.length > 0 && matchingDealCount > visibleDeals.length && (
+        <p className="text-center text-xs text-[--ink-3]">
+          Showing {visibleDeals.length} of {matchingDealCount} deals — use the
+          filters above to narrow the list.
+        </p>
       )}
     </div>
   );
