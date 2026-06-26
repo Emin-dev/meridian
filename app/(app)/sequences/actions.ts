@@ -191,7 +191,6 @@ export async function updateSequenceStatus(
   const db = getDb();
   if (!db) return { error: "Database not connected." };
 
-  const { eq } = await import("drizzle-orm");
   try {
     await db
       .update(schema.sequences)

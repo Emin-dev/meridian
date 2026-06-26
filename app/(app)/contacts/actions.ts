@@ -994,6 +994,15 @@ export type ApplyEnrichmentState = {
   noDb?: boolean;
 };
 
+// Bound the enrichment fields the client applies. Trimmed so blank-after-trim
+// values persist as null, and capped so a tampered/oversized payload can't write
+// unbounded text to the contact record.
+const ApplyEnrichmentSchema = z.object({
+  title: z.string().trim().max(200, "Title is too long."),
+  company: z.string().trim().max(200, "Company is too long."),
+  notes: z.string().trim().max(5000, "Notes are too long."),
+});
+
 export async function applyContactEnrichment(
   contactId: number,
   fields: { title: string; company: string; notes: string }
@@ -1004,6 +1013,12 @@ export async function applyContactEnrichment(
     return { error: "Contact not found" };
   }
 
+  const parsedFields = ApplyEnrichmentSchema.safeParse(fields);
+  if (!parsedFields.success) {
+    return { error: parsedFields.error.issues[0]?.message ?? "Invalid enrichment data." };
+  }
+  const { title, company, notes } = parsedFields.data;
+
   const db = getDb();
   if (!db) return { noDb: true };
 
@@ -1011,9 +1026,9 @@ export async function applyContactEnrichment(
     await db
       .update(schema.contacts)
       .set({
-        title: fields.title || null,
-        company: fields.company || null,
-        notes: fields.notes || null,
+        title: title || null,
+        company: company || null,
+        notes: notes || null,
         updatedAt: new Date(),
       })
       .where(eq(schema.contacts.id, contactId));
