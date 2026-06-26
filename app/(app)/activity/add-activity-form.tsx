@@ -4,9 +4,12 @@ import { useActionState, useEffect, useState } from "react";
 import { addActivity, type AddActivityState } from "./actions";
 import { useToast } from "@/components/toaster";
 import SmartCompose from "@/components/smart-compose";
+import MobileActionSheet from "@/components/mobile-action-sheet";
 
 const INIT: AddActivityState = {};
 const ACTIVITY_TYPES = ["call", "email", "meeting", "note", "task"] as const;
+
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 const inputCls =
   "w-full rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-3 py-2 text-body text-[--ink-1] placeholder:text-[--ink-3] focus:border-[--accent] focus:outline-none [color-scheme:dark]";
@@ -24,6 +27,7 @@ export default function AddActivityForm({
   const [state, formAction, pending] = useActionState(addActivity, INIT);
   const [formKey, setFormKey] = useState(0);
   const [type, setType] = useState<string>("note");
+  const [typeSheetOpen, setTypeSheetOpen] = useState(false);
   const [body, setBody] = useState("");
   const { toast } = useToast();
 
@@ -59,24 +63,48 @@ export default function AddActivityForm({
         )}
 
         <div className="flex flex-col gap-3 sm:flex-row">
-          {/* Type select — w-full on mobile so it fills the stacked column */}
+          {/* Type picker — w-full on mobile so it fills the stacked column */}
           <div className="w-full sm:w-auto">
             <label htmlFor="af-type" className={labelCls}>
               Type
             </label>
+            {/* Desktop: native select. Hidden (display:none) on mobile but still
+                submits `type` as the form's single source of truth. */}
             <select
               id="af-type"
               name="type"
               value={type}
               onChange={(e) => setType(e.target.value)}
-              className={inputCls}
+              className={`${inputCls} hidden sm:block`}
             >
               {ACTIVITY_TYPES.map((t) => (
                 <option key={t} value={t}>
-                  {t.charAt(0).toUpperCase() + t.slice(1)}
+                  {cap(t)}
                 </option>
               ))}
             </select>
+            {/* Mobile: 44px button opening an action sheet instead of a native dropdown. */}
+            <button
+              type="button"
+              onClick={() => setTypeSheetOpen(true)}
+              className={`${inputCls} tap flex items-center justify-between gap-2 text-left sm:hidden`}
+            >
+              <span>{cap(type)}</span>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="shrink-0 text-[--ink-3]"
+                aria-hidden="true"
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
           </div>
 
           <div className="flex-1">
@@ -154,6 +182,52 @@ export default function AddActivityForm({
           </button>
         </div>
       </form>
+
+      {/* Mobile: activity-type picker bottom sheet (desktop uses the native select). */}
+      <div className="sm:hidden">
+        <MobileActionSheet
+          open={typeSheetOpen}
+          onClose={() => setTypeSheetOpen(false)}
+          title="Activity type"
+        >
+          <div className="flex flex-col gap-2">
+            {ACTIVITY_TYPES.map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => {
+                  setType(t);
+                  setTypeSheetOpen(false);
+                }}
+                aria-pressed={type === t}
+                className={`tap flex items-center justify-between rounded-lg px-3 text-left text-body transition-colors ${
+                  type === t
+                    ? "bg-[--surface-3] text-[--ink-1]"
+                    : "text-[--ink-2] hover:bg-[--surface-3]"
+                }`}
+              >
+                <span>{cap(t)}</span>
+                {type === t && (
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="shrink-0 text-[--accent]"
+                    aria-hidden="true"
+                  >
+                    <path d="M20 6L9 17l-5-5" />
+                  </svg>
+                )}
+              </button>
+            ))}
+          </div>
+        </MobileActionSheet>
+      </div>
     </div>
   );
 }
