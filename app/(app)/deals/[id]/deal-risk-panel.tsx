@@ -33,6 +33,7 @@ export default function DealRiskPanel({ dealId }: Props) {
   const [isPending, startTransition] = useTransition();
 
   function handleAssess() {
+    setResult((prev) => ({ ...prev, error: undefined }));
     startTransition(async () => {
       try {
         const r = await assessDealRisk(dealId);

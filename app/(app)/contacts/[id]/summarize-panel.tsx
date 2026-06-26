@@ -18,6 +18,7 @@ export default function SummarizePanel({ contactId, initialSummary, initialSumma
   const [isPending, startTransition] = useTransition();
 
   function handleSummarize() {
+    setResult((prev) => ({ ...prev, error: undefined }));
     startTransition(async () => {
       try {
         const r = await summarizeContact(contactId);

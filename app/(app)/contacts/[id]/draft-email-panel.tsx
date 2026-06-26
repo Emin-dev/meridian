@@ -14,6 +14,7 @@ export default function DraftEmailPanel({ contactId }: Props) {
   const [isPending, startTransition] = useTransition();
 
   function handleDraft() {
+    setResult((prev) => ({ ...prev, error: undefined }));
     startTransition(async () => {
       try {
         const r = await draftOutreachEmail(contactId);

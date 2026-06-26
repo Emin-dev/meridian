@@ -21,6 +21,7 @@ export default function DealWinProbabilityPanel({ dealId, initialScore }: Props)
   const [isPending, startTransition] = useTransition();
 
   function handleScore() {
+    setResult((prev) => ({ ...prev, error: undefined }));
     startTransition(async () => {
       try {
         const r = await scoreDeal(dealId);
