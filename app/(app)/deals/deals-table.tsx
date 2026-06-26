@@ -563,7 +563,7 @@ export default function DealsTable({
               aria-label="Set stage for selected deals"
               value={stageSelect}
               onChange={(e) => setStageSelect(e.target.value)}
-              className="tap min-w-0 flex-1 rounded-lg border border-[--line-1] bg-[--surface-1] px-3 text-sm text-[--ink-1]"
+              className="min-h-[44px] min-w-0 flex-1 rounded-lg border border-[--line-1] bg-[--surface-1] px-3 text-sm text-[--ink-1]"
             >
               {STAGE_OPTIONS.map((s) => (
                 <option key={s.value} value={s.value}>
@@ -589,7 +589,7 @@ export default function DealsTable({
               onChange={(e) => setOwnerInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleChangeOwner()}
               placeholder="Owner name"
-              className="tap min-w-0 flex-1 rounded-lg border border-[--line-1] bg-[--surface-1] px-3 text-sm text-[--ink-1] placeholder-[--ink-3] focus:outline-none focus:ring-1 focus:ring-[--accent]"
+              className="min-h-[44px] min-w-0 flex-1 rounded-lg border border-[--line-1] bg-[--surface-1] px-3 text-sm text-[--ink-1] placeholder-[--ink-3] focus:outline-none focus:ring-1 focus:ring-[--accent]"
             />
             {owners.length > 0 && (
               <datalist id="deal-owners-list-sheet">

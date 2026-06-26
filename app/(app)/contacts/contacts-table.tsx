@@ -677,7 +677,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
               aria-label="Set status for selected contacts"
               value={statusSelect}
               onChange={(e) => setStatusSelect(e.target.value as ContactStatus)}
-              className="tap min-w-0 flex-1 rounded-lg border border-[--line-1] bg-[--surface-1] px-3 text-sm text-[--ink-1]"
+              className="min-h-[44px] min-w-0 flex-1 rounded-lg border border-[--line-1] bg-[--surface-1] px-3 text-sm text-[--ink-1]"
             >
               {STATUSES.map((s) => (
                 <option key={s.value} value={s.value}>
@@ -702,7 +702,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
               onChange={(e) => setTagInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleAddTag()}
               placeholder="Tag name"
-              className="tap min-w-0 flex-1 rounded-lg border border-[--line-1] bg-[--surface-1] px-3 text-sm text-[--ink-1] placeholder-[--ink-3] focus:outline-none focus:ring-1 focus:ring-[--accent]"
+              className="min-h-[44px] min-w-0 flex-1 rounded-lg border border-[--line-1] bg-[--surface-1] px-3 text-sm text-[--ink-1] placeholder-[--ink-3] focus:outline-none focus:ring-1 focus:ring-[--accent]"
             />
             <button
               onClick={handleAddTag}
@@ -721,7 +721,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
               onChange={(e) => setOwnerInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleChangeOwner()}
               placeholder="Owner name"
-              className="tap min-w-0 flex-1 rounded-lg border border-[--line-1] bg-[--surface-1] px-3 text-sm text-[--ink-1] placeholder-[--ink-3] focus:outline-none focus:ring-1 focus:ring-[--accent]"
+              className="min-h-[44px] min-w-0 flex-1 rounded-lg border border-[--line-1] bg-[--surface-1] px-3 text-sm text-[--ink-1] placeholder-[--ink-3] focus:outline-none focus:ring-1 focus:ring-[--accent]"
             />
             <button
               onClick={handleChangeOwner}
@@ -739,7 +739,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
                 aria-label="Enroll selected contacts in sequence"
                 value={sequenceSelect}
                 onChange={(e) => setSequenceSelect(e.target.value)}
-                className="tap min-w-0 flex-1 rounded-lg border border-[--line-1] bg-[--surface-1] px-3 text-sm text-[--ink-1]"
+                className="min-h-[44px] min-w-0 flex-1 rounded-lg border border-[--line-1] bg-[--surface-1] px-3 text-sm text-[--ink-1]"
               >
                 <option value="">Pick sequence…</option>
                 {sequences.map((s) => (

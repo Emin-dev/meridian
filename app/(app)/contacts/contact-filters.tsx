@@ -87,7 +87,7 @@ export default function ContactFilters({
   }
 
   const inputClass =
-    "tap rounded-lg border border-[--line-1] bg-[--surface-2] px-3 text-sm text-[--ink-1] placeholder-[--ink-3] focus:border-[--accent] focus:outline-none focus:ring-1 focus:ring-[--accent]";
+    "min-h-[44px] rounded-lg border border-[--line-1] bg-[--surface-2] px-3 text-sm text-[--ink-1] placeholder-[--ink-3] focus:border-[--accent] focus:outline-none focus:ring-1 focus:ring-[--accent]";
 
   // Shared filter inputs, rendered both inline (desktop) and stacked (sheet).
   function fields(widths: {
