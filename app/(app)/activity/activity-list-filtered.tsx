@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import MobileActionSheet from "@/components/mobile-action-sheet";
 import ActivityToggle from "./activity-toggle";
 import ActivityUndoButton from "./activity-undo-button";
 
@@ -65,6 +66,10 @@ export default function ActivityListFiltered({ rows, currentType, currentRange, 
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [contactQuery, setContactQuery] = useState("");
+  const [rangeSheetOpen, setRangeSheetOpen] = useState(false);
+
+  const currentRangeLabel =
+    RANGE_OPTIONS.find((o) => o.value === currentRange)?.label ?? "All time";
 
   function navigate(type: string, range: string) {
     const params = new URLSearchParams();
@@ -136,12 +141,12 @@ export default function ActivityListFiltered({ rows, currentType, currentRange, 
           })}
         </div>
 
-        {/* Date-range dropdown */}
+        {/* Date-range: inline select on lg+, action sheet on phones */}
         <select
           value={currentRange}
           onChange={(e) => navigate(currentType, e.target.value)}
           disabled={isPending}
-          className="tap rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-2.5 text-caption text-[--ink-2] focus:border-[--accent] focus:outline-none disabled:opacity-50 [color-scheme:dark]"
+          className="tap hidden rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-2.5 text-caption text-[--ink-2] focus:border-[--accent] focus:outline-none disabled:opacity-50 [color-scheme:dark] lg:block"
           aria-label="Date range"
         >
           {RANGE_OPTIONS.map(({ value, label }) => (
@@ -150,6 +155,48 @@ export default function ActivityListFiltered({ rows, currentType, currentRange, 
             </option>
           ))}
         </select>
+
+        <button
+          type="button"
+          onClick={() => setRangeSheetOpen(true)}
+          disabled={isPending}
+          aria-label="Date range"
+          className="tap inline-flex items-center gap-1.5 rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-2.5 text-caption text-[--ink-2] transition-colors hover:text-[--ink-1] disabled:opacity-50 lg:hidden"
+        >
+          {currentRangeLabel}
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
+
+        <MobileActionSheet
+          open={rangeSheetOpen}
+          onClose={() => setRangeSheetOpen(false)}
+          title="Date range"
+        >
+          <div className="flex flex-col gap-1">
+            {RANGE_OPTIONS.map(({ value, label }) => {
+              const isActive = currentRange === value;
+              return (
+                <button
+                  key={value || "all"}
+                  type="button"
+                  onClick={() => {
+                    navigate(currentType, value);
+                    setRangeSheetOpen(false);
+                  }}
+                  className={`tap flex min-h-[44px] w-full items-center rounded-[--r-md] px-3 text-body transition-colors ${
+                    isActive
+                      ? "bg-[--surface-3] text-[--ink-1]"
+                      : "text-[--ink-2] hover:bg-[--surface-3]"
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        </MobileActionSheet>
 
         {/* Contact search — full width on mobile, auto on sm+ */}
         <input
