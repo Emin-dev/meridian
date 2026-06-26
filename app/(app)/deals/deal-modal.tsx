@@ -37,9 +37,9 @@ function stageAgeInDays(updatedAt: Date): number {
 }
 
 function ageBadgeClass(days: number): string {
-  if (days < 7) return "bg-green-500/15 text-green-400";
-  if (days <= 14) return "bg-amber-500/15 text-amber-400";
-  return "bg-red-500/15 text-red-400";
+  if (days < 7) return "bg-[--surface-2] text-[--ink-2]";
+  if (days <= 14) return "bg-[--warn-tint] text-[--warn]";
+  return "bg-[--bad-tint] text-[--bad]";
 }
 
 function formatValue(value: string | null, currency: string) {
