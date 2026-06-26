@@ -692,37 +692,41 @@ export async function assessDealRisk(dealId: number): Promise<DealRiskState> {
       .where(eq(schema.deals.id, dealId))
       .limit(1);
 
-    if (deal?.contactId) {
-      const [c] = await db
-        .select({
-          name: schema.contacts.name,
-          title: schema.contacts.title,
-          company: schema.contacts.company,
-          status: schema.contacts.status,
-          leadScore: schema.contacts.leadScore,
-        })
-        .from(schema.contacts)
-        .where(eq(schema.contacts.id, deal.contactId))
-        .limit(1);
-      if (c) {
-        const parts = [
-          c.name,
-          c.title && c.company
-            ? `${c.title} at ${c.company}`
-            : (c.company ?? c.title),
-          c.status ? `status: ${c.status}` : null,
-          c.leadScore != null ? `lead score: ${c.leadScore}` : null,
-        ].filter(Boolean);
-        contactInfo = parts.join(", ");
-      }
-    }
-
-    recentActivities = await db
-      .select()
-      .from(schema.activities)
-      .where(eq(schema.activities.dealId, dealId))
-      .orderBy(desc(schema.activities.createdAt))
-      .limit(15);
+    // The contact profile and the activity history are independent of each
+    // other, so fetch them together to keep the action well under the 10s limit.
+    [contactInfo, recentActivities] = await Promise.all([
+      deal?.contactId
+        ? db
+            .select({
+              name: schema.contacts.name,
+              title: schema.contacts.title,
+              company: schema.contacts.company,
+              status: schema.contacts.status,
+              leadScore: schema.contacts.leadScore,
+            })
+            .from(schema.contacts)
+            .where(eq(schema.contacts.id, deal.contactId))
+            .limit(1)
+            .then(([c]): string | null => {
+              if (!c) return null;
+              const parts = [
+                c.name,
+                c.title && c.company
+                  ? `${c.title} at ${c.company}`
+                  : (c.company ?? c.title),
+                c.status ? `status: ${c.status}` : null,
+                c.leadScore != null ? `lead score: ${c.leadScore}` : null,
+              ].filter(Boolean);
+              return parts.join(", ");
+            })
+        : Promise.resolve<string | null>(null),
+      db
+        .select()
+        .from(schema.activities)
+        .where(eq(schema.activities.dealId, dealId))
+        .orderBy(desc(schema.activities.createdAt))
+        .limit(15),
+    ]);
   } catch {
     return { error: LOAD_ERROR };
   }
@@ -858,21 +862,24 @@ export async function suggestDealNextAction(dealId: number): Promise<DealNextAct
   let contactName: string | null = null;
   let recentActivities: ActivityRow[] = [];
   try {
-    if (deal.contactId) {
-      const [c] = await db
-        .select({ name: schema.contacts.name })
-        .from(schema.contacts)
-        .where(eq(schema.contacts.id, deal.contactId))
-        .limit(1);
-      contactName = c?.name ?? null;
-    }
-
-    recentActivities = await db
-      .select()
-      .from(schema.activities)
-      .where(eq(schema.activities.dealId, dealId))
-      .orderBy(desc(schema.activities.createdAt))
-      .limit(15);
+    // The contact lookup and the activity history are independent of each
+    // other, so fetch them together to keep the action well under the 10s limit.
+    [contactName, recentActivities] = await Promise.all([
+      deal.contactId
+        ? db
+            .select({ name: schema.contacts.name })
+            .from(schema.contacts)
+            .where(eq(schema.contacts.id, deal.contactId))
+            .limit(1)
+            .then(([c]): string | null => c?.name ?? null)
+        : Promise.resolve<string | null>(null),
+      db
+        .select()
+        .from(schema.activities)
+        .where(eq(schema.activities.dealId, dealId))
+        .orderBy(desc(schema.activities.createdAt))
+        .limit(15),
+    ]);
   } catch {
     return { error: LOAD_ERROR };
   }
