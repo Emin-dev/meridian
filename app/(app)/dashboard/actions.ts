@@ -32,7 +32,9 @@ type DigestResult =
 
 export async function completeAgendaItem(id: number): Promise<void> {
   const db = getDb();
-  if (!db) return;
+  // No DB: surface the failure instead of resolving silently, which would make
+  // the form action look like the item was completed when nothing was written.
+  if (!db) throw new Error("Database not connected — can't complete this item.");
   const now = new Date();
   await db
     .update(schema.activities)

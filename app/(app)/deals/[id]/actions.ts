@@ -385,6 +385,9 @@ export async function triggerWinLossAnalysis(
       .where(eq(schema.deals.id, dealId));
 
     revalidatePath(`/deals/${dealId}`);
+    revalidatePath("/deals");
+    revalidatePath("/dashboard");
+    revalidatePath("/analytics");
     return { insight };
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Unknown AI error.";
