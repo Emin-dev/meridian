@@ -1105,6 +1105,126 @@ export type FindDuplicatesState = {
   noKey?: boolean;
 };
 
+type DupScanContact = {
+  id: number;
+  name: string;
+  email: string | null;
+  company: string | null;
+  phone: string | null;
+};
+
+// Normalize an email to a stable grouping key, or null when absent.
+function normEmailKey(email: string | null): string | null {
+  if (!email) return null;
+  const key = email.trim().toLowerCase();
+  return key || null;
+}
+
+// Normalize a phone to its digits, or null when there aren't enough digits to
+// match reliably — partial/garbage numbers must not collide as "duplicates".
+function normPhoneKey(phone: string | null): string | null {
+  if (!phone) return null;
+  const digits = phone.replace(/\D/g, "");
+  return digits.length >= 7 ? digits : null;
+}
+
+// Cheap, AI-free pass: cluster contacts that share an exact normalized email
+// or phone (union-find, since email and phone links can chain records together)
+// and emit high-confidence merge pairs. Each cluster collapses toward its most
+// complete (tie-break: oldest) record, so the duplicates all merge into one
+// canonical contact. Returns the pairs plus the set of contact ids it claimed,
+// so the caller can exclude them from the AI fuzzy-match prompt.
+function exactDuplicatePairs(contacts: DupScanContact[]): {
+  pairs: DuplicatePair[];
+  claimed: Set<number>;
+} {
+  const n = contacts.length;
+  const parent = Array.from({ length: n }, (_, i) => i);
+  const find = (i: number): number => {
+    let root = i;
+    while (parent[root] !== root) root = parent[root];
+    while (parent[i] !== root) {
+      const next = parent[i];
+      parent[i] = root;
+      i = next;
+    }
+    return root;
+  };
+  const union = (a: number, b: number) => {
+    const ra = find(a);
+    const rb = find(b);
+    if (ra !== rb) parent[ra] = rb;
+  };
+
+  const emailFirst = new Map<string, number>();
+  const phoneFirst = new Map<string, number>();
+  contacts.forEach((c, i) => {
+    const ek = normEmailKey(c.email);
+    if (ek) {
+      const prev = emailFirst.get(ek);
+      if (prev === undefined) emailFirst.set(ek, i);
+      else union(prev, i);
+    }
+    const pk = normPhoneKey(c.phone);
+    if (pk) {
+      const prev = phoneFirst.get(pk);
+      if (prev === undefined) phoneFirst.set(pk, i);
+      else union(prev, i);
+    }
+  });
+
+  const clusters = new Map<number, number[]>();
+  for (let i = 0; i < n; i++) {
+    const root = find(i);
+    const list = clusters.get(root);
+    if (list) list.push(i);
+    else clusters.set(root, [i]);
+  }
+
+  const completeness = (c: DupScanContact) =>
+    (c.email ? 1 : 0) + (c.phone ? 1 : 0) + (c.company ? 1 : 0);
+
+  const pairs: DuplicatePair[] = [];
+  const claimed = new Set<number>();
+  for (const idxs of clusters.values()) {
+    if (idxs.length < 2) continue;
+    const members = idxs
+      .map((i) => contacts[i])
+      .sort((a, b) => completeness(b) - completeness(a) || a.id - b.id);
+    const primary = members[0];
+    for (const m of members) claimed.add(m.id);
+
+    const pe = normEmailKey(primary.email);
+    const pp = normPhoneKey(primary.phone);
+    for (const secondary of members.slice(1)) {
+      const sameEmail = pe !== null && pe === normEmailKey(secondary.email);
+      const samePhone = pp !== null && pp === normPhoneKey(secondary.phone);
+      const reason =
+        sameEmail && samePhone
+          ? "Exact email and phone match"
+          : sameEmail
+            ? "Exact email match"
+            : samePhone
+              ? "Exact phone match"
+              : "Exact email/phone match";
+      pairs.push({
+        primaryId: primary.id,
+        primaryName: primary.name,
+        primaryEmail: primary.email,
+        primaryCompany: primary.company,
+        secondaryId: secondary.id,
+        secondaryName: secondary.name,
+        secondaryEmail: secondary.email,
+        secondaryCompany: secondary.company,
+        reason,
+        confidence: "high",
+      });
+    }
+  }
+
+  return { pairs, claimed };
+}
+
 export async function findDuplicateContacts(): Promise<FindDuplicatesState> {
   const db = getDb();
   if (!db) return { noDb: true };
@@ -1127,7 +1247,18 @@ export async function findDuplicateContacts(): Promise<FindDuplicatesState> {
 
   if (allContacts.length < 2) return { pairs: [] };
 
-  const contactList = allContacts
+  // Catch exact email/phone duplicates server-side first — these are certain,
+  // so there's no reason to spend AI tokens on them. Only the leftover contacts
+  // (true fuzzy candidates: similar names, shared company, typo'd emails) go to
+  // the model, which shrinks the prompt and the token bill.
+  const { pairs: exactPairs, claimed } = exactDuplicatePairs(allContacts);
+  const remaining = allContacts.filter((c) => !claimed.has(c.id));
+
+  // Fewer than two contacts left to compare — nothing fuzzy to find, so skip
+  // the AI call entirely and return whatever exact matches we found.
+  if (remaining.length < 2) return { pairs: exactPairs };
+
+  const contactList = remaining
     .map(
       (c) =>
         `ID:${c.id} | Name:${c.name} | Email:${c.email ?? ""} | Company:${c.company ?? ""} | Phone:${c.phone ?? ""}`
@@ -1175,8 +1306,11 @@ export async function findDuplicateContacts(): Promise<FindDuplicatesState> {
     }
 
     const contactMap = new Map(allContacts.map((c) => [c.id, c]));
-    const pairs: DuplicatePair[] = [];
-    const seenIds = new Set<number>();
+    // Seed with the exact-match pairs and treat their contacts as already
+    // claimed, so a fuzzy AI suggestion can never re-pair a contact we've
+    // already exact-matched (and each id still appears in at most one pair).
+    const pairs: DuplicatePair[] = [...exactPairs];
+    const seenIds = new Set<number>(claimed);
 
     const rawPairs = Array.isArray(parsed.pairs) ? parsed.pairs : [];
     for (const p of rawPairs) {
