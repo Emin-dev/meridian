@@ -20,8 +20,10 @@ export default function KanbanBoard({
 
   // Guards against drag races: while an optimistic move is in flight a second
   // fast drag could build on stale state and diverge from the server, so we
-  // block initiating a new drag/drop until the pending move reconciles.
-  const [moving, setMoving] = useState(false);
+  // block initiating a new drag/drop until the pending move reconciles. We track
+  // the in-flight deal id (not just a boolean) so its card can show a saving cue.
+  const [movingDealId, setMovingDealId] = useState<number | null>(null);
+  const moving = movingDealId !== null;
 
   // Phone view: which stage column is selected
   const [selectedStage, setSelectedStage] = useState<StageKey>("lead");
@@ -38,7 +40,7 @@ export default function KanbanBoard({
     if (fromStage === toStage) return;
 
     // Optimistic update — move the deal immediately in local state
-    setMoving(true);
+    setMovingDealId(dealId);
     setDeals((prev) =>
       prev.map((d) => (d.id === dealId ? { ...d, stage: toStage } : d))
     );
@@ -54,7 +56,7 @@ export default function KanbanBoard({
         toast(result.error, "error");
       }
     } finally {
-      setMoving(false);
+      setMovingDealId(null);
     }
   }
 
@@ -199,6 +201,7 @@ export default function KanbanBoard({
               <KanbanCard
                 key={deal.id}
                 deal={deal}
+                saving={deal.id === movingDealId}
                 onMove={(id, stage, reason) =>
                   void handleMove(id, stage as StageKey, reason)
                 }
@@ -275,6 +278,7 @@ export default function KanbanBoard({
                         key={deal.id}
                         deal={deal}
                         dragDisabled={moving}
+                        saving={deal.id === movingDealId}
                         onMove={(id, stage, reason) =>
                           void handleMove(id, stage as StageKey, reason)
                         }

@@ -27,12 +27,14 @@ export default function KanbanCard({
   onMoveRequest,
   phoneMode = false,
   dragDisabled = false,
+  saving = false,
 }: {
   deal: DealListItem;
   onMove: (dealId: number, stage: string, reason?: string) => void;
   onMoveRequest?: (dealId: number) => void;
   phoneMode?: boolean;
   dragDisabled?: boolean;
+  saving?: boolean;
 }) {
   const [pendingTerminal, setPendingTerminal] = useState<StageValue | null>(null);
   const [reason, setReason] = useState("");
@@ -63,11 +65,19 @@ export default function KanbanCard({
     onMove(deal.id, stage, r);
   }
 
+  // While the board persists this card's stage move, show a subtle pending cue
+  // and freeze interaction so the in-flight card reads as "saving" until the
+  // server reconciles (or the optimistic move rolls back). Pulse is motion-safe.
+  const savingClass = saving
+    ? " opacity-60 motion-safe:animate-pulse pointer-events-none select-none"
+    : "";
+
   return (
     <div
-      draggable={draggable}
+      draggable={draggable && !saving}
+      aria-busy={saving}
       onDragStart={(e) => {
-        if (!draggable) {
+        if (!draggable || saving) {
           e.preventDefault();
           return;
         }
@@ -75,11 +85,11 @@ export default function KanbanCard({
         e.dataTransfer.setData("dealId", String(deal.id));
       }}
       className={
-        phoneMode
+        (phoneMode
           ? "press rounded-[var(--r-lg)] border border-[var(--line-1)] bg-[var(--surface-1)]"
           : `rounded-lg border border-[var(--line-1)] bg-[var(--surface-1)] transition-colors hover:border-[var(--line-2)] hover:bg-[var(--surface-2)] ${
               dragDisabled ? "cursor-default" : "cursor-grab active:cursor-grabbing"
-            }`
+            }`) + savingClass
       }
     >
       {/* Clickable card body → deal detail */}
