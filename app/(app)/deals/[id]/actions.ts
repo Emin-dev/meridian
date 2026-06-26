@@ -6,6 +6,7 @@ import { getDb, schema } from "@/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { chat } from "@/lib/ai";
+import { numericEqual } from "@/lib/format";
 
 import {
   WIN_LOSS_MARKER,
@@ -110,7 +111,7 @@ export async function updateDealDetails(
     if (current.stage !== parsed.data.stage) {
       events.push({ dealId: id, field: "stage", oldValue: current.stage, newValue: parsed.data.stage });
     }
-    if (!_numericEqual(current.value, parsed.data.value)) {
+    if (!numericEqual(current.value, parsed.data.value)) {
       events.push({ dealId: id, field: "value", oldValue: current.value ?? null, newValue: parsed.data.value ?? null });
     }
     if (events.length > 0) {
@@ -189,14 +190,6 @@ export async function updateDealNotes(
   revalidatePath(`/deals/${id}`);
   revalidatePath("/deals");
   return { success: true };
-}
-
-function _numericEqual(a: string | null | undefined, b: string | null | undefined): boolean {
-  const an = a ?? null, bn = b ?? null;
-  if (an === null && bn === null) return true;
-  if (an === null || bn === null) return false;
-  const fa = parseFloat(an), fb = parseFloat(bn);
-  return (isNaN(fa) || isNaN(fb)) ? an === bn : fa === fb;
 }
 
 // ─── AI: Win/Loss analysis ────────────────────────────────────────────────────

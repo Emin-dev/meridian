@@ -10,6 +10,7 @@ import {
   extractWinLossInsight,
 } from "./[id]/notes-utils";
 import { DEAL_STAGES, STAGE_PROBABILITY } from "./stages";
+import { numericEqual } from "@/lib/format";
 
 const DealSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -308,7 +309,7 @@ export async function updateDeal(
     if (current.stage !== stage) {
       events.push({ dealId: id, field: "stage", oldValue: current.stage, newValue: stage });
     }
-    if (!_numericEqual(current.value, value)) {
+    if (!numericEqual(current.value, value)) {
       events.push({ dealId: id, field: "value", oldValue: current.value ?? null, newValue: value ?? null });
     }
     if (current.probability !== newProbability) {
@@ -327,12 +328,4 @@ export async function updateDeal(
   revalidatePath("/deals");
   revalidatePath(`/deals/${id}`);
   return { success: true };
-}
-
-function _numericEqual(a: string | null | undefined, b: string | null | undefined): boolean {
-  const an = a ?? null, bn = b ?? null;
-  if (an === null && bn === null) return true;
-  if (an === null || bn === null) return false;
-  const fa = parseFloat(an), fb = parseFloat(bn);
-  return (isNaN(fa) || isNaN(fb)) ? an === bn : fa === fb;
 }

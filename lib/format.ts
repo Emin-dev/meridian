@@ -27,3 +27,23 @@ export function formatShortDate(d: string | Date | null): string {
     year: "numeric",
   });
 }
+
+/**
+ * Compares two decimal-string (or null/undefined) values numerically, so that
+ * equivalent representations like "100" and "100.00" are treated as equal.
+ * Falls back to strict string equality when either side isn't a parseable
+ * number. Used by the deal update actions to detect real value changes before
+ * recording a deal event. Previously duplicated in both deal action files.
+ */
+export function numericEqual(
+  a: string | null | undefined,
+  b: string | null | undefined,
+): boolean {
+  const an = a ?? null,
+    bn = b ?? null;
+  if (an === null && bn === null) return true;
+  if (an === null || bn === null) return false;
+  const fa = parseFloat(an),
+    fb = parseFloat(bn);
+  return isNaN(fa) || isNaN(fb) ? an === bn : fa === fb;
+}
