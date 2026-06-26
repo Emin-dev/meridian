@@ -50,15 +50,14 @@ export default async function ContactDetailPage({ params }: Props) {
     );
   }
 
-  const [contact] = await db
-    .select()
-    .from(schema.contacts)
-    .where(eq(schema.contacts.id, numId))
-    .limit(1);
-
-  if (!contact) notFound();
-
-  const [activeSequences, enrollments] = await Promise.all([
+  // These three queries are mutually independent (all keyed off numId, none
+  // depends on the contact row), so run them concurrently to cut TTFB.
+  const [contactRows, activeSequences, enrollments] = await Promise.all([
+    db
+      .select()
+      .from(schema.contacts)
+      .where(eq(schema.contacts.id, numId))
+      .limit(1),
     db
       .select({ id: schema.sequences.id, name: schema.sequences.name })
       .from(schema.sequences)
@@ -80,6 +79,10 @@ export default async function ContactDetailPage({ params }: Props) {
       .where(eq(schema.contactSequenceEnrollments.contactId, numId))
       .orderBy(desc(schema.contactSequenceEnrollments.enrolledAt)),
   ]);
+
+  const contact = contactRows[0];
+
+  if (!contact) notFound();
 
   const activeEnrollmentIds = enrollments
     .filter((e) => e.status === "active")
