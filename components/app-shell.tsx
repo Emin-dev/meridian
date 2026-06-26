@@ -103,7 +103,7 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
                 >
                   {item.icon}
                   {badge > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-red-600 px-0.5 text-[10px] font-semibold text-white leading-none">
+                    <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-[--bad] px-0.5 text-[10px] font-semibold text-[--accent-ink] leading-none">
                       {badge > 99 ? "99+" : badge}
                     </span>
                   )}
@@ -130,7 +130,7 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
             >
               <MoreIcon size={20} aria-hidden="true" />
               {overdueTaskCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-red-600 px-0.5 text-[10px] font-semibold text-white leading-none">
+                <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-[--bad] px-0.5 text-[10px] font-semibold text-[--accent-ink] leading-none">
                   {overdueTaskCount > 99 ? "99+" : overdueTaskCount}
                 </span>
               )}
@@ -189,7 +189,7 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
                 <span className="shrink-0">{item.icon}</span>
                 {item.label}
                 {badge > 0 && (
-                  <span className="ml-auto inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-red-600 px-1 text-xs font-semibold text-white">
+                  <span className="ml-auto inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-[--bad] px-1 text-xs font-semibold text-[--accent-ink]">
                     {badge > 99 ? "99+" : badge}
                   </span>
                 )}
