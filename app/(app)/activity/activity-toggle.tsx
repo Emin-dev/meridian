@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useOptimistic, useTransition } from "react";
 import { toggleActivityComplete } from "./actions";
 
 interface Props {
@@ -17,16 +17,21 @@ export default function ActivityToggle({
   dealId,
 }: Props) {
   const [pending, startTransition] = useTransition();
+  // Optimistic mirror of `isCompleted`: flips instantly on toggle, then
+  // reconciles to the revalidated prop on success or reverts on failure.
+  const [optimisticCompleted, setOptimisticCompleted] =
+    useOptimistic(isCompleted);
 
   return (
     <label className="tap flex shrink-0 cursor-pointer items-center justify-center">
       <input
         type="checkbox"
-        checked={isCompleted}
+        checked={optimisticCompleted}
         disabled={pending}
-        aria-label={isCompleted ? "Mark incomplete" : "Mark complete"}
+        aria-label={optimisticCompleted ? "Mark incomplete" : "Mark complete"}
         onChange={() => {
           startTransition(async () => {
+            setOptimisticCompleted(!isCompleted);
             await toggleActivityComplete(activityId, isCompleted, contactId, dealId);
           });
         }}
