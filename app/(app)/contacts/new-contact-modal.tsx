@@ -23,7 +23,8 @@ export default function NewContactModal({ hasDb }: Props) {
       formRef.current?.reset();
       toast("Contact created");
     }
-  }, [state.success, toast]);
+    if (state.error) toast(state.error, "error");
+  }, [state.success, state.error, toast]);
 
   const noDb = !hasDb || state.noDb;
 

@@ -28,7 +28,13 @@ export default function EditContactForm({ contact, onSaved, onRollback }: Props)
 
   async function handleDelete() {
     if (!window.confirm(`Delete "${contact.name}"? This cannot be undone.`)) return;
-    await deleteContact(contact.id);
+    try {
+      await deleteContact(contact.id);
+    } catch (err) {
+      // A successful delete redirects (handled by Next internally); only a real
+      // DB/FK failure reaches here, so surface it to the user.
+      toast(err instanceof Error ? err.message : "Could not delete contact.", "error");
+    }
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {

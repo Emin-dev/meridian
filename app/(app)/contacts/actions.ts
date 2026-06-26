@@ -76,17 +76,22 @@ export async function createContact(
   const db = getDb();
   if (!db) return { noDb: true };
 
-  await db.insert(schema.contacts).values({
-    name: parsed.data.name,
-    email: parsed.data.email,
-    phone: parsed.data.phone,
-    company: parsed.data.company,
-    title: parsed.data.title,
-    notes: parsed.data.notes,
-    source: parsed.data.source,
-    owner: parsed.data.owner,
-    tags: parseTags(formData),
-  });
+  try {
+    await db.insert(schema.contacts).values({
+      name: parsed.data.name,
+      email: parsed.data.email,
+      phone: parsed.data.phone,
+      company: parsed.data.company,
+      title: parsed.data.title,
+      notes: parsed.data.notes,
+      source: parsed.data.source,
+      owner: parsed.data.owner,
+      tags: parseTags(formData),
+    });
+  } catch (err) {
+    console.error("createContact failed:", err);
+    return { error: "Could not save contact — please try again." };
+  }
 
   revalidatePath("/contacts");
   return { success: true };
@@ -260,21 +265,26 @@ export async function updateContact(
   const db = getDb();
   if (!db) return { noDb: true };
 
-  await db
-    .update(schema.contacts)
-    .set({
-      name: parsed.data.name,
-      email: parsed.data.email,
-      phone: parsed.data.phone,
-      company: parsed.data.company,
-      title: parsed.data.title,
-      notes: parsed.data.notes,
-      source: parsed.data.source,
-      owner: parsed.data.owner,
-      tags: parseTags(formData),
-      updatedAt: new Date(),
-    })
-    .where(eq(schema.contacts.id, id));
+  try {
+    await db
+      .update(schema.contacts)
+      .set({
+        name: parsed.data.name,
+        email: parsed.data.email,
+        phone: parsed.data.phone,
+        company: parsed.data.company,
+        title: parsed.data.title,
+        notes: parsed.data.notes,
+        source: parsed.data.source,
+        owner: parsed.data.owner,
+        tags: parseTags(formData),
+        updatedAt: new Date(),
+      })
+      .where(eq(schema.contacts.id, id));
+  } catch (err) {
+    console.error("updateContact failed:", err);
+    return { error: "Could not save changes — please try again." };
+  }
 
   revalidatePath(`/contacts/${id}`);
   revalidatePath("/contacts");
@@ -299,10 +309,15 @@ export async function updateContactNotes(
 
   const notes = String(formData.get("notes") ?? "").trim() || null;
 
-  await db
-    .update(schema.contacts)
-    .set({ notes, updatedAt: new Date() })
-    .where(eq(schema.contacts.id, id));
+  try {
+    await db
+      .update(schema.contacts)
+      .set({ notes, updatedAt: new Date() })
+      .where(eq(schema.contacts.id, id));
+  } catch (err) {
+    console.error("updateContactNotes failed:", err);
+    return { error: "Could not save notes — please try again." };
+  }
 
   revalidatePath(`/contacts/${id}`);
   revalidatePath("/contacts");
@@ -313,7 +328,15 @@ export async function deleteContact(id: number): Promise<void> {
   const db = getDb();
   if (!db) return;
 
-  await db.delete(schema.contacts).where(eq(schema.contacts.id, id));
+  // Catch real DB/FK failures and surface a friendly message; the redirect()
+  // below stays OUTSIDE the try so its control-flow signal is never swallowed.
+  try {
+    await db.delete(schema.contacts).where(eq(schema.contacts.id, id));
+  } catch (err) {
+    console.error("deleteContact failed:", err);
+    throw new Error("Could not delete this contact — please try again.");
+  }
+
   revalidatePath("/contacts");
   redirect("/contacts");
 }
