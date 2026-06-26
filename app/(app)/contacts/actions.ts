@@ -1226,35 +1226,10 @@ export async function mergeContacts(
         ? `${primary.notes}\n\n${secondary.notes}`
         : primary.notes ?? secondary.notes;
 
-    await db
-      .update(schema.contacts)
-      .set({
-        email: primary.email ?? secondary.email,
-        phone: primary.phone ?? secondary.phone,
-        company: primary.company ?? secondary.company,
-        title: primary.title ?? secondary.title,
-        source: primary.source ?? secondary.source,
-        owner: primary.owner ?? secondary.owner,
-        notes: mergedNotes,
-        tags: mergedTags,
-        updatedAt: new Date(),
-      })
-      .where(eq(schema.contacts.id, primaryId));
-
-    // Reassign related records to the primary.
-    await db
-      .update(schema.activities)
-      .set({ contactId: primaryId, updatedAt: new Date() })
-      .where(eq(schema.activities.contactId, secondaryId));
-
-    await db
-      .update(schema.deals)
-      .set({ contactId: primaryId, updatedAt: new Date() })
-      .where(eq(schema.deals.contactId, secondaryId));
-
-    // Move the secondary's sequence enrollments to the primary, except for
-    // sequences the primary is already actively enrolled in (to avoid duplicate
-    // active rows). Enrollments left behind cascade-delete with the secondary.
+    // Determine which of the secondary's sequence enrollments can move to the
+    // primary, skipping sequences the primary is already actively enrolled in
+    // (to avoid duplicate active rows). Enrollments left behind cascade-delete
+    // with the secondary.
     const primaryActive = await db
       .select({ sequenceId: schema.contactSequenceEnrollments.sequenceId })
       .from(schema.contactSequenceEnrollments)
@@ -1275,14 +1250,41 @@ export async function mergeContacts(
             )
           )
         : eq(schema.contactSequenceEnrollments.contactId, secondaryId);
-    await db
-      .update(schema.contactSequenceEnrollments)
-      .set({ contactId: primaryId })
-      .where(moveCondition);
 
-    await db
-      .delete(schema.contacts)
-      .where(eq(schema.contacts.id, secondaryId));
+    // Backfill the primary, reassign all related records, and delete the
+    // secondary atomically — a mid-way failure must never leave orphaned or
+    // duplicated data. neon-http has no interactive transactions, so batch()
+    // commits all statements together in a single transaction.
+    const now = new Date();
+    await db.batch([
+      db
+        .update(schema.contacts)
+        .set({
+          email: primary.email ?? secondary.email,
+          phone: primary.phone ?? secondary.phone,
+          company: primary.company ?? secondary.company,
+          title: primary.title ?? secondary.title,
+          source: primary.source ?? secondary.source,
+          owner: primary.owner ?? secondary.owner,
+          notes: mergedNotes,
+          tags: mergedTags,
+          updatedAt: now,
+        })
+        .where(eq(schema.contacts.id, primaryId)),
+      db
+        .update(schema.activities)
+        .set({ contactId: primaryId, updatedAt: now })
+        .where(eq(schema.activities.contactId, secondaryId)),
+      db
+        .update(schema.deals)
+        .set({ contactId: primaryId, updatedAt: now })
+        .where(eq(schema.deals.contactId, secondaryId)),
+      db
+        .update(schema.contactSequenceEnrollments)
+        .set({ contactId: primaryId })
+        .where(moveCondition),
+      db.delete(schema.contacts).where(eq(schema.contacts.id, secondaryId)),
+    ]);
 
     revalidatePath("/contacts");
     return { success: true };
