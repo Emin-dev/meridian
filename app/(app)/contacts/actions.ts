@@ -7,6 +7,12 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { chat } from "@/lib/ai";
 import { parseAiJson } from "@/lib/ai-json";
+import {
+  BULK_SCORE_BATCH,
+  BULK_SCORE_CONCURRENCY,
+  BULK_SCORE_DEADLINE_MS,
+  summarizeBulkScore,
+} from "@/lib/bulk-score";
 
 const SOURCE_VALUES = ["website", "referral", "linkedin", "cold-outreach", "other"] as const;
 
@@ -600,11 +606,6 @@ export type BulkScoreState = {
   noKey?: boolean;
 };
 
-// Cap each run so the action stays well under Vercel's 10s limit and doesn't
-// burn tokens on huge workspaces. Any contacts beyond this are reported via
-// `remaining` so the user can re-run.
-const BULK_SCORE_BATCH = 25;
-
 export async function bulkScoreContacts(): Promise<BulkScoreState> {
   const db = getDb();
   if (!db) return { noDb: true };
@@ -673,13 +674,18 @@ export async function bulkScoreContacts(): Promise<BulkScoreState> {
   // Score with a small fixed concurrency so the batch finishes far faster than
   // the old one-at-a-time loop, while staying gentle on the DeepSeek API. A
   // per-contact try/catch keeps a single failure from aborting the whole batch.
-  const CONCURRENCY = 4;
+  // A soft wall-clock deadline stops launching new scoring calls once the budget
+  // is spent, so even a slow batch can't compound wave-on-wave past Vercel's 10s
+  // request limit — un-attempted contacts simply fall through to `remaining`.
   const database = db;
+  const deadline = Date.now() + BULK_SCORE_DEADLINE_MS;
   let cursor = 0;
+  const attemptedIds: number[] = [];
 
   async function worker() {
-    while (cursor < contactsToScore.length) {
+    while (cursor < contactsToScore.length && Date.now() < deadline) {
       const contact = contactsToScore[cursor++];
+      attemptedIds.push(contact.id);
       try {
         await scoreContactFromData(
           database,
@@ -687,32 +693,37 @@ export async function bulkScoreContacts(): Promise<BulkScoreState> {
           activitiesByContact.get(contact.id) ?? []
         );
       } catch {
-        // Skip this contact; keep scoring the rest of the batch.
+        // Swallow per-contact failures so one bad call never aborts the batch;
+        // the contact stays unscored and is re-picked (counted in `failed`).
       }
     }
   }
 
   await Promise.all(
-    Array.from({ length: Math.min(CONCURRENCY, contactsToScore.length) }, () => worker())
+    Array.from(
+      { length: Math.min(BULK_SCORE_CONCURRENCY, contactsToScore.length) },
+      () => worker()
+    )
   );
 
+  // Nothing was attempted (deadline already passed before any work) — report the
+  // full backlog as remaining so the user can re-run.
+  if (attemptedIds.length === 0) {
+    return { count: 0, failed: 0, remaining: totalUnscored };
+  }
+
   // Derive the tally from the DB rather than the in-loop result: a contact only
-  // counts as scored if its leadScore actually persisted. Any contact whose AI
-  // score errored — or whose best-effort write silently no-oped — is still
-  // null, so it counts as `failed` and is re-picked on the next run.
-  const [{ value: stillNullInBatch }] = await database
+  // counts as scored if its leadScore actually persisted. Of the contacts we
+  // *attempted*, any still null had its AI score error (or its best-effort write
+  // silently no-op), so it counts as `failed`. Contacts the deadline skipped
+  // were never attempted and fall through to `remaining` instead.
+  const [{ value: stillNullAmongAttempted }] = await database
     .select({ value: countFn() })
     .from(schema.contacts)
-    .where(and(inArray(schema.contacts.id, contactIds), isNull(schema.contacts.leadScore)));
-
-  const count = contactsToScore.length - stillNullInBatch;
-  const failed = stillNullInBatch;
+    .where(and(inArray(schema.contacts.id, attemptedIds), isNull(schema.contacts.leadScore)));
 
   revalidatePath("/contacts");
-  // Successfully scored contacts now have a leadScore; failed ones remain null
-  // and will be picked up on a re-run, so they count toward `remaining`.
-  const remaining = Math.max(0, totalUnscored - count);
-  return { count, failed, remaining };
+  return summarizeBulkScore(totalUnscored, attemptedIds.length, stillNullAmongAttempted);
 }
 
 // ─── AI: Next best action suggestion ─────────────────────────────────────────
