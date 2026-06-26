@@ -38,13 +38,27 @@ const DEALS_LIMIT = 200;
 // shortlist, not the entire contacts table.
 const CONTACTS_LIMIT = 500;
 
+// Table-view sortable columns. Driven via URL params so ordering is computed in
+// the DB across the full filtered set, not just the capped page of loaded rows.
+// "contact" is intentionally excluded: it lives on a joined relation and can't
+// be ordered correctly within the cap without a join.
+const VALID_DEAL_SORT_COLS = ["title", "stage", "value", "closeDate", "owner", "age"] as const;
+type DealSortCol = (typeof VALID_DEAL_SORT_COLS)[number];
+
 export default async function DealsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ view?: string; owner?: string; stage?: string }>;
+  searchParams: Promise<{ view?: string; owner?: string; stage?: string; sort?: string; dir?: string }>;
 }) {
-  const { view = "kanban", owner: ownerFilter = "", stage: stageFilter = "" } = await searchParams;
+  const { view = "kanban", owner: ownerFilter = "", stage: stageFilter = "", sort, dir } = await searchParams;
   const isTable = view === "table";
+
+  // Table sort (default: oldest-open first, i.e. age desc). Kanban ignores this.
+  const sortColKey: DealSortCol =
+    sort && (VALID_DEAL_SORT_COLS as readonly string[]).includes(sort)
+      ? (sort as DealSortCol)
+      : "age";
+  const sortDir: "asc" | "desc" = dir === "asc" ? "asc" : "desc";
 
   const db = getDb();
 
@@ -57,16 +71,39 @@ export default async function DealsPage({
     stageMatch ? eq(deals.stage, stageMatch.key) : undefined,
   );
 
-  const [visibleDealsDesc, totalsRows, ownerRows, countRows, allContacts, settings] =
+  const [visibleDealsRaw, totalsRows, ownerRows, countRows, allContacts, settings] =
     await Promise.all([
       // Filtered list (uses deals_owner_idx / deals_stage_idx), capped at
-      // DEALS_LIMIT. Fetch newest-first so the cap keeps the most recent deals;
-      // we reverse below to restore the ascending display order.
+      // DEALS_LIMIT. Table view orders by the chosen column so the cap keeps the
+      // correct top-N across the full filtered set; kanban fetches newest-first
+      // (reversed below to restore ascending display order). An `id` tiebreaker
+      // keeps the capped window deterministic when the sort key has ties.
       db
         ? db.query.deals.findMany({
             where: listFilter,
             with: { contact: true },
-            orderBy: (d, { desc }) => [desc(d.createdAt)],
+            orderBy: isTable
+              ? (d, { asc, desc }) => {
+                  const dirFn = sortDir === "asc" ? asc : desc;
+                  switch (sortColKey) {
+                    case "title":
+                      return [dirFn(d.title), asc(d.id)];
+                    case "stage":
+                      return [dirFn(d.stage), asc(d.id)];
+                    case "value":
+                      return [dirFn(d.value), asc(d.id)];
+                    case "closeDate":
+                      return [dirFn(d.expectedCloseDate), asc(d.id)];
+                    case "owner":
+                      return [dirFn(d.owner), asc(d.id)];
+                    case "age":
+                    default:
+                      // Age = now − createdAt, so older deals (smaller createdAt)
+                      // have a larger age. Invert: age desc ⇔ createdAt asc.
+                      return [(sortDir === "asc" ? desc : asc)(d.createdAt), asc(d.id)];
+                  }
+                }
+              : (d, { desc }) => [desc(d.createdAt)],
             limit: DEALS_LIMIT,
           })
         : Promise.resolve([] as DealWithContact[]),
@@ -106,8 +143,9 @@ export default async function DealsPage({
       getCrmSettings(),
     ]);
 
-  // Restore ascending (oldest-first) display order after the newest-first fetch.
-  const visibleDeals = visibleDealsDesc.slice().reverse();
+  // Table view is already in its final sort order; kanban restores ascending
+  // (oldest-first) display order after the newest-first fetch.
+  const visibleDeals = isTable ? visibleDealsRaw : visibleDealsRaw.slice().reverse();
 
   const uniqueOwners = ownerRows
     .map((r) => r.owner)
@@ -280,7 +318,17 @@ export default async function DealsPage({
             />
           </div>
         ) : (
-          <DealsTable deals={visibleDeals} owners={uniqueOwners} />
+          <DealsTable
+            deals={visibleDeals}
+            owners={uniqueOwners}
+            sort={sortColKey}
+            dir={sortDir}
+            allSearchParams={{
+              view: "table",
+              ...(ownerFilter ? { owner: ownerFilter } : {}),
+              ...(stageMatch ? { stage: stageMatch.key } : {}),
+            }}
+          />
         )
       )}
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -12,13 +13,23 @@ import {
 
 type StageData = { stage: string; count: number; value: number };
 
-const STAGE_COLORS: Record<string, string> = {
-  lead: "#2b2a55",
-  qualified: "#4a3fb0",
-  proposal: "#6d5cf5",
-  negotiation: "#8273ff",
-  won: "#a99cff",
-  lost: "#4b4f5e",
+// Every stage reads the single accent token; Won/Lost are the only semantic
+// exceptions. No decorative per-stage violet ramp — the chart reads intentional.
+const STAGE_TOKENS: Record<string, "--accent" | "--ok" | "--ink-3"> = {
+  lead: "--accent",
+  qualified: "--accent",
+  proposal: "--accent",
+  negotiation: "--accent",
+  won: "--ok",
+  lost: "--ink-3",
+};
+
+// Literal token values, used as SSR/fallback before getComputedStyle resolves
+// them (recharts sets fill as an SVG attribute, which doesn't resolve var()).
+const TOKEN_FALLBACK: Record<string, string> = {
+  "--accent": "#6d5cf5",
+  "--ok": "#2dd4a7",
+  "--ink-3": "#646b7a",
 };
 
 const STAGE_LABELS: Record<string, string> = {
@@ -32,6 +43,16 @@ const STAGE_LABELS: Record<string, string> = {
 
 export default function PipelineChart({ data }: { data: StageData[] }) {
   const hasDeals = data.some((d) => d.count > 0);
+
+  const [tokenColors, setTokenColors] = useState(TOKEN_FALLBACK);
+  useEffect(() => {
+    const styles = getComputedStyle(document.documentElement);
+    const resolved: Record<string, string> = {};
+    for (const token of Object.keys(TOKEN_FALLBACK)) {
+      resolved[token] = styles.getPropertyValue(token).trim() || TOKEN_FALLBACK[token];
+    }
+    setTokenColors(resolved);
+  }, []);
 
   const chartData = data.map((d) => ({
     name: STAGE_LABELS[d.stage] ?? d.stage,
@@ -81,7 +102,7 @@ export default function PipelineChart({ data }: { data: StageData[] }) {
               {chartData.map((entry) => (
                 <Cell
                   key={entry.stage}
-                  fill={STAGE_COLORS[entry.stage] ?? "#6d5cf5"}
+                  fill={tokenColors[STAGE_TOKENS[entry.stage] ?? "--accent"]}
                 />
               ))}
             </Bar>

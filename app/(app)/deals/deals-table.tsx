@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { bulkMoveStage, bulkChangeOwner, bulkDeleteDeals } from "./actions";
 import type { DealWithContact } from "./types";
 import MobileActionSheet from "@/components/mobile-action-sheet";
@@ -9,8 +10,12 @@ import DetailField from "@/components/detail-field";
 import { STAGES, STAGE_LABELS, STAGE_COLORS } from "./stages";
 import { formatCurrency, formatShortDate } from "@/lib/format";
 
-type SortKey = "title" | "contact" | "stage" | "value" | "closeDate" | "age" | "owner";
+// Columns whose ordering is driven server-side via URL params (see page.tsx).
+type SortCol = "title" | "stage" | "value" | "closeDate" | "owner" | "age";
 type SortDir = "asc" | "desc";
+
+const thClass =
+  "px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[--ink-3] cursor-pointer select-none hover:text-[--ink-1] whitespace-nowrap";
 
 function dealAgeInDays(createdAt: Date): number {
   const diffMs = Date.now() - new Date(createdAt).getTime();
@@ -48,16 +53,54 @@ function SortIcon({ active, dir }: { active: boolean; dir: SortDir }) {
   );
 }
 
+// Sortable table header — pushes the column/direction to the URL so the query
+// re-orders the full filtered set in the DB (mirrors the contacts table).
+function SortableTh({
+  col,
+  label,
+  sort,
+  dir,
+  params,
+  className,
+}: {
+  col: SortCol;
+  label: string;
+  sort: string;
+  dir: SortDir;
+  params: Record<string, string>;
+  className?: string;
+}) {
+  const router = useRouter();
+  const isActive = sort === col;
+  const nextDir: SortDir = isActive && dir === "asc" ? "desc" : "asc";
+
+  function handleClick() {
+    const next = new URLSearchParams(params);
+    next.set("sort", col);
+    next.set("dir", nextDir);
+    router.push(`/deals?${next.toString()}`);
+  }
+
+  return (
+    <th onClick={handleClick} className={className ? `${thClass} ${className}` : thClass}>
+      {label} <SortIcon active={isActive} dir={dir} />
+    </th>
+  );
+}
+
 export default function DealsTable({
   deals,
   owners,
+  sort,
+  dir,
+  allSearchParams,
 }: {
   deals: DealWithContact[];
   owners: string[];
+  sort: string;
+  dir: SortDir;
+  allSearchParams: Record<string, string>;
 }) {
-  const [sortKey, setSortKey] = useState<SortKey>("age");
-  const [sortDir, setSortDir] = useState<SortDir>("desc");
-
   // Bulk selection
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [selectMode, setSelectMode] = useState(false);
@@ -135,49 +178,6 @@ export default function DealsTable({
       setSelectMode(false);
     });
   }
-
-  function handleSort(key: SortKey) {
-    if (sortKey === key) {
-      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-    } else {
-      setSortKey(key);
-      setSortDir("asc");
-    }
-  }
-
-  const sorted = [...deals].sort((a, b) => {
-    let cmp = 0;
-    switch (sortKey) {
-      case "title":
-        cmp = a.title.localeCompare(b.title);
-        break;
-      case "contact":
-        cmp = (a.contact?.name ?? "").localeCompare(b.contact?.name ?? "");
-        break;
-      case "stage":
-        cmp = a.stage.localeCompare(b.stage);
-        break;
-      case "value":
-        cmp = parseFloat(a.value ?? "0") - parseFloat(b.value ?? "0");
-        break;
-      case "closeDate": {
-        const aDate = a.expectedCloseDate ? new Date(a.expectedCloseDate).getTime() : 0;
-        const bDate = b.expectedCloseDate ? new Date(b.expectedCloseDate).getTime() : 0;
-        cmp = aDate - bDate;
-        break;
-      }
-      case "age":
-        cmp = dealAgeInDays(a.createdAt) - dealAgeInDays(b.createdAt);
-        break;
-      case "owner":
-        cmp = (a.owner ?? "").localeCompare(b.owner ?? "");
-        break;
-    }
-    return sortDir === "asc" ? cmp : -cmp;
-  });
-
-  const thClass =
-    "px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[--ink-3] cursor-pointer select-none hover:text-[--ink-1] whitespace-nowrap";
 
   if (deals.length === 0) {
     return (
@@ -323,7 +323,7 @@ export default function DealsTable({
         )}
 
         <div className="divide-y divide-[--line-1]">
-          {sorted.map((deal) => {
+          {deals.map((deal) => {
             const age = dealAgeInDays(deal.createdAt);
             const isSelected = selectedIds.has(deal.id);
             const value = formatDealValue(deal);
@@ -429,31 +429,26 @@ export default function DealsTable({
                   />
                 </label>
               </th>
-              <th className={`${thClass} sticky left-11 z-20 bg-[--surface-1] border-r border-[--line-1]`} onClick={() => handleSort("title")}>
-                Title <SortIcon active={sortKey === "title"} dir={sortDir} />
+              <SortableTh
+                col="title"
+                label="Title"
+                sort={sort}
+                dir={dir}
+                params={allSearchParams}
+                className="sticky left-11 z-20 bg-[--surface-1] border-r border-[--line-1]"
+              />
+              <th className={`${thClass} cursor-default hover:text-[--ink-3]`}>
+                Contact
               </th>
-              <th className={thClass} onClick={() => handleSort("contact")}>
-                Contact <SortIcon active={sortKey === "contact"} dir={sortDir} />
-              </th>
-              <th className={thClass} onClick={() => handleSort("stage")}>
-                Stage <SortIcon active={sortKey === "stage"} dir={sortDir} />
-              </th>
-              <th className={thClass} onClick={() => handleSort("value")}>
-                Value <SortIcon active={sortKey === "value"} dir={sortDir} />
-              </th>
-              <th className={thClass} onClick={() => handleSort("closeDate")}>
-                Close Date <SortIcon active={sortKey === "closeDate"} dir={sortDir} />
-              </th>
-              <th className={thClass} onClick={() => handleSort("owner")}>
-                Owner <SortIcon active={sortKey === "owner"} dir={sortDir} />
-              </th>
-              <th className={thClass} onClick={() => handleSort("age")}>
-                Days open <SortIcon active={sortKey === "age"} dir={sortDir} />
-              </th>
+              <SortableTh col="stage" label="Stage" sort={sort} dir={dir} params={allSearchParams} />
+              <SortableTh col="value" label="Value" sort={sort} dir={dir} params={allSearchParams} />
+              <SortableTh col="closeDate" label="Close Date" sort={sort} dir={dir} params={allSearchParams} />
+              <SortableTh col="owner" label="Owner" sort={sort} dir={dir} params={allSearchParams} />
+              <SortableTh col="age" label="Days open" sort={sort} dir={dir} params={allSearchParams} />
             </tr>
           </thead>
           <tbody>
-            {sorted.map((deal, i) => {
+            {deals.map((deal, i) => {
               const age = dealAgeInDays(deal.createdAt);
               const isSelected = selectedIds.has(deal.id);
               const value = deal.value
