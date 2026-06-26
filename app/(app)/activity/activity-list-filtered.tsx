@@ -15,11 +15,11 @@ function formatCompletedAt(isoString: string): string {
 type ActivityType = "call" | "email" | "meeting" | "note" | "task";
 
 const TYPE_META: Record<ActivityType, { label: string; color: string; bg: string }> = {
-  call:    { label: "Call",    color: "text-blue-400",   bg: "bg-blue-900/30" },
-  email:   { label: "Email",   color: "text-purple-400", bg: "bg-purple-900/30" },
-  meeting: { label: "Meeting", color: "text-green-400",  bg: "bg-green-900/30" },
-  note:    { label: "Note",    color: "text-amber-400",  bg: "bg-amber-900/30" },
-  task:    { label: "Task",    color: "text-indigo-400", bg: "bg-indigo-900/30" },
+  call:    { label: "Call",    color: "text-[--info]",   bg: "bg-[--info-tint]" },
+  email:   { label: "Email",   color: "text-[--accent]", bg: "bg-[--accent-tint]" },
+  meeting: { label: "Meeting", color: "text-[--ok]",     bg: "bg-[--ok-tint]" },
+  note:    { label: "Note",    color: "text-[--warn]",   bg: "bg-[--warn-tint]" },
+  task:    { label: "Task",    color: "text-[--info]",   bg: "bg-[--info-tint]" },
 };
 
 const TYPE_CHIPS = [
