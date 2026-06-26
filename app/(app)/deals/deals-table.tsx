@@ -267,10 +267,10 @@ export default function DealsTable({
         </div>
       )}
 
-      {/* Mobile stacked cards */}
-      <div className="overflow-hidden rounded-xl border border-[--line-1] lg:hidden">
+      {/* Mobile stacked cards — edge-to-edge grouped-list on phones, boxed table from sm up */}
+      <div className="overflow-hidden border-y border-[--line-1] sm:rounded-xl sm:border lg:hidden">
         {/* Mobile select toolbar */}
-        <div className="flex items-center gap-3 border-b border-[--line-1] px-4 py-2">
+        <div className="flex items-center gap-3 px-4 py-2 sm:border-b sm:border-[--line-1]">
           {selectMode ? (
             <>
               <label className="tap flex cursor-pointer items-center gap-2 text-xs font-medium text-[--ink-1]">
@@ -305,7 +305,7 @@ export default function DealsTable({
           ) : (
             <button
               onClick={() => setSelectMode(true)}
-              className="tap ml-auto flex items-center justify-center text-xs font-medium text-[--ink-2] hover:text-[--ink-1]"
+              className="tap ml-auto flex items-center justify-center text-xs font-medium text-[--ink-3] hover:text-[--ink-1]"
             >
               Select
             </button>
