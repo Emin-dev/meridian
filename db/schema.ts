@@ -8,7 +8,7 @@ import {
   pgEnum,
   index,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
 
 // ─── Enums ───────────────────────────────────────────────────────────────────
@@ -158,6 +158,13 @@ export const activities = pgTable("activities", {
   index("activities_contact_id_idx").on(table.contactId),
   index("activities_deal_id_idx").on(table.dealId),
   index("activities_due_at_idx").on(table.dueAt),
+  // Partial index for the overdue badge counts in the app layout
+  // (dueAt < today AND completedAt IS NULL, one variant also type='task').
+  // Indexing only open activities keeps it small and lets both count
+  // queries scan just the relevant rows on every navigation.
+  index("activities_overdue_idx")
+    .on(table.dueAt)
+    .where(sql`${table.completedAt} is null`),
   index("activities_type_idx").on(table.type),
   index("activities_created_at_idx").on(table.createdAt),
 ]);
