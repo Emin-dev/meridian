@@ -5,8 +5,17 @@ import { z } from "zod";
 import { getDb, schema } from "@/db";
 
 // Bound the query length so empty/oversized inputs can't trigger needless
-// ilike table scans (every char widens the LIKE pattern).
-const querySchema = z.string().trim().min(1).max(500);
+// ilike table scans (every char widens the LIKE pattern). Require at least
+// two chars so a single-char term can't match nearly every row.
+const querySchema = z.string().trim().min(2).max(120);
+
+// Escape LIKE/ILIKE metacharacters so a user-supplied `%`, `_`, or backslash
+// is matched literally instead of acting as a wildcard (which would turn the
+// search into a far broader, surprising scan). Postgres LIKE's default ESCAPE
+// is `\`, so escape the backslash itself too.
+function escapeLikePattern(term: string): string {
+  return term.replace(/[\\%_]/g, (char) => `\\${char}`);
+}
 
 const EMPTY_RESULTS: SearchResults = {
   contacts: [],
@@ -48,7 +57,7 @@ export async function searchGlobal(query: string): Promise<SearchResults> {
     return EMPTY_RESULTS;
   }
 
-  const q = `%${parsed.data}%`;
+  const q = `%${escapeLikePattern(parsed.data)}%`;
 
   const contactsWhere = or(
     ilike(schema.contacts.name, q),

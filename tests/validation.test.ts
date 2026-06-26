@@ -1,32 +1,37 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import { contactToVars, interpolate, PLACEHOLDER_VARS } from "@/lib/template";
-
-// Mirrors the `value` rule of DealSchema in app/(app)/deals/actions.ts.
-// Kept pure here (no DB/network) because that schema lives in a "use server"
-// module. If the regex below changes, update it there too.
-const dealValue = z
-  .string()
-  .regex(/^\d+(\.\d{1,2})?$/, "Enter a valid amount")
-  .nullable();
+// The single-source-of-truth deal value validator now shared by the create
+// (deals/actions.ts) and edit (deals/[id]/actions.ts) flows. It's a pure module
+// (no DB/network), so the real schema is imported and exercised directly.
+import { dealValueSchema } from "@/app/(app)/deals/value-schema";
 
 describe("deal value validation", () => {
   it.each(["1000", "10.50", "0", "1.5", "999999.99"])(
     "accepts a plain numeric amount: %s",
     (input) => {
-      expect(dealValue.safeParse(input).success).toBe(true);
+      expect(dealValueSchema.safeParse(input).success).toBe(true);
     },
   );
 
-  it.each(["1,000", "abc", "10.500", "$1000", "1.2.3", "10.", "-5", " 100 "])(
-    "rejects a non-numeric / malformed amount: %s",
-    (input) => {
-      expect(dealValue.safeParse(input).success).toBe(false);
-    },
-  );
+  it.each([
+    "1,000",
+    "abc",
+    "10.500", // over-precision
+    "$1000",
+    "1.2.3",
+    "10.",
+    "-5", // negative
+    " 100 ",
+    "NaN",
+    "1e5",
+    "Infinity",
+  ])("rejects a non-numeric / malformed amount: %s", (input) => {
+    expect(dealValueSchema.safeParse(input).success).toBe(false);
+  });
 
   it("treats a missing value as null (optional amount)", () => {
-    expect(dealValue.safeParse(null).success).toBe(true);
+    expect(dealValueSchema.safeParse(null).success).toBe(true);
   });
 });
 
