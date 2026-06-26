@@ -6,7 +6,14 @@ import type { Contact } from "@/db/schema";
 import { useToast } from "@/components/toaster";
 import TagInput from "../tag-input";
 import { SOURCE_LABELS } from "../constants";
+import MobileActionSheet from "@/components/mobile-action-sheet";
 import type { ContactHeaderUpdate } from "./contact-detail-client";
+
+/** Source picker options (empty = unset), shared by the desktop select and mobile sheet. */
+const SOURCE_OPTIONS: { value: string; label: string }[] = [
+  { value: "", label: "— Select —" },
+  ...Object.entries(SOURCE_LABELS).map(([value, label]) => ({ value, label })),
+];
 
 interface Props {
   contact: Contact;
@@ -19,6 +26,8 @@ interface Props {
 export default function EditContactForm({ contact, onSaved, onRollback }: Props) {
   const { toast } = useToast();
   const [pending, startTransition] = useTransition();
+  const [source, setSource] = useState<string>(contact.source ?? "");
+  const [sourceSheetOpen, setSourceSheetOpen] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<
     Partial<Record<"name" | "email" | "phone" | "company" | "title" | "notes" | "source" | "owner", string[]>>
   >({});
@@ -87,6 +96,7 @@ export default function EditContactForm({ contact, onSaved, onRollback }: Props)
   }
 
   return (
+    <>
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Name */}
       <div>
@@ -171,19 +181,42 @@ export default function EditContactForm({ contact, onSaved, onRollback }: Props)
           <label htmlFor="ec-source" className={labelCls}>
             Source
           </label>
+          {/* Desktop: native select. Hidden on mobile but still submits `source`. */}
           <select
             id="ec-source"
             name="source"
-            defaultValue={contact.source ?? ""}
-            className={inputCls}
+            value={source}
+            onChange={(e) => setSource(e.target.value)}
+            className={`${inputCls} hidden sm:block`}
           >
-            <option value="">— Select —</option>
-            {Object.entries(SOURCE_LABELS).map(([value, label]) => (
+            {SOURCE_OPTIONS.map(({ value, label }) => (
               <option key={value} value={value}>
                 {label}
               </option>
             ))}
           </select>
+          {/* Mobile: 44px button opening an action sheet instead of a native dropdown. */}
+          <button
+            type="button"
+            onClick={() => setSourceSheetOpen(true)}
+            className={`${inputCls} tap flex items-center justify-between gap-2 text-left sm:hidden`}
+          >
+            <span>{SOURCE_LABELS[source] ?? "— Select —"}</span>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="shrink-0 text-neutral-500"
+              aria-hidden="true"
+            >
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </button>
         </div>
         <div>
           <label htmlFor="ec-owner" className={labelCls}>
@@ -227,5 +260,52 @@ export default function EditContactForm({ contact, onSaved, onRollback }: Props)
         </button>
       </div>
     </form>
+
+      {/* Mobile: source picker bottom sheet (desktop uses the native select). */}
+      <div className="sm:hidden">
+        <MobileActionSheet
+          open={sourceSheetOpen}
+          onClose={() => setSourceSheetOpen(false)}
+          title="Source"
+        >
+          <div className="flex flex-col gap-2">
+            {SOURCE_OPTIONS.map(({ value, label }) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => {
+                  setSource(value);
+                  setSourceSheetOpen(false);
+                }}
+                aria-pressed={source === value}
+                className={`tap flex items-center justify-between rounded-lg px-3 text-left text-body transition-colors ${
+                  source === value
+                    ? "bg-[--surface-3] text-[--ink-1]"
+                    : "text-[--ink-2] hover:bg-[--surface-3]"
+                }`}
+              >
+                <span>{label}</span>
+                {source === value && (
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="shrink-0 text-[--accent]"
+                    aria-hidden="true"
+                  >
+                    <path d="M20 6L9 17l-5-5" />
+                  </svg>
+                )}
+              </button>
+            ))}
+          </div>
+        </MobileActionSheet>
+      </div>
+    </>
   );
 }
