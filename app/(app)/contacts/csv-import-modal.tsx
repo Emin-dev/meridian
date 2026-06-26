@@ -89,7 +89,7 @@ export default function CsvImportModal({ hasDb }: Props) {
       <button
         type="button"
         onClick={handleOpen}
-        className="rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-4 py-2 text-sm font-medium text-[var(--ink-2)] transition-colors hover:bg-[var(--surface-3)] hover:text-[var(--ink-1)]"
+        className="tap inline-flex items-center justify-center rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-4 text-sm font-medium text-[var(--ink-2)] transition-colors hover:bg-[var(--surface-3)] hover:text-[var(--ink-1)]"
       >
         Import CSV
       </button>
