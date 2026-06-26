@@ -113,7 +113,7 @@ function ContactCards({
         const secondary = [
           c.company,
           statusMeta?.label,
-          c.leadScore != null ? String(c.leadScore) : null,
+          c.leadScore != null ? `Score ${c.leadScore}` : null,
         ]
           .filter(Boolean)
           .join(" • ");
