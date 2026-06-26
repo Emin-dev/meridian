@@ -237,5 +237,13 @@ dialog:not([open]) { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce){
-  *,*::before,*::after{ animation-duration:.01ms!important; transition-duration:.01ms!important; }
+  /* Zero enter durations AND collapse infinite loops to a single pass — without
+     the iteration-count reset, infinite animations (animate-spin spinners,
+     animate-pulse skeletons) keep looping at .01ms and strobe rather than stop. */
+  *,*::before,*::after{
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+    scroll-behavior:auto!important;
+  }
 }

@@ -24,6 +24,8 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
   const [isPending, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+  // Monotonic id for the in-flight search so out-of-order responses are dropped.
+  const requestIdRef = useRef(0);
   const router = useRouter();
   const panelRef = useOverlayDismiss<HTMLDivElement>(open, onClose);
 
@@ -46,13 +48,19 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
   // Debounced search
   useEffect(() => {
     if (!query.trim()) {
+      // Invalidate any in-flight request so a late response can't repopulate
+      // the list after the user has cleared the input.
+      requestIdRef.current++;
       setResults(null);
       setSelectedIndex(0);
       return;
     }
     const t = setTimeout(() => {
+      const requestId = ++requestIdRef.current;
       startTransition(async () => {
         const res = await searchGlobal(query);
+        // Drop stale responses that resolve out of order behind a newer query.
+        if (requestId !== requestIdRef.current) return;
         setResults(res);
         setSelectedIndex(0);
       });
