@@ -5,6 +5,7 @@ import { updateDealDetails } from "./actions";
 import type { Deal } from "@/db/schema";
 import { useToast } from "@/components/toaster";
 import type { DealFormUpdate } from "./deal-detail-top";
+import MobileActionSheet from "@/components/mobile-action-sheet";
 
 const STAGES = [
   { value: "lead",        label: "Lead"        },
@@ -33,9 +34,12 @@ export default function EditDealForm({ deal, onSaved, onRollback }: Props) {
   // Stage is controlled so it stays in sync when StageControl moves the deal
   // (the parent updates deal.stage without remounting this form).
   const [stageValue, setStageValue] = useState<Deal["stage"]>(deal.stage);
+  const [stageSheetOpen, setStageSheetOpen] = useState(false);
   useEffect(() => {
     setStageValue(deal.stage);
   }, [deal.stage]);
+  const stageLabel =
+    STAGES.find((s) => s.value === stageValue)?.label ?? stageValue;
 
   // Probability is controlled so the progress bar tracks the input live.
   const [probInput, setProbInput] = useState(String(deal.probability));
@@ -121,12 +125,14 @@ export default function EditDealForm({ deal, onSaved, onRollback }: Props) {
         <label htmlFor="ed-stage" className={labelCls}>
           Stage
         </label>
+        {/* Desktop: native select. Hidden (display:none) on mobile but still
+            submits `stage` as the form's single source of truth. */}
         <select
           id="ed-stage"
           name="stage"
           value={stageValue}
           onChange={(e) => setStageValue(e.target.value as Deal["stage"])}
-          className={inputCls}
+          className={`${inputCls} hidden sm:block`}
         >
           {STAGES.map((s) => (
             <option key={s.value} value={s.value}>
@@ -134,6 +140,28 @@ export default function EditDealForm({ deal, onSaved, onRollback }: Props) {
             </option>
           ))}
         </select>
+        {/* Mobile: 44px button opening an action sheet instead of a native dropdown. */}
+        <button
+          type="button"
+          onClick={() => setStageSheetOpen(true)}
+          className={`${inputCls} flex items-center justify-between gap-2 text-left sm:hidden`}
+        >
+          <span>{stageLabel}</span>
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="shrink-0 text-[var(--ink-3)]"
+            aria-hidden="true"
+          >
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </button>
         {fieldErrors.stage && (
           <p className="mt-1 text-xs text-[var(--bad)]">{fieldErrors.stage[0]}</p>
         )}
@@ -218,6 +246,52 @@ export default function EditDealForm({ deal, onSaved, onRollback }: Props) {
         >
           {pending ? "Saving…" : "Save changes"}
         </button>
+      </div>
+
+      {/* Mobile: stage picker bottom sheet (desktop uses the native select). */}
+      <div className="sm:hidden">
+        <MobileActionSheet
+          open={stageSheetOpen}
+          onClose={() => setStageSheetOpen(false)}
+          title="Stage"
+        >
+          <div className="flex flex-col gap-2">
+            {STAGES.map((s) => (
+              <button
+                key={s.value}
+                type="button"
+                onClick={() => {
+                  setStageValue(s.value);
+                  setStageSheetOpen(false);
+                }}
+                aria-pressed={stageValue === s.value}
+                className={`tap flex items-center justify-between rounded-lg px-3 text-left text-body transition-colors ${
+                  stageValue === s.value
+                    ? "bg-[var(--surface-3)] text-[var(--ink-1)]"
+                    : "text-[var(--ink-2)] hover:bg-[var(--surface-3)]"
+                }`}
+              >
+                <span>{s.label}</span>
+                {stageValue === s.value && (
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="shrink-0 text-[var(--accent)]"
+                    aria-hidden="true"
+                  >
+                    <path d="M20 6L9 17l-5-5" />
+                  </svg>
+                )}
+              </button>
+            ))}
+          </div>
+        </MobileActionSheet>
       </div>
     </form>
   );

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import type { SearchResults } from "./actions";
+import { SEARCH_RESULT_LIMIT, type SearchResults } from "./actions";
 
 type Tab = "contacts" | "deals" | "activities";
 const VALID_TABS: Tab[] = ["contacts", "deals", "activities"];
@@ -70,7 +70,9 @@ export default function SearchResultsTabs({
                     : "bg-[var(--surface-2)] text-[var(--ink-3)]",
                 ].join(" ")}
               >
-                {counts[t.key]}
+                {counts[t.key] >= SEARCH_RESULT_LIMIT
+                  ? `${SEARCH_RESULT_LIMIT}+`
+                  : counts[t.key]}
               </span>
             </button>
           );
