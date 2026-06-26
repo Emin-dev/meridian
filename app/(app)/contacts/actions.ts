@@ -292,6 +292,7 @@ export async function deleteContact(id: number): Promise<void> {
 
 export type SummarizeState = {
   summary?: string;
+  summaryAt?: string;
   error?: string;
   noDb?: boolean;
   noKey?: boolean;
@@ -354,7 +355,21 @@ export async function summarizeContact(
         content: `Summarise this contact:\n\n${lines.join("\n")}`,
       },
     ]);
-    return { summary };
+
+    const summaryAt = new Date();
+
+    // Cache result to the contact row (best-effort — columns may not exist yet)
+    try {
+      await db
+        .update(schema.contacts)
+        .set({ aiSummary: summary, aiSummaryAt: summaryAt, updatedAt: new Date() })
+        .where(eq(schema.contacts.id, contact.id));
+      revalidatePath(`/contacts/${contact.id}`);
+    } catch {
+      // Ignore — DB columns may not yet be migrated
+    }
+
+    return { summary, summaryAt: summaryAt.toISOString() };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown AI error.";
     if (message.includes("DEEPSEEK_API_KEY")) return { noKey: true };

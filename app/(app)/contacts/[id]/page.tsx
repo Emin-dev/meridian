@@ -118,7 +118,11 @@ export default async function ContactDetailPage({ params }: Props) {
         />
       </div>
       <div className="card p-4 sm:p-5">
-        <SummarizePanel contactId={contact.id} />
+        <SummarizePanel
+          contactId={contact.id}
+          initialSummary={contact.aiSummary}
+          initialSummaryAt={contact.aiSummaryAt}
+        />
       </div>
       <div className="card p-4 sm:p-5">
         <EnrichContactPanel contactId={contact.id} />
