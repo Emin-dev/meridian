@@ -89,40 +89,82 @@ export default function ContactFilters({
   const inputClass =
     "min-h-[44px] rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 text-sm text-[var(--ink-1)] placeholder-[var(--ink-3)] focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]";
 
+  // Mobile picker: full-width 44px button list, matching owner-filter.tsx.
+  function picker(
+    label: string,
+    value: string,
+    onSelect: (v: string) => void,
+    options: ReadonlyArray<{ value: string; label: string }>,
+  ) {
+    return (
+      <div className="flex flex-col gap-1">
+        <span className="px-1 text-xs font-medium text-[var(--ink-3)]">
+          {label}
+        </span>
+        {options.map((o) => (
+          <button
+            key={o.value}
+            type="button"
+            onClick={() => onSelect(o.value)}
+            className={`tap flex min-h-[44px] w-full items-center rounded-lg px-3 text-sm transition-colors ${
+              value === o.value
+                ? "bg-[var(--surface-2)] text-[var(--ink-1)]"
+                : "text-[var(--ink-2)] hover:bg-[var(--surface-2)]"
+            }`}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
+    );
+  }
+
   // Shared filter inputs, rendered both inline (desktop) and stacked (sheet).
-  function fields(widths: {
-    select: string;
-    company: string;
-    score: string;
-    tag: string;
-  }) {
+  // `variant: "mobile"` swaps the native selects for action-sheet pickers.
+  function fields(
+    widths: {
+      select: string;
+      company: string;
+      score: string;
+      tag: string;
+    },
+    variant: "desktop" | "mobile" = "desktop",
+  ) {
     return (
       <>
-        <select
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          className={`${inputClass} ${widths.select}`}
-          aria-label="Filter by status"
-        >
-          {STATUS_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
+        {variant === "mobile" ? (
+          picker("Status", status, setStatus, STATUS_OPTIONS)
+        ) : (
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            className={`${inputClass} ${widths.select}`}
+            aria-label="Filter by status"
+          >
+            {STATUS_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        )}
 
-        <select
-          value={source}
-          onChange={(e) => setSource(e.target.value)}
-          className={`${inputClass} ${widths.select}`}
-          aria-label="Filter by source"
-        >
-          {SOURCE_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
+        {variant === "mobile" ? (
+          picker("Source", source, setSource, SOURCE_OPTIONS)
+        ) : (
+          <select
+            value={source}
+            onChange={(e) => setSource(e.target.value)}
+            className={`${inputClass} ${widths.select}`}
+            aria-label="Filter by source"
+          >
+            {SOURCE_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        )}
 
         <input
           type="text"
@@ -210,12 +252,15 @@ export default function ContactFilters({
         title="Filters"
       >
         <div className="flex flex-col gap-3">
-          {fields({
-            select: "w-full",
-            company: "w-full",
-            score: "w-full",
-            tag: "w-full",
-          })}
+          {fields(
+            {
+              select: "w-full",
+              company: "w-full",
+              score: "w-full",
+              tag: "w-full",
+            },
+            "mobile",
+          )}
 
           <div className="flex gap-2 pt-1">
             <button
