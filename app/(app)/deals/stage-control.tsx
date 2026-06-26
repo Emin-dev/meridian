@@ -4,17 +4,7 @@ import { useState, useTransition } from "react";
 import { moveDealStage } from "./actions";
 import { useToast } from "@/components/toaster";
 import MobileActionSheet from "@/components/mobile-action-sheet";
-
-const STAGE_KEYS = [
-  "lead",
-  "qualified",
-  "proposal",
-  "negotiation",
-  "won",
-  "lost",
-] as const;
-
-type StageKey = (typeof STAGE_KEYS)[number];
+import { DEAL_STAGES as STAGE_KEYS, type StageKey } from "./stages";
 
 interface StageControlProps {
   dealId: number;

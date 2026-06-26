@@ -3,17 +3,9 @@
 import Link from "next/link";
 import { useState } from "react";
 import type { DealWithContact } from "./types";
+import { STAGES, type StageKey } from "./stages";
 
-const STAGES = [
-  { value: "lead", label: "Lead" },
-  { value: "qualified", label: "Qualified" },
-  { value: "proposal", label: "Proposal" },
-  { value: "negotiation", label: "Negotiation" },
-  { value: "won", label: "Won" },
-  { value: "lost", label: "Lost" },
-] as const;
-
-type StageValue = (typeof STAGES)[number]["value"];
+type StageValue = StageKey;
 
 function formatValue(value: string | null, currency: string) {
   if (!value) return null;
@@ -203,7 +195,7 @@ export default function KanbanCard({
             aria-label="Move to stage"
           >
             {STAGES.map((s) => (
-              <option key={s.value} value={s.value}>
+              <option key={s.key} value={s.key}>
                 {s.label}
               </option>
             ))}

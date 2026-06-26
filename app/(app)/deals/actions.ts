@@ -9,24 +9,7 @@ import {
   extractUserNotes,
   extractWinLossInsight,
 } from "./[id]/notes-utils";
-
-const DEAL_STAGES = [
-  "lead",
-  "qualified",
-  "proposal",
-  "negotiation",
-  "won",
-  "lost",
-] as const;
-
-const STAGE_PROBABILITY: Record<string, number> = {
-  lead: 10,
-  qualified: 20,
-  proposal: 50,
-  negotiation: 75,
-  won: 100,
-  lost: 0,
-};
+import { DEAL_STAGES, STAGE_PROBABILITY } from "./stages";
 
 const DealSchema = z.object({
   title: z.string().min(1, "Title is required"),

@@ -5,33 +5,7 @@ import Link from "next/link";
 import { bulkMoveStage, bulkChangeOwner, bulkDeleteDeals } from "./actions";
 import type { DealWithContact } from "./types";
 import MobileActionSheet from "@/components/mobile-action-sheet";
-
-const STAGE_LABELS: Record<string, string> = {
-  lead: "Lead",
-  qualified: "Qualified",
-  proposal: "Proposal",
-  negotiation: "Negotiation",
-  won: "Won",
-  lost: "Lost",
-};
-
-const STAGE_COLORS: Record<string, string> = {
-  lead: "text-[--ink-2]",
-  qualified: "text-[--ink-2]",
-  proposal: "text-[--accent]",
-  negotiation: "text-[--accent]",
-  won: "text-[--ok]",
-  lost: "text-[--bad]",
-};
-
-const STAGE_OPTIONS = [
-  { value: "lead", label: "Lead" },
-  { value: "qualified", label: "Qualified" },
-  { value: "proposal", label: "Proposal" },
-  { value: "negotiation", label: "Negotiation" },
-  { value: "won", label: "Won" },
-  { value: "lost", label: "Lost" },
-] as const;
+import { STAGES, STAGE_LABELS, STAGE_COLORS } from "./stages";
 
 type SortKey = "title" | "contact" | "stage" | "value" | "closeDate" | "age" | "owner";
 type SortDir = "asc" | "desc";
@@ -247,8 +221,8 @@ export default function DealsTable({
               onChange={(e) => setStageSelect(e.target.value)}
               className="tap rounded border border-[--line-1] bg-[--surface-1] px-2 text-xs text-[--ink-1]"
             >
-              {STAGE_OPTIONS.map((s) => (
-                <option key={s.value} value={s.value}>
+              {STAGES.map((s) => (
+                <option key={s.key} value={s.key}>
                   {s.label}
                 </option>
               ))}
@@ -591,8 +565,8 @@ export default function DealsTable({
               onChange={(e) => setStageSelect(e.target.value)}
               className="min-h-[44px] min-w-0 flex-1 rounded-lg border border-[--line-1] bg-[--surface-1] px-3 text-sm text-[--ink-1]"
             >
-              {STAGE_OPTIONS.map((s) => (
-                <option key={s.value} value={s.value}>
+              {STAGES.map((s) => (
+                <option key={s.key} value={s.key}>
                   {s.label}
                 </option>
               ))}

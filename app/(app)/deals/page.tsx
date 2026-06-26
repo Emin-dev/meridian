@@ -9,6 +9,7 @@ import KanbanBoard from "./kanban-board";
 import DealsExportCsvButton from "./export-csv-button";
 import OwnerFilter from "./owner-filter";
 import { DealsViewSwitcher } from "./deals-view-switcher";
+import { STAGES } from "./stages";
 import { getCrmSettings } from "@/lib/settings";
 import { EmptyState } from "@/components/empty-state";
 import EmptyStateActions from "@/components/empty-state-actions";
@@ -27,15 +28,6 @@ const FilterIcon = () => (
     <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
   </svg>
 );
-
-const STAGES = [
-  { key: "lead" as const, label: "Lead", dot: "bg-blue-500" },
-  { key: "qualified" as const, label: "Qualified", dot: "bg-violet-500" },
-  { key: "proposal" as const, label: "Proposal", dot: "bg-yellow-500" },
-  { key: "negotiation" as const, label: "Negotiation", dot: "bg-orange-500" },
-  { key: "won" as const, label: "Won", dot: "bg-green-500" },
-  { key: "lost" as const, label: "Lost", dot: "bg-red-500" },
-];
 
 export default async function DealsPage({
   searchParams,

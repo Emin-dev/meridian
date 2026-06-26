@@ -7,17 +7,7 @@ import MobileActionSheet from "@/components/mobile-action-sheet";
 import KanbanColumn from "./kanban-column";
 import KanbanCard from "./kanban-card";
 import type { DealWithContact } from "./types";
-
-const STAGES = [
-  { key: "lead" as const, label: "Lead", dot: "bg-blue-500" },
-  { key: "qualified" as const, label: "Qualified", dot: "bg-violet-500" },
-  { key: "proposal" as const, label: "Proposal", dot: "bg-yellow-500" },
-  { key: "negotiation" as const, label: "Negotiation", dot: "bg-orange-500" },
-  { key: "won" as const, label: "Won", dot: "bg-green-500" },
-  { key: "lost" as const, label: "Lost", dot: "bg-red-500" },
-] as const;
-
-type StageKey = (typeof STAGES)[number]["key"];
+import { STAGES, type StageKey } from "./stages";
 
 const fmtUSD = new Intl.NumberFormat("en-US", {
   style: "currency",
