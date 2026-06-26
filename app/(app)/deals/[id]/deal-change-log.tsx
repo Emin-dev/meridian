@@ -63,19 +63,21 @@ export default async function DealChangeLog({ dealId }: Props) {
           {events.map((e) => (
             <li
               key={e.id}
-              className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg bg-neutral-800/40 px-3 py-2 text-xs"
+              className="rounded-lg bg-neutral-800/40 px-3 py-2.5 text-xs sm:flex sm:flex-wrap sm:items-center sm:gap-x-2 sm:gap-y-1 sm:py-2"
             >
-              <span className="shrink-0 rounded bg-neutral-700 px-1.5 py-0.5 font-medium text-neutral-400">
+              <span className="block w-fit shrink-0 rounded bg-neutral-700 px-1.5 py-0.5 font-medium text-neutral-400">
                 {FIELD_LABELS[e.field] ?? e.field}
               </span>
-              <span className="text-neutral-500">
-                <EventValue v={e.oldValue} />
-              </span>
-              <span className="text-neutral-600">→</span>
-              <span className="font-medium text-neutral-200">
-                <EventValue v={e.newValue} />
-              </span>
-              <span className="ml-auto shrink-0 whitespace-nowrap text-neutral-600">
+              <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 sm:mt-0 sm:contents">
+                <span className="text-neutral-500">
+                  <EventValue v={e.oldValue} />
+                </span>
+                <span className="text-neutral-600">→</span>
+                <span className="font-medium text-neutral-200">
+                  <EventValue v={e.newValue} />
+                </span>
+              </div>
+              <span className="mt-1.5 block whitespace-nowrap text-neutral-600 sm:mt-0 sm:ml-auto sm:shrink-0">
                 {formatTimestamp(e.changedAt)}
               </span>
             </li>
