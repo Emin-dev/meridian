@@ -98,7 +98,7 @@ export default function KanbanCard({
         </div>
 
         {formatted && (
-          <p className="mt-1 text-sm font-semibold text-[var(--accent)]">
+          <p className="mt-1 text-sm font-semibold text-[var(--accent-text)]">
             {formatted}
           </p>
         )}

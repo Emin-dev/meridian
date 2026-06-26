@@ -185,7 +185,7 @@ export default async function DealsPage({
               <span aria-hidden className="text-[var(--ink-3)]">|</span>
               <span>
                 Weighted:{" "}
-                <span className="font-semibold text-[var(--accent)]">
+                <span className="font-semibold text-[var(--accent-text)]">
                   {formatCurrency(weightedValue, displayCurrency)}
                 </span>
               </span>

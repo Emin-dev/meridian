@@ -38,7 +38,7 @@ export default function OwnerFilter({ owners, selected }: OwnerFilterProps) {
         <select
           value={selected}
           onChange={handleChange}
-          className="tap rounded-lg border border-[var(--line-1)] bg-[var(--surface-1)] px-3 text-xs text-[var(--ink-2)] focus:border-[var(--accent)] focus:outline-none"
+          className="tap rounded-lg border border-[var(--line-1)] bg-[var(--surface-1)] px-3 text-xs text-[var(--ink-2)] focus:border-[var(--accent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)] focus-visible:outline-offset-2"
           aria-label="Filter by owner"
         >
           <option value="">All owners</option>
@@ -55,7 +55,7 @@ export default function OwnerFilter({ owners, selected }: OwnerFilterProps) {
         type="button"
         onClick={() => setSheetOpen(true)}
         aria-label="Filter by owner"
-        className="tap lg:hidden rounded-lg border border-[var(--line-1)] bg-[var(--surface-1)] px-3 text-xs text-[var(--ink-2)] transition-colors hover:bg-[var(--surface-2)] focus:border-[var(--accent)] focus:outline-none"
+        className="tap lg:hidden rounded-lg border border-[var(--line-1)] bg-[var(--surface-1)] px-3 text-xs text-[var(--ink-2)] transition-colors hover:bg-[var(--surface-2)] focus:border-[var(--accent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)] focus-visible:outline-offset-2"
       >
         {selected || "All owners"}
       </button>

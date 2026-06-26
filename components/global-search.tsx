@@ -241,7 +241,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                     aria-selected={active}
                     className={[
                       "tap flex w-full items-center gap-2 rounded-[var(--r-md)] px-3 text-left text-footnote transition-colors",
-                      active ? "bg-[var(--accent)] text-[var(--accent-ink)]" : "text-[var(--accent)] hover:bg-[var(--surface-2)]",
+                      active ? "bg-[var(--accent)] text-[var(--accent-ink)]" : "text-[var(--accent-text)] hover:bg-[var(--surface-2)]",
                     ].join(" ")}
                   >
                     <SearchIcon size={12} className="shrink-0" aria-hidden="true" />
@@ -303,7 +303,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                     aria-selected={active}
                     className={[
                       "tap flex w-full items-center gap-2 rounded-[var(--r-md)] px-3 text-left text-footnote transition-colors",
-                      active ? "bg-[var(--accent)] text-[var(--accent-ink)]" : "text-[var(--accent)] hover:bg-[var(--surface-2)]",
+                      active ? "bg-[var(--accent)] text-[var(--accent-ink)]" : "text-[var(--accent-text)] hover:bg-[var(--surface-2)]",
                     ].join(" ")}
                   >
                     <SearchIcon size={12} className="shrink-0" aria-hidden="true" />
@@ -365,7 +365,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                     aria-selected={active}
                     className={[
                       "tap flex w-full items-center gap-2 rounded-[var(--r-md)] px-3 text-left text-footnote transition-colors",
-                      active ? "bg-[var(--accent)] text-[var(--accent-ink)]" : "text-[var(--accent)] hover:bg-[var(--surface-2)]",
+                      active ? "bg-[var(--accent)] text-[var(--accent-ink)]" : "text-[var(--accent-text)] hover:bg-[var(--surface-2)]",
                     ].join(" ")}
                   >
                     <SearchIcon size={12} className="shrink-0" aria-hidden="true" />

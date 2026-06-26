@@ -71,7 +71,7 @@ export default function AskForm({
           placeholder="Ask anything about your CRM…"
           disabled={isPending || !canAsk}
           aria-label="Ask your CRM"
-          className="tap flex-1 min-w-0 rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-1)] px-4 text-body text-[var(--ink-1)] placeholder:text-[var(--ink-3)] focus:border-[var(--accent)] focus:outline-none disabled:opacity-40 [color-scheme:dark]"
+          className="tap flex-1 min-w-0 rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-1)] px-4 text-body text-[var(--ink-1)] placeholder:text-[var(--ink-3)] focus:border-[var(--accent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)] focus-visible:outline-offset-2 disabled:opacity-40 [color-scheme:dark]"
         />
         <button
           type="submit"

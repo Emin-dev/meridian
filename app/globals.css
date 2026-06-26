@@ -18,6 +18,7 @@
 
   /* ---- Accent (refined indigo-violet — premium AI signal, one moment per screen) ---- */
   --accent:        #6d5cf5;
+  --accent-text:   #9486ff;  /* lighter accent for AA-passing TEXT (6.13:1 on surface-1); keep --accent for fills */
   --accent-hover:  #8273ff;
   --accent-ink:    #ffffff;
   --accent-tint:   rgba(109,92,245,0.16);
