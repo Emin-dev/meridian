@@ -10,6 +10,8 @@ import { tagColor } from "./tag-color";
 import { bulkChangeStatus, bulkAddTag, bulkEnrollInSequence, bulkChangeOwner } from "./actions";
 import { ContactsViewSwitcher, type ContactsView } from "./contacts-view-switcher";
 import MobileActionSheet from "@/components/mobile-action-sheet";
+import DetailField from "@/components/detail-field";
+import { formatShortDate } from "@/lib/format";
 import {
   SOURCE_LABELS,
   STATUS_LABELS,
@@ -35,24 +37,6 @@ function getLastContactedMeta(dateStr: string | null): { text: string; dotClass:
     ...(sameYear ? {} : { year: "numeric" }),
   });
   return { text, dotClass };
-}
-
-function formatContactDate(d: string | Date | null): string {
-  if (!d) return "—";
-  return new Date(d).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
-function DetailField({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="min-w-0">
-      <dt className="text-caption uppercase tracking-wider text-[--ink-3]">{label}</dt>
-      <dd className="mt-0.5 truncate text-body text-[--ink-1]">{value}</dd>
-    </div>
-  );
 }
 
 function SortableHeader({
@@ -848,7 +832,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
                 {hasDb && (
                   <DetailField label="Last contact" value={lastContacted?.text ?? "Never"} />
                 )}
-                <DetailField label="Added" value={formatContactDate(detailContact.createdAt)} />
+                <DetailField label="Added" value={formatShortDate(detailContact.createdAt)} />
               </dl>
 
               {tags.length > 0 && (

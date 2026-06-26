@@ -5,8 +5,9 @@ import Link from "next/link";
 import { bulkMoveStage, bulkChangeOwner, bulkDeleteDeals } from "./actions";
 import type { DealWithContact } from "./types";
 import MobileActionSheet from "@/components/mobile-action-sheet";
+import DetailField from "@/components/detail-field";
 import { STAGES, STAGE_LABELS, STAGE_COLORS } from "./stages";
-import { formatCurrency } from "@/lib/format";
+import { formatCurrency, formatShortDate } from "@/lib/format";
 
 type SortKey = "title" | "contact" | "stage" | "value" | "closeDate" | "age" | "owner";
 type SortDir = "asc" | "desc";
@@ -20,24 +21,6 @@ function formatDealValue(deal: DealWithContact): string {
   return deal.value
     ? formatCurrency(parseFloat(deal.value), deal.currency)
     : "—";
-}
-
-function formatDealDate(d: Date | null): string {
-  if (!d) return "—";
-  return new Date(d).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
-function DetailField({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="min-w-0">
-      <dt className="text-caption uppercase tracking-wider text-[--ink-3]">{label}</dt>
-      <dd className="mt-0.5 truncate text-body text-[--ink-1]">{value}</dd>
-    </div>
-  );
 }
 
 function ageBadgeClass(days: number): string {
@@ -648,9 +631,9 @@ export default function DealsTable({
               <DetailField label="Owner" value={detailDeal.owner ?? "—"} />
               <DetailField
                 label="Expected close"
-                value={formatDealDate(detailDeal.expectedCloseDate)}
+                value={formatShortDate(detailDeal.expectedCloseDate)}
               />
-              <DetailField label="Created" value={formatDealDate(detailDeal.createdAt)} />
+              <DetailField label="Created" value={formatShortDate(detailDeal.createdAt)} />
             </dl>
 
             {detailDeal.notes && (

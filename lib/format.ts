@@ -13,3 +13,17 @@ export function formatCurrency(amount: number, currency = "USD"): string {
     maximumFractionDigits: 0,
   }).format(safe);
 }
+
+/**
+ * Formats a date (or ISO string) as "Mon D, YYYY" for record detail views,
+ * returning an em dash for missing values. Shared by the deals and contacts
+ * tables, which previously each defined a byte-identical helper.
+ */
+export function formatShortDate(d: string | Date | null): string {
+  if (!d) return "—";
+  return new Date(d).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
