@@ -1,4 +1,4 @@
-﻿import { and, eq, ilike, gte, isNull, inArray, sql, asc, desc } from "drizzle-orm";
+﻿import { and, eq, ilike, gte, isNull, inArray, sql, asc, desc, notExists } from "drizzle-orm";
 import type { SQL } from "drizzle-orm";
 import Link from "next/link";
 import { getDb, schema } from "@/db";
@@ -76,6 +76,14 @@ export default async function ContactsPage({
   let lastContactedMap: LastContactedMap = {};
 
   if (db) {
+    // "No activity in N days" → keep contacts that have NO activity dated on or
+    // after the cutoff. Done as a correlated NOT EXISTS so the DB filters rows
+    // instead of transferring everything and filtering in JS.
+    const noActivityCutoff =
+      noActivityDays !== undefined
+        ? new Date(Date.now() - noActivityDays * 24 * 60 * 60 * 1000)
+        : undefined;
+
     const conditions: (SQL | undefined)[] = [
       statusFilter !== undefined
         ? eq(schema.contacts.status, statusFilter)
@@ -93,6 +101,19 @@ export default async function ContactsPage({
         ? sql`${schema.contacts.tags} @> ARRAY[${tagFilter}]::text[]`
         : undefined,
       unscoredFilter ? isNull(schema.contacts.leadScore) : undefined,
+      noActivityCutoff !== undefined
+        ? notExists(
+            db
+              .select({ one: sql`1` })
+              .from(schema.activities)
+              .where(
+                and(
+                  eq(schema.activities.contactId, schema.contacts.id),
+                  gte(schema.activities.createdAt, noActivityCutoff),
+                ),
+              ),
+          )
+        : undefined,
     ];
     const whereClause = and(...conditions);
 
@@ -137,14 +158,6 @@ export default async function ContactsPage({
           lastContactedMap[row.contactId] = row.lastAt;
         }
       }
-    }
-
-    if (noActivityDays !== undefined) {
-      const cutoff = new Date(Date.now() - noActivityDays * 24 * 60 * 60 * 1000);
-      contacts = contacts.filter((c) => {
-        const lastAt = lastContactedMap[c.id];
-        return !lastAt || new Date(lastAt) < cutoff;
-      });
     }
   }
 
