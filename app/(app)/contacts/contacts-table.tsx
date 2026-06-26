@@ -3,8 +3,8 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { Contact, Sequence } from "@/db/schema";
-import type { LastContactedMap } from "./types";
+import type { Sequence } from "@/db/schema";
+import type { LastContactedMap, ContactListItem } from "./types";
 import LeadScoreBadge from "./lead-score-badge";
 import { tagColor } from "./tag-color";
 import { bulkChangeStatus, bulkAddTag, bulkEnrollInSequence, bulkChangeOwner } from "./actions";
@@ -114,7 +114,7 @@ function ContactCards({
   selectedIds,
   onToggle,
 }: {
-  contacts: Contact[];
+  contacts: ContactListItem[];
   selectMode?: boolean;
   selectedIds?: Set<number>;
   onToggle?: (id: number) => void;
@@ -203,7 +203,7 @@ function ContactCards({
 }
 
 type Props = {
-  contacts: Contact[];
+  contacts: ContactListItem[];
   sequences: Sequence[];
   hasActiveFilters: boolean;
   lastContactedMap: LastContactedMap;

@@ -2,8 +2,8 @@
 import type { SQL } from "drizzle-orm";
 import Link from "next/link";
 import { getDb, schema } from "@/db";
-import type { Contact, Sequence } from "@/db/schema";
-import type { LastContactedMap } from "./types";
+import type { Sequence } from "@/db/schema";
+import type { LastContactedMap, ContactListItem } from "./types";
 import NewContactModal from "./new-contact-modal";
 import CsvImportModal from "./csv-import-modal";
 import ExportCsvButton from "./export-csv-button";
@@ -71,7 +71,7 @@ export default async function ContactsPage({
 
   const db = getDb();
 
-  let contacts: Contact[] = [];
+  let contacts: ContactListItem[] = [];
   let sequences: Sequence[] = [];
   let lastContactedMap: LastContactedMap = {};
 
@@ -128,7 +128,20 @@ export default async function ContactsPage({
 
     const [contactRows, sequenceRows] = await Promise.all([
       db
-        .select()
+        .select({
+          id: schema.contacts.id,
+          name: schema.contacts.name,
+          email: schema.contacts.email,
+          phone: schema.contacts.phone,
+          company: schema.contacts.company,
+          title: schema.contacts.title,
+          status: schema.contacts.status,
+          source: schema.contacts.source,
+          owner: schema.contacts.owner,
+          tags: schema.contacts.tags,
+          leadScore: schema.contacts.leadScore,
+          createdAt: schema.contacts.createdAt,
+        })
         .from(schema.contacts)
         .where(whereClause)
         .orderBy(orderByExpr),
