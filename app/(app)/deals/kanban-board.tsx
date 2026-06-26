@@ -18,6 +18,11 @@ export default function KanbanBoard({
   const { toast } = useToast();
   const [deals, setDeals] = useState(initialDeals);
 
+  // Guards against drag races: while an optimistic move is in flight a second
+  // fast drag could build on stale state and diverge from the server, so we
+  // block initiating a new drag/drop until the pending move reconciles.
+  const [moving, setMoving] = useState(false);
+
   // Phone view: which stage column is selected
   const [selectedStage, setSelectedStage] = useState<StageKey>("lead");
 
@@ -33,18 +38,23 @@ export default function KanbanBoard({
     if (fromStage === toStage) return;
 
     // Optimistic update — move the deal immediately in local state
+    setMoving(true);
     setDeals((prev) =>
       prev.map((d) => (d.id === dealId ? { ...d, stage: toStage } : d))
     );
 
-    const result = await moveDealStage(dealId, toStage, closeReason);
+    try {
+      const result = await moveDealStage(dealId, toStage, closeReason);
 
-    if (result?.error) {
-      // Revert to original stage and notify the user
-      setDeals((prev) =>
-        prev.map((d) => (d.id === dealId ? { ...d, stage: fromStage } : d))
-      );
-      toast(result.error, "error");
+      if (result?.error) {
+        // Revert to original stage and notify the user
+        setDeals((prev) =>
+          prev.map((d) => (d.id === dealId ? { ...d, stage: fromStage } : d))
+        );
+        toast(result.error, "error");
+      }
+    } finally {
+      setMoving(false);
     }
   }
 
@@ -85,6 +95,9 @@ export default function KanbanBoard({
   // Desktop drag-drop: terminal columns prompt for a reason before committing,
   // matching the card-select and stage-control paths; other columns move directly.
   function handleDrop(dealId: number, toStage: StageKey) {
+    // Ignore drops while a move is still in flight — the dragged card may be
+    // built on stale state that hasn't reconciled with the server yet.
+    if (moving) return;
     const deal = deals.find((d) => d.id === dealId);
     if (!deal || deal.stage === toStage) return;
     if (toStage === "won" || toStage === "lost") {
@@ -212,6 +225,7 @@ export default function KanbanBoard({
                       <KanbanCard
                         key={deal.id}
                         deal={deal}
+                        dragDisabled={moving}
                         onMove={(id, stage, reason) =>
                           void handleMove(id, stage as StageKey, reason)
                         }

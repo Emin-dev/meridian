@@ -26,14 +26,18 @@ export default function KanbanCard({
   onMove,
   onMoveRequest,
   phoneMode = false,
+  dragDisabled = false,
 }: {
   deal: DealWithContact;
   onMove: (dealId: number, stage: string, reason?: string) => void;
   onMoveRequest?: (dealId: number) => void;
   phoneMode?: boolean;
+  dragDisabled?: boolean;
 }) {
   const [pendingTerminal, setPendingTerminal] = useState<StageValue | null>(null);
   const [reason, setReason] = useState("");
+
+  const draggable = !phoneMode && !dragDisabled;
 
   const formatted = formatValue(deal.value, deal.currency);
   const ageDays = Math.floor(
@@ -61,16 +65,21 @@ export default function KanbanCard({
 
   return (
     <div
-      draggable={!phoneMode}
+      draggable={draggable}
       onDragStart={(e) => {
-        if (phoneMode) return;
+        if (!draggable) {
+          e.preventDefault();
+          return;
+        }
         e.dataTransfer.effectAllowed = "move";
         e.dataTransfer.setData("dealId", String(deal.id));
       }}
       className={
         phoneMode
           ? "press rounded-[--r-lg] border border-[--line-1] bg-[--surface-1]"
-          : "rounded-lg border border-[--line-1] bg-[--surface-1] transition-colors hover:border-[--line-2] hover:bg-[--surface-2] cursor-grab active:cursor-grabbing"
+          : `rounded-lg border border-[--line-1] bg-[--surface-1] transition-colors hover:border-[--line-2] hover:bg-[--surface-2] ${
+              dragDisabled ? "cursor-default" : "cursor-grab active:cursor-grabbing"
+            }`
       }
     >
       {/* Clickable card body → deal detail */}
