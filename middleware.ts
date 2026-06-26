@@ -38,5 +38,7 @@ export const config = {
     "/deals/:path*",
     "/activity/:path*",
     "/settings/:path*",
+    "/api/contacts/:path*",
+    "/api/deals/:path*",
   ],
 };
