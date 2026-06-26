@@ -1,5 +1,5 @@
 function Bone({ className }: { className?: string }) {
-  return <div className={`rounded-[--r-md] bg-neutral-800 ${className ?? ""}`} />;
+  return <div className={`rounded-[--r-md] bg-[--surface-2] ${className ?? ""}`} />;
 }
 
 export default function ContactsLoading() {

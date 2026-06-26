@@ -1,5 +1,5 @@
 function Bone({ className }: { className?: string }) {
-  return <div className={`rounded-[--r-md] bg-neutral-800 ${className ?? ""}`} />;
+  return <div className={`rounded-[--r-md] bg-[--surface-2] ${className ?? ""}`} />;
 }
 
 function FunnelRow({ widthPct }: { widthPct: number }) {
@@ -7,9 +7,9 @@ function FunnelRow({ widthPct }: { widthPct: number }) {
     <div className="flex items-center gap-4 px-4 py-3">
       <Bone className="h-4 w-24 shrink-0" />
       <div className="flex-1">
-        <div className="h-1.5 rounded-full bg-neutral-800/60">
+        <div className="h-1.5 rounded-full bg-[--surface-1]">
           <div
-            className="h-1.5 rounded-full bg-neutral-700"
+            className="h-1.5 rounded-full bg-[--surface-3]"
             style={{ width: `${widthPct}%` }}
           />
         </div>
@@ -72,9 +72,9 @@ export default function AnalyticsLoading() {
             <div key={i} className="flex items-center gap-4 px-6 py-3">
               <Bone className="h-4 w-24 shrink-0" />
               <div className="flex-1">
-                <div className="h-1.5 rounded-full bg-neutral-800/60">
+                <div className="h-1.5 rounded-full bg-[--surface-1]">
                   <div
-                    className="h-1.5 rounded-full bg-neutral-700"
+                    className="h-1.5 rounded-full bg-[--surface-3]"
                     style={{ width: `${w}%` }}
                   />
                 </div>
@@ -102,11 +102,11 @@ export default function AnalyticsLoading() {
             <div key={i} className="flex flex-1 flex-col items-center gap-2">
               <div className="flex h-32 w-full items-end justify-center gap-1">
                 <div
-                  className="flex-1 rounded-t bg-neutral-700"
+                  className="flex-1 rounded-t bg-[--surface-3]"
                   style={{ height: `${h}%` }}
                 />
                 <div
-                  className="flex-1 rounded-t bg-neutral-800"
+                  className="flex-1 rounded-t bg-[--surface-2]"
                   style={{ height: `${Math.round(h * 0.6)}%` }}
                 />
               </div>
