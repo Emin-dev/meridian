@@ -834,6 +834,15 @@ export type EnrichState = {
   noKey?: boolean;
 };
 
+// Validate the enrichment payload the model returns. Every field is an optional
+// string so a malformed/nulled response (missing keys, numbers, nested objects)
+// is rejected here rather than silently coerced into garbage suggestions.
+const EnrichResponseSchema = z.object({
+  title: z.string().optional(),
+  company: z.string().optional(),
+  notes: z.string().optional(),
+});
+
 export async function enrichContact(contactId: number): Promise<EnrichState> {
   const db = getDb();
   if (!db) return { noDb: true };
@@ -893,19 +902,16 @@ export async function enrichContact(contactId: number): Promise<EnrichState> {
       { json: true }
     );
 
-    const parsed = parseAiJson<{
-      title: unknown;
-      company: unknown;
-      notes: unknown;
-    }>(raw);
-    if (!parsed || typeof parsed !== "object") {
+    const parsed = parseAiJson<unknown>(raw);
+    const validated = EnrichResponseSchema.safeParse(parsed);
+    if (!validated.success) {
       return { error: "AI returned an unexpected format. Please try again." };
     }
 
     return {
-      title: String(parsed.title ?? "").trim(),
-      company: String(parsed.company ?? "").trim(),
-      notes: String(parsed.notes ?? "").trim(),
+      title: (validated.data.title ?? "").trim(),
+      company: (validated.data.company ?? "").trim(),
+      notes: (validated.data.notes ?? "").trim(),
     };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown AI error.";
