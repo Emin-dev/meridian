@@ -129,7 +129,9 @@ export const dealEvents = pgTable("deal_events", {
   oldValue: text("old_value"),
   newValue: text("new_value"),
   changedAt: timestamp("changed_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (table) => [
+  index("deal_events_deal_id_idx").on(table.dealId),
+]);
 
 export const dealEventsRelations = relations(dealEvents, ({ one }) => ({
   deal: one(deals, { fields: [dealEvents.dealId], references: [deals.id] }),
