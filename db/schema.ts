@@ -178,6 +178,11 @@ export const activities = pgTable("activities", {
     .where(sql`${table.completedAt} is null`),
   index("activities_type_idx").on(table.type),
   index("activities_created_at_idx").on(table.createdAt),
+  // Composite indexes for per-record timeline / action-item reads on the
+  // contact and deal detail pages: filter by the record id then order by
+  // createdAt, served by a single index scan instead of the single-column ones.
+  index("activities_contact_id_created_at_idx").on(table.contactId, table.createdAt),
+  index("activities_deal_id_created_at_idx").on(table.dealId, table.createdAt),
 ]);
 
 export const activitiesRelations = relations(activities, ({ one }) => ({
