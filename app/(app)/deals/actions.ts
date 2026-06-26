@@ -313,6 +313,7 @@ export async function updateDeal(
   }
 
   revalidatePath("/deals");
+  revalidatePath(`/deals/${id}`);
   return { success: true };
 }
 
