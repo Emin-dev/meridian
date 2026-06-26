@@ -1,6 +1,7 @@
 "use server";
 
 import { and, asc, eq, inArray } from "drizzle-orm";
+import type { BatchItem } from "drizzle-orm/batch";
 import { revalidatePath } from "next/cache";
 import { getDb, schema } from "@/db";
 import { interpolate, contactToVars } from "@/lib/template";
@@ -66,6 +67,13 @@ export async function sendAllDueSteps(
   const affectedContactIds = new Set<number>();
   const affectedSequenceIds = new Set<number>();
 
+  // Collect every insert/update across all due enrollments and issue them in a
+  // single batched write, so processing many due steps hits the DB once instead
+  // of once per enrollment and stays comfortably under the 10s limit. A Neon
+  // batch is atomic, so an activity can never be logged without its enrollment
+  // advancing.
+  const statements: BatchItem<"pg">[] = [];
+
   for (const enrollment of enrollments) {
     const steps = (stepsBySequence.get(enrollment.sequenceId) ?? []).sort(
       (a, b) => a.position - b.position,
@@ -87,9 +95,7 @@ export async function sendAllDueSteps(
     const newStepPosition = enrollment.currentStepPosition + 1;
     const isCompleted = newStepPosition >= totalSteps;
 
-    // Log the email and advance the step atomically per enrollment so a
-    // partial failure can't log an activity without advancing the position.
-    await db.batch([
+    statements.push(
       db.insert(schema.activities).values({
         type: "email",
         subject,
@@ -104,11 +110,17 @@ export async function sendAllDueSteps(
           ...(isCompleted ? { status: "completed" as const } : {}),
         })
         .where(eq(schema.contactSequenceEnrollments.id, enrollment.id)),
-    ]);
+    );
 
     affectedContactIds.add(enrollment.contactId);
     affectedSequenceIds.add(enrollment.sequenceId);
     sent++;
+  }
+
+  if (statements.length > 0) {
+    await db.batch(
+      statements as [BatchItem<"pg">, ...BatchItem<"pg">[]],
+    );
   }
 
   for (const contactId of affectedContactIds) {
