@@ -79,7 +79,7 @@ export default function FindDuplicatesButton({ hasDb }: { hasDb: boolean }) {
         onClick={handleOpen}
         disabled={!hasDb}
         title={!hasDb ? "Database not connected" : "Find duplicate contacts with AI"}
-        className="flex items-center gap-1.5 rounded-lg border border-orange-500/30 bg-orange-500/10 px-3 py-1.5 text-xs font-medium text-orange-300 transition-colors hover:bg-orange-500/20 disabled:cursor-not-allowed disabled:opacity-40"
+        className="flex items-center gap-1.5 rounded-lg border border-[var(--warn)]/30 bg-[var(--warn-tint)] px-3 py-1.5 text-xs font-medium text-[var(--warn)] transition-colors hover:bg-[var(--warn)]/20 disabled:cursor-not-allowed disabled:opacity-40"
       >
         <svg
           width="12"
@@ -166,7 +166,7 @@ export default function FindDuplicatesButton({ hasDb }: { hasDb: boolean }) {
               )}
 
               {errorMsg && (
-                <p className="rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+                <p className="rounded-lg border border-[var(--bad)]/30 bg-[var(--bad-tint)] px-4 py-3 text-sm text-[var(--bad)]">
                   {errorMsg}
                 </p>
               )}
@@ -238,7 +238,7 @@ export default function FindDuplicatesButton({ hasDb }: { hasDb: boolean }) {
 
                             {/* Secondary */}
                             <div className="space-y-0.5">
-                              <p className="text-[10px] font-medium uppercase tracking-wide text-red-600">
+                              <p className="text-[10px] font-medium uppercase tracking-wide text-[var(--bad)]">
                                 Merge away
                               </p>
                               <p className="text-sm font-medium text-[var(--ink-2)]">
@@ -268,14 +268,14 @@ export default function FindDuplicatesButton({ hasDb }: { hasDb: boolean }) {
                           {pair.reason}
                         </p>
 
-                        {err && <p className="text-xs text-red-400">{err}</p>}
+                        {err && <p className="text-xs text-[var(--bad)]">{err}</p>}
 
                         <div className="flex items-center gap-2">
                           {!isConfirming ? (
                             <button
                               onClick={() => setConfirmingKey(key)}
                               disabled={isMerging}
-                              className="rounded-md border border-red-500/20 bg-red-600/20 px-3 py-1.5 text-xs font-medium text-red-400 transition-colors hover:bg-red-600/30 disabled:opacity-50"
+                              className="rounded-md border border-[var(--bad)]/20 bg-[var(--bad-tint)] px-3 py-1.5 text-xs font-medium text-[var(--bad)] transition-colors hover:bg-[var(--bad)]/25 disabled:opacity-50"
                             >
                               Merge →
                             </button>
@@ -290,7 +290,7 @@ export default function FindDuplicatesButton({ hasDb }: { hasDb: boolean }) {
                               <button
                                 onClick={() => handleMerge(pair)}
                                 disabled={isMerging}
-                                className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-red-500 disabled:opacity-50"
+                                className="rounded-md bg-[var(--bad)] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:opacity-90 disabled:opacity-50"
                               >
                                 {isMerging ? "Merging…" : "Confirm merge"}
                               </button>
