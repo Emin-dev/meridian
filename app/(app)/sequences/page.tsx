@@ -221,7 +221,7 @@ export default async function SequencesPage() {
                 const count = stepCounts.get(seq.id) ?? 0;
                 return (
                   <li key={seq.id} className="px-4 py-3">
-                    <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center justify-between gap-3">
                       <div className="min-w-0 flex-1">
                         <Link
                           href={`/sequences/${seq.id}`}

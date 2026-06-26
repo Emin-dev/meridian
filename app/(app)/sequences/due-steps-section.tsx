@@ -110,7 +110,7 @@ export function DueStepsSection({ dueEnrollments, defaultOwnerName }: Props) {
             </div>
             <Link
               href={`/sequences/${e.sequenceId}`}
-              className="block text-footnote text-[var(--ink-2)] transition-colors hover:text-[var(--accent)]"
+              className="block truncate text-footnote text-[var(--ink-2)] transition-colors hover:text-[var(--accent)]"
             >
               {e.sequenceName}
             </Link>
@@ -153,7 +153,7 @@ export function DueStepsSection({ dueEnrollments, defaultOwnerName }: Props) {
               <th className="px-5 py-3 text-caption font-medium uppercase tracking-wide text-[var(--ink-3)]">
                 Overdue
               </th>
-              <th className="px-5 py-3" />
+              <th className="w-px whitespace-nowrap px-5 py-3 text-right" />
             </tr>
           </thead>
           <tbody>
@@ -191,7 +191,7 @@ export function DueStepsSection({ dueEnrollments, defaultOwnerName }: Props) {
                     {e.daysOverdue === 0 ? "Today" : `${e.daysOverdue}d`}
                   </span>
                 </td>
-                <td className="px-5 py-3">
+                <td className="w-px whitespace-nowrap px-5 py-3 text-right">
                   <SendStepButton
                     enrollmentId={e.enrollmentId}
                     sequenceId={e.sequenceId}
