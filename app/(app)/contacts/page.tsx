@@ -137,53 +137,64 @@ export default async function ContactsPage({
     }[sortColKey];
     const orderByExpr = sortDir === "desc" ? desc(sortColExpr) : asc(sortColExpr);
 
-    const [contactRows, sequenceRows] = await Promise.all([
-      db
-        .select({
-          id: schema.contacts.id,
-          name: schema.contacts.name,
-          email: schema.contacts.email,
-          phone: schema.contacts.phone,
-          company: schema.contacts.company,
-          title: schema.contacts.title,
-          status: schema.contacts.status,
-          source: schema.contacts.source,
-          owner: schema.contacts.owner,
-          tags: schema.contacts.tags,
-          leadScore: schema.contacts.leadScore,
-          createdAt: schema.contacts.createdAt,
-        })
-        .from(schema.contacts)
-        .where(whereClause)
-        .orderBy(orderByExpr)
-        // Fetch one extra row to detect whether another page exists.
-        .limit(windowSize + 1),
-      db
-        .select()
-        .from(schema.sequences)
-        .where(eq(schema.sequences.status, "active"))
-        .orderBy(schema.sequences.name),
-    ]);
+    // The active-sequence list is independent of which contacts are visible, so
+    // kick it off now (eagerly, via .execute()) and let it run while we resolve
+    // the contact rows — and then the activity aggregate.
+    const sequencesPromise = db
+      .select()
+      .from(schema.sequences)
+      .where(eq(schema.sequences.status, "active"))
+      .orderBy(schema.sequences.name)
+      .execute();
+
+    const contactRows = await db
+      .select({
+        id: schema.contacts.id,
+        name: schema.contacts.name,
+        email: schema.contacts.email,
+        phone: schema.contacts.phone,
+        company: schema.contacts.company,
+        title: schema.contacts.title,
+        status: schema.contacts.status,
+        source: schema.contacts.source,
+        owner: schema.contacts.owner,
+        tags: schema.contacts.tags,
+        leadScore: schema.contacts.leadScore,
+        createdAt: schema.contacts.createdAt,
+      })
+      .from(schema.contacts)
+      .where(whereClause)
+      .orderBy(orderByExpr)
+      // Fetch one extra row to detect whether another page exists.
+      .limit(windowSize + 1);
 
     hasMore = contactRows.length > windowSize;
     contacts = hasMore ? contactRows.slice(0, windowSize) : contactRows;
-    sequences = sequenceRows;
 
     const visibleContactIds = contacts.map((c) => c.id);
-    if (visibleContactIds.length > 0) {
-      const activityRows = await db
-        .select({
-          contactId: schema.activities.contactId,
-          lastAt: sql<string | null>`max(${schema.activities.createdAt})`,
-        })
-        .from(schema.activities)
-        .where(inArray(schema.activities.contactId, visibleContactIds))
-        .groupBy(schema.activities.contactId);
 
-      for (const row of activityRows) {
-        if (row.contactId != null) {
-          lastContactedMap[row.contactId] = row.lastAt;
-        }
+    // The activity aggregate depends on the resolved contact ids, so it can only
+    // start once contacts are in — but it then runs in parallel with the
+    // still-in-flight sequence list. Skip the query when no contacts are visible.
+    const [sequenceRows, activityRows] = await Promise.all([
+      sequencesPromise,
+      visibleContactIds.length > 0
+        ? db
+            .select({
+              contactId: schema.activities.contactId,
+              lastAt: sql<string | null>`max(${schema.activities.createdAt})`,
+            })
+            .from(schema.activities)
+            .where(inArray(schema.activities.contactId, visibleContactIds))
+            .groupBy(schema.activities.contactId)
+        : Promise.resolve([]),
+    ]);
+
+    sequences = sequenceRows;
+
+    for (const row of activityRows) {
+      if (row.contactId != null) {
+        lastContactedMap[row.contactId] = row.lastAt;
       }
     }
   }

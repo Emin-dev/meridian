@@ -11,14 +11,12 @@ import {
 } from "./[id]/notes-utils";
 import { DEAL_STAGES, STAGE_PROBABILITY } from "./stages";
 import { numericEqual } from "@/lib/format";
+import { dealValueSchema } from "./value-schema";
 
 const DealSchema = z.object({
   title: z.string().min(1, "Title is required"),
   stage: z.enum(DEAL_STAGES),
-  value: z
-    .string()
-    .regex(/^\d+(\.\d{1,2})?$/, "Enter a valid amount")
-    .nullable(),
+  value: dealValueSchema,
   currency: z.string().min(1, "Currency required").max(10),
   expectedCloseDate: z
     .string()

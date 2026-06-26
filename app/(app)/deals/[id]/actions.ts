@@ -8,6 +8,7 @@ import { redirect } from "next/navigation";
 import { chat } from "@/lib/ai";
 import { parseAiJson } from "@/lib/ai-json";
 import { numericEqual } from "@/lib/format";
+import { dealValueSchema } from "../value-schema";
 
 import {
   WIN_LOSS_MARKER,
@@ -32,10 +33,7 @@ const DEAL_STAGES = [
 const DealDetailsSchema = z.object({
   title: z.string().min(1, "Title is required"),
   stage: z.enum(DEAL_STAGES),
-  value: z
-    .string()
-    .regex(/^\d+(\.\d{1,2})?$/, "Enter a valid amount")
-    .nullable(),
+  value: dealValueSchema,
   expectedCloseDate: z
     .string()
     .refine((v) => !Number.isNaN(Date.parse(v)), "Enter a valid date")
