@@ -225,8 +225,9 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
           </span>
         )}
 
-        {/* Type chips */}
-        <div className="flex flex-wrap gap-1.5">
+        {/* Type chips — horizontal scroll strip on phones (overscroll-contained,
+            never widens the page), inline wrap on lg+. */}
+        <div className="no-scrollbar -mx-1 flex w-full min-w-0 gap-1.5 overflow-x-auto overscroll-x-contain px-1 lg:mx-0 lg:w-auto lg:flex-wrap lg:overflow-visible lg:px-0">
           {TYPE_CHIPS.map(({ value, label }) => {
             const isActive = currentType === value;
             return (
@@ -234,7 +235,7 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
                 key={value || "all"}
                 onClick={() => navigate(value, currentRange)}
                 disabled={isPending}
-                className={`tap inline-flex items-center rounded-[var(--r-pill)] px-3 text-caption font-medium transition-all disabled:opacity-50 ${
+                className={`tap inline-flex shrink-0 items-center rounded-[var(--r-pill)] px-3 text-caption font-medium transition-all disabled:opacity-50 ${
                   isActive
                     ? "bg-[var(--accent)] text-[var(--accent-ink)]"
                     : "bg-[var(--surface-2)] text-[var(--ink-2)] hover:text-[var(--ink-1)]"

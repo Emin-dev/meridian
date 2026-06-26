@@ -450,7 +450,7 @@ export async function summarizeContact(
         role: "user",
         content: `Summarise this contact:\n\n${lines.join("\n")}`,
       },
-    ]);
+    ], { maxTokens: 512 });
 
     const summaryAt = new Date();
 

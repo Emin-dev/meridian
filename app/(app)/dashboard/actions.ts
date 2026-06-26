@@ -116,7 +116,7 @@ ${activitiesSummary || "No recent activity"}
 
 What are my top priorities today to move deals forward and avoid anything slipping?`,
       },
-    ]);
+    ], { maxTokens: 512 });
 
     const cachedAt = new Date().toISOString();
 
@@ -262,7 +262,7 @@ ${atRiskSummary}
 
 Summarize the week: what went well (Wins), what's slipping (At risk), and the top priorities for next week (Priorities).`,
       },
-    ]);
+    ], { maxTokens: 384 });
 
     const cachedAt = new Date().toISOString();
 

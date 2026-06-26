@@ -340,7 +340,7 @@ async function _generateWinLossInsight(
       role: "user",
       content: `Analyse why this deal was ${closedAs}:\n\n${lines.join("\n")}`,
     },
-  ]);
+  ], { maxTokens: 384 });
 
   return insight.trim();
 }
@@ -617,7 +617,7 @@ export async function summarizeDeal(dealId: number): Promise<DealSummarizeState>
         role: "user",
         content: `Summarise this deal:\n\n${lines.join("\n")}`,
       },
-    ]);
+    ], { maxTokens: 512 });
 
     const summaryAt = new Date();
 
@@ -758,7 +758,7 @@ export async function assessDealRisk(dealId: number): Promise<DealRiskState> {
           content: `Assess the risk and next step for this deal:\n\n${lines.join("\n")}`,
         },
       ],
-      { json: true }
+      { json: true, maxTokens: 256 }
     );
 
     const parsed = parseAiJson<{
