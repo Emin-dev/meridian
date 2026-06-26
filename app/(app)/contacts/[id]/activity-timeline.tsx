@@ -96,7 +96,7 @@ export default async function ActivityTimeline({ contactId }: Props) {
                       {a.body}
                     </p>
                   )}
-                  <div className="mt-1 flex items-center gap-2 text-xs text-[var(--ink-3)]">
+                  <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[var(--ink-3)]">
                     <span>{date}</span>
                     {a.dueAt && (
                       <>

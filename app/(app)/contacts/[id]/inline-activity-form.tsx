@@ -16,7 +16,7 @@ export default function InlineActivityForm({
     return (
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 text-sm text-[var(--accent)] transition-colors hover:text-[var(--accent-hover)]"
+        className="tap inline-flex items-center gap-1.5 text-sm text-[var(--accent)] transition-colors hover:text-[var(--accent-hover)]"
       >
         <span aria-hidden className="text-base leading-none">+</span>
         Log activity
@@ -31,7 +31,7 @@ export default function InlineActivityForm({
         <button
           onClick={() => setOpen(false)}
           aria-label="Close form"
-          className="text-[var(--ink-3)] transition-colors hover:text-[var(--ink-1)]"
+          className="tap inline-flex items-center justify-center text-[var(--ink-3)] transition-colors hover:text-[var(--ink-1)]"
         >
           ✕
         </button>
