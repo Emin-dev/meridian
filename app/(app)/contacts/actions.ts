@@ -92,11 +92,41 @@ export async function createContact(
   return { success: true };
 }
 
+const MAX_CSV_NAME_LENGTH = 200;
+const MAX_CSV_EMAIL_LENGTH = 320; // RFC 5321 maximum address length
+const MAX_CSV_FIELD_LENGTH = 500; // phone / company
+
+// Per-row validation for an imported contact. Inputs are trimmed and emails
+// normalized to lowercase so duplicate detection is reliable, and each failure
+// carries a precise, user-facing message that becomes the skip reason.
 const CsvRowSchema = z.object({
-  name: z.string().min(1),
-  email: z.string().email().or(z.literal("")).transform((v) => (v === "" ? null : v)),
-  phone: z.string().transform((v) => (v.trim() === "" ? null : v.trim())),
-  company: z.string().transform((v) => (v.trim() === "" ? null : v.trim())),
+  name: z
+    .string()
+    .transform((v) => v.trim())
+    .superRefine((v, ctx) => {
+      if (v === "") ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Missing name" });
+      else if (v.length > MAX_CSV_NAME_LENGTH)
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Name too long" });
+    }),
+  email: z
+    .string()
+    .transform((v) => v.trim().toLowerCase())
+    .superRefine((v, ctx) => {
+      if (v === "") return;
+      if (v.length > MAX_CSV_EMAIL_LENGTH)
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Email too long" });
+      else if (!z.string().email().safeParse(v).success)
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Invalid email format" });
+    })
+    .transform((v) => (v === "" ? null : v)),
+  phone: z
+    .string()
+    .transform((v) => v.trim())
+    .transform((v) => (v === "" ? null : v.slice(0, MAX_CSV_FIELD_LENGTH))),
+  company: z
+    .string()
+    .transform((v) => v.trim())
+    .transform((v) => (v === "" ? null : v.slice(0, MAX_CSV_FIELD_LENGTH))),
 });
 
 export type ImportSkippedRow = {
@@ -136,10 +166,7 @@ export async function bulkImportContacts(
   for (const r of rowsToProcess) {
     const result = CsvRowSchema.safeParse(r);
     if (!result.success) {
-      const firstIssue = result.error.issues[0];
-      let reason = "Invalid data";
-      if (firstIssue?.path[0] === "name") reason = "Missing name";
-      else if (firstIssue?.path[0] === "email") reason = "Invalid email format";
+      const reason = result.error.issues[0]?.message || "Invalid data";
       skipped.push({ row: r.rowIndex, name: r.name || "(empty)", reason });
     } else {
       valid.push({ rowIndex: r.rowIndex, data: result.data });
@@ -155,12 +182,15 @@ export async function bulkImportContacts(
     .map((v) => v.data.email)
     .filter((e): e is string => e !== null);
 
+  // Compare case-insensitively: existing rows may have been entered with any
+  // casing (createContact stores email verbatim), so match on lower(email)
+  // against the already-lowercased import emails to catch every duplicate.
   const existingEmails = new Set<string>();
   if (emailsToCheck.length > 0) {
     const existing = await db
       .select({ email: schema.contacts.email })
       .from(schema.contacts)
-      .where(inArray(schema.contacts.email, emailsToCheck));
+      .where(inArray(sql`lower(${schema.contacts.email})`, emailsToCheck));
     for (const row of existing) {
       if (row.email) existingEmails.add(row.email.toLowerCase());
     }
