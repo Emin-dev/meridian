@@ -142,16 +142,22 @@ export default function CsvImportModal({ hasDb }: Props) {
   function handleImport() {
     if (parsed.length === 0) return;
     startTransition(async () => {
-      const result = await bulkImportContacts(parsed);
-      if (result.error) {
-        toast(result.error, "error");
+      try {
+        const result = await bulkImportContacts(parsed);
+        if (result.error) {
+          toast(result.error, "error");
+          dialogRef.current?.close();
+          return;
+        }
+        const serverSkipped = Array.isArray(result.skipped) ? result.skipped : [];
+        const combined = [...parseSkipped, ...serverSkipped].sort((a, b) => a.row - b.row);
+        setImportCount(result.count);
+        setAllSkipped(combined);
+        setMode("results");
+      } catch {
+        toast("Import failed — please try again.", "error");
         dialogRef.current?.close();
-        return;
       }
-      const combined = [...parseSkipped, ...result.skipped].sort((a, b) => a.row - b.row);
-      setImportCount(result.count);
-      setAllSkipped(combined);
-      setMode("results");
     });
   }
 

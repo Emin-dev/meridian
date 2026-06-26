@@ -152,15 +152,34 @@ export async function bulkImportContacts(
   const db = getDb();
   if (!db) return { count: 0, skipped: [], error: "Database not connected" };
 
+  if (!Array.isArray(rows) || rows.length === 0) {
+    return { count: 0, skipped: [], error: "No rows to import" };
+  }
+
   const MAX_IMPORT_ROWS = 1000;
 
   const skipped: ImportSkippedRow[] = [];
   const valid: Array<{ rowIndex: number; data: z.infer<typeof CsvRowSchema> }> = [];
 
+  // Normalize raw client input defensively. A row could arrive null, missing
+  // fields, or with non-string values if this action is invoked outside the
+  // modal — coerce each to a safe shape so nothing below can throw on bad data.
+  const str = (v: unknown) => (typeof v === "string" ? v : "");
+  const normalized = rows.map((r, i) => {
+    const o = (r && typeof r === "object" ? r : {}) as Record<string, unknown>;
+    return {
+      rowIndex: Number.isFinite(o.rowIndex) ? (o.rowIndex as number) : i + 1,
+      name: str(o.name),
+      email: str(o.email),
+      phone: str(o.phone),
+      company: str(o.company),
+    };
+  });
+
   // Cap the batch so an oversized single insert can't exceed Postgres/Neon
   // parameter limits and fail the whole import. Rows beyond the cap are skipped.
-  const rowsToProcess = rows.slice(0, MAX_IMPORT_ROWS);
-  for (const r of rows.slice(MAX_IMPORT_ROWS)) {
+  const rowsToProcess = normalized.slice(0, MAX_IMPORT_ROWS);
+  for (const r of normalized.slice(MAX_IMPORT_ROWS)) {
     skipped.push({
       row: r.rowIndex,
       name: r.name || "(empty)",
