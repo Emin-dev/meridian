@@ -41,8 +41,8 @@ export default function AnalyticsLoading() {
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="card px-5 py-4">
               <Bone className="h-3 w-24" />
-              <Bone className="mt-3 h-8 w-20" />
-              <Bone className="mt-2 h-3 w-32" />
+              <Bone className="mt-2 h-8 w-20" />
+              <Bone className="mt-1 h-3 w-32" />
             </div>
           ))}
         </div>

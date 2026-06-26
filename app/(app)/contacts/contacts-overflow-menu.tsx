@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import MobileActionSheet from "@/components/mobile-action-sheet";
+import { MoreIcon } from "@/components/icons";
 import ScoreAllUnscoredButton from "./score-all-unscored-button";
 import FindDuplicatesButton from "./find-duplicates-button";
 import ExportCsvButton from "./export-csv-button";
@@ -40,7 +41,7 @@ export default function ContactsOverflowMenu({
         aria-expanded={open}
         className="tap flex items-center justify-center rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 text-sm text-[var(--ink-2)] transition-colors hover:bg-[var(--surface-3)] hover:text-[var(--ink-1)]"
       >
-        •••
+        <MoreIcon size={18} aria-hidden />
       </button>
       <MobileActionSheet open={open} onClose={() => setOpen(false)} title="More actions">
         <div className="flex flex-col gap-1">
