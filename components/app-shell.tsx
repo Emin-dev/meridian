@@ -112,6 +112,7 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
             onClick={() => setMobileOpen(true)}
             aria-label="More navigation options"
             aria-expanded={mobileOpen}
+            aria-controls="mobile-nav-drawer"
             className="tap press flex flex-1 flex-col items-center justify-center gap-0.5 py-2"
             style={{ color: isMoreActive ? "var(--accent)" : "var(--ink-2)" }}
           >
@@ -144,6 +145,10 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
       {/* Sidebar */}
       <aside
         ref={drawerRef}
+        id="mobile-nav-drawer"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Navigation"
         className={[
           "fixed inset-y-0 left-0 z-50 flex w-60 flex-col bg-[--surface-1] border-r border-[--line-1] transition-transform duration-200 ease-in-out",
           "lg:relative lg:translate-x-0",
@@ -214,6 +219,8 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
             className="tap press flex items-center justify-center rounded-lg text-[--ink-2] hover:bg-[--surface-2] hover:text-[--ink-1] lg:hidden"
             onClick={() => setMobileOpen(true)}
             aria-label="Open navigation"
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-nav-drawer"
           >
             <MenuIcon size={20} aria-hidden="true" />
           </button>
