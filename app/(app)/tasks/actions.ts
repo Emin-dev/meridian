@@ -13,8 +13,14 @@ const AddTaskSchema = z.object({
 const AddLinkedTaskSchema = z.object({
   subject: z.string().min(1, "Subject is required"),
   dueAt: z.string().min(1, "Due date is required").transform((v) => new Date(v)),
-  contactId: z.string().transform((v) => (v.trim() === "" ? null : Number(v))),
-  dealId: z.string().transform((v) => (v.trim() === "" ? null : Number(v))),
+  contactId: z.string().transform((v) => {
+    const n = Number(v);
+    return v.trim() === "" || !Number.isInteger(n) ? null : n;
+  }),
+  dealId: z.string().transform((v) => {
+    const n = Number(v);
+    return v.trim() === "" || !Number.isInteger(n) ? null : n;
+  }),
 });
 
 export type AddTaskState = {

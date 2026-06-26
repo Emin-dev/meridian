@@ -10,12 +10,14 @@ const AddActivitySchema = z.object({
   type: z.enum(["call", "email", "meeting", "note", "task"]),
   subject: z.string().min(1, "Subject is required"),
   body: z.string().transform((v) => (v.trim() === "" ? null : v)),
-  contactId: z
-    .string()
-    .transform((v) => (v.trim() === "" ? null : parseInt(v, 10))),
-  dealId: z
-    .string()
-    .transform((v) => (v.trim() === "" ? null : parseInt(v, 10))),
+  contactId: z.string().transform((v) => {
+    const n = parseInt(v, 10);
+    return Number.isInteger(n) ? n : null;
+  }),
+  dealId: z.string().transform((v) => {
+    const n = parseInt(v, 10);
+    return Number.isInteger(n) ? n : null;
+  }),
   dueAt: z
     .string()
     .transform((v) => (v.trim() === "" ? null : new Date(v))),
