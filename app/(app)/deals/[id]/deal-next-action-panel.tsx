@@ -107,7 +107,7 @@ export default function DealNextActionPanel({
           type="button"
           onClick={handleSuggest}
           disabled={isPending}
-          className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
+          className="rounded-lg bg-[--accent] px-3 py-1.5 text-xs font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
         >
           {isPending ? "Thinking…" : hasResult ? "Re-suggest" : "Suggest action"}
         </button>
@@ -133,10 +133,10 @@ export default function DealNextActionPanel({
 
       {hasResult ? (
         <div className="space-y-3">
-          <div className="flex items-start gap-3 rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-4 py-3">
-            <span className="mt-0.5 text-indigo-400">→</span>
+          <div className="flex items-start gap-3 rounded-lg border border-[--accent]/30 bg-[--accent-tint] px-4 py-3">
+            <span className="mt-0.5 text-[--accent]">→</span>
             <div className="flex-1 space-y-1">
-              <p className="text-sm font-medium text-indigo-300">{result.action}</p>
+              <p className="text-sm font-medium text-[--accent]">{result.action}</p>
               {result.priority && (
                 <span
                   className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${PRIORITY_STYLES[result.priority]}`}

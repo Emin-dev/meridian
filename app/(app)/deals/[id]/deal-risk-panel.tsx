@@ -51,7 +51,7 @@ export default function DealRiskPanel({ dealId }: Props) {
           type="button"
           onClick={handleAssess}
           disabled={isPending}
-          className="inline-flex min-h-[44px] items-center rounded-lg bg-indigo-600 px-3 text-xs font-medium text-white transition-colors hover:bg-indigo-500 active:scale-[0.98] disabled:opacity-50"
+          className="inline-flex min-h-[44px] items-center rounded-lg bg-[--accent] px-3 text-xs font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] active:scale-[0.98] disabled:opacity-50"
         >
           {isPending ? "Assessing…" : hasResult ? "Re-assess" : "Assess risk"}
         </button>
@@ -94,13 +94,13 @@ export default function DealRiskPanel({ dealId }: Props) {
           )}
 
           {result.nextStep && (
-            <div className="flex items-start gap-3 rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-4 py-3">
-              <span className="mt-0.5 shrink-0 text-indigo-400">→</span>
+            <div className="flex items-start gap-3 rounded-lg border border-[--accent]/30 bg-[--accent-tint] px-4 py-3">
+              <span className="mt-0.5 shrink-0 text-[--accent]">→</span>
               <div className="min-w-0 space-y-0.5">
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-neutral-500">
                   Next step
                 </p>
-                <p className="text-sm font-medium text-indigo-300">
+                <p className="text-sm font-medium text-[--accent]">
                   {result.nextStep}
                 </p>
               </div>

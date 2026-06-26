@@ -72,7 +72,7 @@ export default function ActionItemsPanel({ contactId, dealId }: Props) {
           type="button"
           onClick={handleExtract}
           disabled={isPending}
-          className="tap rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-indigo-500 active:scale-[0.98] disabled:opacity-50"
+          className="tap rounded-lg bg-[--accent] px-3 py-1.5 text-xs font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] active:scale-[0.98] disabled:opacity-50"
         >
           {isPending ? "Analyzing…" : hasItems ? "Re-extract" : "Extract"}
         </button>

@@ -47,7 +47,7 @@ export default function DealWinProbabilityPanel({ dealId, initialScore }: Props)
           type="button"
           onClick={handleScore}
           disabled={isPending}
-          className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
+          className="rounded-lg bg-[--accent] px-3 py-1.5 text-xs font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
         >
           {isPending ? "Scoring…" : hasScore ? "Re-score" : "Score deal"}
         </button>

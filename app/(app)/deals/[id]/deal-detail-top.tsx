@@ -93,7 +93,7 @@ export default function DealDetailTop({ initialDeal, deleteButton }: Props) {
               {stageMeta.label}
             </span>
             {formatted ? (
-              <span className="text-sm font-semibold text-indigo-400">{formatted}</span>
+              <span className="text-sm font-semibold text-[--accent]">{formatted}</span>
             ) : (
               <span className="text-xs text-neutral-500">Not set</span>
             )}

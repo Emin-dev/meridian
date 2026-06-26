@@ -25,7 +25,7 @@ const TYPE_META: Record<
     bg: "bg-green-900/30",
   },
   note: { label: "Note", color: "text-amber-400", bg: "bg-amber-900/30" },
-  task: { label: "Task", color: "text-indigo-400", bg: "bg-indigo-900/30" },
+  task: { label: "Task", color: "text-[--accent]", bg: "bg-[--accent-tint]" },
 };
 
 interface Props {

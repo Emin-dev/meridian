@@ -90,7 +90,7 @@ export default async function DealDetailPage({ params }: Props) {
               {(contact.name[0] ?? "?").toUpperCase()}
             </span>
             <div>
-              <p className="text-sm font-medium text-neutral-100 transition-colors group-hover:text-indigo-400">
+              <p className="text-sm font-medium text-neutral-100 transition-colors group-hover:text-[--accent]">
                 {contact.name}
               </p>
               {(contact.title || contact.company) && (

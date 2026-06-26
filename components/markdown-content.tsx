@@ -46,7 +46,7 @@ function parseInline(text: string, keyBase: string): React.ReactNode[] {
           href={match[6]}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-indigo-400 underline hover:text-indigo-300"
+          className="text-[--accent] underline hover:text-[--accent-hover]"
         >
           {match[5]}
         </a>

@@ -18,7 +18,7 @@ const TYPE_META: Record<ActivityType, { label: string; color: string; bg: string
   email: { label: "Email", color: "text-purple-400", bg: "bg-purple-900/30" },
   meeting: { label: "Meeting", color: "text-green-400", bg: "bg-green-900/30" },
   note: { label: "Note", color: "text-amber-400", bg: "bg-amber-900/30" },
-  task: { label: "Task", color: "text-indigo-400", bg: "bg-indigo-900/30" },
+  task: { label: "Task", color: "text-[--accent]", bg: "bg-[--accent-tint]" },
 };
 
 interface Props {
