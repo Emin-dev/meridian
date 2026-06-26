@@ -32,13 +32,12 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
+  // Gate the WHOLE app when auth is enabled. Only the login page, the public
+  // health check, and static/image assets are exempt — every data-bearing
+  // segment (dashboard, contacts, deals, activity, settings, tasks, sequences,
+  // analytics, ask, search) and every /api route is matched so it cannot be
+  // reached without a valid session.
   matcher: [
-    "/dashboard/:path*",
-    "/contacts/:path*",
-    "/deals/:path*",
-    "/activity/:path*",
-    "/settings/:path*",
-    "/api/contacts/:path*",
-    "/api/deals/:path*",
+    "/((?!login|api/health|_next/static|_next/image|favicon.ico).*)",
   ],
 };
