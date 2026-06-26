@@ -403,6 +403,7 @@ export async function deleteDeal(id: number): Promise<void> {
   if (db) {
     await db.delete(schema.deals).where(eq(schema.deals.id, id));
     revalidatePath("/deals");
+    revalidatePath("/dashboard");
   }
   redirect("/deals");
 }
