@@ -272,15 +272,19 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
     setTimeout(() => setFeedback(null), 3000);
   }
 
-  function handleChangeStatus() {
+  function applyStatus(status: ContactStatus) {
     startTransition(async () => {
-      const result = await bulkChangeStatus(Array.from(selectedIds), statusSelect);
+      const result = await bulkChangeStatus(Array.from(selectedIds), status);
       if (result.error) flash(result.error, false);
       else flash(`Updated status for ${result.count} contact(s).`);
       setSelectedIds(new Set());
       setSheetOpen(false);
       setSelectMode(false);
     });
+  }
+
+  function handleChangeStatus() {
+    applyStatus(statusSelect);
   }
 
   function handleAddTag() {
@@ -308,12 +312,11 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
     });
   }
 
-  function handleEnrollSequence() {
-    if (!sequenceSelect) return;
+  function applyEnroll(sequenceId: number) {
     startTransition(async () => {
       const result = await bulkEnrollInSequence(
         Array.from(selectedIds),
-        parseInt(sequenceSelect)
+        sequenceId
       );
       if (result.error) flash(result.error, false);
       else flash(`Enrolled ${result.count} contact(s) in sequence.`);
@@ -322,6 +325,11 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
       setSheetOpen(false);
       setSelectMode(false);
     });
+  }
+
+  function handleEnrollSequence() {
+    if (!sequenceSelect) return;
+    applyEnroll(parseInt(sequenceSelect));
   }
 
   return (
@@ -701,26 +709,23 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
       >
         <div className="flex flex-col gap-3">
           {/* Change status */}
-          <div className="flex items-center gap-2">
-            <select
-              aria-label="Set status for selected contacts"
-              value={statusSelect}
-              onChange={(e) => setStatusSelect(e.target.value as ContactStatus)}
-              className="min-h-[44px] min-w-0 flex-1 rounded-lg border border-[--line-1] bg-[--surface-1] px-3 text-sm text-[--ink-1]"
-            >
-              {CONTACT_STATUSES.map((s) => (
-                <option key={s.value} value={s.value}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
-            <button
-              onClick={handleChangeStatus}
-              disabled={isPending}
-              className="tap flex shrink-0 items-center justify-center rounded-lg bg-[--surface-2] px-4 text-sm font-medium text-[--ink-1] hover:bg-[--surface-3] disabled:opacity-50"
-            >
+          <div>
+            <p className="mb-1.5 text-caption uppercase tracking-wider text-[--ink-3]">
               Set status
-            </button>
+            </p>
+            <div className="flex flex-col divide-y divide-[--line-1]">
+              {CONTACT_STATUSES.map((s) => (
+                <button
+                  key={s.value}
+                  type="button"
+                  onClick={() => applyStatus(s.value)}
+                  disabled={isPending}
+                  className="tap press flex min-h-[44px] items-center gap-3 px-1 text-left text-sm text-[--ink-1] transition-colors hover:text-[--accent] disabled:opacity-40"
+                >
+                  <span className="flex-1">{s.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Add tag */}
@@ -763,27 +768,23 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
 
           {/* Enroll in sequence */}
           {sequences.length > 0 && (
-            <div className="flex items-center gap-2">
-              <select
-                aria-label="Enroll selected contacts in sequence"
-                value={sequenceSelect}
-                onChange={(e) => setSequenceSelect(e.target.value)}
-                className="min-h-[44px] min-w-0 flex-1 rounded-lg border border-[--line-1] bg-[--surface-1] px-3 text-sm text-[--ink-1]"
-              >
-                <option value="">Pick sequence…</option>
+            <div>
+              <p className="mb-1.5 text-caption uppercase tracking-wider text-[--ink-3]">
+                Enroll in sequence
+              </p>
+              <div className="flex flex-col divide-y divide-[--line-1]">
                 {sequences.map((s) => (
-                  <option key={s.id} value={String(s.id)}>
-                    {s.name}
-                  </option>
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => applyEnroll(s.id)}
+                    disabled={isPending}
+                    className="tap press flex min-h-[44px] items-center gap-3 px-1 text-left text-sm text-[--ink-1] transition-colors hover:text-[--accent] disabled:opacity-40"
+                  >
+                    <span className="flex-1">{s.name}</span>
+                  </button>
                 ))}
-              </select>
-              <button
-                onClick={handleEnrollSequence}
-                disabled={isPending || !sequenceSelect}
-                className="tap flex shrink-0 items-center justify-center rounded-lg bg-[--surface-2] px-4 text-sm font-medium text-[--ink-1] hover:bg-[--surface-3] disabled:opacity-50"
-              >
-                Enroll
-              </button>
+              </div>
             </div>
           )}
         </div>
