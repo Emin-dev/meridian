@@ -9,6 +9,7 @@ import LeadScoreBadge from "./lead-score-badge";
 import { tagColor } from "./tag-color";
 import { bulkChangeStatus, bulkAddTag, bulkEnrollInSequence, bulkChangeOwner } from "./actions";
 import { ContactsViewSwitcher, type ContactsView } from "./contacts-view-switcher";
+import MobileActionSheet from "@/components/mobile-action-sheet";
 
 function getLastContactedMeta(dateStr: string | null): { text: string; dotClass: string } | null {
   if (!dateStr) return null;
@@ -107,7 +108,17 @@ function SortableHeader({
   );
 }
 
-function ContactCards({ contacts }: { contacts: Contact[] }) {
+function ContactCards({
+  contacts,
+  selectMode = false,
+  selectedIds,
+  onToggle,
+}: {
+  contacts: Contact[];
+  selectMode?: boolean;
+  selectedIds?: Set<number>;
+  onToggle?: (id: number) => void;
+}) {
   return (
     <div className="divide-y divide-[--line-1]">
       {contacts.map((c) => {
@@ -119,32 +130,71 @@ function ContactCards({ contacts }: { contacts: Contact[] }) {
         ]
           .filter(Boolean)
           .join(" • ");
-        return (
-          <Link
-            key={c.id}
-            href={`/contacts/${c.id}`}
-            className="flex min-h-[44px] items-center gap-3 px-4 py-3 transition-colors hover:bg-neutral-800/40 active:bg-neutral-800/60"
-          >
+        const isSelected = selectedIds?.has(c.id) ?? false;
+
+        const body = (
+          <>
+            {selectMode && (
+              <input
+                type="checkbox"
+                checked={isSelected}
+                readOnly
+                tabIndex={-1}
+                aria-hidden
+                className="pointer-events-none h-4 w-4 flex-shrink-0 rounded border-neutral-600 accent-indigo-500"
+              />
+            )}
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium text-neutral-100">{c.name}</p>
               {secondary && (
                 <p className="truncate text-xs text-neutral-400">{secondary}</p>
               )}
             </div>
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="flex-shrink-0 text-neutral-600"
-              aria-hidden
+            {!selectMode && (
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="flex-shrink-0 text-neutral-600"
+                aria-hidden
+              >
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            )}
+          </>
+        );
+
+        if (selectMode) {
+          return (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => onToggle?.(c.id)}
+              aria-pressed={isSelected}
+              aria-label={`Select ${c.name}`}
+              className={`flex min-h-[44px] w-full items-center gap-3 px-4 py-3 text-left transition-colors ${
+                isSelected
+                  ? "bg-indigo-500/10"
+                  : "hover:bg-neutral-800/40 active:bg-neutral-800/60"
+              }`}
             >
-              <path d="M9 18l6-6-6-6" />
-            </svg>
+              {body}
+            </button>
+          );
+        }
+
+        return (
+          <Link
+            key={c.id}
+            href={`/contacts/${c.id}`}
+            className="flex min-h-[44px] items-center gap-3 px-4 py-3 transition-colors hover:bg-neutral-800/40 active:bg-neutral-800/60"
+          >
+            {body}
           </Link>
         );
       })}
@@ -166,6 +216,8 @@ type Props = {
 
 export default function ContactsTable({ contacts, sequences, hasActiveFilters, lastContactedMap, hasDb, sort, dir, allSearchParams, view }: Props) {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [selectMode, setSelectMode] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [tagInput, setTagInput] = useState("");
   const [statusSelect, setStatusSelect] = useState<ContactStatus>("lead");
   const [sequenceSelect, setSequenceSelect] = useState("");
@@ -194,6 +246,12 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
     });
   }
 
+  function exitSelectMode() {
+    setSelectMode(false);
+    setSheetOpen(false);
+    setSelectedIds(new Set());
+  }
+
   function flash(msg: string, ok = true) {
     setFeedback({ msg, ok });
     setTimeout(() => setFeedback(null), 3000);
@@ -205,6 +263,8 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
       if (result.error) flash(result.error, false);
       else flash(`Updated status for ${result.count} contact(s).`);
       setSelectedIds(new Set());
+      setSheetOpen(false);
+      setSelectMode(false);
     });
   }
 
@@ -216,6 +276,8 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
       else flash(`Added tag to ${result.count} contact(s).`);
       setTagInput("");
       setSelectedIds(new Set());
+      setSheetOpen(false);
+      setSelectMode(false);
     });
   }
 
@@ -226,6 +288,8 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
       else flash(`Updated owner for ${result.count} contact(s).`);
       setOwnerInput("");
       setSelectedIds(new Set());
+      setSheetOpen(false);
+      setSelectMode(false);
     });
   }
 
@@ -240,14 +304,16 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
       else flash(`Enrolled ${result.count} contact(s) in sequence.`);
       setSequenceSelect("");
       setSelectedIds(new Set());
+      setSheetOpen(false);
+      setSelectMode(false);
     });
   }
 
   return (
     <div className="space-y-3">
-      {/* Bulk action bar — table view only */}
+      {/* Bulk action bar — desktop table view only (mobile uses the action sheet) */}
       {someSelected && view === "table" && (
-        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-4 py-2">
+        <div className="hidden flex-wrap items-center gap-2 rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 lg:flex">
           <span className="flex min-h-[44px] items-center text-sm font-medium text-indigo-300">
             {selectedIds.size} selected
           </span>
@@ -376,7 +442,65 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
 
         {/* Mobile: always stacked cards (the wide table would horizontal-scroll) */}
         <div className="lg:hidden">
-          <ContactCards contacts={contacts} />
+          {/* Mobile select toolbar */}
+          <div className="flex items-center gap-3 border-b border-neutral-800 px-4 py-2">
+            {selectMode ? (
+              <>
+                <label className="tap flex cursor-pointer items-center gap-2 text-xs font-medium text-neutral-300">
+                  <input
+                    type="checkbox"
+                    checked={allSelected}
+                    ref={(el) => {
+                      if (el) el.indeterminate = someSelected && !allSelected;
+                    }}
+                    onChange={toggleAll}
+                    aria-label="Select all contacts"
+                    className="h-4 w-4 cursor-pointer rounded border-neutral-600 accent-indigo-500"
+                  />
+                  {selectedIds.size > 0 ? `${selectedIds.size} selected` : "Select all"}
+                </label>
+                <div className="ml-auto flex items-center gap-2">
+                  <button
+                    onClick={() => setSheetOpen(true)}
+                    disabled={!someSelected}
+                    className="tap flex items-center justify-center rounded-lg bg-indigo-600 px-3 text-xs font-medium text-white hover:bg-indigo-500 disabled:opacity-40"
+                  >
+                    Actions
+                  </button>
+                  <button
+                    onClick={exitSelectMode}
+                    className="tap flex items-center justify-center text-xs text-neutral-400 hover:text-neutral-200"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </>
+            ) : (
+              <button
+                onClick={() => setSelectMode(true)}
+                className="tap ml-auto flex items-center justify-center text-xs font-medium text-neutral-400 hover:text-neutral-200"
+              >
+                Select
+              </button>
+            )}
+          </div>
+
+          {feedback && (
+            <div
+              className={`border-b border-neutral-800 px-4 py-2 text-xs ${
+                feedback.ok ? "text-emerald-400" : "text-red-400"
+              }`}
+            >
+              {feedback.msg}
+            </div>
+          )}
+
+          <ContactCards
+            contacts={contacts}
+            selectMode={selectMode}
+            selectedIds={selectedIds}
+            onToggle={toggle}
+          />
         </div>
 
         {/* Desktop card view */}
@@ -539,6 +663,102 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
           </div>
         )}
       </div>
+
+      {/* Mobile bulk-action sheet — mirrors the desktop bulk bar */}
+      <MobileActionSheet
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        title={`${selectedIds.size} selected`}
+      >
+        <div className="flex flex-col gap-3">
+          {/* Change status */}
+          <div className="flex items-center gap-2">
+            <select
+              aria-label="Set status for selected contacts"
+              value={statusSelect}
+              onChange={(e) => setStatusSelect(e.target.value as ContactStatus)}
+              className="tap min-w-0 flex-1 rounded-lg border border-neutral-700 bg-neutral-900 px-3 text-sm text-neutral-200"
+            >
+              {STATUSES.map((s) => (
+                <option key={s.value} value={s.value}>
+                  {s.label}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={handleChangeStatus}
+              disabled={isPending}
+              className="tap flex shrink-0 items-center justify-center rounded-lg bg-neutral-700 px-4 text-sm font-medium text-neutral-100 hover:bg-neutral-600 disabled:opacity-50"
+            >
+              Set status
+            </button>
+          </div>
+
+          {/* Add tag */}
+          <div className="flex items-center gap-2">
+            <input
+              aria-label="Tag to add"
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleAddTag()}
+              placeholder="Tag name"
+              className="tap min-w-0 flex-1 rounded-lg border border-neutral-700 bg-neutral-900 px-3 text-sm text-neutral-200 placeholder-neutral-600 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            />
+            <button
+              onClick={handleAddTag}
+              disabled={isPending || !tagInput.trim()}
+              className="tap flex shrink-0 items-center justify-center rounded-lg bg-neutral-700 px-4 text-sm font-medium text-neutral-100 hover:bg-neutral-600 disabled:opacity-50"
+            >
+              Add tag
+            </button>
+          </div>
+
+          {/* Change owner */}
+          <div className="flex items-center gap-2">
+            <input
+              aria-label="New owner name"
+              value={ownerInput}
+              onChange={(e) => setOwnerInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleChangeOwner()}
+              placeholder="Owner name"
+              className="tap min-w-0 flex-1 rounded-lg border border-neutral-700 bg-neutral-900 px-3 text-sm text-neutral-200 placeholder-neutral-600 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            />
+            <button
+              onClick={handleChangeOwner}
+              disabled={isPending}
+              className="tap flex shrink-0 items-center justify-center rounded-lg bg-neutral-700 px-4 text-sm font-medium text-neutral-100 hover:bg-neutral-600 disabled:opacity-50"
+            >
+              Set owner
+            </button>
+          </div>
+
+          {/* Enroll in sequence */}
+          {sequences.length > 0 && (
+            <div className="flex items-center gap-2">
+              <select
+                aria-label="Enroll selected contacts in sequence"
+                value={sequenceSelect}
+                onChange={(e) => setSequenceSelect(e.target.value)}
+                className="tap min-w-0 flex-1 rounded-lg border border-neutral-700 bg-neutral-900 px-3 text-sm text-neutral-200"
+              >
+                <option value="">Pick sequence…</option>
+                {sequences.map((s) => (
+                  <option key={s.id} value={String(s.id)}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={handleEnrollSequence}
+                disabled={isPending || !sequenceSelect}
+                className="tap flex shrink-0 items-center justify-center rounded-lg bg-neutral-700 px-4 text-sm font-medium text-neutral-100 hover:bg-neutral-600 disabled:opacity-50"
+              >
+                Enroll
+              </button>
+            </div>
+          )}
+        </div>
+      </MobileActionSheet>
     </div>
   );
 }
