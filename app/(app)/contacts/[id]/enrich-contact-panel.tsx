@@ -47,6 +47,7 @@ export default function EnrichContactPanel({ contactId }: Props) {
   }
 
   function handleSave() {
+    setSaveState({});
     startSaveTransition(async () => {
       const r = await applyContactEnrichment(contactId, fields);
       setSaveState(r);
