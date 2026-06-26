@@ -551,6 +551,7 @@ export type NextActionState = {
   priority?: "high" | "medium" | "low";
   rationale?: string;
   suggestedMessage?: string;
+  suggestedAt?: string;
   error?: string;
   noDb?: boolean;
   noKey?: boolean;
@@ -638,7 +639,24 @@ export async function suggestNextAction(
 
     if (!action) return { error: "AI returned an empty action." };
 
-    return { action, priority, rationale, suggestedMessage };
+    const suggestedAt = new Date();
+
+    // Cache result to the contact row (best-effort — columns may not exist yet)
+    try {
+      await db
+        .update(schema.contacts)
+        .set({
+          nextAction: JSON.stringify({ action, priority, rationale, suggestedMessage }),
+          nextActionAt: suggestedAt,
+          updatedAt: new Date(),
+        })
+        .where(eq(schema.contacts.id, contact.id));
+      revalidatePath(`/contacts/${contact.id}`);
+    } catch {
+      // Ignore — DB columns may not yet be migrated
+    }
+
+    return { action, priority, rationale, suggestedMessage, suggestedAt: suggestedAt.toISOString() };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown AI error.";
     if (message.includes("DEEPSEEK_API_KEY")) return { noKey: true };

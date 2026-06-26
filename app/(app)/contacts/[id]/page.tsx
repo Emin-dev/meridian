@@ -128,7 +128,11 @@ export default async function ContactDetailPage({ params }: Props) {
         <EnrichContactPanel contactId={contact.id} />
       </div>
       <div className="card p-4 sm:p-5">
-        <NextActionPanel contactId={contact.id} />
+        <NextActionPanel
+          contactId={contact.id}
+          initialNextAction={contact.nextAction}
+          initialNextActionAt={contact.nextActionAt}
+        />
       </div>
       <div className="card p-4 sm:p-5">
         <ActionItemsPanel contactId={contact.id} />

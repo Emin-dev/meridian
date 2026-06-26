@@ -76,6 +76,8 @@ export const contacts = pgTable("contacts", {
   leadScoredAt: timestamp("lead_scored_at", { withTimezone: true }),
   aiSummary: text("ai_summary"),
   aiSummaryAt: timestamp("ai_summary_at", { withTimezone: true }),
+  nextAction: text("next_action"),
+  nextActionAt: timestamp("next_action_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => [
