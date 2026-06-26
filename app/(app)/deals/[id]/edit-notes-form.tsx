@@ -35,7 +35,7 @@ export default function EditNotesForm({
           <button
             type="button"
             onClick={() => setIsEditing(true)}
-            className="rounded-lg border border-[var(--line-1)] px-3 py-1.5 text-xs text-[var(--ink-2)] transition-colors hover:border-[var(--line-2)] hover:text-[var(--ink-1)]"
+            className="tap press inline-flex items-center justify-center rounded-lg border border-[var(--line-1)] px-3 text-xs text-[var(--ink-2)] hover:border-[var(--line-2)] hover:text-[var(--ink-1)]"
           >
             Edit
           </button>
@@ -63,7 +63,7 @@ export default function EditNotesForm({
           <button
             type="button"
             onClick={() => setIsEditing(false)}
-            className="rounded-lg border border-[var(--line-1)] px-3 py-1.5 text-xs text-[var(--ink-2)] transition-colors hover:border-[var(--line-2)] hover:text-[var(--ink-1)]"
+            className="tap press inline-flex items-center justify-center rounded-lg border border-[var(--line-1)] px-3 text-xs text-[var(--ink-2)] hover:border-[var(--line-2)] hover:text-[var(--ink-1)]"
           >
             Cancel
           </button>

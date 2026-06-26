@@ -199,7 +199,8 @@ export default function EditContactForm({ contact, onSaved, onRollback }: Props)
           <button
             type="button"
             onClick={() => setSourceSheetOpen(true)}
-            className={`${inputCls} tap flex items-center justify-between gap-2 text-left sm:hidden`}
+            aria-label="Source"
+            className={`${inputCls} tap press flex items-center justify-between gap-2 text-left sm:hidden`}
           >
             <span>{SOURCE_LABELS[source] ?? "— Select —"}</span>
             <svg
@@ -247,7 +248,7 @@ export default function EditContactForm({ contact, onSaved, onRollback }: Props)
         <button
           type="button"
           onClick={handleDelete}
-          className="tap inline-flex items-center justify-center rounded-lg border border-[var(--bad)]/40 px-4 text-sm text-[var(--bad)] transition-colors hover:bg-[var(--bad-tint)] hover:text-[var(--bad)]"
+          className="tap press inline-flex items-center justify-center rounded-lg border border-[var(--bad)]/40 px-4 text-sm text-[var(--bad)] hover:bg-[var(--bad-tint)] hover:text-[var(--bad)]"
         >
           Delete contact
         </button>

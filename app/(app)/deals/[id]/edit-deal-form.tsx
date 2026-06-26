@@ -144,7 +144,8 @@ export default function EditDealForm({ deal, onSaved, onRollback }: Props) {
         <button
           type="button"
           onClick={() => setStageSheetOpen(true)}
-          className={`${inputCls} flex items-center justify-between gap-2 text-left sm:hidden`}
+          aria-label="Stage"
+          className={`${inputCls} press flex items-center justify-between gap-2 text-left sm:hidden`}
         >
           <span>{stageLabel}</span>
           <svg
