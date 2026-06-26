@@ -1,4 +1,5 @@
-import { and, eq, isNotNull, isNull, asc, desc } from "drizzle-orm";
+import { and, eq, isNotNull, isNull, asc, desc, count } from "drizzle-orm";
+import Link from "next/link";
 import { getDb, schema } from "@/db";
 import TaskQuickAddForm from "./task-quick-add-form";
 import TaskRow, { type TaskRowData } from "./task-row";
@@ -46,7 +47,24 @@ function TaskGroup({
   );
 }
 
-export default async function TasksPage() {
+// Bound the open-tasks query so we never run an un-paginated full-table scan in
+// the request path. "Load more" grows the visible window one page at a time
+// (mirrors the contacts/deals pages); the time-bucket grouping is unchanged.
+const PAGE_SIZE = 50;
+const MAX_PAGE = 100;
+
+export default async function TasksPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const { page } = await searchParams;
+  const pageNum = Math.min(
+    Math.max(page && !isNaN(parseInt(page)) ? parseInt(page) : 1, 1),
+    MAX_PAGE,
+  );
+  const windowSize = pageNum * PAGE_SIZE;
+
   const header = (
     <div>
       <h2 className="text-title2 font-semibold text-[var(--ink-1)]">Tasks</h2>
@@ -97,19 +115,21 @@ export default async function TasksPage() {
       .leftJoin(schema.deals, eq(schema.activities.dealId, schema.deals.id))
       .where(where);
 
-  // Open tasks drive the time buckets; both queries are capped (active by
-  // soonest dueAt, completed by most recent) so the page stays bounded as
-  // data grows — 500 active tasks is far beyond any realistic working set.
-  const [activeRows, completedRows] = await Promise.all([
-    taskBase(
-      and(
-        eq(schema.activities.type, "task"),
-        isNotNull(schema.activities.dueAt),
-        isNull(schema.activities.completedAt)
-      )
-    )
+  const openWhere = and(
+    eq(schema.activities.type, "task"),
+    isNotNull(schema.activities.dueAt),
+    isNull(schema.activities.completedAt)
+  );
+
+  // Open tasks drive the time buckets; the open query is bounded by the visible
+  // window (fetching one extra row to detect a next page) and the completed
+  // query by the most recent 25, so the page stays cheap as data grows. A
+  // separate count() gives the true open total for the "Showing X of Y" label.
+  const [activeRows, completedRows, openCountRows] = await Promise.all([
+    taskBase(openWhere)
       .orderBy(asc(schema.activities.dueAt))
-      .limit(500),
+      // Fetch one extra row to detect whether another page exists.
+      .limit(windowSize + 1),
     taskBase(
       and(
         eq(schema.activities.type, "task"),
@@ -119,7 +139,12 @@ export default async function TasksPage() {
     )
       .orderBy(desc(schema.activities.completedAt))
       .limit(25),
+    db.select({ value: count() }).from(schema.activities).where(openWhere),
   ]);
+
+  const hasMore = activeRows.length > windowSize;
+  const pageActiveRows = hasMore ? activeRows.slice(0, windowSize) : activeRows;
+  const openCount = openCountRows[0]?.value ?? pageActiveRows.length;
 
   const toTask = ({
     activity,
@@ -137,7 +162,7 @@ export default async function TasksPage() {
     dealTitle: dealTitle ?? null,
   });
 
-  const activeTasks = activeRows.map(toTask);
+  const activeTasks = pageActiveRows.map(toTask);
   const completedTasks = completedRows.map(toTask);
 
   const todayStart = new Date();
@@ -203,6 +228,22 @@ export default async function TasksPage() {
               dotClass="bg-[var(--ok)]"
               emptyLabel="No completed tasks."
             />
+          )}
+
+          {/* Load more — bounded pagination; only shown when more open tasks exist */}
+          {hasMore && (
+            <div className="flex flex-col items-center gap-2 pt-2">
+              <Link
+                href={`/tasks?page=${pageNum + 1}`}
+                scroll={false}
+                className="tap flex items-center justify-center rounded-[var(--r-lg)] border border-[var(--line-1)] bg-[var(--surface-1)] px-5 text-callout font-medium text-[var(--ink-1)] transition-colors hover:bg-[var(--surface-2)]"
+              >
+                Load more
+              </Link>
+              <p className="text-center text-caption text-[var(--ink-3)]">
+                Showing {activeTasks.length} of {openCount} open tasks
+              </p>
+            </div>
           )}
         </div>
       )}
