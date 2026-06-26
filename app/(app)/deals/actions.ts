@@ -119,6 +119,8 @@ export async function moveDealStage(
   const parsed = z.enum(DEAL_STAGES).safeParse(newStage);
   if (!parsed.success) return { error: "Invalid stage" };
 
+  if (!Number.isInteger(id) || id <= 0) return { error: "Deal not found" };
+
   const db = getDb();
   if (!db) return { noDb: true };
 

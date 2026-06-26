@@ -889,6 +889,10 @@ export async function applyContactEnrichment(
   contactId: number,
   fields: { title: string; company: string; notes: string }
 ): Promise<ApplyEnrichmentState> {
+  if (!Number.isInteger(contactId) || contactId <= 0) {
+    return { error: "Contact not found" };
+  }
+
   const db = getDb();
   if (!db) return { noDb: true };
 
