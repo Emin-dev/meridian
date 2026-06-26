@@ -2,8 +2,15 @@
 
 import { getDb, schema } from "@/db";
 import { revalidatePath } from "next/cache";
-import { and, asc, eq, gt, sql } from "drizzle-orm";
+import { and, asc, eq, gt, inArray, sql } from "drizzle-orm";
+import { z } from "zod";
 import { chat } from "@/lib/ai";
+
+const reorderSchema = z.object({
+  stepId: z.number().int().positive(),
+  sequenceId: z.number().int().positive(),
+  direction: z.enum(["up", "down"]),
+});
 
 export type StepFormState = {
   error?: string;
@@ -124,6 +131,9 @@ export async function reorderStep(
   sequenceId: number,
   direction: "up" | "down"
 ): Promise<{ error?: string }> {
+  const parsed = reorderSchema.safeParse({ stepId, sequenceId, direction });
+  if (!parsed.success) return { error: "Invalid reorder request." };
+
   const db = getDb();
   if (!db) return { error: "Database not connected." };
 
@@ -142,14 +152,18 @@ export async function reorderStep(
   const current = steps[idx];
   const swap = steps[swapIdx];
 
+  // Swap the two positions in a single statement so the update is atomic and
+  // free of the race where one UPDATE lands but the other doesn't.
   await db
     .update(schema.sequenceSteps)
-    .set({ position: swap.position })
-    .where(eq(schema.sequenceSteps.id, current.id));
-  await db
-    .update(schema.sequenceSteps)
-    .set({ position: current.position })
-    .where(eq(schema.sequenceSteps.id, swap.id));
+    .set({
+      position: sql`CASE
+        WHEN ${schema.sequenceSteps.id} = ${current.id} THEN ${swap.position}
+        WHEN ${schema.sequenceSteps.id} = ${swap.id} THEN ${current.position}
+        ELSE ${schema.sequenceSteps.position}
+      END`,
+    })
+    .where(inArray(schema.sequenceSteps.id, [current.id, swap.id]));
 
   revalidatePath(`/sequences/${sequenceId}`);
   return {};
