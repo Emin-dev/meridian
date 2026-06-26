@@ -31,6 +31,9 @@ const TOKEN_FALLBACK: Record<string, string> = {
   "--ok": "#2dd4a7",
   "--ink-3": "#646b7a",
   "--ink-2": "#9ba2b1",
+  "--ink-1": "#f2f4f8",
+  "--surface-2": "#1c1f27",
+  "--line-2": "rgba(255,255,255,0.11)",
 };
 
 const STAGE_LABELS: Record<string, string> = {
@@ -62,7 +65,7 @@ export default function PipelineChart({ data }: { data: StageData[] }) {
   }));
 
   return (
-    <div className="h-full rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)] p-5">
+    <div className="card h-full p-4 sm:p-5">
       <p className="mb-4 text-sm font-medium text-[var(--ink-1)]">
         Pipeline by Stage
       </p>
@@ -91,10 +94,10 @@ export default function PipelineChart({ data }: { data: StageData[] }) {
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: "#171717",
-                border: "1px solid #404040",
-                borderRadius: "8px",
-                color: "#f5f5f5",
+                backgroundColor: tokenColors["--surface-2"],
+                border: `1px solid ${tokenColors["--line-2"]}`,
+                borderRadius: "10px",
+                color: tokenColors["--ink-1"],
                 fontSize: 12,
               }}
               formatter={(value) => [value, "Deals"]}
