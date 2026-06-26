@@ -34,8 +34,8 @@ export default function LeadScorePanel({ contactId, initialScore, initialRationa
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-2">
           <h3 className="text-sm font-medium text-[var(--ink-1)]">Lead score</h3>
           {hasScore && <LeadScoreBadge score={result.score!} />}
         </div>
@@ -43,7 +43,7 @@ export default function LeadScorePanel({ contactId, initialScore, initialRationa
           type="button"
           onClick={handleScore}
           disabled={isPending}
-          className="tap inline-flex items-center justify-center rounded-lg bg-[var(--accent)] px-3 text-xs font-medium text-[var(--accent-ink)] transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-50"
+          className="tap inline-flex shrink-0 items-center justify-center rounded-lg bg-[var(--accent)] px-3 text-xs font-medium text-[var(--accent-ink)] transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-50"
         >
           {isPending ? "Scoring…" : hasScore ? "Re-score" : "Score lead"}
         </button>

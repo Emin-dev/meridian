@@ -180,7 +180,10 @@ export default function KanbanBoard({
       </div>
 
       {/* ── Desktop view (container ≥ 640px) ────────────────────────────── */}
-      <div className="hidden min-w-0 @[640px]:block overflow-x-auto snap-x snap-mandatory pb-4">
+      {/* Horizontal swipe lane: the track owns the overflow so the page never
+          widens; snap aligns each stage, and a safe-area-aware trailing gutter
+          lets the last column clear the screen edge / notch on touch devices. */}
+      <div className="hidden min-w-0 @[640px]:block overflow-x-auto snap-x snap-mandatory pb-4 [scroll-padding-inline-start:0.25rem] pe-[max(1rem,env(safe-area-inset-right))]">
         <div className="flex gap-4">
           {STAGES.map((stage) => {
             const cards = dealsByStage[stage.key] ?? [];

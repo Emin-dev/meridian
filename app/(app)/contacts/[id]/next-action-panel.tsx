@@ -113,13 +113,13 @@ export default function NextActionPanel({
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-[var(--ink-1)]">Next best action</h3>
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="min-w-0 text-sm font-medium text-[var(--ink-1)]">Next best action</h3>
         <button
           type="button"
           onClick={handleSuggest}
           disabled={isPending}
-          className="tap inline-flex items-center justify-center rounded-lg bg-[var(--accent)] px-3 text-xs font-medium text-[var(--accent-ink)] transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-50"
+          className="tap inline-flex shrink-0 items-center justify-center rounded-lg bg-[var(--accent)] px-3 text-xs font-medium text-[var(--accent-ink)] transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-50"
         >
           {isPending ? "Thinking…" : hasResult ? "Re-suggest" : "Suggest action"}
         </button>
