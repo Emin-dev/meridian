@@ -431,7 +431,7 @@ export default function DealsTable({
       </div>
 
       {/* Desktop table */}
-      <div className="hidden overflow-x-auto rounded-xl border border-[--line-1] lg:block">
+      <div className="hidden max-w-full overflow-x-auto overscroll-x-contain rounded-xl border border-[--line-1] lg:block">
         <table className="w-full text-sm">
           <thead className="border-b border-[--line-1] bg-[--surface-1]">
             <tr>
