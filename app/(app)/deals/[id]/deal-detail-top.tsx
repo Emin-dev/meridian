@@ -47,7 +47,7 @@ export default function DealDetailTop({ initialDeal, deleteButton }: Props) {
 
   const stageMeta =
     STAGE_META[deal.stage as keyof typeof STAGE_META] ??
-    ({ label: deal.stage, color: "text-neutral-400", bg: "bg-neutral-800" } as const);
+    ({ label: deal.stage, color: "text-[--ink-2]", bg: "bg-[--surface-2]" } as const);
   const formatted = formatValue(deal.value, deal.currency);
 
   // ── Form callbacks ──────────────────────────────────────────────────────────
@@ -85,7 +85,7 @@ export default function DealDetailTop({ initialDeal, deleteButton }: Props) {
       {/* ── Page header ──────────────────────────────────────────────────────── */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-neutral-100">{deal.title}</h2>
+          <h2 className="text-xl font-semibold text-[--ink-1]">{deal.title}</h2>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <span
               className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${stageMeta.bg} ${stageMeta.color}`}
@@ -95,10 +95,10 @@ export default function DealDetailTop({ initialDeal, deleteButton }: Props) {
             {formatted ? (
               <span className="text-sm font-semibold text-[--accent]">{formatted}</span>
             ) : (
-              <span className="text-xs text-neutral-500">Not set</span>
+              <span className="text-xs text-[--ink-3]">Not set</span>
             )}
             {deal.expectedCloseDate && (
-              <span className="text-xs text-neutral-500">
+              <span className="text-xs text-[--ink-3]">
                 Close:{" "}
                 {new Date(deal.expectedCloseDate).toLocaleDateString("en-US", {
                   month: "short",
@@ -109,8 +109,8 @@ export default function DealDetailTop({ initialDeal, deleteButton }: Props) {
             )}
           </div>
           {(deal.stage === "won" || deal.stage === "lost") && deal.closeReason && (
-            <p className="mt-1.5 text-xs text-neutral-400">
-              <span className="text-neutral-600">Reason: </span>
+            <p className="mt-1.5 text-xs text-[--ink-2]">
+              <span className="text-[--ink-3]">Reason: </span>
               {deal.closeReason}
             </p>
           )}
@@ -125,18 +125,18 @@ export default function DealDetailTop({ initialDeal, deleteButton }: Props) {
       </div>
 
       {/* ── Edit deal details card ────────────────────────────────────────────── */}
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-4 sm:p-5">
-        <h3 className="mb-4 text-sm font-medium text-neutral-300">Details</h3>
+      <div className="rounded-xl border border-[--line-1] bg-[--surface-1] p-4 sm:p-5">
+        <h3 className="mb-4 text-sm font-medium text-[--ink-2]">Details</h3>
         <EditDealForm
           key={formVersion}
           deal={deal}
           onSaved={handleFormSaved}
           onRollback={handleFormRollback}
         />
-        <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 border-t border-neutral-800 pt-4 text-sm sm:grid-cols-2">
+        <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 border-t border-[--line-1] pt-4 text-sm sm:grid-cols-2">
           <div>
-            <dt className="text-xs text-neutral-500">Created</dt>
-            <dd className="mt-0.5 text-neutral-200">
+            <dt className="text-xs text-[--ink-3]">Created</dt>
+            <dd className="mt-0.5 text-[--ink-1]">
               {initialDeal.createdAt.toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",
@@ -145,8 +145,8 @@ export default function DealDetailTop({ initialDeal, deleteButton }: Props) {
             </dd>
           </div>
           <div>
-            <dt className="text-xs text-neutral-500">Last updated</dt>
-            <dd className="mt-0.5 text-neutral-200">
+            <dt className="text-xs text-[--ink-3]">Last updated</dt>
+            <dd className="mt-0.5 text-[--ink-1]">
               {initialDeal.updatedAt.toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",

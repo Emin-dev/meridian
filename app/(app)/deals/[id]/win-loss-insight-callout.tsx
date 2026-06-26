@@ -54,7 +54,7 @@ export default function WinLossInsightCallout({ insight, stage, dealId }: Props)
           onClick={handleRefresh}
           disabled={isPending}
           title="Regenerate analysis"
-          className="shrink-0 rounded-lg px-2.5 py-1.5 text-xs text-neutral-400 hover:text-neutral-100 hover:bg-neutral-700/50 transition-colors disabled:opacity-40"
+          className="shrink-0 rounded-lg px-2.5 py-1.5 text-xs text-[--ink-2] hover:text-[--ink-1] hover:bg-[--surface-3] transition-colors disabled:opacity-40"
         >
           {isPending ? "Analysing…" : "↻ Refresh"}
         </button>

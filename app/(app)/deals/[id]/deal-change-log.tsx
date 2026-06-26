@@ -21,7 +21,7 @@ const FIELD_LABELS: Record<string, string> = {
 
 function EventValue({ v }: { v: string | null }) {
   if (v === null || v === "") {
-    return <em className="text-neutral-600 not-italic">—</em>;
+    return <em className="text-[--ink-3] not-italic">—</em>;
   }
   return <>{v}</>;
 }
@@ -44,7 +44,7 @@ export default async function DealChangeLog({ dealId }: Props) {
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-medium text-neutral-300">Change log</h3>
+      <h3 className="text-sm font-medium text-[--ink-2]">Change log</h3>
 
       {!db && (
         <p className="text-xs text-[--ink-3]">
@@ -63,21 +63,21 @@ export default async function DealChangeLog({ dealId }: Props) {
           {events.map((e) => (
             <li
               key={e.id}
-              className="rounded-lg bg-neutral-800/40 px-3 py-2.5 text-xs sm:flex sm:flex-wrap sm:items-center sm:gap-x-2 sm:gap-y-1 sm:py-2"
+              className="rounded-lg bg-[--surface-2] px-3 py-2.5 text-xs sm:flex sm:flex-wrap sm:items-center sm:gap-x-2 sm:gap-y-1 sm:py-2"
             >
-              <span className="block w-fit shrink-0 rounded bg-neutral-700 px-1.5 py-0.5 font-medium text-neutral-400">
+              <span className="block w-fit shrink-0 rounded bg-[--surface-3] px-1.5 py-0.5 font-medium text-[--ink-2]">
                 {FIELD_LABELS[e.field] ?? e.field}
               </span>
               <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 sm:mt-0 sm:contents">
-                <span className="text-neutral-500">
+                <span className="text-[--ink-3]">
                   <EventValue v={e.oldValue} />
                 </span>
-                <span className="text-neutral-600">→</span>
-                <span className="font-medium text-neutral-200">
+                <span className="text-[--ink-3]">→</span>
+                <span className="font-medium text-[--ink-1]">
                   <EventValue v={e.newValue} />
                 </span>
               </div>
-              <span className="mt-1.5 block whitespace-nowrap text-neutral-600 sm:mt-0 sm:ml-auto sm:shrink-0">
+              <span className="mt-1.5 block whitespace-nowrap text-[--ink-3] sm:mt-0 sm:ml-auto sm:shrink-0">
                 {formatTimestamp(e.changedAt)}
               </span>
             </li>
