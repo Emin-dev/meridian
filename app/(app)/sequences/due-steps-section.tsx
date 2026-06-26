@@ -49,7 +49,11 @@ export function DueStepsSection({ dueEnrollments, defaultOwnerName }: Props) {
   }
 
   return (
-    <div className="rounded-[var(--r-lg)] border border-[var(--warn-tint)] bg-[var(--surface-1)]">
+    <div className="card relative overflow-hidden">
+      <span
+        aria-hidden
+        className="absolute inset-y-0 left-0 w-1 bg-[var(--warn)]/40"
+      />
       {/* Responsive header */}
       <div className="flex flex-col gap-2 border-b border-[var(--line-1)] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">

@@ -6,7 +6,7 @@ const PipelineChart = dynamic(() => import("./pipeline-chart"), {
   ssr: false,
   loading: () => (
     <div className="rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)] p-5">
-      <p className="mb-4 text-sm font-medium text-[var(--ink-2)]">
+      <p className="mb-4 text-sm font-medium text-[var(--ink-1)]">
         Pipeline by Stage
       </p>
       <div className="flex h-[180px] items-center justify-center">

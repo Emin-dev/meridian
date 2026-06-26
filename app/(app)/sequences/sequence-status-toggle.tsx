@@ -22,7 +22,7 @@ export function SequenceStatusToggle({ id, status }: Props) {
     <button
       onClick={handleToggle}
       disabled={isPending}
-      className={`tap inline-flex items-center justify-center rounded-md px-3 text-xs font-medium transition-colors disabled:opacity-50 ${
+      className={`tap inline-flex items-center justify-center border border-[var(--line-1)] bg-[var(--surface-2)] rounded-[var(--r-md)] px-2.5 text-xs font-medium transition-colors disabled:opacity-50 ${
         status === "active"
           ? "text-[var(--warn)] hover:opacity-80"
           : "text-[var(--ok)] hover:opacity-80"

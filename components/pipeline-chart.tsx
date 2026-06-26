@@ -30,6 +30,7 @@ const TOKEN_FALLBACK: Record<string, string> = {
   "--accent": "#6d5cf5",
   "--ok": "#2dd4a7",
   "--ink-3": "#646b7a",
+  "--ink-2": "#9ba2b1",
 };
 
 const STAGE_LABELS: Record<string, string> = {
@@ -62,7 +63,7 @@ export default function PipelineChart({ data }: { data: StageData[] }) {
 
   return (
     <div className="h-full rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)] p-5">
-      <p className="mb-4 text-sm font-medium text-[var(--ink-2)]">
+      <p className="mb-4 text-sm font-medium text-[var(--ink-1)]">
         Pipeline by Stage
       </p>
       {!hasDeals ? (
@@ -77,15 +78,16 @@ export default function PipelineChart({ data }: { data: StageData[] }) {
           >
             <XAxis
               dataKey="name"
-              tick={{ fill: "#737373", fontSize: 11 }}
+              tick={{ fill: tokenColors["--ink-2"], fontSize: 11 }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
-              tick={{ fill: "#737373", fontSize: 11 }}
+              tick={{ fill: tokenColors["--ink-2"], fontSize: 11 }}
               axisLine={false}
               tickLine={false}
               allowDecimals={false}
+              domain={[0, "dataMax"]}
             />
             <Tooltip
               contentStyle={{
@@ -98,7 +100,7 @@ export default function PipelineChart({ data }: { data: StageData[] }) {
               formatter={(value) => [value, "Deals"]}
               cursor={{ fill: "rgba(255,255,255,0.04)" }}
             />
-            <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+            <Bar dataKey="count" radius={[4, 4, 0, 0]} minPointSize={2}>
               {chartData.map((entry) => (
                 <Cell
                   key={entry.stage}
