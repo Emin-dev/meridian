@@ -81,13 +81,13 @@ export default function KanbanCard({
       className={
         phoneMode
           ? "press rounded-[--r-lg] border border-[--line-1] bg-[--surface-1]"
-          : "rounded-lg border border-neutral-800 bg-neutral-800/50 transition-colors hover:border-neutral-700 hover:bg-neutral-800 cursor-grab active:cursor-grabbing"
+          : "rounded-lg border border-[--line-1] bg-[--surface-1] transition-colors hover:border-[--line-2] hover:bg-[--surface-2] cursor-grab active:cursor-grabbing"
       }
     >
       {/* Clickable card body → deal detail */}
       <Link href={`/deals/${deal.id}`} className="block p-3" draggable={false}>
         <div className="flex items-start justify-between gap-2">
-          <p className="text-sm font-medium text-neutral-100 leading-snug">
+          <p className="text-sm font-medium text-[--ink-1] leading-snug">
             {deal.title}
           </p>
           <span
@@ -106,8 +106,8 @@ export default function KanbanCard({
         )}
 
         {deal.contact && (
-          <div className="mt-2 flex items-center gap-1.5 text-xs text-neutral-500">
-            <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-neutral-700 text-[10px] font-medium text-neutral-300">
+          <div className="mt-2 flex items-center gap-1.5 text-xs text-[--ink-3]">
+            <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[--surface-3] text-[10px] font-medium text-[--ink-2]">
               {(deal.contact.name[0] ?? "?").toUpperCase()}
             </span>
             <span className="truncate">{deal.contact.name}</span>
@@ -115,7 +115,7 @@ export default function KanbanCard({
         )}
 
         {deal.owner && (
-          <div className="mt-1 flex items-center gap-1 text-xs text-neutral-600">
+          <div className="mt-1 flex items-center gap-1 text-xs text-[--ink-3]">
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
               <circle cx="12" cy="7" r="4" />
@@ -126,7 +126,7 @@ export default function KanbanCard({
       </Link>
 
       {/* Stage controls — outside the link */}
-      <div className="border-t border-neutral-700/50 px-3 pb-3 pt-2">
+      <div className="border-t border-[--line-1] px-3 pb-3 pt-2">
         {phoneMode ? (
           /* Phone mode: button that opens the board's bottom sheet */
           <button
@@ -141,16 +141,16 @@ export default function KanbanCard({
           </button>
         ) : pendingTerminal ? (
           <div className="space-y-1.5">
-            <p className="text-[11px] text-neutral-400">
+            <p className="text-[11px] text-[--ink-2]">
               Reason for{" "}
               <span
                 className={
-                  pendingTerminal === "won" ? "text-green-400" : "text-red-400"
+                  pendingTerminal === "won" ? "text-[--ok]" : "text-[--bad]"
                 }
               >
                 {pendingTerminal === "won" ? "Won" : "Lost"}
               </span>{" "}
-              <span className="text-neutral-600">(optional)</span>
+              <span className="text-[--ink-3]">(optional)</span>
             </p>
             <input
               type="text"
@@ -169,7 +169,7 @@ export default function KanbanCard({
                   setReason("");
                 }
               }}
-              className="w-full rounded border border-neutral-700 bg-neutral-900 px-2 py-1 text-xs text-neutral-200 placeholder-neutral-600 focus:border-neutral-500 focus:outline-none"
+              className="w-full rounded border border-[--line-1] bg-[--surface-2] px-2 py-1 text-xs text-[--ink-1] placeholder:text-[--ink-3] focus:border-[--accent] focus:outline-none"
             />
             <div className="flex gap-1.5">
               <button
@@ -177,8 +177,8 @@ export default function KanbanCard({
                 onClick={confirmTerminal}
                 className={`tap flex-1 rounded px-2 text-[11px] font-medium transition-colors ${
                   pendingTerminal === "won"
-                    ? "bg-green-700/70 hover:bg-green-600/80 text-green-100"
-                    : "bg-red-700/70 hover:bg-red-600/80 text-red-100"
+                    ? "bg-[--ok-tint] hover:opacity-80 text-[--ok]"
+                    : "bg-[--bad-tint] hover:opacity-80 text-[--bad]"
                 }`}
               >
                 Confirm {pendingTerminal === "won" ? "Won" : "Lost"}
@@ -189,7 +189,7 @@ export default function KanbanCard({
                   setPendingTerminal(null);
                   setReason("");
                 }}
-                className="tap rounded px-2 text-[11px] text-neutral-400 hover:bg-neutral-700 hover:text-neutral-200 transition-colors"
+                className="tap rounded px-2 text-[11px] text-[--ink-2] hover:bg-[--surface-2] hover:text-[--ink-1] transition-colors"
               >
                 Cancel
               </button>
@@ -199,7 +199,7 @@ export default function KanbanCard({
           <select
             value={deal.stage}
             onChange={handleStageChange}
-            className="w-full rounded border border-neutral-700 bg-neutral-900 px-2 py-1 text-xs text-neutral-300 focus:border-neutral-500 focus:outline-none cursor-pointer"
+            className="w-full rounded border border-[--line-1] bg-[--surface-2] px-2 py-1 text-xs text-[--ink-2] focus:border-[--accent] focus:outline-none cursor-pointer"
             aria-label="Move to stage"
           >
             {STAGES.map((s) => (

@@ -105,9 +105,9 @@ export default function DealModal({
     <>
       {/* Trigger: card (edit) or button (create) */}
       {isEdit ? (
-        <div className="rounded-lg border border-neutral-800 bg-neutral-800/50 p-3 transition-colors hover:border-neutral-700 hover:bg-neutral-800">
+        <div className="rounded-lg border border-[--line-1] bg-[--surface-1] p-3 transition-colors hover:border-[--line-2] hover:bg-[--surface-2]">
           <div className="flex items-start justify-between gap-2">
-            <p className="text-sm font-medium text-neutral-100 leading-snug">
+            <p className="text-sm font-medium text-[--ink-1] leading-snug">
               {deal.title}
             </p>
             <div className="flex shrink-0 items-center gap-1.5">
@@ -124,7 +124,7 @@ export default function DealModal({
               <button
                 type="button"
                 onClick={openModal}
-                className="shrink-0 rounded p-0.5 text-neutral-600 hover:bg-neutral-700 hover:text-neutral-300 transition-colors"
+                className="shrink-0 rounded p-0.5 text-[--ink-3] hover:bg-[--surface-2] hover:text-[--ink-2] transition-colors"
                 aria-label="Edit deal"
               >
                 <svg
@@ -151,16 +151,16 @@ export default function DealModal({
           {deal.contact && (
             <Link
               href={`/contacts/${deal.contact.id}`}
-              className="mt-2 flex items-center gap-1.5 text-xs text-neutral-500 hover:text-neutral-300 transition-colors"
+              className="mt-2 flex items-center gap-1.5 text-xs text-[--ink-3] hover:text-[--ink-2] transition-colors"
             >
-              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-neutral-700 text-[10px] font-medium text-neutral-300">
+              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[--surface-3] text-[10px] font-medium text-[--ink-2]">
                 {(deal.contact.name[0] ?? "?").toUpperCase()}
               </span>
               {deal.contact.name}
             </Link>
           )}
           {deal.expectedCloseDate && (
-            <p className="mt-1.5 text-xs text-neutral-600">
+            <p className="mt-1.5 text-xs text-[--ink-3]">
               Close:{" "}
               {new Date(deal.expectedCloseDate).toLocaleDateString("en-US", {
                 month: "short",
@@ -171,7 +171,7 @@ export default function DealModal({
           )}
           <Link
             href={`/deals/${deal.id}`}
-            className="mt-2 inline-block text-xs text-neutral-600 hover:text-[--accent] transition-colors"
+            className="mt-2 inline-block text-xs text-[--ink-3] hover:text-[--accent] transition-colors"
           >
             View details →
           </Link>
@@ -201,20 +201,20 @@ export default function DealModal({
           m-0 inset-x-0 bottom-0 top-auto
           w-full max-w-none rounded-t-[var(--r-2xl)]
           max-h-[90dvh] overflow-hidden flex flex-col
-          border border-neutral-800 bg-neutral-900 p-0 text-neutral-100 shadow-2xl
+          border border-[--line-1] bg-[--surface-1] p-0 text-[--ink-1] shadow-2xl
           backdrop:bg-black/60
           sm:m-auto sm:inset-0 sm:max-w-lg sm:w-full sm:rounded-xl
         "
       >
         {/* Header */}
-        <div className="shrink-0 flex items-center justify-between border-b border-neutral-800 px-6 py-4">
+        <div className="shrink-0 flex items-center justify-between border-b border-[--line-1] px-6 py-4">
           <h2 className="text-base font-semibold">
             {isEdit ? "Edit Deal" : "New Deal"}
           </h2>
           <button
             type="button"
             onClick={() => dialogRef.current?.close()}
-            className="tap flex items-center justify-center rounded-lg text-neutral-400 hover:bg-neutral-800 hover:text-neutral-100 transition-colors"
+            className="tap flex items-center justify-center rounded-lg text-[--ink-2] hover:bg-[--surface-2] hover:text-[--ink-1] transition-colors"
             aria-label="Close"
           >
             <svg
@@ -235,10 +235,10 @@ export default function DealModal({
         {/* No-DB state */}
         {noDb ? (
           <div className="flex-1 overflow-y-auto space-y-2 px-6 py-10 text-center">
-            <p className="text-sm text-neutral-300">Database not connected.</p>
-            <p className="text-xs text-neutral-500">
+            <p className="text-sm text-[--ink-2]">Database not connected.</p>
+            <p className="text-xs text-[--ink-3]">
               Set{" "}
-              <code className="rounded bg-neutral-800 px-1 py-0.5">
+              <code className="rounded bg-[--surface-3] px-1 py-0.5">
                 DATABASE_URL
               </code>{" "}
               to save deals.
@@ -246,7 +246,7 @@ export default function DealModal({
             <button
               type="button"
               onClick={() => dialogRef.current?.close()}
-              className="mt-4 rounded-lg bg-neutral-800 px-4 py-2 text-sm text-neutral-300 hover:bg-neutral-700"
+              className="mt-4 rounded-lg bg-[--surface-2] px-4 py-2 text-sm text-[--ink-2] hover:bg-[--surface-3]"
             >
               Close
             </button>
@@ -264,9 +264,9 @@ export default function DealModal({
               <div>
                 <label
                   htmlFor="dm-title"
-                  className="mb-1 block text-xs font-medium text-neutral-400"
+                  className="mb-1 block text-xs font-medium text-[--ink-2]"
                 >
-                  Title <span className="text-red-400">*</span>
+                  Title <span className="text-[--bad]">*</span>
                 </label>
                 <input
                   id="dm-title"
@@ -275,10 +275,10 @@ export default function DealModal({
                   required
                   placeholder="Acme Corp — Enterprise"
                   defaultValue={deal?.title ?? ""}
-                  className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-[--accent] focus:outline-none"
+                  className="w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] placeholder:text-[--ink-3] focus:border-[--accent] focus:outline-none"
                 />
                 {state.fieldErrors?.title && (
-                  <p className="mt-1 text-xs text-red-400">
+                  <p className="mt-1 text-xs text-[--bad]">
                     {state.fieldErrors.title[0]}
                   </p>
                 )}
@@ -288,7 +288,7 @@ export default function DealModal({
               <div>
                 <label
                   htmlFor="dm-stage"
-                  className="mb-1 block text-xs font-medium text-neutral-400"
+                  className="mb-1 block text-xs font-medium text-[--ink-2]"
                 >
                   Stage
                 </label>
@@ -296,7 +296,7 @@ export default function DealModal({
                   id="dm-stage"
                   name="stage"
                   defaultValue={deal?.stage ?? defaultStage}
-                  className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 focus:border-[--accent] focus:outline-none"
+                  className="w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] focus:border-[--accent] focus:outline-none"
                 >
                   {STAGES.map((s) => (
                     <option key={s.value} value={s.value}>
@@ -311,7 +311,7 @@ export default function DealModal({
                 <div>
                   <label
                     htmlFor="dm-value"
-                    className="mb-1 block text-xs font-medium text-neutral-400"
+                    className="mb-1 block text-xs font-medium text-[--ink-2]"
                   >
                     Value
                   </label>
@@ -323,13 +323,13 @@ export default function DealModal({
                     step="0.01"
                     placeholder="10000"
                     defaultValue={deal?.value ?? ""}
-                    className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-[--accent] focus:outline-none"
+                    className="w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] placeholder:text-[--ink-3] focus:border-[--accent] focus:outline-none"
                   />
                 </div>
                 <div>
                   <label
                     htmlFor="dm-currency"
-                    className="mb-1 block text-xs font-medium text-neutral-400"
+                    className="mb-1 block text-xs font-medium text-[--ink-2]"
                   >
                     Currency
                   </label>
@@ -337,7 +337,7 @@ export default function DealModal({
                     id="dm-currency"
                     name="currency"
                     defaultValue={deal?.currency ?? defaultCurrency}
-                    className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 focus:border-[--accent] focus:outline-none"
+                    className="w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] focus:border-[--accent] focus:outline-none"
                   >
                     {CURRENCIES.map((c) => (
                       <option key={c} value={c}>
@@ -352,7 +352,7 @@ export default function DealModal({
               <div>
                 <label
                   htmlFor="dm-close-date"
-                  className="mb-1 block text-xs font-medium text-neutral-400"
+                  className="mb-1 block text-xs font-medium text-[--ink-2]"
                 >
                   Expected Close Date
                 </label>
@@ -361,7 +361,7 @@ export default function DealModal({
                   name="expectedCloseDate"
                   type="date"
                   defaultValue={defaultDate}
-                  className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 focus:border-[--accent] focus:outline-none"
+                  className="w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] focus:border-[--accent] focus:outline-none"
                 />
               </div>
 
@@ -369,7 +369,7 @@ export default function DealModal({
               <div>
                 <label
                   htmlFor="dm-contact"
-                  className="mb-1 block text-xs font-medium text-neutral-400"
+                  className="mb-1 block text-xs font-medium text-[--ink-2]"
                 >
                   Contact
                 </label>
@@ -381,7 +381,7 @@ export default function DealModal({
                     defaultContactId?.toString() ??
                     ""
                   }
-                  className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 focus:border-[--accent] focus:outline-none"
+                  className="w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] focus:border-[--accent] focus:outline-none"
                 >
                   <option value="">— None —</option>
                   {contacts.map((c) => (
@@ -396,7 +396,7 @@ export default function DealModal({
               <div>
                 <label
                   htmlFor="dm-owner"
-                  className="mb-1 block text-xs font-medium text-neutral-400"
+                  className="mb-1 block text-xs font-medium text-[--ink-2]"
                 >
                   Owner
                 </label>
@@ -406,7 +406,7 @@ export default function DealModal({
                   type="text"
                   placeholder="Assigned rep"
                   defaultValue={deal?.owner ?? ""}
-                  className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-[--accent] focus:outline-none"
+                  className="w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] placeholder:text-[--ink-3] focus:border-[--accent] focus:outline-none"
                 />
               </div>
 
@@ -414,7 +414,7 @@ export default function DealModal({
               <div>
                 <label
                   htmlFor="dm-notes"
-                  className="mb-1 block text-xs font-medium text-neutral-400"
+                  className="mb-1 block text-xs font-medium text-[--ink-2]"
                 >
                   Notes
                 </label>
@@ -424,21 +424,21 @@ export default function DealModal({
                   rows={3}
                   placeholder="Any notes about this deal…"
                   defaultValue={extractUserNotes(deal?.notes ?? null) ?? ""}
-                  className="w-full resize-none rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-[--accent] focus:outline-none"
+                  className="w-full resize-none rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] placeholder:text-[--ink-3] focus:border-[--accent] focus:outline-none"
                 />
               </div>
 
               {state.error && (
-                <p className="text-xs text-red-400">{state.error}</p>
+                <p className="text-xs text-[--bad]">{state.error}</p>
               )}
             </div>
 
             {/* Sticky footer — pb absorbs iOS home indicator */}
-            <div className="shrink-0 flex justify-end gap-3 border-t border-neutral-800 px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+            <div className="shrink-0 flex justify-end gap-3 border-t border-[--line-1] px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
               <button
                 type="button"
                 onClick={() => dialogRef.current?.close()}
-                className="rounded-lg px-4 py-2 text-sm text-neutral-400 hover:bg-neutral-800 hover:text-neutral-100"
+                className="rounded-lg px-4 py-2 text-sm text-[--ink-2] hover:bg-[--surface-2] hover:text-[--ink-1]"
               >
                 Cancel
               </button>
