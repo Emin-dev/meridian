@@ -82,10 +82,14 @@ export async function updateStep(
   const db = getDb();
   if (!db) return { noDb: true };
 
-  await db
-    .update(schema.sequenceSteps)
-    .set({ subjectTemplate: subject, bodyTemplate: body, delayDays: delay })
-    .where(eq(schema.sequenceSteps.id, stepId));
+  try {
+    await db
+      .update(schema.sequenceSteps)
+      .set({ subjectTemplate: subject, bodyTemplate: body, delayDays: delay })
+      .where(eq(schema.sequenceSteps.id, stepId));
+  } catch {
+    return { error: "Couldn't update the step. Please try again." };
+  }
 
   revalidatePath(`/sequences/${sequenceId}`);
   return { success: true };
@@ -103,29 +107,33 @@ export async function deleteStep(
   const db = getDb();
   if (!db) return { error: "Database not connected." };
 
-  const [target] = await db
-    .select({ position: schema.sequenceSteps.position })
-    .from(schema.sequenceSteps)
-    .where(eq(schema.sequenceSteps.id, stepId))
-    .limit(1);
+  try {
+    const [target] = await db
+      .select({ position: schema.sequenceSteps.position })
+      .from(schema.sequenceSteps)
+      .where(eq(schema.sequenceSteps.id, stepId))
+      .limit(1);
 
-  if (!target) return {};
+    if (!target) return {};
 
-  await db
-    .delete(schema.sequenceSteps)
-    .where(eq(schema.sequenceSteps.id, stepId));
+    await db
+      .delete(schema.sequenceSteps)
+      .where(eq(schema.sequenceSteps.id, stepId));
 
-  // Close the gap: positions are kept contiguous (1..n), so shift every
-  // later step down by one in a single statement instead of N round-trips.
-  await db
-    .update(schema.sequenceSteps)
-    .set({ position: sql`${schema.sequenceSteps.position} - 1` })
-    .where(
-      and(
-        eq(schema.sequenceSteps.sequenceId, sequenceId),
-        gt(schema.sequenceSteps.position, target.position),
-      ),
-    );
+    // Close the gap: positions are kept contiguous (1..n), so shift every
+    // later step down by one in a single statement instead of N round-trips.
+    await db
+      .update(schema.sequenceSteps)
+      .set({ position: sql`${schema.sequenceSteps.position} - 1` })
+      .where(
+        and(
+          eq(schema.sequenceSteps.sequenceId, sequenceId),
+          gt(schema.sequenceSteps.position, target.position),
+        ),
+      );
+  } catch {
+    return { error: "Couldn't delete the step. Please try again." };
+  }
 
   revalidatePath(`/sequences/${sequenceId}`);
   return {};

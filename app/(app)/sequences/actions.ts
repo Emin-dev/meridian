@@ -52,25 +52,35 @@ export async function createSequence(
   const db = getDb();
   if (!db) return { noDb: true };
 
-  const [seq] = await db
-    .insert(schema.sequences)
-    .values({ name })
-    .returning({ id: schema.sequences.id });
-
   try {
-    await db.insert(schema.sequenceSteps).values(
-      steps.map((step, i) => ({
-        sequenceId: seq.id,
-        position: i + 1,
-        delayDays: step.delayDays,
-        subjectTemplate: step.subjectTemplate,
-        bodyTemplate: step.bodyTemplate,
-      }))
-    );
+    const [seq] = await db
+      .insert(schema.sequences)
+      .values({ name })
+      .returning({ id: schema.sequences.id });
+
+    if (!seq) return { error: "Couldn't create the sequence. Please try again." };
+
+    try {
+      await db.insert(schema.sequenceSteps).values(
+        steps.map((step, i) => ({
+          sequenceId: seq.id,
+          position: i + 1,
+          delayDays: step.delayDays,
+          subjectTemplate: step.subjectTemplate,
+          bodyTemplate: step.bodyTemplate,
+        }))
+      );
+    } catch {
+      // neon-http has no interactive transactions; roll back the orphan sequence by hand.
+      try {
+        await db.delete(schema.sequences).where(eq(schema.sequences.id, seq.id));
+      } catch {
+        // best-effort cleanup; surface the original failure regardless.
+      }
+      return { error: "Couldn't save the sequence steps. Please try again." };
+    }
   } catch {
-    // neon-http has no interactive transactions; roll back the orphan sequence by hand.
-    await db.delete(schema.sequences).where(eq(schema.sequences.id, seq.id));
-    return { error: "Couldn't save the sequence steps. Please try again." };
+    return { error: "Couldn't create the sequence. Please try again." };
   }
 
   revalidatePath("/sequences");
