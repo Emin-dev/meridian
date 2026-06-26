@@ -39,12 +39,17 @@ type ContactStatus = (typeof VALID_STATUSES)[number];
 const VALID_SORT_COLS = ["name", "company", "leadScore", "status", "createdAt"] as const;
 type SortColKey = (typeof VALID_SORT_COLS)[number];
 
+// Bound the contacts query so we never run an un-paginated full-table scan in
+// the request path. "Load more" grows the visible window one page at a time.
+const PAGE_SIZE = 50;
+const MAX_PAGE = 100;
+
 export default async function ContactsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; company?: string; minScore?: string; source?: string; tag?: string; unscored?: string; noActivity?: string; sort?: string; dir?: string; view?: string }>;
+  searchParams: Promise<{ status?: string; company?: string; minScore?: string; source?: string; tag?: string; unscored?: string; noActivity?: string; sort?: string; dir?: string; view?: string; page?: string }>;
 }) {
-  const { status, company, minScore, source, tag, unscored, noActivity, sort, dir, view } = await searchParams;
+  const { status, company, minScore, source, tag, unscored, noActivity, sort, dir, view, page } = await searchParams;
 
   const statusFilter =
     status && (VALID_STATUSES as readonly string[]).includes(status)
@@ -68,11 +73,18 @@ export default async function ContactsPage({
       : "createdAt";
   const sortDir = dir === "desc" ? "desc" : "asc";
 
+  const pageNum = Math.min(
+    Math.max(page && !isNaN(parseInt(page)) ? parseInt(page) : 1, 1),
+    MAX_PAGE,
+  );
+  const windowSize = pageNum * PAGE_SIZE;
+
   const db = getDb();
 
   let contacts: ContactListItem[] = [];
   let sequences: Sequence[] = [];
   let lastContactedMap: LastContactedMap = {};
+  let hasMore = false;
 
   if (db) {
     // "No activity in N days" → keep contacts that have NO activity dated on or
@@ -143,7 +155,9 @@ export default async function ContactsPage({
         })
         .from(schema.contacts)
         .where(whereClause)
-        .orderBy(orderByExpr),
+        .orderBy(orderByExpr)
+        // Fetch one extra row to detect whether another page exists.
+        .limit(windowSize + 1),
       db
         .select()
         .from(schema.sequences)
@@ -151,7 +165,8 @@ export default async function ContactsPage({
         .orderBy(schema.sequences.name),
     ]);
 
-    contacts = contactRows;
+    hasMore = contactRows.length > windowSize;
+    contacts = hasMore ? contactRows.slice(0, windowSize) : contactRows;
     sequences = sequenceRows;
 
     const visibleContactIds = contacts.map((c) => c.id);
@@ -285,6 +300,8 @@ export default async function ContactsPage({
           sort={sortColKey}
           dir={sortDir}
           view={view === "cards" ? "cards" : "table"}
+          page={pageNum}
+          hasMore={hasMore}
           allSearchParams={{
             ...(status ? { status } : {}),
             ...(company ? { company } : {}),

@@ -229,9 +229,11 @@ type Props = {
   dir: string;
   allSearchParams: Record<string, string>;
   view: ContactsView;
+  page: number;
+  hasMore: boolean;
 };
 
-export default function ContactsTable({ contacts, sequences, hasActiveFilters, lastContactedMap, hasDb, sort, dir, allSearchParams, view }: Props) {
+export default function ContactsTable({ contacts, sequences, hasActiveFilters, lastContactedMap, hasDb, sort, dir, allSearchParams, view, page, hasMore }: Props) {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [selectMode, setSelectMode] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -243,6 +245,16 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
   const [ownerInput, setOwnerInput] = useState("");
   const [feedback, setFeedback] = useState<{ msg: string; ok: boolean } | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  // "Load more" grows the visible window by one page, preserving the active
+  // filters, sort, and view. allSearchParams carries the filters; sort/dir/view
+  // are added back explicitly so the next page keeps the same ordering.
+  const loadMoreParams = new URLSearchParams(allSearchParams);
+  loadMoreParams.set("sort", sort);
+  loadMoreParams.set("dir", dir);
+  if (view === "cards") loadMoreParams.set("view", "cards");
+  loadMoreParams.set("page", String(page + 1));
+  const loadMoreHref = `/contacts?${loadMoreParams.toString()}`;
 
   const allIds = contacts.map((c) => c.id);
   const allSelected = selectedIds.size === allIds.length && allIds.length > 0;
@@ -683,6 +695,19 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
           </div>
         )}
       </div>
+
+      {/* Load more — bounded pagination; only shown when another page exists */}
+      {hasMore && (
+        <div className="flex justify-center">
+          <Link
+            href={loadMoreHref}
+            scroll={false}
+            className="tap flex items-center justify-center rounded-lg border border-[--line-1] bg-[--surface-1] px-5 text-sm font-medium text-[--ink-1] transition-colors hover:bg-[--surface-2]"
+          >
+            Load more
+          </Link>
+        </div>
+      )}
 
       {/* Mobile bulk-action sheet — mirrors the desktop bulk bar */}
       <MobileActionSheet
