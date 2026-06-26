@@ -533,15 +533,33 @@ export async function bulkScoreContacts(): Promise<BulkScoreState> {
     }
   }
 
+  // Score with a small fixed concurrency so the batch finishes far faster than
+  // the old one-at-a-time loop, while staying gentle on the DeepSeek API. A
+  // per-contact try/catch keeps a single failure from aborting the whole batch.
+  const CONCURRENCY = 4;
+  const database = db;
   let count = 0;
-  for (const contact of contactsToScore) {
-    const result = await scoreContactFromData(
-      db,
-      contact,
-      activitiesByContact.get(contact.id) ?? []
-    );
-    if (result.score !== undefined) count++;
+  let cursor = 0;
+
+  async function worker() {
+    while (cursor < contactsToScore.length) {
+      const contact = contactsToScore[cursor++];
+      try {
+        const result = await scoreContactFromData(
+          database,
+          contact,
+          activitiesByContact.get(contact.id) ?? []
+        );
+        if (result.score !== undefined) count++;
+      } catch {
+        // Skip this contact; keep scoring the rest of the batch.
+      }
+    }
   }
+
+  await Promise.all(
+    Array.from({ length: Math.min(CONCURRENCY, contactsToScore.length) }, () => worker())
+  );
 
   revalidatePath("/contacts");
   return { count };
