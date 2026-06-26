@@ -83,19 +83,26 @@ export async function loadDemoData(): Promise<{ error: string } | undefined> {
     return { error: "Database not connected. Set DATABASE_URL first." };
   }
 
-  const existing = await db
-    .select({ id: schema.contacts.id })
-    .from(schema.contacts)
-    .limit(1);
+  try {
+    const existing = await db
+      .select({ id: schema.contacts.id })
+      .from(schema.contacts)
+      .limit(1);
 
-  if (existing.length > 0) {
-    return {
-      error:
-        "Your workspace already has contacts. Remove existing data before loading the demo.",
-    };
+    if (existing.length > 0) {
+      return {
+        error:
+          "Your workspace already has contacts. Remove existing data before loading the demo.",
+      };
+    }
+
+    await insertDemoData(db);
+  } catch {
+    return { error: "Couldn't load the demo data. Please try again." };
   }
 
-  await insertDemoData(db);
   revalidatePath("/", "layout");
+  // redirect() throws internally — keep it outside the try so its control-flow
+  // signal isn't swallowed by the catch above.
   redirect("/dashboard");
 }
