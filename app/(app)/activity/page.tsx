@@ -40,7 +40,6 @@ export default async function ActivityPage({
     offsetParam && /^\d+$/.test(offsetParam)
       ? Math.max(0, parseInt(offsetParam, 10))
       : 0;
-  const limit = PAGE_SIZE + offset;
 
   const db = getDb();
 
@@ -108,7 +107,8 @@ export default async function ActivityPage({
       .leftJoin(schema.deals, eq(schema.activities.dealId, schema.deals.id))
       .where(whereClause)
       .orderBy(desc(schema.activities.createdAt))
-      .limit(limit),
+      .offset(offset)
+      .limit(PAGE_SIZE),
   ]);
 
   const total = Number(countResult[0]?.total ?? 0);
@@ -135,6 +135,7 @@ export default async function ActivityPage({
       {logCard}
       <ActivityListFiltered
         rows={serialized}
+        offset={offset}
         currentType={currentType}
         currentRange={currentRange}
         total={total}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -128,18 +128,50 @@ export type SerializedRow = {
 
 interface Props {
   rows: SerializedRow[];
+  offset: number;
   currentType: string;
   currentRange: string;
   total: number;
 }
 
-export default function ActivityListFiltered({ rows, currentType, currentRange, total }: Props) {
+export default function ActivityListFiltered({ rows, offset, currentType, currentRange, total }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [contactQuery, setContactQuery] = useState("");
   const [rangeSheetOpen, setRangeSheetOpen] = useState(false);
   // Mobile-only: which activity's full detail is open in the bottom sheet.
   const [detailRow, setDetailRow] = useState<SerializedRow | null>(null);
+
+  // The server now sends only the page at `offset` (bounded fetch). We
+  // accumulate pages client-side so "Load more" appends instead of replacing.
+  const [pages, setPages] = useState<SerializedRow[]>(rows);
+
+  // Stable signature of the incoming page — the merge effect only re-runs when
+  // the server page actually changes (navigation or revalidate), never per render.
+  const rowsSig = rows.map((r) => r.activity.id).join(",");
+
+  useEffect(() => {
+    setPages((prev) => {
+      // offset 0 is the head page: a filter change or revalidate replaces the list.
+      if (offset === 0) return rows;
+      const seen = new Set<number>();
+      const merged: SerializedRow[] = [];
+      for (const r of prev) {
+        if (!seen.has(r.activity.id)) {
+          seen.add(r.activity.id);
+          merged.push(r);
+        }
+      }
+      for (const r of rows) {
+        if (!seen.has(r.activity.id)) {
+          seen.add(r.activity.id);
+          merged.push(r);
+        }
+      }
+      return merged;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [offset, rowsSig]);
 
   const currentRangeLabel =
     RANGE_OPTIONS.find((o) => o.value === currentRange)?.label ?? "All time";
@@ -158,17 +190,17 @@ export default function ActivityListFiltered({ rows, currentType, currentRange, 
     const params = new URLSearchParams();
     if (currentType) params.set("type", currentType);
     if (currentRange) params.set("range", currentRange);
-    params.set("offset", String(rows.length));
+    params.set("offset", String(pages.length));
     startTransition(() => {
       router.push(`/activity?${params.toString()}`);
     });
   }
 
-  const hasMore = rows.length < total;
+  const hasMore = pages.length < total;
 
   const now = new Date();
 
-  const filtered = rows.filter(({ contactName }) => {
+  const filtered = pages.filter(({ contactName }) => {
     if (contactQuery.trim()) {
       const q = contactQuery.trim().toLowerCase();
       if (!contactName || !contactName.toLowerCase().includes(q)) return false;
@@ -176,9 +208,9 @@ export default function ActivityListFiltered({ rows, currentType, currentRange, 
     return true;
   });
 
-  const isClientFilterZero = rows.length > 0 && contactQuery.trim() !== "" && filtered.length === 0;
-  const isServerFilterZero = rows.length === 0 && !!(currentType || currentRange);
-  const isNoData = rows.length === 0 && !currentType && !currentRange;
+  const isClientFilterZero = pages.length > 0 && contactQuery.trim() !== "" && filtered.length === 0;
+  const isServerFilterZero = pages.length === 0 && !!(currentType || currentRange);
+  const isNoData = pages.length === 0 && !currentType && !currentRange;
 
   return (
     <div className="card overflow-hidden">
@@ -186,8 +218,8 @@ export default function ActivityListFiltered({ rows, currentType, currentRange, 
       <div className="flex flex-wrap items-center gap-2 border-b border-[--line-1] px-4 py-2">
         {total > 0 && (
           <span className="shrink-0 text-footnote text-[--ink-3]">
-            {rows.length < total
-              ? `${rows.length} of ${total}`
+            {pages.length < total
+              ? `${pages.length} of ${total}`
               : String(total)}{" "}
             {total === 1 ? "activity" : "activities"}
           </span>
@@ -517,7 +549,7 @@ export default function ActivityListFiltered({ rows, currentType, currentRange, 
                 disabled={isPending}
                 className="tap inline-flex items-center gap-2 rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-4 text-caption font-medium text-[--ink-2] transition-colors hover:text-[--ink-1] disabled:opacity-50"
               >
-                {isPending ? "Loading…" : `Load more (${total - rows.length} remaining)`}
+                {isPending ? "Loading…" : `Load more (${total - pages.length} remaining)`}
               </button>
             </div>
           )}
