@@ -52,13 +52,13 @@ export default function EnrichContactPanel({ contactId }: Props) {
   }
 
   const inputCls =
-    "w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-[--accent] focus:outline-none";
+    "w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] placeholder-[--ink-3] focus:border-[--accent] focus:outline-none";
   const textareaCls = `${inputCls} resize-none leading-relaxed`;
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-neutral-300">
+        <h3 className="text-sm font-medium text-[--ink-2]">
           AI contact enrichment
         </h3>
         <button
@@ -72,15 +72,15 @@ export default function EnrichContactPanel({ contactId }: Props) {
       </div>
 
       {result.noDb && (
-        <p className="text-xs text-neutral-400">
+        <p className="text-xs text-[--ink-2]">
           Database not connected — cannot load contact data.
         </p>
       )}
 
       {result.noKey && (
-        <p className="text-xs text-amber-400">
+        <p className="text-xs text-[--warn]">
           Set{" "}
-          <code className="rounded bg-neutral-800 px-1 py-0.5">
+          <code className="rounded bg-[--surface-2] px-1 py-0.5">
             DEEPSEEK_API_KEY
           </code>{" "}
           in your environment to enable AI contact enrichment.
@@ -88,18 +88,18 @@ export default function EnrichContactPanel({ contactId }: Props) {
       )}
 
       {result.error && (
-        <p className="text-xs text-red-400">{result.error}</p>
+        <p className="text-xs text-[--bad]">{result.error}</p>
       )}
 
       {hasResult ? (
         <div className="space-y-3">
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-[--ink-3]">
             Review the AI suggestions below, edit if needed, then apply.
           </p>
 
           <div className="space-y-2">
             <div>
-              <label className="mb-1 block text-xs text-neutral-400">
+              <label className="mb-1 block text-xs text-[--ink-2]">
                 Title
               </label>
               <input
@@ -113,7 +113,7 @@ export default function EnrichContactPanel({ contactId }: Props) {
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs text-neutral-400">
+              <label className="mb-1 block text-xs text-[--ink-2]">
                 Company
               </label>
               <input
@@ -127,7 +127,7 @@ export default function EnrichContactPanel({ contactId }: Props) {
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs text-neutral-400">
+              <label className="mb-1 block text-xs text-[--ink-2]">
                 Notes context
               </label>
               <textarea
@@ -143,15 +143,15 @@ export default function EnrichContactPanel({ contactId }: Props) {
           </div>
 
           {saveState.noDb && (
-            <p className="text-xs text-neutral-400">
+            <p className="text-xs text-[--ink-2]">
               Database not connected — cannot save changes.
             </p>
           )}
           {saveState.error && (
-            <p className="text-xs text-red-400">{saveState.error}</p>
+            <p className="text-xs text-[--bad]">{saveState.error}</p>
           )}
           {saveState.success && (
-            <p className="text-xs text-emerald-400">
+            <p className="text-xs text-[--ok]">
               Contact updated successfully.
             </p>
           )}
@@ -160,7 +160,7 @@ export default function EnrichContactPanel({ contactId }: Props) {
             type="button"
             onClick={handleSave}
             disabled={isSaving}
-            className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
+            className="rounded-lg bg-[--accent] px-3 py-1.5 text-xs font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
           >
             {isSaving ? "Applying…" : "Apply suggestions"}
           </button>
@@ -170,7 +170,7 @@ export default function EnrichContactPanel({ contactId }: Props) {
         !result.noKey &&
         !result.error &&
         !isPending && (
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-[--ink-3]">
             Click &ldquo;Enrich with AI&rdquo; to infer missing fields (title,
             company, notes) from this contact&apos;s name, email, and activity.
           </p>

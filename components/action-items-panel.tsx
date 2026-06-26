@@ -15,10 +15,10 @@ interface Props {
 }
 
 const TYPE_CHIP: Record<ActionItem["type"], string> = {
-  call:    "bg-blue-500/15 text-blue-400",
-  email:   "bg-violet-500/15 text-violet-400",
-  meeting: "bg-emerald-500/15 text-emerald-400",
-  task:    "bg-neutral-700 text-neutral-400",
+  call:    "bg-[--info-tint] text-[--info]",
+  email:   "bg-[--accent-tint] text-[--accent]",
+  meeting: "bg-[--ok-tint] text-[--ok]",
+  task:    "bg-[--surface-3] text-[--ink-2]",
 };
 
 export default function ActionItemsPanel({ contactId, dealId }: Props) {
@@ -67,7 +67,7 @@ export default function ActionItemsPanel({ contactId, dealId }: Props) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3">
-        <h3 className="text-sm font-medium text-neutral-300">Action items</h3>
+        <h3 className="text-sm font-medium text-[--ink-2]">Action items</h3>
         <button
           type="button"
           onClick={handleExtract}
@@ -79,15 +79,15 @@ export default function ActionItemsPanel({ contactId, dealId }: Props) {
       </div>
 
       {state.noDb && (
-        <p className="text-xs text-neutral-400">
+        <p className="text-xs text-[--ink-2]">
           Database not connected — cannot load data.
         </p>
       )}
 
       {state.noKey && (
-        <p className="text-xs text-amber-400">
+        <p className="text-xs text-[--warn]">
           Set{" "}
-          <code className="rounded bg-neutral-800 px-1 py-0.5">
+          <code className="rounded bg-[--surface-2] px-1 py-0.5">
             DEEPSEEK_API_KEY
           </code>{" "}
           in your environment to enable AI extraction.
@@ -95,12 +95,12 @@ export default function ActionItemsPanel({ contactId, dealId }: Props) {
       )}
 
       {state.error && (
-        <p className="text-xs text-red-400">{state.error}</p>
+        <p className="text-xs text-[--bad]">{state.error}</p>
       )}
 
       {hasItems ? (
         state.items!.length === 0 ? (
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-[--ink-3]">
             No concrete action items found in the current notes and activity.
           </p>
         ) : (
@@ -118,12 +118,12 @@ export default function ActionItemsPanel({ contactId, dealId }: Props) {
                       >
                         {item.type}
                       </span>
-                      <p className="text-sm text-neutral-200 leading-snug">
+                      <p className="text-sm text-[--ink-1] leading-snug">
                         {item.title}
                       </p>
                     </div>
                     {item.rationale && (
-                      <p className="text-xs text-neutral-500 leading-relaxed">
+                      <p className="text-xs text-[--ink-3] leading-relaxed">
                         {item.rationale}
                       </p>
                     )}
@@ -138,7 +138,7 @@ export default function ActionItemsPanel({ contactId, dealId }: Props) {
                       type="button"
                       onClick={() => handleCreateTask(item, i)}
                       disabled={saving.has(i)}
-                      className="tap shrink-0 rounded-md border border-[--line-1] bg-[--surface-1] px-2.5 py-1 text-xs font-medium text-neutral-300 hover:border-[--line-2] hover:text-white transition-colors disabled:opacity-50"
+                      className="tap shrink-0 rounded-md border border-[--line-1] bg-[--surface-1] px-2.5 py-1 text-xs font-medium text-[--ink-2] hover:border-[--line-2] hover:text-[--ink-1] transition-colors disabled:opacity-50"
                     >
                       {saving.has(i) ? "…" : "Create task"}
                     </button>
@@ -153,7 +153,7 @@ export default function ActionItemsPanel({ contactId, dealId }: Props) {
         !state.noKey &&
         !state.error &&
         !isPending && (
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-[--ink-3]">
             Click &ldquo;Extract&rdquo; to scan notes and recent activity for
             concrete follow-up items.
           </p>

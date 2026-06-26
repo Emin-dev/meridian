@@ -13,18 +13,18 @@ const RISK_META: Record<
 > = {
   low: {
     label: "Low risk",
-    badge: "bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/30",
-    dot: "bg-emerald-400",
+    badge: "bg-[--ok-tint] text-[--ok] ring-1 ring-[--ok]/30",
+    dot: "bg-[--ok]",
   },
   medium: {
     label: "Medium risk",
-    badge: "bg-amber-500/15 text-amber-400 ring-1 ring-amber-500/30",
-    dot: "bg-amber-400",
+    badge: "bg-[--warn-tint] text-[--warn] ring-1 ring-[--warn]/30",
+    dot: "bg-[--warn]",
   },
   high: {
     label: "High risk",
-    badge: "bg-red-500/15 text-red-400 ring-1 ring-red-500/30",
-    dot: "bg-red-400",
+    badge: "bg-[--bad-tint] text-[--bad] ring-1 ring-[--bad]/30",
+    dot: "bg-[--bad]",
   },
 };
 
@@ -44,7 +44,7 @@ export default function DealRiskPanel({ dealId }: Props) {
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="min-w-0 text-sm font-medium text-neutral-300">
+        <h3 className="min-w-0 text-sm font-medium text-[--ink-2]">
           Deal risk &amp; next step
         </h3>
         <button
@@ -58,20 +58,20 @@ export default function DealRiskPanel({ dealId }: Props) {
       </div>
 
       {result.noDb && (
-        <p className="text-xs text-neutral-400">
+        <p className="text-xs text-[--ink-2]">
           Database not connected — cannot load deal data.
         </p>
       )}
 
       {result.noKey && (
-        <p className="text-xs text-amber-400">
+        <p className="text-xs text-[--warn]">
           Set{" "}
-          <code className="rounded bg-neutral-800 px-1 py-0.5">DEEPSEEK_API_KEY</code>{" "}
+          <code className="rounded bg-[--surface-2] px-1 py-0.5">DEEPSEEK_API_KEY</code>{" "}
           in your environment to enable AI risk assessment.
         </p>
       )}
 
-      {result.error && <p className="text-xs text-red-400">{result.error}</p>}
+      {result.error && <p className="text-xs text-[--bad]">{result.error}</p>}
 
       {hasResult ? (
         <div className="space-y-3">
@@ -88,7 +88,7 @@ export default function DealRiskPanel({ dealId }: Props) {
           )}
 
           {result.reason && (
-            <p className="text-sm leading-relaxed text-neutral-300">
+            <p className="text-sm leading-relaxed text-[--ink-2]">
               {result.reason}
             </p>
           )}
@@ -97,7 +97,7 @@ export default function DealRiskPanel({ dealId }: Props) {
             <div className="flex items-start gap-3 rounded-lg border border-[--accent]/30 bg-[--accent-tint] px-4 py-3">
               <span className="mt-0.5 shrink-0 text-[--accent]">→</span>
               <div className="min-w-0 space-y-0.5">
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-neutral-500">
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-[--ink-3]">
                   Next step
                 </p>
                 <p className="text-sm font-medium text-[--accent]">
@@ -112,7 +112,7 @@ export default function DealRiskPanel({ dealId }: Props) {
         !result.noKey &&
         !result.error &&
         !isPending && (
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-[--ink-3]">
             Click &ldquo;Assess risk&rdquo; for an AI read on this deal&apos;s risk
             level, the main reason, and the next step to take — based on its stage,
             value, close date, and recent activity.

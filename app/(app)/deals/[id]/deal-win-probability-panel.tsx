@@ -9,9 +9,9 @@ interface Props {
 }
 
 function scoreBadgeClass(score: number): string {
-  if (score >= 70) return "bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/30";
-  if (score >= 40) return "bg-amber-500/20 text-amber-400 ring-1 ring-amber-500/30";
-  return "bg-red-500/20 text-red-400 ring-1 ring-red-500/30";
+  if (score >= 70) return "bg-[--ok-tint] text-[--ok] ring-1 ring-[--ok]/30";
+  if (score >= 40) return "bg-[--warn-tint] text-[--warn] ring-1 ring-[--warn]/30";
+  return "bg-[--bad-tint] text-[--bad] ring-1 ring-[--bad]/30";
 }
 
 export default function DealWinProbabilityPanel({ dealId, initialScore }: Props) {
@@ -33,7 +33,7 @@ export default function DealWinProbabilityPanel({ dealId, initialScore }: Props)
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h3 className="text-sm font-medium text-neutral-300">AI score</h3>
+          <h3 className="text-sm font-medium text-[--ink-2]">AI score</h3>
           {hasScore && (
             <span
               className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums ${scoreBadgeClass(result.score!)}`}
@@ -54,29 +54,29 @@ export default function DealWinProbabilityPanel({ dealId, initialScore }: Props)
       </div>
 
       {result.noDb && (
-        <p className="text-xs text-neutral-400">
+        <p className="text-xs text-[--ink-2]">
           Database not connected — cannot load deal data.
         </p>
       )}
 
       {result.noKey && (
-        <p className="text-xs text-amber-400">
+        <p className="text-xs text-[--warn]">
           Set{" "}
-          <code className="rounded bg-neutral-800 px-1 py-0.5">DEEPSEEK_API_KEY</code>{" "}
+          <code className="rounded bg-[--surface-2] px-1 py-0.5">DEEPSEEK_API_KEY</code>{" "}
           in your environment to enable AI scoring.
         </p>
       )}
 
-      {result.error && <p className="text-xs text-red-400">{result.error}</p>}
+      {result.error && <p className="text-xs text-[--bad]">{result.error}</p>}
 
       {hasScore && result.reasoning ? (
-        <p className="text-sm text-neutral-300 leading-relaxed">{result.reasoning}</p>
+        <p className="text-sm text-[--ink-2] leading-relaxed">{result.reasoning}</p>
       ) : (
         !result.noDb &&
         !result.noKey &&
         !result.error &&
         !isPending && (
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-[--ink-3]">
             Click &ldquo;Score deal&rdquo; to generate an AI-powered 0–100 win-probability
             estimate based on this deal&apos;s stage, value, close date, and linked contact.
           </p>

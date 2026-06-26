@@ -12,9 +12,9 @@ interface Props {
 }
 
 const PRIORITY_STYLES = {
-  high: "bg-red-500/15 text-red-400 ring-1 ring-red-500/30",
-  medium: "bg-amber-500/15 text-amber-400 ring-1 ring-amber-500/30",
-  low: "bg-neutral-700 text-neutral-400 ring-1 ring-neutral-600",
+  high: "bg-[--bad-tint] text-[--bad] ring-1 ring-[--bad]/30",
+  medium: "bg-[--warn-tint] text-[--warn] ring-1 ring-[--warn]/30",
+  low: "bg-[--surface-3] text-[--ink-2] ring-1 ring-[--line-2]",
 };
 
 // Rehydrate the last cached suggestion (stored as JSON text on the deal row)
@@ -102,7 +102,7 @@ export default function DealNextActionPanel({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-neutral-300">Next best action</h3>
+        <h3 className="text-sm font-medium text-[--ink-2]">Next best action</h3>
         <button
           type="button"
           onClick={handleSuggest}
@@ -114,21 +114,21 @@ export default function DealNextActionPanel({
       </div>
 
       {result.noDb && (
-        <p className="text-xs text-neutral-400">
+        <p className="text-xs text-[--ink-2]">
           Database not connected — cannot load deal data.
         </p>
       )}
 
       {result.noKey && (
-        <p className="text-xs text-amber-400">
+        <p className="text-xs text-[--warn]">
           Set{" "}
-          <code className="rounded bg-neutral-800 px-1 py-0.5">DEEPSEEK_API_KEY</code>{" "}
+          <code className="rounded bg-[--surface-2] px-1 py-0.5">DEEPSEEK_API_KEY</code>{" "}
           in your environment to enable AI suggestions.
         </p>
       )}
 
       {result.error && (
-        <p className="text-xs text-red-400">{result.error}</p>
+        <p className="text-xs text-[--bad]">{result.error}</p>
       )}
 
       {hasResult ? (
@@ -152,17 +152,17 @@ export default function DealNextActionPanel({
             type="button"
             onClick={handleLogAsTask}
             disabled={isLogging}
-            className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-xs font-medium text-neutral-300 transition-colors hover:border-neutral-600 hover:bg-neutral-700 hover:text-white disabled:opacity-50"
+            className="w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-xs font-medium text-[--ink-2] transition-colors hover:border-[--line-2] hover:bg-[--surface-3] hover:text-[--ink-1] disabled:opacity-50"
           >
             {isLogging ? "Saving…" : "Save as task"}
           </button>
 
           {result.rationale && (
-            <p className="text-xs text-neutral-400 leading-relaxed">{result.rationale}</p>
+            <p className="text-xs text-[--ink-2] leading-relaxed">{result.rationale}</p>
           )}
 
           {result.suggestedAt && (
-            <p className="text-[11px] text-neutral-500">
+            <p className="text-[11px] text-[--ink-3]">
               Cached suggestion from{" "}
               {new Date(result.suggestedAt).toLocaleString(undefined, {
                 dateStyle: "medium",
@@ -175,16 +175,16 @@ export default function DealNextActionPanel({
           {result.suggestedMessage && (
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-medium text-neutral-500">Suggested message</p>
+                <p className="text-xs font-medium text-[--ink-3]">Suggested message</p>
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className="text-[10px] text-neutral-500 hover:text-neutral-300 transition-colors"
+                  className="text-[10px] text-[--ink-3] hover:text-[--ink-1] transition-colors"
                 >
                   {copied ? "Copied!" : "Copy"}
                 </button>
               </div>
-              <pre className="whitespace-pre-wrap rounded-lg border border-neutral-800 bg-neutral-950 px-4 py-3 text-xs text-neutral-300 leading-relaxed font-sans">
+              <pre className="whitespace-pre-wrap rounded-lg border border-[--line-1] bg-[--bg] px-4 py-3 text-xs text-[--ink-2] leading-relaxed font-sans">
                 {result.suggestedMessage}
               </pre>
             </div>
@@ -195,7 +195,7 @@ export default function DealNextActionPanel({
         !result.noKey &&
         !result.error &&
         !isPending && (
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-[--ink-3]">
             Click &ldquo;Suggest action&rdquo; to get an AI-recommended next step based on this
             deal&apos;s stage, value, and recent activity.
           </p>
