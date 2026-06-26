@@ -62,7 +62,7 @@ export default function EnrollSequenceModal({
       <button
         type="button"
         onClick={openModal}
-        className="rounded-lg border border-[var(--line-1)] px-4 py-2 text-sm font-medium text-[var(--ink-2)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)]"
+        className="tap inline-flex items-center justify-center rounded-lg border border-[var(--line-1)] px-4 text-sm font-medium text-[var(--ink-2)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)]"
       >
         Enroll in sequence
       </button>
@@ -88,7 +88,7 @@ export default function EnrollSequenceModal({
           <button
             type="button"
             onClick={() => dialogRef.current?.close()}
-            className="rounded-md p-1 text-[var(--ink-2)] hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)]"
+            className="tap inline-flex items-center justify-center rounded-md text-[var(--ink-2)] hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)]"
             aria-label="Close"
           >
             <svg
@@ -143,7 +143,7 @@ export default function EnrollSequenceModal({
                           type="button"
                           onClick={() => handleEnroll(seq.id)}
                           disabled={isEnrolling || isPending}
-                          className="rounded-lg bg-[--accent] px-3 py-1.5 text-xs font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
+                          className="tap inline-flex items-center justify-center rounded-lg bg-[--accent] px-3 text-xs font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
                         >
                           {isEnrolling ? "Enrolling…" : "Enroll"}
                         </button>
@@ -160,7 +160,7 @@ export default function EnrollSequenceModal({
           <button
             type="button"
             onClick={() => dialogRef.current?.close()}
-            className="rounded-lg px-4 py-2 text-sm text-[var(--ink-2)] hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)]"
+            className="tap inline-flex items-center justify-center rounded-lg px-4 text-sm text-[var(--ink-2)] hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)]"
           >
             Done
           </button>
@@ -190,7 +190,7 @@ export function CancelEnrollmentButton({
       type="button"
       onClick={handleCancel}
       disabled={isPending}
-      className="rounded-lg px-3 py-1.5 text-xs font-medium text-[var(--ink-2)] transition-colors hover:bg-[--bad-tint] hover:text-[--bad] disabled:opacity-50"
+      className="tap inline-flex items-center justify-center rounded-lg px-3 text-xs font-medium text-[var(--ink-2)] transition-colors hover:bg-[--bad-tint] hover:text-[--bad] disabled:opacity-50"
     >
       {isPending ? "Cancelling…" : "Cancel"}
     </button>

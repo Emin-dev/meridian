@@ -32,7 +32,7 @@ export default function SummarizePanel({ contactId, initialSummary, initialSumma
           type="button"
           onClick={handleSummarize}
           disabled={isPending}
-          className="rounded-lg bg-[--accent] px-3 py-1.5 text-xs font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
+          className="tap inline-flex items-center justify-center rounded-lg bg-[--accent] px-3 text-xs font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
         >
           {isPending ? "Summarising…" : result.summary ? "Regenerate" : "Summarise"}
         </button>
@@ -58,7 +58,7 @@ export default function SummarizePanel({ contactId, initialSummary, initialSumma
             {result.summary}
           </p>
           {result.summaryAt && (
-            <p className="text-[11px] text-[--ink-3]">
+            <p className="text-caption text-[--ink-3]">
               Cached brief from{" "}
               {new Date(result.summaryAt).toLocaleString(undefined, {
                 dateStyle: "medium",

@@ -53,7 +53,7 @@ export default function EnrichContactPanel({ contactId }: Props) {
   }
 
   const inputCls =
-    "w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] placeholder-[--ink-3] focus:border-[--accent] focus:outline-none";
+    "tap w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] placeholder-[--ink-3] focus:border-[--accent] focus:outline-none";
   const textareaCls = `${inputCls} resize-none leading-relaxed`;
 
   return (
@@ -66,7 +66,7 @@ export default function EnrichContactPanel({ contactId }: Props) {
           type="button"
           onClick={handleEnrich}
           disabled={isPending}
-          className="rounded-lg bg-[--accent] px-3 py-1.5 text-xs font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
+          className="tap inline-flex items-center justify-center rounded-lg bg-[--accent] px-3 text-xs font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
         >
           {isPending ? "Enriching…" : hasResult ? "Re-enrich" : "Enrich with AI"}
         </button>
@@ -156,7 +156,7 @@ export default function EnrichContactPanel({ contactId }: Props) {
             type="button"
             onClick={handleSave}
             disabled={isSaving}
-            className="rounded-lg bg-[--accent] px-3 py-1.5 text-xs font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
+            className="tap inline-flex items-center justify-center rounded-lg bg-[--accent] px-3 text-xs font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
           >
             {isSaving ? "Applying…" : "Apply suggestions"}
           </button>

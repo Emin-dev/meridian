@@ -33,7 +33,7 @@ export default function EditContactForm({ contact, onSaved, onRollback }: Props)
   >({});
 
   const inputCls =
-    "w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] placeholder:text-[--ink-3] focus:border-[--accent] focus:outline-none";
+    "tap w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] placeholder:text-[--ink-3] focus:border-[--accent] focus:outline-none";
   const labelCls = "mb-1 block text-xs font-medium text-[--ink-2]";
 
   async function handleDelete() {
@@ -243,18 +243,18 @@ export default function EditContactForm({ contact, onSaved, onRollback }: Props)
       </div>
 
       {/* Actions */}
-      <div className="flex items-center justify-between pt-2">
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
         <button
           type="button"
           onClick={handleDelete}
-          className="rounded-lg border border-[--bad]/40 px-4 py-2 text-sm text-[--bad] transition-colors hover:bg-[--bad-tint] hover:text-[--bad]"
+          className="tap inline-flex items-center justify-center rounded-lg border border-[--bad]/40 px-4 text-sm text-[--bad] transition-colors hover:bg-[--bad-tint] hover:text-[--bad]"
         >
           Delete contact
         </button>
         <button
           type="submit"
           disabled={pending}
-          className="rounded-lg bg-[--accent] px-4 py-2 text-sm font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
+          className="tap inline-flex items-center justify-center rounded-lg bg-[--accent] px-4 text-sm font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
         >
           {pending ? "Saving…" : "Save changes"}
         </button>
