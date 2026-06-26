@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { gte } from "drizzle-orm";
+import { and, eq, gte, isNotNull, notInArray, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 
 const CONTACT_STATUSES = [
@@ -68,53 +68,145 @@ export default async function AnalyticsBody({ days }: { days: string }) {
     : null;
 
   const db = getDb();
+  const dealWhere = since ? gte(schema.deals.createdAt, since) : undefined;
+  const contactWhere = since ? gte(schema.contacts.createdAt, since) : undefined;
 
-  const deals = db
-    ? await db.query.deals.findMany({
-        columns: {
-          stage: true,
-          value: true,
-          probability: true,
-          expectedCloseDate: true,
-          createdAt: true,
-          updatedAt: true,
-        },
-        where: since ? gte(schema.deals.createdAt, since) : undefined,
-      })
+  // ── Stage funnel + summary aggregates (one GROUP BY over deals) ───────────────
+  // count(value) is the non-null value count, used for the avg-won-deal figure.
+  const stageAgg = db
+    ? await db
+        .select({
+          stage: schema.deals.stage,
+          count: sql<number>`count(*)::int`,
+          value: sql<number>`coalesce(sum(${schema.deals.value}), 0)::float8`,
+          valueCount: sql<number>`count(${schema.deals.value})::int`,
+        })
+        .from(schema.deals)
+        .where(dealWhere)
+        .groupBy(schema.deals.stage)
     : [];
 
-  const contacts = db
-    ? await db.query.contacts.findMany({
-        columns: { status: true, source: true },
-        where: since ? gte(schema.contacts.createdAt, since) : undefined,
-      })
+  // ── Avg days to close (createdAt → updatedAt) for won deals ───────────────────
+  const closeAgg = db
+    ? await db
+        .select({
+          avgDays: sql<
+            number | null
+          >`avg(extract(epoch from (${schema.deals.updatedAt} - ${schema.deals.createdAt})) / 86400.0)::float8`,
+        })
+        .from(schema.deals)
+        .where(and(eq(schema.deals.stage, "won"), dealWhere))
     : [];
+
+  // ── Pipeline forecast: open-deal value by expected-close month ────────────────
+  const forecastAgg = db
+    ? await db
+        .select({
+          year: sql<number>`extract(year from ${schema.deals.expectedCloseDate})::int`,
+          month: sql<number>`extract(month from ${schema.deals.expectedCloseDate})::int - 1`,
+          raw: sql<number>`coalesce(sum(${schema.deals.value}), 0)::float8`,
+          weighted: sql<number>`coalesce(sum(${schema.deals.value} * ${schema.deals.probability} / 100.0), 0)::float8`,
+        })
+        .from(schema.deals)
+        .where(
+          and(
+            dealWhere,
+            notInArray(schema.deals.stage, ["won", "lost"]),
+            isNotNull(schema.deals.value),
+            isNotNull(schema.deals.expectedCloseDate)
+          )
+        )
+        .groupBy(
+          sql`extract(year from ${schema.deals.expectedCloseDate})::int`,
+          sql`extract(month from ${schema.deals.expectedCloseDate})::int - 1`
+        )
+    : [];
+
+  // ── Won deals per month (by updatedAt) ────────────────────────────────────────
+  const wonMonthAgg = db
+    ? await db
+        .select({
+          year: sql<number>`extract(year from ${schema.deals.updatedAt})::int`,
+          month: sql<number>`extract(month from ${schema.deals.updatedAt})::int - 1`,
+          count: sql<number>`count(*)::int`,
+        })
+        .from(schema.deals)
+        .where(
+          and(
+            eq(schema.deals.stage, "won"),
+            dealWhere,
+            since ? gte(schema.deals.updatedAt, since) : undefined
+          )
+        )
+        .groupBy(
+          sql`extract(year from ${schema.deals.updatedAt})::int`,
+          sql`extract(month from ${schema.deals.updatedAt})::int - 1`
+        )
+    : [];
+
+  // ── Contact status distribution ───────────────────────────────────────────────
+  const statusAgg = db
+    ? await db
+        .select({
+          status: schema.contacts.status,
+          count: sql<number>`count(*)::int`,
+        })
+        .from(schema.contacts)
+        .where(contactWhere)
+        .groupBy(schema.contacts.status)
+    : [];
+
+  // ── Contact source breakdown ──────────────────────────────────────────────────
+  const sourceAgg = db
+    ? await db
+        .select({
+          source: schema.contacts.source,
+          count: sql<number>`count(*)::int`,
+        })
+        .from(schema.contacts)
+        .where(contactWhere)
+        .groupBy(schema.contacts.source)
+    : [];
+
+  // ── Derive per-stage maps + total ─────────────────────────────────────────────
+  const stageCount: Record<string, number> = {};
+  const stageValue: Record<string, number> = {};
+  const stageValueCount: Record<string, number> = {};
+  let totalDeals = 0;
+  for (const r of stageAgg) {
+    totalDeals += r.count;
+    if (!r.stage) continue;
+    stageCount[r.stage] = r.count;
+    stageValue[r.stage] = r.value;
+    stageValueCount[r.stage] = r.valueCount;
+  }
 
   // ── Summary stats ────────────────────────────────────────────────────────────
-  const wonDeals = deals.filter((d) => d.stage === "won");
-  const lostDeals = deals.filter((d) => d.stage === "lost");
-  const closedCount = wonDeals.length + lostDeals.length;
-  const winRate =
-    closedCount > 0 ? (wonDeals.length / closedCount) * 100 : null;
+  const wonCount = stageCount["won"] ?? 0;
+  const lostCount = stageCount["lost"] ?? 0;
+  const closedCount = wonCount + lostCount;
+  const winRate = closedCount > 0 ? (wonCount / closedCount) * 100 : null;
 
-  const wonWithValue = wonDeals.filter(
-    (d) => d.value !== null && d.value !== undefined
-  );
+  const wonWithValueCount = stageValueCount["won"] ?? 0;
   const avgWonValue =
-    wonWithValue.length > 0
-      ? wonWithValue.reduce((sum, d) => sum + parseFloat(d.value!), 0) /
-        wonWithValue.length
-      : null;
+    wonWithValueCount > 0 ? (stageValue["won"] ?? 0) / wonWithValueCount : null;
 
-  const activeDeals = deals.filter(
-    (d) => d.stage !== "won" && d.stage !== "lost"
+  const ACTIVE_STAGES = ["lead", "qualified", "proposal", "negotiation"] as const;
+  const totalPipeline = ACTIVE_STAGES.reduce(
+    (sum, k) => sum + (stageValue[k] ?? 0),
+    0
   );
-  const totalPipeline = activeDeals
-    .filter((d) => d.value !== null && d.value !== undefined)
-    .reduce((sum, d) => sum + parseFloat(d.value!), 0);
+  const activeDealsCount = ACTIVE_STAGES.reduce(
+    (sum, k) => sum + (stageCount[k] ?? 0),
+    0
+  );
+
+  const avgDaysToClose =
+    closeAgg[0]?.avgDays != null ? Number(closeAgg[0].avgDays) : null;
+
+  const now = new Date();
 
   // ── Pipeline forecast (next 6 months by expectedCloseDate) ─────────────────
-  const now = new Date();
   const forecastMonths = Array.from({ length: 6 }, (_, i) => {
     const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
     return {
@@ -125,30 +217,16 @@ export default async function AnalyticsBody({ days }: { days: string }) {
       weighted: 0,
     };
   });
-  for (const deal of activeDeals) {
-    if (!deal.expectedCloseDate || deal.value === null || deal.value === undefined)
-      continue;
-    const y = deal.expectedCloseDate.getFullYear();
-    const m = deal.expectedCloseDate.getMonth();
-    const bucket = forecastMonths.find((b) => b.year === y && b.month === m);
+  for (const row of forecastAgg) {
+    const bucket = forecastMonths.find(
+      (b) => b.year === row.year && b.month === row.month
+    );
     if (!bucket) continue;
-    const val = parseFloat(deal.value);
-    bucket.raw += val;
-    bucket.weighted += val * ((deal.probability ?? 10) / 100);
+    bucket.raw += row.raw;
+    bucket.weighted += row.weighted;
   }
   const maxForecastVal = Math.max(...forecastMonths.map((b) => b.raw), 1);
   const hasForecastData = forecastMonths.some((b) => b.raw > 0);
-
-  // Average days to close: createdAt → updatedAt for won deals
-  const MS_PER_DAY = 1000 * 60 * 60 * 24;
-  const avgDaysToClose =
-    wonDeals.length > 0
-      ? wonDeals.reduce((sum, d) => {
-          const closeDays =
-            (d.updatedAt.getTime() - d.createdAt.getTime()) / MS_PER_DAY;
-          return sum + closeDays;
-        }, 0) / wonDeals.length
-      : null;
 
   // ── Won deals per month ───────────────────────────────────────────────────────
   const closedChartMonths = since
@@ -176,39 +254,46 @@ export default async function AnalyticsBody({ days }: { days: string }) {
       count: 0,
     };
   });
-  const wonDealsForChart = since
-    ? wonDeals.filter((d) => d.updatedAt >= since)
-    : wonDeals;
-  for (const deal of wonDealsForChart) {
-    const y = deal.updatedAt.getFullYear();
-    const m = deal.updatedAt.getMonth();
-    const bucket = monthBuckets.find((b) => b.year === y && b.month === m);
-    if (bucket) bucket.count++;
+  let wonForChartTotal = 0;
+  for (const row of wonMonthAgg) {
+    wonForChartTotal += row.count;
+    const bucket = monthBuckets.find(
+      (b) => b.year === row.year && b.month === row.month
+    );
+    if (bucket) bucket.count += row.count;
   }
   const maxMonthCount = Math.max(...monthBuckets.map((b) => b.count), 1);
-  const hasMonthData = wonDealsForChart.length > 0;
+  const hasMonthData = wonForChartTotal > 0;
 
   // ── Stage funnel ─────────────────────────────────────────────────────────────
-  const stageRows = STAGES.map((stage) => {
-    const stageDeals = deals.filter((d) => d.stage === stage.key);
-    const stageValue = stageDeals
-      .filter((d) => d.value !== null && d.value !== undefined)
-      .reduce((sum, d) => sum + parseFloat(d.value!), 0);
-    return { ...stage, count: stageDeals.length, value: stageValue };
-  });
+  const stageRows = STAGES.map((stage) => ({
+    ...stage,
+    count: stageCount[stage.key] ?? 0,
+    value: stageValue[stage.key] ?? 0,
+  }));
 
   const maxCount = Math.max(...stageRows.map((s) => s.count), 1);
 
   // ── Contacts analytics ───────────────────────────────────────────────────────
+  const statusCountMap: Record<string, number> = {};
+  let totalContacts = 0;
+  for (const r of statusAgg) {
+    totalContacts += r.count;
+    if (r.status) statusCountMap[r.status] = r.count;
+  }
   const statusRows = CONTACT_STATUSES.map((s) => ({
     ...s,
-    count: contacts.filter((c) => c.status === s.key).length,
+    count: statusCountMap[s.key] ?? 0,
   }));
   const maxStatusCount = Math.max(...statusRows.map((s) => s.count), 1);
 
+  const sourceCountMap: Record<string, number> = {};
+  for (const r of sourceAgg) {
+    if (r.source) sourceCountMap[r.source] = r.count;
+  }
   const sourceRows = CONTACT_SOURCES.map((s) => ({
     ...s,
-    count: contacts.filter((c) => c.source === s.key).length,
+    count: sourceCountMap[s.key] ?? 0,
   }));
   const maxSourceCount = Math.max(...sourceRows.map((s) => s.count), 1);
 
@@ -260,7 +345,7 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                 value={winRate !== null ? `${winRate.toFixed(1)}%` : "—"}
                 subtext={
                   closedCount > 0
-                    ? `${wonDeals.length} won of ${closedCount} closed`
+                    ? `${wonCount} won of ${closedCount} closed`
                     : days
                       ? "No closed deals in this range"
                       : "No closed deals yet"
@@ -270,8 +355,8 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                 label="Avg Won Deal Value"
                 value={avgWonValue !== null ? fmtUSD(avgWonValue) : "—"}
                 subtext={
-                  wonWithValue.length > 0
-                    ? `across ${wonWithValue.length} won deal${wonWithValue.length !== 1 ? "s" : ""}`
+                  wonWithValueCount > 0
+                    ? `across ${wonWithValueCount} won deal${wonWithValueCount !== 1 ? "s" : ""}`
                     : days
                       ? "No won deals in this range"
                       : "No won deals with value"
@@ -280,7 +365,7 @@ export default async function AnalyticsBody({ days }: { days: string }) {
               <StatCard
                 label="Total Pipeline Value"
                 value={fmtUSD(totalPipeline)}
-                subtext={`${activeDeals.length} active deal${activeDeals.length !== 1 ? "s" : ""}`}
+                subtext={`${activeDealsCount} active deal${activeDealsCount !== 1 ? "s" : ""}`}
               />
               <StatCard
                 label="Avg Days to Close"
@@ -288,8 +373,8 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                   avgDaysToClose !== null ? `${Math.round(avgDaysToClose)}d` : "—"
                 }
                 subtext={
-                  wonDeals.length > 0
-                    ? `across ${wonDeals.length} won deal${wonDeals.length !== 1 ? "s" : ""}`
+                  wonCount > 0
+                    ? `across ${wonCount} won deal${wonCount !== 1 ? "s" : ""}`
                     : days
                       ? "No won deals in this range"
                       : "No won deals yet"
@@ -309,7 +394,7 @@ export default async function AnalyticsBody({ days }: { days: string }) {
               </p>
             </div>
 
-            {deals.length === 0 ? (
+            {totalDeals === 0 ? (
               <div className="px-6 py-12 text-center text-callout text-[--ink-3]">
                 {days
                   ? "No deals in this time range."
@@ -600,7 +685,7 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                 </p>
               </div>
 
-              {contacts.length === 0 ? (
+              {totalContacts === 0 ? (
                 <div className="px-6 py-12 text-center text-callout text-[--ink-3]">
                   {days
                     ? "No contacts in this time range."
@@ -660,7 +745,7 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                 </p>
               </div>
 
-              {contacts.length === 0 ? (
+              {totalContacts === 0 ? (
                 <div className="px-6 py-12 text-center text-callout text-[--ink-3]">
                   {days
                     ? "No contacts in this time range."
