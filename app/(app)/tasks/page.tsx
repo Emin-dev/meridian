@@ -97,8 +97,9 @@ export default async function TasksPage() {
       .leftJoin(schema.deals, eq(schema.activities.dealId, schema.deals.id))
       .where(where);
 
-  // Open tasks drive the time buckets; completed tasks are kept separate and
-  // capped so the page stays bounded as history grows.
+  // Open tasks drive the time buckets; both queries are capped (active by
+  // soonest dueAt, completed by most recent) so the page stays bounded as
+  // data grows — 500 active tasks is far beyond any realistic working set.
   const [activeRows, completedRows] = await Promise.all([
     taskBase(
       and(
@@ -106,7 +107,9 @@ export default async function TasksPage() {
         isNotNull(schema.activities.dueAt),
         isNull(schema.activities.completedAt)
       )
-    ).orderBy(asc(schema.activities.dueAt)),
+    )
+      .orderBy(asc(schema.activities.dueAt))
+      .limit(500),
     taskBase(
       and(
         eq(schema.activities.type, "task"),
