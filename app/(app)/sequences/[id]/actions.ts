@@ -6,6 +6,7 @@ import { and, asc, eq, gt, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import { chat } from "@/lib/ai";
 import { parseAiJson } from "@/lib/ai-json";
+import { requireSession } from "@/lib/require-session";
 
 const reorderSchema = z.object({
   stepId: z.number().int().positive(),
@@ -25,6 +26,8 @@ export async function addStep(
   _prev: StepFormState,
   formData: FormData
 ): Promise<StepFormState> {
+  await requireSession();
+
   const subject = String(formData.get("subjectTemplate") ?? "").trim();
   const body = String(formData.get("bodyTemplate") ?? "").trim();
   const delayRaw = String(formData.get("delayDays") ?? "0");
@@ -67,6 +70,8 @@ export async function updateStep(
   _prev: StepFormState,
   formData: FormData
 ): Promise<StepFormState> {
+  await requireSession();
+
   const subject = String(formData.get("subjectTemplate") ?? "").trim();
   const body = String(formData.get("bodyTemplate") ?? "").trim();
   const delayRaw = String(formData.get("delayDays") ?? "0");
@@ -100,6 +105,8 @@ export async function deleteStep(
   stepId: number,
   sequenceId: number
 ): Promise<{ error?: string }> {
+  await requireSession();
+
   const idSchema = z.coerce.number().int().positive();
   if (!idSchema.safeParse(stepId).success || !idSchema.safeParse(sequenceId).success) {
     return { error: "Invalid request." };
@@ -145,6 +152,8 @@ export async function reorderStep(
   sequenceId: number,
   direction: "up" | "down"
 ): Promise<{ error?: string }> {
+  await requireSession();
+
   const parsed = reorderSchema.safeParse({ stepId, sequenceId, direction });
   if (!parsed.success) return { error: "Invalid reorder request." };
 
@@ -198,6 +207,8 @@ export async function draftStepContent(
   sequenceName: string,
   stepPosition: number
 ): Promise<DraftStepResult> {
+  await requireSession();
+
   const parsedInput = draftStepSchema.safeParse({ sequenceName, stepPosition });
   if (!parsedInput.success) return { error: "Invalid step details." };
 

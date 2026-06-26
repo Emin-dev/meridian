@@ -6,6 +6,7 @@ import { getDb, schema } from "@/db";
 import { revalidatePath } from "next/cache";
 import { chat } from "@/lib/ai";
 import { parseAiJson } from "@/lib/ai-json";
+import { requireSession } from "@/lib/require-session";
 
 const AddActivitySchema = z.object({
   type: z.enum(["call", "email", "meeting", "note", "task"]),
@@ -38,6 +39,8 @@ export async function addActivity(
   _prev: AddActivityState,
   formData: FormData
 ): Promise<AddActivityState> {
+  await requireSession();
+
   const raw = {
     type: String(formData.get("type") ?? "note"),
     subject: String(formData.get("subject") ?? ""),
@@ -92,6 +95,8 @@ export async function logAiTaskSuggestion(
   body?: string | null,
   type?: "call" | "email" | "meeting" | "note" | "task",
 ): Promise<{ success?: boolean; error?: string; noDb?: boolean }> {
+  await requireSession();
+
   const parsedSubject = z
     .string()
     .trim()
@@ -151,6 +156,8 @@ export async function smartCompose(
   intent: string,
   type?: string,
 ): Promise<SmartComposeState> {
+  await requireSession();
+
   const parsedIntent = z
     .string()
     .trim()
@@ -202,6 +209,8 @@ export async function toggleActivityComplete(
   contactId: number | null,
   dealId: number | null,
 ): Promise<{ error?: string }> {
+  await requireSession();
+
   if (!z.coerce.number().int().positive().safeParse(activityId).success) {
     return { error: "Invalid activity id" };
   }
@@ -251,6 +260,8 @@ export async function extractActionItems(
   contactId: number | null,
   dealId: number | null,
 ): Promise<ExtractActionItemsState> {
+  await requireSession();
+
   if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
 
   const db = getDb();

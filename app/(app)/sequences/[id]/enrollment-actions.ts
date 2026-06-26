@@ -3,11 +3,14 @@
 import { count, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { revalidatePath } from "next/cache";
+import { requireSession } from "@/lib/require-session";
 
 export async function cancelEnrollmentFromSequence(
   enrollmentId: number,
   sequenceId: number
 ): Promise<{ error?: string }> {
+  await requireSession();
+
   const db = getDb();
   if (!db) return { error: "No database connected." };
 
@@ -36,6 +39,8 @@ export async function markStepSent(
   newStepPosition: number,
   totalSteps: number,
 ): Promise<{ error?: string }> {
+  await requireSession();
+
   const db = getDb();
   if (!db) return { error: "No database" };
 

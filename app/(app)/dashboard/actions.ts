@@ -5,6 +5,7 @@ import { chat } from "@/lib/ai";
 import { eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb, schema } from "@/db";
+import { requireSession } from "@/lib/require-session";
 
 const idSchema = z.coerce.number().int().positive();
 
@@ -34,6 +35,8 @@ type DigestResult =
   | { noKey: true };
 
 export async function completeAgendaItem(id: number): Promise<void> {
+  await requireSession();
+
   if (!idSchema.safeParse(id).success) throw new Error("Invalid agenda item id.");
   const db = getDb();
   // No DB: surface the failure instead of resolving silently, which would make
@@ -51,6 +54,8 @@ export async function generateDailyDigest(
   input: DigestInput,
   force = false
 ): Promise<DigestResult> {
+  await requireSession();
+
   const db = getDb();
 
   // Serve from cache if fresh and not forced
@@ -173,6 +178,8 @@ export async function generateWeeklyDigest(
   input: WeeklyDigestInput,
   force = false
 ): Promise<DigestResult> {
+  await requireSession();
+
   const db = getDb();
 
   // Serve from cache if fresh and not forced

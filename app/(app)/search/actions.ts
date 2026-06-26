@@ -3,6 +3,7 @@
 import { or, ilike } from "drizzle-orm";
 import { z } from "zod";
 import { getDb, schema } from "@/db";
+import { requireSession } from "@/lib/require-session";
 import { SEARCH_RESULT_LIMIT } from "./constants";
 
 // Bound the query length so empty/oversized inputs can't trigger needless
@@ -52,6 +53,8 @@ export type SearchResults = {
 };
 
 export async function searchGlobal(query: string): Promise<SearchResults> {
+  await requireSession();
+
   const db = getDb();
   const parsed = querySchema.safeParse(query);
   if (!db || !parsed.success) {

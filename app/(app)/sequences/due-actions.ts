@@ -6,10 +6,13 @@ import { revalidatePath } from "next/cache";
 import { getDb, schema } from "@/db";
 import { interpolate, contactToVars } from "@/lib/template";
 import { getCrmSettings } from "@/lib/settings";
+import { requireSession } from "@/lib/require-session";
 
 export async function sendAllDueSteps(
   enrollmentIds: number[],
 ): Promise<{ error?: string; sent: number }> {
+  await requireSession();
+
   if (enrollmentIds.length === 0) return { sent: 0 };
 
   const db = getDb();

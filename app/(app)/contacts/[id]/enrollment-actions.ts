@@ -3,6 +3,7 @@
 import { and, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { revalidatePath } from "next/cache";
+import { requireSession } from "@/lib/require-session";
 
 export type EnrollmentState = {
   error?: string;
@@ -14,6 +15,8 @@ export async function enrollInSequence(
   contactId: number,
   sequenceId: number
 ): Promise<EnrollmentState> {
+  await requireSession();
+
   const db = getDb();
   if (!db) return { noDb: true };
 
@@ -61,6 +64,8 @@ export async function cancelEnrollment(
   enrollmentId: number,
   contactId: number
 ): Promise<{ error?: string }> {
+  await requireSession();
+
   const db = getDb();
   if (!db) return { error: "No database connected." };
 

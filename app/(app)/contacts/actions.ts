@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { chat } from "@/lib/ai";
 import { parseAiJson } from "@/lib/ai-json";
+import { requireSession } from "@/lib/require-session";
 import {
   BULK_SCORE_BATCH,
   BULK_SCORE_CONCURRENCY,
@@ -65,6 +66,8 @@ export async function createContact(
   _prev: ContactFormState,
   formData: FormData
 ): Promise<ContactFormState> {
+  await requireSession();
+
   const raw = {
     name: String(formData.get("name") ?? ""),
     email: String(formData.get("email") ?? ""),
@@ -160,6 +163,8 @@ export type BulkImportResult = {
 export async function bulkImportContacts(
   rows: { rowIndex: number; name: string; email: string; phone: string; company: string }[]
 ): Promise<BulkImportResult> {
+  await requireSession();
+
   const db = getDb();
   if (!db) return { count: 0, skipped: [], error: "Database not connected" };
 
@@ -276,6 +281,8 @@ export async function updateContact(
   _prev: ContactFormState,
   formData: FormData
 ): Promise<ContactFormState> {
+  await requireSession();
+
   const raw = {
     name: String(formData.get("name") ?? ""),
     email: String(formData.get("email") ?? ""),
@@ -344,6 +351,8 @@ export async function updateContactNotes(
   _prev: UpdateContactNotesState,
   formData: FormData
 ): Promise<UpdateContactNotesState> {
+  await requireSession();
+
   const db = getDb();
   if (!db) return { noDb: true };
 
@@ -372,6 +381,8 @@ export async function updateContactNotes(
 }
 
 export async function deleteContact(id: number): Promise<void> {
+  await requireSession();
+
   const db = getDb();
   if (!db) return;
 
@@ -401,6 +412,8 @@ export type SummarizeState = {
 export async function summarizeContact(
   contactId: number
 ): Promise<SummarizeState> {
+  await requireSession();
+
   if (!idSchema.safeParse(contactId).success) return { error: "Invalid contact id." };
 
   const db = getDb();
@@ -575,6 +588,8 @@ async function scoreContactFromData(
 }
 
 export async function scoreContact(contactId: number): Promise<ScoreState> {
+  await requireSession();
+
   if (!idSchema.safeParse(contactId).success) return { error: "Invalid contact id." };
 
   const db = getDb();
@@ -615,6 +630,8 @@ export type BulkScoreState = {
 };
 
 export async function bulkScoreContacts(): Promise<BulkScoreState> {
+  await requireSession();
+
   const db = getDb();
   if (!db) return { noDb: true };
   if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
@@ -750,6 +767,8 @@ export type NextActionState = {
 export async function suggestNextAction(
   contactId: number
 ): Promise<NextActionState> {
+  await requireSession();
+
   if (!idSchema.safeParse(contactId).success) return { error: "Invalid contact id." };
 
   const db = getDb();
@@ -880,6 +899,8 @@ const EnrichResponseSchema = z.object({
 });
 
 export async function enrichContact(contactId: number): Promise<EnrichState> {
+  await requireSession();
+
   if (!idSchema.safeParse(contactId).success) return { error: "Invalid contact id." };
 
   const db = getDb();
@@ -968,6 +989,8 @@ export async function applyContactEnrichment(
   contactId: number,
   fields: { title: string; company: string; notes: string }
 ): Promise<ApplyEnrichmentState> {
+  await requireSession();
+
   if (!idSchema.safeParse(contactId).success) {
     return { error: "Contact not found" };
   }
@@ -1038,6 +1061,8 @@ export async function bulkChangeStatus(
   ids: number[],
   status: BulkContactStatus
 ): Promise<BulkActionState> {
+  await requireSession();
+
   const parsedIds = BulkIdsSchema.safeParse(ids);
   if (!parsedIds.success) return { error: "Invalid contact IDs." };
 
@@ -1064,6 +1089,8 @@ export async function bulkAddTag(
   ids: number[],
   tag: string
 ): Promise<BulkActionState> {
+  await requireSession();
+
   const parsedIds = BulkIdsSchema.safeParse(ids);
   if (!parsedIds.success) return { error: "Invalid contact IDs." };
 
@@ -1104,6 +1131,8 @@ export async function bulkChangeOwner(
   ids: number[],
   owner: string
 ): Promise<BulkActionState> {
+  await requireSession();
+
   const parsedOwner = z
     .string()
     .trim()
@@ -1135,6 +1164,8 @@ export async function bulkEnrollInSequence(
   ids: number[],
   sequenceId: number
 ): Promise<BulkActionState> {
+  await requireSession();
+
   const parsedIds = BulkIdsSchema.safeParse(ids);
   if (!parsedIds.success) return { error: "Invalid contact IDs." };
 
@@ -1323,6 +1354,8 @@ function exactDuplicatePairs(contacts: DupScanContact[]): {
 }
 
 export async function findDuplicateContacts(): Promise<FindDuplicatesState> {
+  await requireSession();
+
   const db = getDb();
   if (!db) return { noDb: true };
   if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
@@ -1458,6 +1491,8 @@ export async function mergeContacts(
   primaryId: number,
   secondaryId: number
 ): Promise<MergeContactsState> {
+  await requireSession();
+
   const db = getDb();
   if (!db) return { noDb: true };
 
@@ -1579,6 +1614,8 @@ export async function mergeContacts(
 export async function draftOutreachEmail(
   contactId: number
 ): Promise<DraftEmailState> {
+  await requireSession();
+
   if (!idSchema.safeParse(contactId).success) return { error: "Invalid contact id." };
 
   const db = getDb();

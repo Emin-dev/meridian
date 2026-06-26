@@ -4,6 +4,7 @@ import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { revalidatePath } from "next/cache";
+import { requireSession } from "@/lib/require-session";
 
 const AddTaskSchema = z.object({
   subject: z.string().min(1, "Subject is required"),
@@ -34,6 +35,8 @@ export async function addTask(
   _prev: AddTaskState,
   formData: FormData
 ): Promise<AddTaskState> {
+  await requireSession();
+
   const raw = {
     subject: String(formData.get("subject") ?? ""),
     dueAt: String(formData.get("dueAt") ?? ""),
@@ -70,6 +73,8 @@ export async function addLinkedTask(
   _prev: AddTaskState,
   formData: FormData
 ): Promise<AddTaskState> {
+  await requireSession();
+
   const raw = {
     subject: String(formData.get("subject") ?? ""),
     dueAt: String(formData.get("dueAt") ?? ""),
@@ -114,6 +119,8 @@ export async function toggleTaskComplete(
   contactId: number | null,
   dealId: number | null,
 ): Promise<{ error?: string }> {
+  await requireSession();
+
   if (!z.coerce.number().int().positive().safeParse(activityId).success) {
     return { error: "Invalid task id" };
   }

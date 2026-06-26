@@ -4,6 +4,7 @@ import { z } from "zod";
 import { eq, inArray, count } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { revalidatePath } from "next/cache";
+import { requireSession } from "@/lib/require-session";
 import {
   WIN_LOSS_MARKER,
   extractUserNotes,
@@ -74,6 +75,8 @@ export async function createDeal(
   _prev: DealFormState,
   formData: FormData
 ): Promise<DealFormState> {
+  await requireSession();
+
   const raw = parseFormData(formData);
   const parsed = DealSchema.safeParse(raw);
 
@@ -116,6 +119,8 @@ export async function moveDealStage(
   newStage: string,
   closeReason?: string
 ): Promise<{ error?: string; noDb?: boolean }> {
+  await requireSession();
+
   const parsed = z.enum(DEAL_STAGES).safeParse(newStage);
   if (!parsed.success) return { error: "Invalid stage" };
 
@@ -193,6 +198,8 @@ export async function bulkMoveStage(
   ids: number[],
   stage: string
 ): Promise<BulkActionResult> {
+  await requireSession();
+
   const parsedIds = BulkIdsSchema.safeParse(ids);
   if (!parsedIds.success) return { error: "Invalid deal IDs." };
   const parsedStage = z.enum(DEAL_STAGES).safeParse(stage);
@@ -226,6 +233,8 @@ export async function bulkChangeOwner(
   ids: number[],
   owner: string
 ): Promise<BulkActionResult> {
+  await requireSession();
+
   const parsedIds = BulkIdsSchema.safeParse(ids);
   if (!parsedIds.success) return { error: "Invalid deal IDs." };
   const parsedOwner = OwnerSchema.safeParse(owner ?? "");
@@ -253,6 +262,8 @@ export async function bulkChangeOwner(
 export async function bulkDeleteDeals(
   ids: number[]
 ): Promise<BulkActionResult> {
+  await requireSession();
+
   const parsedIds = BulkIdsSchema.safeParse(ids);
   if (!parsedIds.success) return { error: "Invalid deal IDs." };
 
@@ -279,6 +290,8 @@ export async function updateDeal(
   _prev: DealFormState,
   formData: FormData
 ): Promise<DealFormState> {
+  await requireSession();
+
   const raw = parseFormData(formData);
   const parsed = DealSchema.safeParse(raw);
 

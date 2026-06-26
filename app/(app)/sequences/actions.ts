@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { chat } from "@/lib/ai";
 import { parseAiJson } from "@/lib/ai-json";
+import { requireSession } from "@/lib/require-session";
 
 export type SequenceFormState = {
   error?: string;
@@ -20,6 +21,8 @@ export async function createSequence(
   _prev: SequenceFormState,
   formData: FormData
 ): Promise<SequenceFormState> {
+  await requireSession();
+
   const name = String(formData.get("name") ?? "").trim();
 
   const fieldErrors: Record<string, string[]> = {};
@@ -101,6 +104,8 @@ export type AIDraftResult = {
 };
 
 export async function generateSequenceWithAI(goal: string): Promise<AIDraftResult> {
+  await requireSession();
+
   const parsedGoal = z
     .string()
     .trim()
@@ -179,6 +184,8 @@ export async function updateSequenceStatus(
   id: number,
   status: "active" | "paused"
 ): Promise<{ error?: string }> {
+  await requireSession();
+
   if (!idSchema.safeParse(id).success) return { error: "Invalid sequence id." };
 
   const db = getDb();

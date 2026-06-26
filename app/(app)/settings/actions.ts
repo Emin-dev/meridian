@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { VALID_CURRENCIES } from "@/lib/currencies";
+import { requireSession } from "@/lib/require-session";
 
 const VALID_STAGES = [
   "lead",
@@ -33,6 +34,8 @@ export async function savePreferences(
   _prev: PreferencesFormState,
   formData: FormData
 ): Promise<PreferencesFormState> {
+  await requireSession();
+
   const db = getDb();
   if (!db) return { noDb: true };
 
@@ -73,6 +76,8 @@ export async function savePreferences(
 }
 
 export async function loadDemoData(): Promise<{ error: string } | undefined> {
+  await requireSession();
+
   const db = getDb();
   if (!db) {
     return { error: "Database not connected. Set DATABASE_URL first." };

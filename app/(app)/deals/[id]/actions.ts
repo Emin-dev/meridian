@@ -8,6 +8,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { chat } from "@/lib/ai";
 import { parseAiJson } from "@/lib/ai-json";
+import { requireSession } from "@/lib/require-session";
 import { numericEqual } from "@/lib/format";
 import { dealValueSchema } from "../value-schema";
 import { DEAL_STAGES } from "../stages";
@@ -53,6 +54,8 @@ export async function updateDealDetails(
   _prev: DealDetailsState,
   formData: FormData
 ): Promise<DealDetailsState> {
+  await requireSession();
+
   const valueRaw = String(formData.get("value") ?? "").trim();
   const dateRaw = String(formData.get("expectedCloseDate") ?? "").trim();
   const probabilityRaw = String(formData.get("probability") ?? "10").trim();
@@ -158,6 +161,8 @@ export async function updateDealNotes(
   _prev: UpdateNotesState,
   formData: FormData
 ): Promise<UpdateNotesState> {
+  await requireSession();
+
   const userNotes = String(formData.get("notes") ?? "").trim() || null;
 
   const db = getDb();
@@ -361,6 +366,8 @@ export type WinLossAnalysisState = {
 export async function triggerWinLossAnalysis(
   dealId: number
 ): Promise<WinLossAnalysisState> {
+  await requireSession();
+
   if (!idSchema.safeParse(dealId).success) return { error: "Invalid deal id." };
 
   if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
@@ -403,6 +410,8 @@ export async function triggerWinLossAnalysis(
 }
 
 export async function deleteDeal(id: number): Promise<void> {
+  await requireSession();
+
   if (!idSchema.safeParse(id).success) redirect("/deals");
 
   const db = getDb();
@@ -425,6 +434,8 @@ export type DealScoreState = {
 };
 
 export async function scoreDeal(dealId: number): Promise<DealScoreState> {
+  await requireSession();
+
   if (!idSchema.safeParse(dealId).success) return { error: "Invalid deal id." };
 
   const db = getDb();
@@ -558,6 +569,8 @@ export type DealSummarizeState = {
 };
 
 export async function summarizeDeal(dealId: number): Promise<DealSummarizeState> {
+  await requireSession();
+
   if (!idSchema.safeParse(dealId).success) return { error: "Invalid deal id." };
 
   const db = getDb();
@@ -658,6 +671,8 @@ export type DealRiskState = {
 };
 
 export async function assessDealRisk(dealId: number): Promise<DealRiskState> {
+  await requireSession();
+
   if (!idSchema.safeParse(dealId).success) return { error: "Invalid deal id." };
 
   const db = getDb();
@@ -814,6 +829,8 @@ export type DealNextActionState = {
 };
 
 export async function suggestDealNextAction(dealId: number): Promise<DealNextActionState> {
+  await requireSession();
+
   if (!idSchema.safeParse(dealId).success) return { error: "Invalid deal id." };
 
   const db = getDb();
