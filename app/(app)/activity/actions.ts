@@ -216,6 +216,8 @@ export async function toggleActivityComplete(
   }
 
   revalidatePath("/activity");
+  revalidatePath("/dashboard");
+  revalidatePath("/analytics");
   if (contactId) revalidatePath(`/contacts/${contactId}`);
   if (dealId) revalidatePath(`/deals/${dealId}`);
 
