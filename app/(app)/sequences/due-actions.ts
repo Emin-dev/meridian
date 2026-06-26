@@ -87,21 +87,24 @@ export async function sendAllDueSteps(
     const newStepPosition = enrollment.currentStepPosition + 1;
     const isCompleted = newStepPosition >= totalSteps;
 
-    await db.insert(schema.activities).values({
-      type: "email",
-      subject,
-      body,
-      contactId: enrollment.contactId,
-      completedAt: new Date(),
-    });
-
-    await db
-      .update(schema.contactSequenceEnrollments)
-      .set({
-        currentStepPosition: newStepPosition,
-        ...(isCompleted ? { status: "completed" as const } : {}),
-      })
-      .where(eq(schema.contactSequenceEnrollments.id, enrollment.id));
+    // Log the email and advance the step atomically per enrollment so a
+    // partial failure can't log an activity without advancing the position.
+    await db.batch([
+      db.insert(schema.activities).values({
+        type: "email",
+        subject,
+        body,
+        contactId: enrollment.contactId,
+        completedAt: new Date(),
+      }),
+      db
+        .update(schema.contactSequenceEnrollments)
+        .set({
+          currentStepPosition: newStepPosition,
+          ...(isCompleted ? { status: "completed" as const } : {}),
+        })
+        .where(eq(schema.contactSequenceEnrollments.id, enrollment.id)),
+    ]);
 
     affectedContactIds.add(enrollment.contactId);
     affectedSequenceIds.add(enrollment.sequenceId);

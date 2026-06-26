@@ -63,21 +63,25 @@ export async function markStepSent(
 
   const isCompleted = newStepPosition >= totalSteps;
 
-  await db.insert(schema.activities).values({
-    type: "email",
-    subject,
-    body,
-    contactId,
-    completedAt: new Date(),
-  });
-
-  await db
-    .update(schema.contactSequenceEnrollments)
-    .set({
-      currentStepPosition: newStepPosition,
-      ...(isCompleted ? { status: "completed" as const } : {}),
-    })
-    .where(eq(schema.contactSequenceEnrollments.id, enrollmentId));
+  // Log the email and advance the step atomically so a partial failure can't
+  // leave a logged activity without an advanced position (which a retry would
+  // then duplicate, since the step-position guard above would still pass).
+  await db.batch([
+    db.insert(schema.activities).values({
+      type: "email",
+      subject,
+      body,
+      contactId,
+      completedAt: new Date(),
+    }),
+    db
+      .update(schema.contactSequenceEnrollments)
+      .set({
+        currentStepPosition: newStepPosition,
+        ...(isCompleted ? { status: "completed" as const } : {}),
+      })
+      .where(eq(schema.contactSequenceEnrollments.id, enrollmentId)),
+  ]);
 
   revalidatePath(`/sequences/${sequenceId}`);
   revalidatePath(`/contacts/${contactId}`);

@@ -55,6 +55,7 @@ function SendStepModal({
 }: Props & { onClose: () => void }) {
   const [isPending, startTransition] = useTransition();
   const [copied, setCopied] = useState<"subject" | "body" | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const panelRef = useOverlayDismiss<HTMLDivElement>(true, onClose);
 
   const vars = {
@@ -73,8 +74,9 @@ function SendStepModal({
   }
 
   function handleMarkSent() {
+    setError(null);
     startTransition(async () => {
-      await markStepSent(
+      const result = await markStepSent(
         enrollmentId,
         sequenceId,
         contactId,
@@ -83,6 +85,10 @@ function SendStepModal({
         newStepPosition,
         totalSteps,
       );
+      if (result?.error) {
+        setError(result.error);
+        return;
+      }
       onClose();
     });
   }
@@ -163,6 +169,9 @@ function SendStepModal({
           <p className="text-footnote text-[--ink-3]">
             Meridian tracks sequence steps but does not send email directly. Use the link below to open your email client, then log the step once sent.
           </p>
+          {error && (
+            <p className="mt-2 text-footnote text-[--bad]">{error}</p>
+          )}
         </div>
 
         {/* Footer */}
