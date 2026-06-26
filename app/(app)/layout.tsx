@@ -1,4 +1,4 @@
-import { and, count, eq, isNull, lt } from "drizzle-orm";
+import { and, count, isNull, lt, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import AppShell from "@/components/app-shell";
 
@@ -12,29 +12,23 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     // midnight) as overdue once the clock passes their due moment.
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
-    const [activityRows, taskRows] = await Promise.all([
-      db
-        .select({ c: count() })
-        .from(schema.activities)
-        .where(
-          and(
-            lt(schema.activities.dueAt, todayStart),
-            isNull(schema.activities.completedAt)
-          )
-        ),
-      db
-        .select({ c: count() })
-        .from(schema.activities)
-        .where(
-          and(
-            eq(schema.activities.type, "task"),
-            lt(schema.activities.dueAt, todayStart),
-            isNull(schema.activities.completedAt)
-          )
-        ),
-    ]);
-    overdueCount = Number(activityRows[0].c);
-    overdueTaskCount = Number(taskRows[0].c);
+    // One round-trip: the partial `activities_overdue_idx` (dueAt where
+    // completedAt IS NULL) serves the outer WHERE, and a count() FILTER
+    // narrows the same scanned rows to the task subset.
+    const [row] = await db
+      .select({
+        overdue: count(),
+        overdueTask: sql<number>`count(*) filter (where ${schema.activities.type} = 'task')`,
+      })
+      .from(schema.activities)
+      .where(
+        and(
+          lt(schema.activities.dueAt, todayStart),
+          isNull(schema.activities.completedAt)
+        )
+      );
+    overdueCount = Number(row.overdue);
+    overdueTaskCount = Number(row.overdueTask);
   }
   return <AppShell overdueCount={overdueCount} overdueTaskCount={overdueTaskCount}>{children}</AppShell>;
 }
