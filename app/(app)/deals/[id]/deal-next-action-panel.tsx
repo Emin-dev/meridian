@@ -7,6 +7,8 @@ import { useToast } from "@/components/toaster";
 
 interface Props {
   dealId: number;
+  initialNextAction?: string | null;
+  initialNextActionAt?: Date | null;
 }
 
 const PRIORITY_STYLES = {
@@ -15,8 +17,43 @@ const PRIORITY_STYLES = {
   low: "bg-neutral-700 text-neutral-400 ring-1 ring-neutral-600",
 };
 
-export default function DealNextActionPanel({ dealId }: Props) {
-  const [result, setResult] = useState<DealNextActionState>({});
+// Rehydrate the last cached suggestion (stored as JSON text on the deal row)
+// so the panel shows it on load without a fresh DeepSeek round-trip.
+function parseCached(
+  raw: string | null | undefined,
+  at: Date | null | undefined
+): DealNextActionState {
+  if (!raw) return {};
+  try {
+    const p = JSON.parse(raw) as Record<string, unknown>;
+    const action = typeof p.action === "string" ? p.action.trim() : "";
+    if (!action) return {};
+    const priority = (["high", "medium", "low"] as const).includes(
+      p.priority as "high" | "medium" | "low"
+    )
+      ? (p.priority as "high" | "medium" | "low")
+      : "medium";
+    return {
+      action,
+      priority,
+      rationale: typeof p.rationale === "string" ? p.rationale : undefined,
+      suggestedMessage:
+        typeof p.suggestedMessage === "string" ? p.suggestedMessage : undefined,
+      suggestedAt: at ? at.toISOString() : undefined,
+    };
+  } catch {
+    return {};
+  }
+}
+
+export default function DealNextActionPanel({
+  dealId,
+  initialNextAction,
+  initialNextActionAt,
+}: Props) {
+  const [result, setResult] = useState<DealNextActionState>(() =>
+    parseCached(initialNextAction, initialNextActionAt)
+  );
   const [copied, setCopied] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [isLogging, startLogTransition] = useTransition();
@@ -122,6 +159,17 @@ export default function DealNextActionPanel({ dealId }: Props) {
 
           {result.rationale && (
             <p className="text-xs text-neutral-400 leading-relaxed">{result.rationale}</p>
+          )}
+
+          {result.suggestedAt && (
+            <p className="text-[11px] text-neutral-500">
+              Cached suggestion from{" "}
+              {new Date(result.suggestedAt).toLocaleString(undefined, {
+                dateStyle: "medium",
+                timeStyle: "short",
+              })}
+              {" · Re-suggest to refresh"}
+            </p>
           )}
 
           {result.suggestedMessage && (

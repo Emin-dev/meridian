@@ -163,7 +163,11 @@ export default async function DealDetailPage({ params }: Props) {
 
       {/* AI next best action */}
       <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-4 sm:p-5">
-        <DealNextActionPanel dealId={deal.id} />
+        <DealNextActionPanel
+          dealId={deal.id}
+          initialNextAction={deal.nextAction}
+          initialNextActionAt={deal.nextActionAt}
+        />
       </div>
 
       {/* AI action items extractor */}
