@@ -191,7 +191,20 @@ export async function askCrm(question: string): Promise<AskResult> {
     };
   }
 
-  const { context, contactMap, dealMap } = await loadDataset(db);
+  let context: string;
+  let contactMap: Map<number, string>;
+  let dealMap: Map<number, string>;
+  try {
+    ({ context, contactMap, dealMap } = await loadDataset(db));
+  } catch {
+    // A DB read can fail transiently (connection drop, timeout). Mirror the AI
+    // catch below: return a friendly empty result instead of 500-ing the action.
+    return {
+      answer: "Couldn't load your CRM data right now. Please try again.",
+      contacts: [],
+      deals: [],
+    };
+  }
 
   const today = new Date().toISOString().split("T")[0];
 
