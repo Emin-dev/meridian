@@ -6,6 +6,10 @@ import { StepCard, AddStepForm } from "./step-card";
 import { CancelEnrollmentButton } from "./cancel-enrollment-button";
 import { PreviewTab, type PreviewContact } from "./preview-tab";
 import { SendStepButton } from "./send-step-button";
+import {
+  EnrollmentCardsMobile,
+  type EnrollmentRow,
+} from "./enrollment-cards-mobile";
 import { getCrmSettings } from "@/lib/settings";
 import { SequenceStatusToggle } from "../sequence-status-toggle";
 
@@ -149,6 +153,73 @@ export default async function SequenceDetailPage({
     return acc;
   }, []);
 
+  // Precompute one row per enrollment so the dense desktop list and the
+  // glanceable mobile cards stay in lockstep (no divergent progress math).
+  const enrollmentRows: EnrollmentRow[] = enrollments.map((enrollment) => {
+    const enrStatus = ENROLLMENT_STATUS_LABELS[enrollment.status];
+    const progress = computeProgress(
+      enrollment.enrolledAt,
+      steps,
+      enrollment.currentStepPosition,
+    );
+    const pct =
+      progress.totalSteps > 0
+        ? Math.round((progress.sentSteps / progress.totalSteps) * 100)
+        : 0;
+    const isCancelled = enrollment.status === "cancelled";
+    const isCompleted = enrollment.status === "completed";
+    const currentStep = steps[enrollment.currentStepPosition];
+    const showSendButton =
+      enrollment.status === "active" &&
+      !progress.isComplete &&
+      progress.isDue &&
+      currentStep !== undefined;
+    const progressLabel =
+      progress.totalSteps > 0
+        ? progress.isComplete
+          ? "Complete"
+          : `Step ${progress.currentStep} of ${progress.totalSteps}`
+        : null;
+    const dueLabel =
+      progress.currentStepDueDate && !isCancelled && !isCompleted
+        ? progress.isDue
+          ? "Due now"
+          : `Due ${progress.currentStepDueDate.toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })}`
+        : null;
+    return {
+      id: enrollment.id,
+      contactId: enrollment.contactId,
+      contactName: enrollment.contactName,
+      contactEmail: enrollment.contactEmail ?? null,
+      status: enrollment.status,
+      statusLabel: enrStatus.label,
+      statusClassName: enrStatus.className,
+      progressLabel,
+      dueLabel,
+      pct,
+      totalSteps: progress.totalSteps,
+      isActive: enrollment.status === "active",
+      isCancelled,
+      isCompleted,
+      isComplete: progress.isComplete,
+      sendStep:
+        showSendButton && currentStep
+          ? {
+              contactCompany: enrollment.contactCompany ?? null,
+              contactOwner: enrollment.contactOwner ?? null,
+              stepSubjectTemplate: currentStep.subjectTemplate,
+              stepBodyTemplate: currentStep.bodyTemplate,
+              stepPosition: enrollment.currentStepPosition + 1,
+              newStepPosition: enrollment.currentStepPosition + 1,
+            }
+          : null,
+    };
+  });
+
   const statusMeta = STATUS_LABELS[sequence.status];
   const isContactsTab = tab === "contacts";
 
@@ -275,117 +346,94 @@ export default async function SequenceDetailPage({
               </p>
             </div>
           ) : (
-            <div className="rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)]">
-              <ul className="divide-y divide-[var(--line-1)]">
-                {enrollments.map((enrollment) => {
-                  const enrStatus =
-                    ENROLLMENT_STATUS_LABELS[enrollment.status];
-                  const progress = computeProgress(
-                    enrollment.enrolledAt,
-                    steps,
-                    enrollment.currentStepPosition,
-                  );
-                  const pct =
-                    progress.totalSteps > 0
-                      ? Math.round(
-                          (progress.sentSteps / progress.totalSteps) * 100
-                        )
-                      : 0;
-                  const isCancelled = enrollment.status === "cancelled";
-                  const isCompleted = enrollment.status === "completed";
-                  const currentStep = steps[enrollment.currentStepPosition];
-                  const showSendButton =
-                    enrollment.status === "active" &&
-                    !progress.isComplete &&
-                    progress.isDue &&
-                    currentStep !== undefined;
-                  return (
-                    <li key={enrollment.id} className="px-4 py-4">
+            <>
+              {/* Mobile (<lg): glanceable tap-to-expand cards */}
+              <div className="lg:hidden">
+                <EnrollmentCardsMobile
+                  rows={enrollmentRows}
+                  sequenceId={numId}
+                  defaultOwnerName={crmSettings.displayName}
+                />
+              </div>
+
+              {/* Desktop (lg+): dense list */}
+              <div className="hidden rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)] lg:block">
+                <ul className="divide-y divide-[var(--line-1)]">
+                  {enrollmentRows.map((row) => (
+                    <li key={row.id} className="px-4 py-4">
                       {/* Row 1: name + status badge */}
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0 flex-1">
                           <Link
-                            href={`/contacts/${enrollment.contactId}`}
+                            href={`/contacts/${row.contactId}`}
                             className="block truncate text-body font-medium text-[var(--ink-1)] transition-colors hover:text-[var(--ink-2)]"
                           >
-                            {enrollment.contactName}
+                            {row.contactName}
                           </Link>
-                          {enrollment.contactEmail && (
+                          {row.contactEmail && (
                             <p className="truncate text-footnote text-[var(--ink-3)]">
-                              {enrollment.contactEmail}
+                              {row.contactEmail}
                             </p>
                           )}
                         </div>
                         <span
-                          className={`shrink-0 inline-block rounded-full px-2 py-0.5 text-caption font-medium ${enrStatus.className}`}
+                          className={`shrink-0 inline-block rounded-full px-2 py-0.5 text-caption font-medium ${row.statusClassName}`}
                         >
-                          {enrStatus.label}
+                          {row.statusLabel}
                         </span>
                       </div>
                       {/* Row 2: step progress + action buttons */}
                       <div className="mt-2 flex flex-wrap items-center gap-2">
-                        {progress.totalSteps > 0 && (
+                        {row.progressLabel && (
                           <span className="text-footnote text-[var(--ink-3)]">
-                            {progress.isComplete
-                              ? "Complete"
-                              : `Step ${progress.currentStep} of ${progress.totalSteps}`}
-                            {progress.currentStepDueDate && !isCancelled && !isCompleted && (
-                              <>
-                                {" · "}
-                                {progress.isDue
-                                  ? "Due now"
-                                  : `Due ${progress.currentStepDueDate.toLocaleDateString(
-                                      "en-US",
-                                      { month: "short", day: "numeric", year: "numeric" }
-                                    )}`}
-                              </>
-                            )}
+                            {row.progressLabel}
+                            {row.dueLabel ? ` · ${row.dueLabel}` : ""}
                           </span>
                         )}
-                        {showSendButton && currentStep && (
+                        {row.sendStep && (
                           <SendStepButton
-                            enrollmentId={enrollment.id}
+                            enrollmentId={row.id}
                             sequenceId={numId}
-                            contactId={enrollment.contactId}
-                            contactName={enrollment.contactName}
-                            contactEmail={enrollment.contactEmail ?? null}
-                            contactCompany={enrollment.contactCompany ?? null}
-                            contactOwner={enrollment.contactOwner ?? null}
-                            stepSubjectTemplate={currentStep.subjectTemplate}
-                            stepBodyTemplate={currentStep.bodyTemplate}
-                            stepPosition={enrollment.currentStepPosition + 1}
-                            newStepPosition={enrollment.currentStepPosition + 1}
-                            totalSteps={progress.totalSteps}
+                            contactId={row.contactId}
+                            contactName={row.contactName}
+                            contactEmail={row.contactEmail}
+                            contactCompany={row.sendStep.contactCompany}
+                            contactOwner={row.sendStep.contactOwner}
+                            stepSubjectTemplate={row.sendStep.stepSubjectTemplate}
+                            stepBodyTemplate={row.sendStep.stepBodyTemplate}
+                            stepPosition={row.sendStep.stepPosition}
+                            newStepPosition={row.sendStep.newStepPosition}
+                            totalSteps={row.totalSteps}
                             defaultOwnerName={crmSettings.displayName}
                           />
                         )}
-                        {enrollment.status === "active" && (
+                        {row.isActive && (
                           <CancelEnrollmentButton
-                            enrollmentId={enrollment.id}
+                            enrollmentId={row.id}
                             sequenceId={numId}
                           />
                         )}
                       </div>
                       {/* Progress bar */}
-                      {progress.totalSteps > 0 && (
+                      {row.totalSteps > 0 && (
                         <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-[var(--surface-2)]">
                           <div
                             className={`h-full rounded-full transition-all ${
-                              isCancelled
+                              row.isCancelled
                                 ? "bg-[var(--ink-3)]"
-                                : isCompleted || progress.isComplete
+                                : row.isCompleted || row.isComplete
                                   ? "bg-[var(--ok)]"
                                   : "bg-[var(--ok)]/70"
                             }`}
-                            style={{ width: `${pct}%` }}
+                            style={{ width: `${row.pct}%` }}
                           />
                         </div>
                       )}
                     </li>
-                  );
-                })}
-              </ul>
-            </div>
+                  ))}
+                </ul>
+              </div>
+            </>
           )}
         </div>
       )}
