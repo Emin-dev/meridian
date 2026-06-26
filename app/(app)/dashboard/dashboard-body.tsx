@@ -146,7 +146,7 @@ export default async function DashboardBody() {
     const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
     const soon = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
-    const [contactRows, stageAggRows, weeklyWinRows, weeklyAtRiskRows, activityRows, weekRows, overdueRows, topContactRows, overdueActivityRows, activeEnrollmentRows, recentContactRows, openDealRows] = await Promise.all([
+    const [contactRows, stageAggRows, weeklyWinRows, weeklyAtRiskRows, activityRows, weekRows, overdueRows, topContactRows, overdueActivityRows, activeEnrollmentRows, recentContactRows, openDealRows, stepRows] = await Promise.all([
       db
         .select({ value: sql<number>`count(*)` })
         .from(schema.contacts),
@@ -295,6 +295,28 @@ export default async function DashboardBody() {
         .where(notInArray(schema.deals.stage, ["won", "lost"]))
         .orderBy(sql`${schema.deals.value} desc nulls last`)
         .limit(8),
+      // Sequence steps for every sequence with an active enrollment, fetched
+      // concurrently via a subquery so the dashboard avoids a serial follow-up
+      // round-trip. When no enrollment is active the subquery is empty, so this
+      // returns no rows — matching the prior conditional fetch.
+      db
+        .select({
+          sequenceId: schema.sequenceSteps.sequenceId,
+          position: schema.sequenceSteps.position,
+          delayDays: schema.sequenceSteps.delayDays,
+        })
+        .from(schema.sequenceSteps)
+        .where(
+          inArray(
+            schema.sequenceSteps.sequenceId,
+            db
+              .selectDistinct({
+                sequenceId: schema.contactSequenceEnrollments.sequenceId,
+              })
+              .from(schema.contactSequenceEnrollments)
+              .where(eq(schema.contactSequenceEnrollments.status, "active"))
+          )
+        ),
     ]);
 
     totalContacts = Number(contactRows[0]?.value ?? 0);
@@ -393,16 +415,6 @@ export default async function DashboardBody() {
       .filter((d): d is NonNullable<typeof d> => d !== null);
 
     if (activeEnrollmentRows.length > 0) {
-      const seqIds = [...new Set(activeEnrollmentRows.map((e) => e.sequenceId))];
-      const stepRows = await db
-        .select({
-          sequenceId: schema.sequenceSteps.sequenceId,
-          position: schema.sequenceSteps.position,
-          delayDays: schema.sequenceSteps.delayDays,
-        })
-        .from(schema.sequenceSteps)
-        .where(inArray(schema.sequenceSteps.sequenceId, seqIds));
-
       const stepsBySeq = new Map<number, { position: number; delayDays: number }[]>();
       for (const step of stepRows) {
         const arr = stepsBySeq.get(step.sequenceId) ?? [];
