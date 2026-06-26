@@ -62,6 +62,21 @@ export default function KanbanBoard({
     STAGES.map((s) => [s.key, deals.filter((d) => d.stage === s.key)])
   ) as Record<StageKey, DealListItem[]>;
 
+  // Currency-aware subtotal for the phone view's selected stage. Grouped by
+  // currency (null/NaN skipped by sumByCurrency) and sorted descending so the
+  // dominant currency leads; any others render as compact "+ …" hints rather
+  // than being silently folded into one symbol.
+  const selectedStageTotalEntries = Object.entries(
+    sumByCurrency(
+      (dealsByStage[selectedStage] ?? []).map((d) => ({
+        value: d.value == null ? null : parseFloat(d.value),
+        currency: d.currency,
+      }))
+    )
+  )
+    .filter(([, total]) => total > 0)
+    .sort(([, a], [, b]) => b - a);
+
   // ── Phone sheet helpers ──────────────────────────────────────────────────
   function openSheet(dealId: number) {
     setSheetDealId(dealId);
@@ -157,6 +172,22 @@ export default function KanbanBoard({
 
         {/* Stacked card list for the selected stage */}
         <div className="flex flex-col gap-3 py-4">
+          {/* Stage subtotal — dominant currency leads, others shown as hints */}
+          {selectedStageTotalEntries.length > 0 && (
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 px-1">
+              <span className="text-footnote font-medium text-[var(--ink-2)]">
+                {formatCurrency(
+                  selectedStageTotalEntries[0][1],
+                  selectedStageTotalEntries[0][0]
+                )}
+              </span>
+              {selectedStageTotalEntries.slice(1).map(([code, total]) => (
+                <span key={code} className="text-caption text-[var(--ink-3)]">
+                  + {formatCurrency(total, code)}
+                </span>
+              ))}
+            </div>
+          )}
           {(dealsByStage[selectedStage] ?? []).length === 0 ? (
             <div className="flex min-h-32 items-center justify-center rounded-[var(--r-md)] border border-dashed border-[var(--line-1)]">
               <p className="text-center text-footnote text-[var(--ink-3)]">

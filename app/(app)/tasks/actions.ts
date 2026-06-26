@@ -61,6 +61,7 @@ export async function addTask(
 
     revalidatePath("/tasks");
     revalidatePath("/activity");
+    revalidatePath("/dashboard");
 
     return { success: true };
   } catch (err) {
@@ -103,6 +104,7 @@ export async function addLinkedTask(
 
     revalidatePath("/tasks");
     revalidatePath("/activity");
+    revalidatePath("/dashboard");
     if (parsed.data.contactId) revalidatePath(`/contacts/${parsed.data.contactId}`);
     if (parsed.data.dealId) revalidatePath(`/deals/${parsed.data.dealId}`);
 
