@@ -546,6 +546,7 @@ export async function scoreContact(contactId: number): Promise<ScoreState> {
 
 export type BulkScoreState = {
   count?: number;
+  failed?: number;
   error?: string;
   noDb?: boolean;
   noKey?: boolean;
@@ -592,6 +593,7 @@ export async function bulkScoreContacts(): Promise<BulkScoreState> {
   const CONCURRENCY = 4;
   const database = db;
   let count = 0;
+  let failed = 0;
   let cursor = 0;
 
   async function worker() {
@@ -604,8 +606,10 @@ export async function bulkScoreContacts(): Promise<BulkScoreState> {
           activitiesByContact.get(contact.id) ?? []
         );
         if (result.score !== undefined) count++;
+        else failed++;
       } catch {
         // Skip this contact; keep scoring the rest of the batch.
+        failed++;
       }
     }
   }
@@ -615,7 +619,7 @@ export async function bulkScoreContacts(): Promise<BulkScoreState> {
   );
 
   revalidatePath("/contacts");
-  return { count };
+  return { count, failed };
 }
 
 // ─── AI: Next best action suggestion ─────────────────────────────────────────

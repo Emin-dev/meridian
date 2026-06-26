@@ -21,7 +21,15 @@ export default function ScoreAllUnscoredButton({ hasUnscored }: { hasUnscored: b
         toast(result.error, "error");
       } else {
         const n = result.count ?? 0;
-        toast(`Scored ${n} contact${n !== 1 ? "s" : ""}.`, "success");
+        const failed = result.failed ?? 0;
+        if (failed > 0) {
+          toast(
+            `Scored ${n} contact${n !== 1 ? "s" : ""}, ${failed} failed.`,
+            n > 0 ? "success" : "error"
+          );
+        } else {
+          toast(`Scored ${n} contact${n !== 1 ? "s" : ""}.`, "success");
+        }
       }
     });
   }
