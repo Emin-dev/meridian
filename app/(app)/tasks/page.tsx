@@ -1,8 +1,7 @@
 import { and, eq, isNotNull, isNull, asc, desc } from "drizzle-orm";
-import Link from "next/link";
 import { getDb, schema } from "@/db";
-import TaskToggle from "./task-toggle";
 import TaskQuickAddForm from "./task-quick-add-form";
+import TaskRow, { type TaskRowData } from "./task-row";
 import { EmptyState } from "@/components/empty-state";
 import { DemoDataButton } from "@/components/demo-data-button";
 
@@ -13,69 +12,6 @@ const TaskIcon = () => (
   </svg>
 );
 
-type TaskRow = {
-  id: number;
-  subject: string;
-  dueAt: string;
-  completedAt: string | null;
-  contactId: number | null;
-  dealId: number | null;
-  contactName: string | null;
-  dealTitle: string | null;
-};
-
-function TaskItem({ task }: { task: TaskRow }) {
-  const completed = !!task.completedAt;
-  // Completed tasks surface when they were finished; open tasks surface the due date.
-  const stamp = completed && task.completedAt ? task.completedAt : task.dueAt;
-  const formatted = new Date(stamp).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
-
-  return (
-    <div className={`flex min-h-[44px] items-center gap-3 py-2 ${completed ? "opacity-50" : ""}`}>
-      <TaskToggle
-        activityId={task.id}
-        isCompleted={completed}
-        contactId={task.contactId}
-        dealId={task.dealId}
-      />
-      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <p className={`text-body text-[--ink-1] ${completed ? "line-through" : ""}`}>
-          {task.subject}
-        </p>
-        {(task.contactName || task.dealTitle) && (
-          <div className="flex flex-wrap items-center gap-2 text-footnote text-[--ink-3]">
-            {task.contactId && task.contactName && (
-              <Link
-                href={`/contacts/${task.contactId}`}
-                className="transition-colors hover:text-[--accent]"
-              >
-                {task.contactName}
-              </Link>
-            )}
-            {task.contactId && task.contactName && task.dealId && task.dealTitle && (
-              <span>·</span>
-            )}
-            {task.dealId && task.dealTitle && (
-              <Link
-                href={`/deals/${task.dealId}`}
-                className="transition-colors hover:text-[--accent]"
-              >
-                {task.dealTitle}
-              </Link>
-            )}
-          </div>
-        )}
-      </div>
-      <span className="shrink-0 text-footnote text-[--ink-3]">
-        {completed ? `Done ${formatted}` : formatted}
-      </span>
-    </div>
-  );
-}
-
 function TaskGroup({
   title,
   tasks,
@@ -83,7 +19,7 @@ function TaskGroup({
   emptyLabel,
 }: {
   title: string;
-  tasks: TaskRow[];
+  tasks: TaskRowData[];
   dotClass: string;
   emptyLabel: string;
 }) {
@@ -101,7 +37,7 @@ function TaskGroup({
       ) : (
         <div className="divide-y divide-[--line-1] px-4 sm:px-5">
           {tasks.map((t) => (
-            <TaskItem key={t.id} task={t} />
+            <TaskRow key={t.id} task={t} />
           ))}
         </div>
       )}
@@ -185,9 +121,10 @@ export default async function TasksPage() {
     activity,
     contactName,
     dealTitle,
-  }: (typeof activeRows)[number]): TaskRow => ({
+  }: (typeof activeRows)[number]): TaskRowData => ({
     id: activity.id,
     subject: activity.subject,
+    body: activity.body ?? null,
     dueAt: activity.dueAt!.toISOString(),
     completedAt: activity.completedAt ? activity.completedAt.toISOString() : null,
     contactId: activity.contactId ?? null,

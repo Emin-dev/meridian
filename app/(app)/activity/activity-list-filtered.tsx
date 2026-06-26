@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import MobileActionSheet from "@/components/mobile-action-sheet";
 import ActivityToggle from "./activity-toggle";
@@ -11,6 +12,23 @@ function formatCompletedAt(isoString: string): string {
   const dateStr = d.toLocaleDateString("en-US", { month: "long", day: "numeric" });
   const timeStr = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
   return `${dateStr} at ${timeStr}`;
+}
+
+function formatActivityDate(isoString: string): string {
+  return new Date(isoString).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function DetailField({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0">
+      <dt className="text-caption uppercase tracking-wider text-[--ink-3]">{label}</dt>
+      <dd className="mt-0.5 truncate text-body text-[--ink-1]">{value}</dd>
+    </div>
+  );
 }
 
 type ActivityType = "call" | "email" | "meeting" | "note" | "task";
@@ -67,6 +85,8 @@ export default function ActivityListFiltered({ rows, currentType, currentRange, 
   const [isPending, startTransition] = useTransition();
   const [contactQuery, setContactQuery] = useState("");
   const [rangeSheetOpen, setRangeSheetOpen] = useState(false);
+  // Mobile-only: which activity's full detail is open in the bottom sheet.
+  const [detailRow, setDetailRow] = useState<SerializedRow | null>(null);
 
   const currentRangeLabel =
     RANGE_OPTIONS.find((o) => o.value === currentRange)?.label ?? "All time";
@@ -254,7 +274,8 @@ export default function ActivityListFiltered({ rows, currentType, currentRange, 
         </div>
       ) : (
         <>
-          <ul className="divide-y divide-[--line-1]">
+          {/* Desktop list — full inline detail, unchanged */}
+          <ul className="hidden divide-y divide-[--line-1] lg:block">
             {filtered.map(({ activity, contactName, dealTitle }) => {
               const meta = TYPE_META[activity.type as ActivityType];
               const date = activity.createdAt.slice(0, 10);
@@ -347,6 +368,78 @@ export default function ActivityListFiltered({ rows, currentType, currentRange, 
               );
             })}
           </ul>
+
+          {/* Mobile compact list — one-line rows that tap to open a detail sheet */}
+          <ul className="divide-y divide-[--line-1] lg:hidden">
+            {filtered.map((row) => {
+              const { activity, contactName } = row;
+              const meta = TYPE_META[activity.type as ActivityType];
+              const isCompleted = !!activity.completedAt;
+              const isOverdue =
+                !!activity.dueAt && !isCompleted && new Date(activity.dueAt) < now;
+              return (
+                <li
+                  key={activity.id}
+                  className={`flex items-center gap-2 px-3 ${
+                    isOverdue ? "bg-[--bad-tint]" : ""
+                  }`}
+                >
+                  <ActivityToggle
+                    activityId={activity.id}
+                    isCompleted={isCompleted}
+                    contactId={activity.contactId}
+                    dealId={activity.dealId}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setDetailRow(row)}
+                    className="tap flex min-h-[44px] min-w-0 flex-1 items-center gap-2 py-2 text-left"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p
+                        className={`truncate text-body font-medium ${
+                          isCompleted ? "text-[--ink-3] line-through" : "text-[--ink-1]"
+                        }`}
+                      >
+                        {activity.subject}
+                      </p>
+                      <p className="mt-0.5 flex items-center gap-1.5 truncate text-footnote text-[--ink-3]">
+                        <span className={meta.color}>{meta.label}</span>
+                        <span aria-hidden>·</span>
+                        <span>{activity.createdAt.slice(0, 10)}</span>
+                        {contactName && (
+                          <>
+                            <span aria-hidden>·</span>
+                            <span className="truncate">{contactName}</span>
+                          </>
+                        )}
+                      </p>
+                    </div>
+                    {isOverdue && (
+                      <span className="shrink-0 rounded-[--r-pill] bg-[--bad-tint] px-2 py-0.5 text-caption font-medium text-[--bad]">
+                        Overdue
+                      </span>
+                    )}
+                    <svg
+                      className="shrink-0 text-[--ink-3]"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden
+                    >
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+
           {hasMore && !contactQuery.trim() && (
             <div className="border-t border-[--line-1] px-4 py-3 text-center">
               <button
@@ -360,6 +453,106 @@ export default function ActivityListFiltered({ rows, currentType, currentRange, 
           )}
         </>
       )}
+
+      {/* Mobile activity detail sheet */}
+      <MobileActionSheet
+        open={!!detailRow}
+        onClose={() => setDetailRow(null)}
+        title="Activity"
+      >
+        {detailRow &&
+          (() => {
+            const { activity, contactName, dealTitle } = detailRow;
+            const meta = TYPE_META[activity.type as ActivityType];
+            const isCompleted = !!activity.completedAt;
+            const isOverdue =
+              !!activity.dueAt && !isCompleted && new Date(activity.dueAt) < now;
+            return (
+              <div className="space-y-4">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span
+                    className={`inline-block rounded-[--r-pill] ${meta.bg} px-2 py-0.5 text-caption font-medium ${meta.color}`}
+                  >
+                    {meta.label}
+                  </span>
+                  {isOverdue && (
+                    <span className="inline-block rounded-[--r-pill] bg-[--bad-tint] px-2 py-0.5 text-caption font-medium text-[--bad]">
+                      Overdue
+                    </span>
+                  )}
+                  {isCompleted && (
+                    <span className="inline-block rounded-[--r-pill] bg-[--ok-tint] px-2 py-0.5 text-caption font-medium text-[--ok]">
+                      Completed
+                    </span>
+                  )}
+                </div>
+
+                <p
+                  className={`text-callout font-semibold ${
+                    isCompleted ? "text-[--ink-3] line-through" : "text-[--ink-1]"
+                  }`}
+                >
+                  {activity.subject}
+                </p>
+
+                {activity.body && (
+                  <p className="whitespace-pre-wrap text-body text-[--ink-2]">
+                    {activity.body}
+                  </p>
+                )}
+
+                <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
+                  <DetailField
+                    label="Logged"
+                    value={formatActivityDate(activity.createdAt)}
+                  />
+                  {activity.dueAt && (
+                    <DetailField
+                      label="Due"
+                      value={formatActivityDate(activity.dueAt)}
+                    />
+                  )}
+                </dl>
+
+                {(contactName || dealTitle) && (
+                  <div className="flex flex-col gap-1.5">
+                    {activity.contactId && contactName && (
+                      <Link
+                        href={`/contacts/${activity.contactId}`}
+                        onClick={() => setDetailRow(null)}
+                        className="tap flex min-h-[44px] items-center justify-between rounded-[--r-md] border border-[--line-1] bg-[--surface-3] px-3 text-body text-[--ink-1]"
+                      >
+                        <span className="truncate">{contactName}</span>
+                        <span className="shrink-0 text-caption text-[--ink-3]">Contact</span>
+                      </Link>
+                    )}
+                    {activity.dealId && dealTitle && (
+                      <Link
+                        href={`/deals/${activity.dealId}`}
+                        onClick={() => setDetailRow(null)}
+                        className="tap flex min-h-[44px] items-center justify-between rounded-[--r-md] border border-[--line-1] bg-[--surface-3] px-3 text-body text-[--ink-1]"
+                      >
+                        <span className="truncate">{dealTitle}</span>
+                        <span className="shrink-0 text-caption text-[--ink-3]">Deal</span>
+                      </Link>
+                    )}
+                  </div>
+                )}
+
+                {isCompleted && activity.completedAt && (
+                  <div className="flex flex-wrap items-center gap-2 border-t border-[--line-1] pt-3 text-footnote text-[--ink-3]">
+                    <span>Completed {formatCompletedAt(activity.completedAt)}</span>
+                    <ActivityUndoButton
+                      activityId={activity.id}
+                      contactId={activity.contactId}
+                      dealId={activity.dealId}
+                    />
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+      </MobileActionSheet>
     </div>
   );
 }
