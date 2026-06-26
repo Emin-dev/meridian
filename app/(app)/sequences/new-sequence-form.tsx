@@ -197,10 +197,14 @@ export default function NewSequenceForm() {
 
                 {/* Delay */}
                 <div>
-                  <label className="mb-1 block text-footnote font-medium text-[var(--ink-3)]">
+                  <label
+                    htmlFor={`step_${i}_delay`}
+                    className="mb-1 block text-footnote font-medium text-[var(--ink-3)]"
+                  >
                     Send after (days)
                   </label>
                   <input
+                    id={`step_${i}_delay`}
                     name={`step_${i}_delay`}
                     type="number"
                     min="0"
@@ -219,10 +223,14 @@ export default function NewSequenceForm() {
 
                 {/* Subject template */}
                 <div>
-                  <label className="mb-1 block text-footnote font-medium text-[var(--ink-3)]">
+                  <label
+                    htmlFor={`step_${i}_subject`}
+                    className="mb-1 block text-footnote font-medium text-[var(--ink-3)]"
+                  >
                     Subject template <span className="text-[var(--bad)]">*</span>
                   </label>
                   <input
+                    id={`step_${i}_subject`}
                     name={`step_${i}_subject`}
                     type="text"
                     placeholder="Hi {{firstName}}, quick question…"
@@ -239,10 +247,14 @@ export default function NewSequenceForm() {
 
                 {/* Body template */}
                 <div>
-                  <label className="mb-1 block text-footnote font-medium text-[var(--ink-3)]">
+                  <label
+                    htmlFor={`step_${i}_body`}
+                    className="mb-1 block text-footnote font-medium text-[var(--ink-3)]"
+                  >
                     Body template <span className="text-[var(--bad)]">*</span>
                   </label>
                   <textarea
+                    id={`step_${i}_body`}
                     name={`step_${i}_body`}
                     rows={4}
                     placeholder={`Hi {{firstName}},\n\n`}
