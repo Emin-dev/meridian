@@ -22,9 +22,15 @@ const FOCUSABLE = [
  *  - Focus is moved into the overlay on open and restored to the previously
  *    focused element on close.
  *  - Tab / Shift+Tab are trapped within the overlay.
+ *  - Only one hook-managed overlay can be open at a time: opening one closes
+ *    any other (e.g. ⌘K global search firing over an open Find-duplicates or
+ *    Send-step panel, or the mobile nav drawer). Native `<dialog>` modals are
+ *    closed separately by their own open handlers; this guards the custom
+ *    `fixed inset-0` overlays, which a `dialog[open]` query can't reach.
  *
  * Returns a ref to attach to the overlay's content panel.
  */
+const OVERLAY_OPEN_EVENT = "meridian:overlay-open";
 export function useOverlayDismiss<T extends HTMLElement = HTMLDivElement>(
   active: boolean,
   onClose: () => void,
@@ -83,9 +89,19 @@ export function useOverlayDismiss<T extends HTMLElement = HTMLDivElement>(
     };
 
     document.addEventListener("keydown", handleKeyDown, true);
+
+    // Single-overlay enforcement (no stacking): announce this overlay's open so
+    // any other hook-managed overlay closes, then listen for later opens so we
+    // close if one mounts over us. Dispatch before subscribing so we never
+    // close ourselves on our own announcement.
+    const closeOnOtherOverlay = () => onCloseRef.current();
+    document.dispatchEvent(new Event(OVERLAY_OPEN_EVENT));
+    document.addEventListener(OVERLAY_OPEN_EVENT, closeOnOtherOverlay);
+
     return () => {
       cancelAnimationFrame(raf);
       document.removeEventListener("keydown", handleKeyDown, true);
+      document.removeEventListener(OVERLAY_OPEN_EVENT, closeOnOtherOverlay);
       previouslyFocused?.focus?.({ preventScroll: true });
     };
   }, [active]);
