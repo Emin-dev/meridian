@@ -21,7 +21,10 @@ const TYPE_META: Record<string, { label: string; color: string; bg: string }> =
   };
 
 function CompleteButton({ id }: { id: number }) {
-  const action = completeAgendaItem.bind(null, id);
+  async function action() {
+    "use server";
+    await completeAgendaItem(id);
+  }
   return (
     <form action={action}>
       <button

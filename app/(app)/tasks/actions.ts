@@ -131,6 +131,15 @@ export async function toggleTaskComplete(
   if (!db) return { error: "No database" };
 
   try {
+    // The row may have been deleted elsewhere (e.g. a stale list); confirm it
+    // still exists so we report an accurate state instead of a silent no-op.
+    const [existing] = await db
+      .select({ id: schema.activities.id })
+      .from(schema.activities)
+      .where(eq(schema.activities.id, activityId))
+      .limit(1);
+    if (!existing) return { error: "This task no longer exists." };
+
     await db
       .update(schema.activities)
       .set({
