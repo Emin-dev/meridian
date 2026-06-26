@@ -268,7 +268,61 @@ export default function DealsTable({
         </div>
       )}
 
-      <div className="overflow-x-auto rounded-xl border border-neutral-800">
+      {/* Mobile stacked cards */}
+      <div className="divide-y divide-[--line-1] rounded-xl border border-neutral-800 lg:hidden">
+        {sorted.map((deal) => {
+          const age = dealAgeInDays(deal.createdAt);
+          const value = deal.value
+            ? new Intl.NumberFormat("en-US", {
+                style: "currency",
+                currency: deal.currency,
+                maximumFractionDigits: 0,
+              }).format(parseFloat(deal.value))
+            : "—";
+          return (
+            <Link
+              key={deal.id}
+              href={`/deals/${deal.id}`}
+              className="flex min-h-[44px] items-center gap-3 px-4 py-3 transition-colors hover:bg-neutral-800/40 active:bg-neutral-800/60"
+            >
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-body font-medium text-neutral-100">{deal.title}</p>
+                <p className="truncate text-xs text-neutral-400">
+                  {deal.contact?.name && (
+                    <span className="text-neutral-300">{deal.contact.name} • </span>
+                  )}
+                  <span className={`font-medium ${STAGE_COLORS[deal.stage] ?? "text-neutral-400"}`}>
+                    {STAGE_LABELS[deal.stage] ?? deal.stage}
+                  </span>
+                  <span> • {value}</span>
+                </p>
+              </div>
+              <span
+                className={`inline-flex flex-shrink-0 items-center rounded-full px-2 py-0.5 text-xs font-medium tabular-nums ${ageBadgeClass(age)}`}
+              >
+                {age}d
+              </span>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="flex-shrink-0 text-neutral-600"
+                aria-hidden
+              >
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* Desktop table */}
+      <div className="hidden overflow-x-auto rounded-xl border border-neutral-800 lg:block">
         <table className="w-full text-sm">
           <thead className="border-b border-neutral-800 bg-neutral-900">
             <tr>
