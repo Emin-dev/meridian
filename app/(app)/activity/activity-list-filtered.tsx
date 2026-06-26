@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import MobileActionSheet from "@/components/mobile-action-sheet";
@@ -22,6 +23,24 @@ function formatActivityDate(isoString: string): string {
   });
 }
 
+function formatRelativeTime(isoString: string, nowMs: number): string {
+  const diffMs = nowMs - new Date(isoString).getTime();
+  const sec = Math.round(diffMs / 1000);
+  if (sec < 60) return "just now";
+  const min = Math.round(sec / 60);
+  if (min < 60) return `${min}m ago`;
+  const hr = Math.round(min / 60);
+  if (hr < 24) return `${hr}h ago`;
+  const day = Math.round(hr / 24);
+  if (day < 7) return `${day}d ago`;
+  const wk = Math.round(day / 7);
+  if (wk < 5) return `${wk}w ago`;
+  return new Date(isoString).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+}
+
 function DetailField({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0">
@@ -39,6 +58,40 @@ const TYPE_META: Record<ActivityType, { label: string; color: string; bg: string
   meeting: { label: "Meeting", color: "text-[--ok]",     bg: "bg-[--ok-tint]" },
   note:    { label: "Note",    color: "text-[--warn]",   bg: "bg-[--warn-tint]" },
   task:    { label: "Task",    color: "text-[--info]",   bg: "bg-[--info-tint]" },
+};
+
+const TYPE_ICON: Record<ActivityType, ReactNode> = {
+  call: (
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+  ),
+  email: (
+    <>
+      <rect x="2" y="4" width="20" height="16" rx="2" />
+      <path d="m22 7-10 5L2 7" />
+    </>
+  ),
+  meeting: (
+    <>
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </>
+  ),
+  note: (
+    <>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="16" y1="13" x2="8" y2="13" />
+      <line x1="16" y1="17" x2="8" y2="17" />
+    </>
+  ),
+  task: (
+    <>
+      <polyline points="9 11 12 14 22 4" />
+      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+    </>
+  ),
 };
 
 const TYPE_CHIPS = [
@@ -369,72 +422,89 @@ export default function ActivityListFiltered({ rows, currentType, currentRange, 
             })}
           </ul>
 
-          {/* Mobile compact list — one-line rows that tap to open a detail sheet */}
-          <ul className="divide-y divide-[--line-1] lg:hidden">
+          {/* Mobile stacked cards — big glanceable tiles that tap to open a detail sheet */}
+          <ul className="flex flex-col gap-2 p-3 lg:hidden">
             {filtered.map((row) => {
-              const { activity, contactName } = row;
+              const { activity, contactName, dealTitle } = row;
               const meta = TYPE_META[activity.type as ActivityType];
               const isCompleted = !!activity.completedAt;
               const isOverdue =
                 !!activity.dueAt && !isCompleted && new Date(activity.dueAt) < now;
+              const linked = contactName || dealTitle;
               return (
                 <li
                   key={activity.id}
-                  className={`flex items-center gap-2 px-3 ${
-                    isOverdue ? "bg-[--bad-tint]" : ""
+                  className={`flex items-start gap-3 rounded-[--r-lg] border px-3 py-3 ${
+                    isOverdue
+                      ? "border-[--bad]/30 bg-[--bad-tint]"
+                      : "border-[--line-1] bg-[--surface-2]"
                   }`}
                 >
+                  {/* Type icon badge */}
+                  <div
+                    className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[--r-md] ${meta.bg} ${
+                      isCompleted ? "opacity-40" : ""
+                    }`}
+                  >
+                    <svg
+                      className={meta.color}
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden
+                    >
+                      {TYPE_ICON[activity.type as ActivityType]}
+                    </svg>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setDetailRow(row)}
+                    className="tap flex min-h-[44px] min-w-0 flex-1 flex-col justify-center text-left"
+                  >
+                    <div className="flex items-start gap-2">
+                      <p
+                        className={`min-w-0 flex-1 text-body font-semibold leading-snug ${
+                          isCompleted ? "text-[--ink-3] line-through" : "text-[--ink-1]"
+                        }`}
+                      >
+                        {activity.subject}
+                      </p>
+                      <span className="shrink-0 text-caption text-[--ink-3]">
+                        {formatRelativeTime(activity.createdAt, now.getTime())}
+                      </span>
+                    </div>
+                    <p className="mt-1 flex items-center gap-1.5 truncate text-footnote text-[--ink-3]">
+                      <span className={`shrink-0 font-medium ${meta.color}`}>
+                        {meta.label}
+                      </span>
+                      {linked && (
+                        <>
+                          <span aria-hidden>·</span>
+                          <span className="truncate">
+                            {contactName ?? dealTitle}
+                          </span>
+                        </>
+                      )}
+                    </p>
+                    {isOverdue && (
+                      <span className="mt-1.5 inline-flex w-fit items-center rounded-[--r-pill] bg-[--bad-tint] px-2 py-0.5 text-caption font-medium text-[--bad]">
+                        Overdue
+                      </span>
+                    )}
+                  </button>
+
                   <ActivityToggle
                     activityId={activity.id}
                     isCompleted={isCompleted}
                     contactId={activity.contactId}
                     dealId={activity.dealId}
                   />
-                  <button
-                    type="button"
-                    onClick={() => setDetailRow(row)}
-                    className="tap flex min-h-[44px] min-w-0 flex-1 items-center gap-2 py-2 text-left"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <p
-                        className={`truncate text-body font-medium ${
-                          isCompleted ? "text-[--ink-3] line-through" : "text-[--ink-1]"
-                        }`}
-                      >
-                        {activity.subject}
-                      </p>
-                      <p className="mt-0.5 flex items-center gap-1.5 truncate text-footnote text-[--ink-3]">
-                        <span className={meta.color}>{meta.label}</span>
-                        <span aria-hidden>·</span>
-                        <span>{activity.createdAt.slice(0, 10)}</span>
-                        {contactName && (
-                          <>
-                            <span aria-hidden>·</span>
-                            <span className="truncate">{contactName}</span>
-                          </>
-                        )}
-                      </p>
-                    </div>
-                    {isOverdue && (
-                      <span className="shrink-0 rounded-[--r-pill] bg-[--bad-tint] px-2 py-0.5 text-caption font-medium text-[--bad]">
-                        Overdue
-                      </span>
-                    )}
-                    <svg
-                      className="shrink-0 text-[--ink-3]"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden
-                    >
-                      <polyline points="9 18 15 12 9 6" />
-                    </svg>
-                  </button>
                 </li>
               );
             })}
