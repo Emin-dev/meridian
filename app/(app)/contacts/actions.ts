@@ -435,6 +435,9 @@ export async function summarizeContact(
   const db = getDb();
   if (!db) return { noDb: true };
 
+  // Bail out before touching the DB when AI is unconfigured — avoids wasted reads.
+  if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
+
   // The contact row and its recent activities are both keyed on contactId and
   // independent, so fetch them together to cut a round-trip of request latency.
   const [[contact], recentActivities] = await Promise.all([
@@ -452,8 +455,6 @@ export async function summarizeContact(
   ]);
 
   if (!contact) return { error: "Contact not found." };
-
-  if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
 
   const lines: string[] = [
     `Name: ${contact.name}`,
@@ -793,6 +794,9 @@ export async function suggestNextAction(
   const db = getDb();
   if (!db) return { noDb: true };
 
+  // Bail out before touching the DB when AI is unconfigured — avoids wasted reads.
+  if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
+
   const [contact] = await db
     .select()
     .from(schema.contacts)
@@ -800,8 +804,6 @@ export async function suggestNextAction(
     .limit(1);
 
   if (!contact) return { error: "Contact not found." };
-
-  if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
 
   const recentActivities = await db
     .select()
@@ -1690,6 +1692,9 @@ export async function draftOutreachEmail(
   const db = getDb();
   if (!db) return { noDb: true };
 
+  // Bail out before touching the DB when AI is unconfigured — avoids wasted reads.
+  if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
+
   const [contact] = await db
     .select()
     .from(schema.contacts)
@@ -1697,8 +1702,6 @@ export async function draftOutreachEmail(
     .limit(1);
 
   if (!contact) return { error: "Contact not found." };
-
-  if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
 
   const lines = [
     `Name: ${contact.name}`,
