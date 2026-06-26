@@ -82,6 +82,20 @@ export default function KanbanBoard({
     closeSheet();
   }
 
+  // Desktop drag-drop: terminal columns prompt for a reason before committing,
+  // matching the card-select and stage-control paths; other columns move directly.
+  function handleDrop(dealId: number, toStage: StageKey) {
+    const deal = deals.find((d) => d.id === dealId);
+    if (!deal || deal.stage === toStage) return;
+    if (toStage === "won" || toStage === "lost") {
+      setSheetDealId(dealId);
+      setSheetTerminal(toStage);
+      setSheetReason("");
+    } else {
+      void handleMove(dealId, toStage);
+    }
+  }
+
   const sheetDeal = sheetDealId !== null
     ? deals.find((d) => d.id === sheetDealId)
     : null;
@@ -163,7 +177,7 @@ export default function KanbanBoard({
               <KanbanColumn
                 key={stage.key}
                 stageKey={stage.key}
-                onDrop={(id) => void handleMove(id, stage.key)}
+                onDrop={(id) => handleDrop(id, stage.key)}
               >
                 {/* Column header */}
                 <div className="flex items-center justify-between border-b border-[--line-1] px-4 py-3">
