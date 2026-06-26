@@ -1,5 +1,8 @@
 import Link from "next/link";
+import { and, asc, eq, isNotNull, ne, sql } from "drizzle-orm";
 import { getDb } from "@/db";
+import { deals } from "@/db/schema";
+import type { DealWithContact } from "./types";
 import DealModal from "./deal-modal";
 import DealsTable from "./deals-table";
 import KanbanBoard from "./kanban-board";
@@ -44,46 +47,63 @@ export default async function DealsPage({
 
   const db = getDb();
 
-  const [[allDeals, allContacts], settings] = await Promise.all([
-    db
-      ? Promise.all([
-          db.query.deals.findMany({
-            with: { contact: true },
-            orderBy: (deals, { asc }) => [asc(deals.createdAt)],
-          }),
-          db.query.contacts.findMany({
-            columns: { id: true, name: true },
-            orderBy: (contacts, { asc }) => [asc(contacts.name)],
-          }),
-        ])
-      : Promise.resolve([[], []] as [never[], never[]]),
-    getCrmSettings(),
-  ]);
-
-  // Collect unique owners for the filter dropdown (from all deals).
-  const uniqueOwners = Array.from(
-    new Set(allDeals.map((d) => d.owner).filter((o): o is string => !!o))
-  ).sort();
-
   // Validate stage filter against known stages.
   const stageMatch = STAGES.find((s) => s.key === stageFilter) ?? null;
 
-  // Apply owner and stage filters.
-  const visibleDeals = allDeals.filter(
-    (d) =>
-      (!ownerFilter || d.owner === ownerFilter) &&
-      (!stageMatch || d.stage === stageMatch.key)
+  // Shared owner/stage filter for the visible list and the pipeline totals.
+  const listFilter = and(
+    ownerFilter ? eq(deals.owner, ownerFilter) : undefined,
+    stageMatch ? eq(deals.stage, stageMatch.key) : undefined,
   );
 
-  const openDeals = visibleDeals.filter((d) => d.stage !== "lost");
+  const [visibleDeals, totalsRows, ownerRows, countRows, allContacts, settings] =
+    await Promise.all([
+      // Filtered list (uses deals_owner_idx / deals_stage_idx).
+      db
+        ? db.query.deals.findMany({
+            where: listFilter,
+            with: { contact: true },
+            orderBy: (d, { asc }) => [asc(d.createdAt)],
+          })
+        : Promise.resolve([] as DealWithContact[]),
+      // Pipeline + weighted totals over open (non-lost) deals matching the filter.
+      db
+        ? db
+            .select({
+              pipeline: sql<string>`coalesce(sum(${deals.value}), 0)`,
+              weighted: sql<string>`coalesce(sum(${deals.value} * ${deals.probability} / 100.0), 0)`,
+            })
+            .from(deals)
+            .where(and(ne(deals.stage, "lost"), listFilter))
+        : Promise.resolve([{ pipeline: "0", weighted: "0" }]),
+      // Distinct non-null owners for the filter dropdown (across all deals).
+      db
+        ? db
+            .selectDistinct({ owner: deals.owner })
+            .from(deals)
+            .where(isNotNull(deals.owner))
+            .orderBy(asc(deals.owner))
+        : Promise.resolve([] as { owner: string | null }[]),
+      // Total deal count — drives whether the stats block renders.
+      db
+        ? db.select({ count: sql<number>`count(*)::int` }).from(deals)
+        : Promise.resolve([{ count: 0 }]),
+      db
+        ? db.query.contacts.findMany({
+            columns: { id: true, name: true },
+            orderBy: (contacts, { asc }) => [asc(contacts.name)],
+          })
+        : Promise.resolve([] as { id: number; name: string }[]),
+      getCrmSettings(),
+    ]);
 
-  const totalValue = openDeals
-    .filter((d) => d.value)
-    .reduce((sum, d) => sum + parseFloat(d.value!), 0);
+  const uniqueOwners = ownerRows
+    .map((r) => r.owner)
+    .filter((o): o is string => !!o);
 
-  const weightedValue = openDeals
-    .filter((d) => d.value)
-    .reduce((sum, d) => sum + parseFloat(d.value!) * ((d.probability ?? 0) / 100), 0);
+  const totalDealCount = countRows[0]?.count ?? 0;
+  const totalValue = parseFloat(totalsRows[0]?.pipeline ?? "0");
+  const weightedValue = parseFloat(totalsRows[0]?.weighted ?? "0");
 
   const fmtCurrency = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -103,7 +123,7 @@ export default async function DealsPage({
         </div>
         <div className="flex flex-col gap-2 sm:items-end">
           {/* Pipeline / Weighted stats — stack above controls on mobile */}
-          {allDeals.length > 0 && (
+          {totalDealCount > 0 && (
             <div className="flex flex-wrap items-center gap-4 text-sm text-neutral-400">
               <span>
                 Pipeline:{" "}
