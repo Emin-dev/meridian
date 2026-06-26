@@ -35,13 +35,18 @@ interface Props {
 export default async function DealActivityTimeline({ dealId }: Props) {
   const db = getDb();
 
+  const LIMIT = 50;
   let activities: Activity[] = [];
+  let hasMore = false;
   if (db) {
-    activities = await db
+    const rows = await db
       .select()
       .from(schema.activities)
       .where(eq(schema.activities.dealId, dealId))
-      .orderBy(desc(schema.activities.createdAt));
+      .orderBy(desc(schema.activities.createdAt))
+      .limit(LIMIT + 1);
+    hasMore = rows.length > LIMIT;
+    activities = hasMore ? rows.slice(0, LIMIT) : rows;
   }
 
   return (
@@ -128,6 +133,12 @@ export default async function DealActivityTimeline({ dealId }: Props) {
             );
           })}
         </ul>
+      )}
+
+      {hasMore && (
+        <p className="pt-1 text-center text-xs text-[var(--ink-3)]">
+          Showing latest {LIMIT} activities.
+        </p>
       )}
     </div>
   );
