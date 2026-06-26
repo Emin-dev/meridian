@@ -656,6 +656,13 @@ export async function summarizeDeal(dealId: number): Promise<DealSummarizeState>
       },
     ], { maxTokens: 512 });
 
+    // A blank/whitespace-only completion is a successful call with no usable
+    // output — surface a friendly error instead of silently caching "" and
+    // dropping the panel back to its idle hint with no feedback.
+    if (!summary.trim()) {
+      return { error: "AI returned an empty summary. Please try again." };
+    }
+
     const summaryAt = new Date();
 
     // Cache result to the deal row (best-effort — columns may not exist yet)

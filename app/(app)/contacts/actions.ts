@@ -491,6 +491,13 @@ export async function summarizeContact(
       },
     ], { maxTokens: 512 });
 
+    // A blank/whitespace-only completion is a successful call with no usable
+    // output — surface a friendly error instead of silently caching "" and
+    // dropping the panel back to its idle hint with no feedback.
+    if (!summary.trim()) {
+      return { error: "AI returned an empty summary. Please try again." };
+    }
+
     const summaryAt = new Date();
 
     // Cache result to the contact row (best-effort — columns may not exist yet)
@@ -1723,6 +1730,11 @@ export async function draftOutreachEmail(
         content: `Draft a personalized outreach email to this contact:\n\n${lines.join("\n")}`,
       },
     ]);
+    // A blank completion is a successful call with no usable output — surface a
+    // friendly error rather than leaving the panel on its idle hint.
+    if (!draft.trim()) {
+      return { error: "AI returned an empty draft. Please try again." };
+    }
     return { draft };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown AI error.";

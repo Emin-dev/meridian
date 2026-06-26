@@ -18,6 +18,7 @@ export default function DealSummarizePanel({ dealId, initialSummary, initialSumm
   const [isPending, startTransition] = useTransition();
 
   function handleSummarize() {
+    setResult((prev) => ({ ...prev, error: undefined }));
     startTransition(async () => {
       try {
         const r = await summarizeDeal(dealId);
