@@ -245,6 +245,9 @@ export async function bulkImportContacts(
       await db.insert(schema.contacts).values(toInsert);
     } catch (e) {
       console.error("bulkImportContacts insert failed:", e);
+      // Revalidate so the list re-fetches from the DB and any optimistic
+      // "imported" rows the client rendered are dropped — nothing was saved.
+      revalidatePath("/contacts");
       return {
         count: 0,
         skipped,
