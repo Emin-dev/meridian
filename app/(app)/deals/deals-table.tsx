@@ -322,7 +322,7 @@ export default function DealsTable({
           </div>
         )}
 
-        <div className="divide-y divide-[var(--line-1)]">
+        <div className="anim-stagger divide-y divide-[var(--line-1)]">
           {deals.map((deal) => {
             const age = dealAgeInDays(deal.createdAt);
             const isSelected = selectedIds.has(deal.id);

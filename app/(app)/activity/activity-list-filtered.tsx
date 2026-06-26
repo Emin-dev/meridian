@@ -455,7 +455,7 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
           </ul>
 
           {/* Mobile stacked cards — big glanceable tiles that tap to open a detail sheet */}
-          <ul className="flex flex-col gap-2 p-3 lg:hidden">
+          <ul className="anim-stagger flex flex-col gap-2 p-3 lg:hidden">
             {filtered.map((row) => {
               const { activity, contactName, dealTitle } = row;
               const meta = TYPE_META[activity.type as ActivityType];

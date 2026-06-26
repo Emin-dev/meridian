@@ -107,7 +107,7 @@ function ContactCards({
   onCardTap?: (c: ContactListItem) => void;
 }) {
   return (
-    <div className="divide-y divide-[var(--line-1)]">
+    <div className="anim-stagger divide-y divide-[var(--line-1)]">
       {contacts.map((c) => {
         const statusMeta = c.status ? STATUS_LABELS[c.status] : null;
         const secondary = [

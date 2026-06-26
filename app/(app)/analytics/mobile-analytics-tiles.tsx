@@ -33,7 +33,7 @@ export default function MobileAnalyticsTiles({
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="anim-stagger grid grid-cols-2 gap-3">
         {tiles.map((tile) => (
           <button
             key={tile.key}
