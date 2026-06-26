@@ -210,6 +210,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
           {/* Change status */}
           <div className="flex items-center gap-1.5">
             <select
+              aria-label="Set status for selected contacts"
               value={statusSelect}
               onChange={(e) => setStatusSelect(e.target.value as ContactStatus)}
               className="tap rounded border border-neutral-700 bg-neutral-900 px-2 text-xs text-neutral-200"
@@ -232,6 +233,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
           {/* Add tag */}
           <div className="flex items-center gap-1.5">
             <input
+              aria-label="Tag to add"
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleAddTag()}
@@ -250,6 +252,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
           {/* Change owner */}
           <div className="flex items-center gap-1.5">
             <input
+              aria-label="New owner name"
               value={ownerInput}
               onChange={(e) => setOwnerInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleChangeOwner()}
@@ -268,6 +271,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
           {sequences.length > 0 && (
             <div className="flex items-center gap-1.5">
               <select
+                aria-label="Enroll selected contacts in sequence"
                 value={sequenceSelect}
                 onChange={(e) => setSequenceSelect(e.target.value)}
                 className="tap rounded border border-neutral-700 bg-neutral-900 px-2 text-xs text-neutral-200"
