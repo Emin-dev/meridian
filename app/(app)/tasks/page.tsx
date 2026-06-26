@@ -4,6 +4,7 @@ import TaskQuickAddForm from "./task-quick-add-form";
 import TaskRow, { type TaskRowData } from "./task-row";
 import { EmptyState } from "@/components/empty-state";
 import { DemoDataButton } from "@/components/demo-data-button";
+import FocusAddTaskButton from "./focus-add-task-button";
 
 const TaskIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -162,10 +163,13 @@ export default async function TasksPage() {
             title="No tasks yet"
             description="Add your first task using the form above, or log one from a contact or deal."
             action={
-              <DemoDataButton
-                label="Load demo data"
-                className="tap inline-flex items-center gap-2 rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-3 text-caption font-medium text-[--ink-2] transition-colors hover:text-[--ink-1] disabled:opacity-50"
-              />
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <FocusAddTaskButton />
+                <DemoDataButton
+                  label="Load demo data"
+                  className="tap inline-flex items-center gap-2 rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-3 text-caption font-medium text-[--ink-2] transition-colors hover:text-[--ink-1] disabled:opacity-50"
+                />
+              </div>
             }
           />
         </div>
