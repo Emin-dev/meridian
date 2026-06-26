@@ -42,9 +42,9 @@ function dealAgeInDays(createdAt: Date): number {
 }
 
 function ageBadgeClass(days: number): string {
-  if (days <= 14) return "bg-neutral-500/15 text-neutral-400";
-  if (days <= 30) return "bg-amber-500/15 text-amber-400";
-  return "bg-red-500/15 text-red-400";
+  if (days <= 14) return "bg-[--surface-2] text-[--ink-2]";
+  if (days <= 30) return "bg-[--warn-tint] text-[--warn]";
+  return "bg-[--bad-tint] text-[--bad]";
 }
 
 function SortIcon({ active, dir }: { active: boolean; dir: SortDir }) {
@@ -193,11 +193,11 @@ export default function DealsTable({
   });
 
   const thClass =
-    "px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-neutral-400 cursor-pointer select-none hover:text-neutral-200 whitespace-nowrap";
+    "px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[--ink-3] cursor-pointer select-none hover:text-[--ink-1] whitespace-nowrap";
 
   if (deals.length === 0) {
     return (
-      <p className="py-12 text-center text-sm text-neutral-500">No deals yet.</p>
+      <p className="py-12 text-center text-sm text-[--ink-3]">No deals yet.</p>
     );
   }
 
@@ -205,8 +205,8 @@ export default function DealsTable({
     <div className="space-y-3">
       {/* Bulk action bar — desktop only (mobile uses the action sheet) */}
       {someSelected && (
-        <div className="sticky top-0 z-30 hidden flex-wrap items-center gap-2 rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 shadow-sm shadow-black/20 backdrop-blur lg:flex">
-          <span className="flex min-h-[44px] items-center text-sm font-medium text-indigo-300">
+        <div className="sticky top-0 z-30 hidden flex-wrap items-center gap-2 rounded-lg border border-[--accent]/30 bg-[--accent-tint] px-4 py-2 shadow-sm shadow-black/20 backdrop-blur lg:flex">
+          <span className="flex min-h-[44px] items-center text-sm font-medium text-[--accent]">
             {selectedIds.size} selected
           </span>
 
@@ -215,7 +215,7 @@ export default function DealsTable({
             <select
               value={stageSelect}
               onChange={(e) => setStageSelect(e.target.value)}
-              className="tap rounded border border-neutral-700 bg-neutral-900 px-2 text-xs text-neutral-200"
+              className="tap rounded border border-[--line-1] bg-[--surface-1] px-2 text-xs text-[--ink-1]"
             >
               {STAGE_OPTIONS.map((s) => (
                 <option key={s.value} value={s.value}>
@@ -226,7 +226,7 @@ export default function DealsTable({
             <button
               onClick={handleMoveStage}
               disabled={isPending}
-              className="tap flex items-center justify-center rounded bg-neutral-700 px-2.5 text-xs font-medium text-neutral-200 hover:bg-neutral-600 disabled:opacity-50"
+              className="tap flex items-center justify-center rounded bg-[--surface-2] px-2.5 text-xs font-medium text-[--ink-1] hover:bg-[--surface-3] disabled:opacity-50"
             >
               Move to stage
             </button>
@@ -240,7 +240,7 @@ export default function DealsTable({
               onChange={(e) => setOwnerInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleChangeOwner()}
               placeholder="Owner name"
-              className="tap w-full rounded border border-neutral-700 bg-neutral-900 px-2 text-xs text-neutral-200 placeholder-neutral-600 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:w-32"
+              className="tap w-full rounded border border-[--line-1] bg-[--surface-1] px-2 text-xs text-[--ink-1] placeholder-[--ink-3] focus:outline-none focus:ring-1 focus:ring-[--accent] sm:w-32"
             />
             {owners.length > 0 && (
               <datalist id="deal-owners-list">
@@ -252,7 +252,7 @@ export default function DealsTable({
             <button
               onClick={handleChangeOwner}
               disabled={isPending}
-              className="tap flex items-center justify-center rounded bg-neutral-700 px-2.5 text-xs font-medium text-neutral-200 hover:bg-neutral-600 disabled:opacity-50"
+              className="tap flex items-center justify-center rounded bg-[--surface-2] px-2.5 text-xs font-medium text-[--ink-1] hover:bg-[--surface-3] disabled:opacity-50"
             >
               Set owner
             </button>
@@ -262,7 +262,7 @@ export default function DealsTable({
           <button
             onClick={handleDelete}
             disabled={isPending}
-            className="tap flex items-center justify-center rounded bg-red-500/15 px-2.5 text-xs font-medium text-red-400 hover:bg-red-500/25 disabled:opacity-50"
+            className="tap flex items-center justify-center rounded bg-[--bad-tint] px-2.5 text-xs font-medium text-[--bad] hover:opacity-80 disabled:opacity-50"
           >
             Delete
           </button>
@@ -275,7 +275,7 @@ export default function DealsTable({
             )}
             <button
               onClick={() => setSelectedIds(new Set())}
-              className="tap flex items-center justify-center text-xs text-neutral-500 hover:text-neutral-300"
+              className="tap flex items-center justify-center text-xs text-[--ink-3] hover:text-[--ink-1]"
             >
               Clear selection
             </button>
@@ -284,12 +284,12 @@ export default function DealsTable({
       )}
 
       {/* Mobile stacked cards */}
-      <div className="overflow-hidden rounded-xl border border-neutral-800 lg:hidden">
+      <div className="overflow-hidden rounded-xl border border-[--line-1] lg:hidden">
         {/* Mobile select toolbar */}
-        <div className="flex items-center gap-3 border-b border-neutral-800 px-4 py-2">
+        <div className="flex items-center gap-3 border-b border-[--line-1] px-4 py-2">
           {selectMode ? (
             <>
-              <label className="tap flex cursor-pointer items-center gap-2 text-xs font-medium text-neutral-300">
+              <label className="tap flex cursor-pointer items-center gap-2 text-xs font-medium text-[--ink-1]">
                 <input
                   type="checkbox"
                   checked={allSelected}
@@ -298,7 +298,7 @@ export default function DealsTable({
                   }}
                   onChange={toggleAll}
                   aria-label="Select all deals"
-                  className="h-4 w-4 cursor-pointer rounded border-neutral-600 accent-indigo-500"
+                  className="h-4 w-4 cursor-pointer rounded border-[--line-2] accent-[--accent]"
                 />
                 {selectedIds.size > 0 ? `${selectedIds.size} selected` : "Select all"}
               </label>
@@ -306,13 +306,13 @@ export default function DealsTable({
                 <button
                   onClick={() => setSheetOpen(true)}
                   disabled={!someSelected}
-                  className="tap flex items-center justify-center rounded-lg bg-indigo-600 px-3 text-xs font-medium text-white hover:bg-indigo-500 disabled:opacity-40"
+                  className="tap flex items-center justify-center rounded-lg bg-[--accent] px-3 text-xs font-medium text-[--accent-ink] hover:bg-[--accent-hover] disabled:opacity-40"
                 >
                   Actions
                 </button>
                 <button
                   onClick={exitSelectMode}
-                  className="tap flex items-center justify-center text-xs text-neutral-400 hover:text-neutral-200"
+                  className="tap flex items-center justify-center text-xs text-[--ink-2] hover:text-[--ink-1]"
                 >
                   Cancel
                 </button>
@@ -321,7 +321,7 @@ export default function DealsTable({
           ) : (
             <button
               onClick={() => setSelectMode(true)}
-              className="tap ml-auto flex items-center justify-center text-xs font-medium text-neutral-400 hover:text-neutral-200"
+              className="tap ml-auto flex items-center justify-center text-xs font-medium text-[--ink-2] hover:text-[--ink-1]"
             >
               Select
             </button>
@@ -330,7 +330,7 @@ export default function DealsTable({
 
         {feedback && (
           <div
-            className={`border-b border-neutral-800 px-4 py-2 text-xs ${
+            className={`border-b border-[--line-1] px-4 py-2 text-xs ${
               feedback.ok ? "text-emerald-400" : "text-red-400"
             }`}
           >
@@ -359,16 +359,16 @@ export default function DealsTable({
                     readOnly
                     tabIndex={-1}
                     aria-hidden
-                    className="pointer-events-none h-4 w-4 flex-shrink-0 rounded border-neutral-600 accent-indigo-500"
+                    className="pointer-events-none h-4 w-4 flex-shrink-0 rounded border-[--line-2] accent-[--accent]"
                   />
                 )}
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-body font-medium text-neutral-100">{deal.title}</p>
-                  <p className="truncate text-xs text-neutral-400">
+                  <p className="truncate text-body font-medium text-[--ink-1]">{deal.title}</p>
+                  <p className="truncate text-xs text-[--ink-2]">
                     {deal.contact?.name && (
-                      <span className="text-neutral-300">{deal.contact.name} • </span>
+                      <span className="text-[--ink-1]">{deal.contact.name} • </span>
                     )}
-                    <span className={`font-medium ${STAGE_COLORS[deal.stage] ?? "text-neutral-400"}`}>
+                    <span className={`font-medium ${STAGE_COLORS[deal.stage] ?? "text-[--ink-2]"}`}>
                       {STAGE_LABELS[deal.stage] ?? deal.stage}
                     </span>
                     <span> • {value}</span>
@@ -389,7 +389,7 @@ export default function DealsTable({
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className="flex-shrink-0 text-neutral-600"
+                    className="flex-shrink-0 text-[--ink-3]"
                     aria-hidden
                   >
                     <path d="M9 18l6-6-6-6" />
@@ -408,8 +408,8 @@ export default function DealsTable({
                   aria-label={`Select ${deal.title}`}
                   className={`flex min-h-[44px] w-full items-center gap-3 px-4 py-3 text-left transition-colors ${
                     isSelected
-                      ? "bg-indigo-500/10"
-                      : "hover:bg-neutral-800/40 active:bg-neutral-800/60"
+                      ? "bg-[--accent-tint]"
+                      : "hover:bg-[--surface-2]/40 active:bg-[--surface-2]/60"
                   }`}
                 >
                   {body}
@@ -421,7 +421,7 @@ export default function DealsTable({
               <Link
                 key={deal.id}
                 href={`/deals/${deal.id}`}
-                className="flex min-h-[44px] items-center gap-3 px-4 py-3 transition-colors hover:bg-neutral-800/40 active:bg-neutral-800/60"
+                className="flex min-h-[44px] items-center gap-3 px-4 py-3 transition-colors hover:bg-[--surface-2]/40 active:bg-[--surface-2]/60"
               >
                 {body}
               </Link>
@@ -431,11 +431,11 @@ export default function DealsTable({
       </div>
 
       {/* Desktop table */}
-      <div className="hidden overflow-x-auto rounded-xl border border-neutral-800 lg:block">
+      <div className="hidden overflow-x-auto rounded-xl border border-[--line-1] lg:block">
         <table className="w-full text-sm">
-          <thead className="border-b border-neutral-800 bg-neutral-900">
+          <thead className="border-b border-[--line-1] bg-[--surface-1]">
             <tr>
-              <th className="sticky left-0 z-20 w-11 bg-neutral-900">
+              <th className="sticky left-0 z-20 w-11 bg-[--surface-1]">
                 <label className="flex min-h-[44px] min-w-[44px] cursor-pointer items-center justify-center">
                   <input
                     type="checkbox"
@@ -445,11 +445,11 @@ export default function DealsTable({
                     }}
                     onChange={toggleAll}
                     aria-label="Select all deals"
-                    className="h-4 w-4 cursor-pointer rounded border-neutral-600 accent-indigo-500"
+                    className="h-4 w-4 cursor-pointer rounded border-[--line-2] accent-[--accent]"
                   />
                 </label>
               </th>
-              <th className={`${thClass} sticky left-11 z-20 bg-neutral-900 border-r border-neutral-800`} onClick={() => handleSort("title")}>
+              <th className={`${thClass} sticky left-11 z-20 bg-[--surface-1] border-r border-[--line-1]`} onClick={() => handleSort("title")}>
                 Title <SortIcon active={sortKey === "title"} dir={sortDir} />
               </th>
               <th className={thClass} onClick={() => handleSort("contact")}>
@@ -494,31 +494,31 @@ export default function DealsTable({
               return (
                 <tr
                   key={deal.id}
-                  className={`border-b border-neutral-800 last:border-0 transition-colors ${
+                  className={`border-b border-[--line-1] last:border-0 transition-colors ${
                     isSelected
-                      ? "bg-indigo-500/5"
+                      ? "bg-[--accent-tint]"
                       : i % 2 === 0
-                        ? "bg-neutral-900 hover:bg-neutral-800/50"
-                        : "bg-neutral-900/60 hover:bg-neutral-800/50"
+                        ? "bg-[--surface-1] hover:bg-[--surface-2]/40"
+                        : "bg-[--surface-1]/60 hover:bg-[--surface-2]/40"
                   }`}
                 >
-                  <td className={`sticky left-0 z-10 w-11 ${isSelected ? "bg-indigo-900/30" : "bg-neutral-900"}`}>
+                  <td className={`sticky left-0 z-10 w-11 ${isSelected ? "bg-[--accent-tint]" : "bg-[--surface-1]"}`}>
                     <label className="flex min-h-[44px] min-w-[44px] cursor-pointer items-center justify-center">
                       <input
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => toggle(deal.id)}
                         aria-label={`Select ${deal.title}`}
-                        className="h-4 w-4 cursor-pointer rounded border-neutral-600 accent-indigo-500"
+                        className="h-4 w-4 cursor-pointer rounded border-[--line-2] accent-[--accent]"
                       />
                     </label>
                   </td>
-                  <td className={`px-4 py-3 font-medium text-neutral-100 sticky left-11 z-10 border-r border-neutral-800 ${isSelected ? "bg-indigo-900/30" : "bg-neutral-900"}`}>
+                  <td className={`px-4 py-3 font-medium text-[--ink-1] sticky left-11 z-10 border-r border-[--line-1] ${isSelected ? "bg-[--accent-tint]" : "bg-[--surface-1]"}`}>
                     <Link href={`/deals/${deal.id}`} className="hover:underline">
                       {deal.title}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-neutral-300">
+                  <td className="px-4 py-3 text-[--ink-2]">
                     {deal.contact ? (
                       <Link
                         href={`/contacts/${deal.contact.id}`}
@@ -531,13 +531,13 @@ export default function DealsTable({
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`font-medium ${STAGE_COLORS[deal.stage] ?? "text-neutral-400"}`}>
+                    <span className={`font-medium ${STAGE_COLORS[deal.stage] ?? "text-[--ink-2]"}`}>
                       {STAGE_LABELS[deal.stage] ?? deal.stage}
                     </span>
                   </td>
-                  <td className="px-4 py-3 tabular-nums text-neutral-300">{value}</td>
-                  <td className="px-4 py-3 tabular-nums text-neutral-300">{closeDate}</td>
-                  <td className="px-4 py-3 text-neutral-400">{deal.owner ?? "—"}</td>
+                  <td className="px-4 py-3 tabular-nums text-[--ink-2]">{value}</td>
+                  <td className="px-4 py-3 tabular-nums text-[--ink-2]">{closeDate}</td>
+                  <td className="px-4 py-3 text-[--ink-2]">{deal.owner ?? "—"}</td>
                   <td className="px-4 py-3 tabular-nums">
                     <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${ageBadgeClass(age)}`}>
                       {age}d
@@ -563,7 +563,7 @@ export default function DealsTable({
               aria-label="Set stage for selected deals"
               value={stageSelect}
               onChange={(e) => setStageSelect(e.target.value)}
-              className="tap min-w-0 flex-1 rounded-lg border border-neutral-700 bg-neutral-900 px-3 text-sm text-neutral-200"
+              className="tap min-w-0 flex-1 rounded-lg border border-[--line-1] bg-[--surface-1] px-3 text-sm text-[--ink-1]"
             >
               {STAGE_OPTIONS.map((s) => (
                 <option key={s.value} value={s.value}>
@@ -574,7 +574,7 @@ export default function DealsTable({
             <button
               onClick={handleMoveStage}
               disabled={isPending}
-              className="tap flex shrink-0 items-center justify-center rounded-lg bg-neutral-700 px-4 text-sm font-medium text-neutral-100 hover:bg-neutral-600 disabled:opacity-50"
+              className="tap flex shrink-0 items-center justify-center rounded-lg bg-[--surface-2] px-4 text-sm font-medium text-[--ink-1] hover:bg-[--surface-3] disabled:opacity-50"
             >
               Move to stage
             </button>
@@ -589,7 +589,7 @@ export default function DealsTable({
               onChange={(e) => setOwnerInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleChangeOwner()}
               placeholder="Owner name"
-              className="tap min-w-0 flex-1 rounded-lg border border-neutral-700 bg-neutral-900 px-3 text-sm text-neutral-200 placeholder-neutral-600 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="tap min-w-0 flex-1 rounded-lg border border-[--line-1] bg-[--surface-1] px-3 text-sm text-[--ink-1] placeholder-[--ink-3] focus:outline-none focus:ring-1 focus:ring-[--accent]"
             />
             {owners.length > 0 && (
               <datalist id="deal-owners-list-sheet">
@@ -601,7 +601,7 @@ export default function DealsTable({
             <button
               onClick={handleChangeOwner}
               disabled={isPending}
-              className="tap flex shrink-0 items-center justify-center rounded-lg bg-neutral-700 px-4 text-sm font-medium text-neutral-100 hover:bg-neutral-600 disabled:opacity-50"
+              className="tap flex shrink-0 items-center justify-center rounded-lg bg-[--surface-2] px-4 text-sm font-medium text-[--ink-1] hover:bg-[--surface-3] disabled:opacity-50"
             >
               Set owner
             </button>
@@ -611,7 +611,7 @@ export default function DealsTable({
           <button
             onClick={handleDelete}
             disabled={isPending}
-            className="tap flex items-center justify-center rounded-lg bg-red-500/15 px-4 text-sm font-medium text-red-400 hover:bg-red-500/25 disabled:opacity-50"
+            className="tap flex items-center justify-center rounded-lg bg-[--bad-tint] px-4 text-sm font-medium text-[--bad] hover:opacity-80 disabled:opacity-50"
           >
             Delete {selectedIds.size} deal(s)
           </button>
