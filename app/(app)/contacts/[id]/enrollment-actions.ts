@@ -8,6 +8,21 @@ import { requireSession } from "@/lib/require-session";
 
 const idSchema = z.coerce.number().int().positive();
 
+// Postgres raises SQLSTATE 23505 on a unique-constraint violation. Drizzle/Neon
+// wrap the driver error, so walk the cause chain to find the code.
+function isUniqueViolation(err: unknown): boolean {
+  for (let e: unknown = err; e != null; e = (e as { cause?: unknown }).cause) {
+    if (
+      typeof e === "object" &&
+      "code" in e &&
+      (e as { code?: unknown }).code === "23505"
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export type EnrollmentState = {
   error?: string;
   success?: boolean;
@@ -60,7 +75,12 @@ export async function enrollInSequence(
     await db
       .insert(schema.contactSequenceEnrollments)
       .values({ contactId, sequenceId });
-  } catch {
+  } catch (err) {
+    // A concurrent enroll won the race and created the active row between our
+    // check above and this insert; the contact is already enrolled.
+    if (isUniqueViolation(err)) {
+      return { error: "Already enrolled in this sequence." };
+    }
     // Don't crash the route on a transient DB/constraint error; surface it so
     // the user can retry — the contact simply stays unenrolled.
     return { error: "Couldn't enroll the contact. Please try again." };

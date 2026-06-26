@@ -1169,6 +1169,21 @@ export async function bulkChangeOwner(
   return { success: true, count: ids.length };
 }
 
+// Postgres raises SQLSTATE 23505 on a unique-constraint violation. Drizzle/Neon
+// wrap the driver error, so walk the cause chain to find the code.
+function isUniqueViolation(err: unknown): boolean {
+  for (let e: unknown = err; e != null; e = (e as { cause?: unknown }).cause) {
+    if (
+      typeof e === "object" &&
+      "code" in e &&
+      (e as { code?: unknown }).code === "23505"
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export async function bulkEnrollInSequence(
   ids: number[],
   sequenceId: number
@@ -1211,7 +1226,15 @@ export async function bulkEnrollInSequence(
       await db
         .insert(schema.contactSequenceEnrollments)
         .values(toEnroll.map((contactId) => ({ contactId, sequenceId })));
-    } catch {
+    } catch (err) {
+      // A concurrent enroll created active row(s) between our check and this
+      // insert, tripping the partial unique index and rolling back the batch.
+      // Retrying re-filters the now-enrolled contacts and succeeds for the rest.
+      if (isUniqueViolation(err)) {
+        return {
+          error: "Some contacts were just enrolled. Please try again.",
+        };
+      }
       return { error: "Couldn't enroll the contacts. Please try again." };
     }
   }

@@ -7,6 +7,7 @@ import {
   numeric,
   pgEnum,
   index,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
@@ -270,6 +271,12 @@ export const contactSequenceEnrollments = pgTable(
     index("cse_status_idx").on(table.status),
     index("cse_contact_id_idx").on(table.contactId),
     index("cse_sequence_id_idx").on(table.sequenceId),
+    // At most one active enrollment per (contact, sequence). The app does a
+    // pre-insert check, but concurrent enrolls can both pass it and create
+    // duplicate active rows — this partial unique index closes that race.
+    uniqueIndex("cse_active_unique_idx")
+      .on(table.contactId, table.sequenceId)
+      .where(sql`${table.status} = 'active'`),
   ]
 );
 
