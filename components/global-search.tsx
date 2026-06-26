@@ -170,7 +170,10 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
             aria-label="Global search"
           />
           {isPending && (
-            <div className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-[var(--accent)] border-t-transparent" aria-hidden="true" />
+            <>
+              <div className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-[var(--accent)] border-t-transparent" aria-hidden="true" />
+              <span role="status" className="sr-only">Searching…</span>
+            </>
           )}
           <kbd className="shrink-0 rounded border border-[var(--line-1)] px-1.5 py-0.5 font-mono text-caption text-[var(--ink-3)]">
             Esc
@@ -180,13 +183,13 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
         {/* Results list — scrollable */}
         <div ref={listRef} className="flex-1 min-h-0 overflow-y-auto" role="listbox" aria-label="Search results">
           {!results && (
-            <p className="py-8 text-center text-body text-[var(--ink-3)]">
+            <p role="status" className="py-8 text-center text-body text-[var(--ink-3)]">
               Type to search contacts, deals and activities
             </p>
           )}
 
           {results && allItems.length === 0 && (
-            <p className="py-8 text-center text-body text-[var(--ink-3)]">
+            <p role="status" className="py-8 text-center text-body text-[var(--ink-3)]">
               No results for &ldquo;{query}&rdquo;
             </p>
           )}
