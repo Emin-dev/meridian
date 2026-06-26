@@ -371,7 +371,7 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
               return (
                 <li
                   key={activity.id}
-                  className={`flex gap-3 px-4 py-3 ${isOverdue ? "bg-[var(--bad-tint)]" : ""}`}
+                  className={`flex items-start gap-3 px-4 py-3 ${isOverdue ? "bg-[var(--bad-tint)]" : ""}`}
                 >
                   <ActivityToggle
                     activityId={activity.id}
