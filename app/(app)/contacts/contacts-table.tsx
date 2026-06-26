@@ -18,10 +18,10 @@ function getLastContactedMeta(dateStr: string | null): { text: string; dotClass:
   const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
   const dotClass =
     diffDays < 7
-      ? "bg-emerald-400"
+      ? "bg-[--ok]"
       : diffDays <= 30
-        ? "bg-amber-400"
-        : "bg-red-400";
+        ? "bg-[--warn]"
+        : "bg-[--bad]";
   const sameYear = date.getFullYear() === now.getFullYear();
   const text = date.toLocaleDateString("en-US", {
     month: "short",
@@ -40,10 +40,10 @@ const SOURCE_LABELS: Record<string, string> = {
 };
 
 const STATUS_LABELS: Record<string, { label: string; className: string }> = {
-  lead: { label: "Lead", className: "bg-blue-500/10 text-blue-400" },
-  active: { label: "Active", className: "bg-emerald-500/10 text-emerald-400" },
+  lead: { label: "Lead", className: "bg-[--accent-tint] text-[--accent]" },
+  active: { label: "Active", className: "bg-[--ok-tint] text-[--ok]" },
   inactive: { label: "Inactive", className: "bg-[--surface-2] text-[--ink-2]" },
-  churned: { label: "Churned", className: "bg-red-500/10 text-red-400" },
+  churned: { label: "Churned", className: "bg-[--bad-tint] text-[--bad]" },
 };
 
 const STATUSES = [
