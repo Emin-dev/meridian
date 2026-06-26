@@ -36,6 +36,24 @@ export function formatShortDate(d: string | Date | null): string {
 }
 
 /**
+ * Sums a list of money-bearing rows into a per-currency total, returning a map
+ * of ISO currency code → summed amount. Rows whose `value` is null, undefined,
+ * or non-finite (NaN/Infinity) are skipped, so a bad deal row can never poison
+ * a KPI total. Used by the dashboard so mixed-currency pipeline totals are
+ * never naively summed under a single symbol.
+ */
+export function sumByCurrency(
+  items: Array<{ value: number | null | undefined; currency: string }>,
+): Record<string, number> {
+  const totals: Record<string, number> = {};
+  for (const { value, currency } of items) {
+    if (value == null || !Number.isFinite(value)) continue;
+    totals[currency] = (totals[currency] ?? 0) + value;
+  }
+  return totals;
+}
+
+/**
  * Compares two decimal-string (or null/undefined) values numerically, so that
  * equivalent representations like "100" and "100.00" are treated as equal.
  * Falls back to strict string equality when either side isn't a parseable

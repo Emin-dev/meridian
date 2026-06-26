@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { and, eq, gte, isNotNull, notInArray, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
-import { formatCurrency } from "@/lib/format";
+import { formatCurrency, sumByCurrency } from "@/lib/format";
 import { getCrmSettings } from "@/lib/settings";
 import MobileAnalyticsTiles, {
   type AnalyticsTile,
@@ -113,10 +113,12 @@ export default async function AnalyticsBody({ days }: { days: string }) {
     : null;
 
   const db = getDb();
-  // Format every money aggregate in the CRM's configured default currency
-  // (getCrmSettings falls back to defaults — and the empty DB case — gracefully).
+  // Deals can be in mixed currencies, so a single SQL sum() would blend them
+  // into a dishonest number. We pick the dominant currency (the one holding the
+  // most total deal value) below and label every money aggregate in it, scoping
+  // value figures to that currency. getCrmSettings falls back to defaults — and
+  // the empty DB case — gracefully, providing the fallback currency.
   const { defaultCurrency } = await getCrmSettings();
-  const fmtMoney = (value: number) => formatCurrency(value, defaultCurrency);
   const dealWhere = since ? gte(schema.deals.createdAt, since) : undefined;
   const contactWhere = since ? gte(schema.contacts.createdAt, since) : undefined;
 
@@ -126,13 +128,14 @@ export default async function AnalyticsBody({ days }: { days: string }) {
     ? await db
         .select({
           stage: schema.deals.stage,
+          currency: schema.deals.currency,
           count: sql<number>`count(*)::int`,
           value: sql<number>`coalesce(sum(${schema.deals.value}), 0)::float8`,
           valueCount: sql<number>`count(${schema.deals.value})::int`,
         })
         .from(schema.deals)
         .where(dealWhere)
-        .groupBy(schema.deals.stage)
+        .groupBy(schema.deals.stage, schema.deals.currency)
     : [];
 
   // ── Avg days to close (createdAt → updatedAt) for won deals ───────────────────
@@ -153,6 +156,7 @@ export default async function AnalyticsBody({ days }: { days: string }) {
         .select({
           year: sql<number>`extract(year from ${schema.deals.expectedCloseDate})::int`,
           month: sql<number>`extract(month from ${schema.deals.expectedCloseDate})::int - 1`,
+          currency: schema.deals.currency,
           raw: sql<number>`coalesce(sum(${schema.deals.value}), 0)::float8`,
           weighted: sql<number>`coalesce(sum(${schema.deals.value} * ${schema.deals.probability} / 100.0), 0)::float8`,
         })
@@ -167,7 +171,8 @@ export default async function AnalyticsBody({ days }: { days: string }) {
         )
         .groupBy(
           sql`extract(year from ${schema.deals.expectedCloseDate})::int`,
-          sql`extract(month from ${schema.deals.expectedCloseDate})::int - 1`
+          sql`extract(month from ${schema.deals.expectedCloseDate})::int - 1`,
+          schema.deals.currency
         )
     : [];
 
@@ -217,7 +222,32 @@ export default async function AnalyticsBody({ days }: { days: string }) {
         .groupBy(schema.contacts.source)
     : [];
 
+  // ── Dominant currency ─────────────────────────────────────────────────────────
+  // Pick the currency holding the most total deal value; all money aggregates
+  // are labelled in it and value sums are scoped to it, so mixed currencies are
+  // never blended under one symbol. Falls back to the configured default when
+  // there are no valued deals.
+  const valueByCurrency = sumByCurrency(
+    stageAgg.map((r) => ({ value: r.value, currency: r.currency }))
+  );
+  const dominantCurrency =
+    Object.entries(valueByCurrency).sort((a, b) => b[1] - a[1])[0]?.[0] ??
+    defaultCurrency;
+  const otherCurrencyCount = Math.max(
+    Object.keys(valueByCurrency).length - 1,
+    0
+  );
+  const mixedCurrencyNote =
+    otherCurrencyCount > 0
+      ? `Money totals shown in ${dominantCurrency}; deals in ${otherCurrencyCount} other currenc${
+          otherCurrencyCount === 1 ? "y are" : "ies are"
+        } excluded.`
+      : null;
+  const fmtMoney = (value: number) => formatCurrency(value, dominantCurrency);
+
   // ── Derive per-stage maps + total ─────────────────────────────────────────────
+  // Counts span every currency (a deal is a deal regardless of currency), but
+  // value sums are scoped to the dominant currency so totals stay honest.
   const stageCount: Record<string, number> = {};
   const stageValue: Record<string, number> = {};
   const stageValueCount: Record<string, number> = {};
@@ -225,9 +255,11 @@ export default async function AnalyticsBody({ days }: { days: string }) {
   for (const r of stageAgg) {
     totalDeals += r.count;
     if (!r.stage) continue;
-    stageCount[r.stage] = r.count;
-    stageValue[r.stage] = r.value;
-    stageValueCount[r.stage] = r.valueCount;
+    stageCount[r.stage] = (stageCount[r.stage] ?? 0) + r.count;
+    if (r.currency === dominantCurrency) {
+      stageValue[r.stage] = (stageValue[r.stage] ?? 0) + r.value;
+      stageValueCount[r.stage] = (stageValueCount[r.stage] ?? 0) + r.valueCount;
+    }
   }
 
   // ── Summary stats ────────────────────────────────────────────────────────────
@@ -267,6 +299,9 @@ export default async function AnalyticsBody({ days }: { days: string }) {
     };
   });
   for (const row of forecastAgg) {
+    // Scope the forecast to the dominant currency so raw/weighted bars aren't a
+    // blend of incompatible currencies.
+    if (row.currency !== dominantCurrency) continue;
     const bucket = forecastMonths.find(
       (b) => b.year === row.year && b.month === row.month
     );

@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { formatCurrency, formatShortDate, numericEqual } from "@/lib/format";
+import {
+  formatCurrency,
+  formatShortDate,
+  numericEqual,
+  sumByCurrency,
+} from "@/lib/format";
 
 describe("formatCurrency", () => {
   it("formats a whole-dollar amount with no fractional digits", () => {
@@ -40,6 +45,49 @@ describe("formatShortDate", () => {
 
   it("formats a Date object", () => {
     expect(formatShortDate(new Date("2026-01-05T12:00:00Z"))).toBe("Jan 5, 2026");
+  });
+});
+
+describe("sumByCurrency", () => {
+  it("groups and sums amounts by currency code", () => {
+    expect(
+      sumByCurrency([
+        { value: 100, currency: "USD" },
+        { value: 50, currency: "USD" },
+        { value: 200, currency: "EUR" },
+      ]),
+    ).toEqual({ USD: 150, EUR: 200 });
+  });
+
+  it("returns an empty map for an empty list", () => {
+    expect(sumByCurrency([])).toEqual({});
+  });
+
+  it("skips null, undefined, and non-finite values", () => {
+    expect(
+      sumByCurrency([
+        { value: 100, currency: "USD" },
+        { value: null, currency: "USD" },
+        { value: undefined, currency: "USD" },
+        { value: NaN, currency: "EUR" },
+        { value: Infinity, currency: "EUR" },
+      ]),
+    ).toEqual({ USD: 100 });
+  });
+
+  it("does not create a key when every value for a currency is skipped", () => {
+    expect(
+      sumByCurrency([{ value: NaN, currency: "GBP" }]),
+    ).toEqual({});
+  });
+
+  it("preserves negative amounts", () => {
+    expect(
+      sumByCurrency([
+        { value: 300, currency: "USD" },
+        { value: -100, currency: "USD" },
+      ]),
+    ).toEqual({ USD: 200 });
   });
 });
 

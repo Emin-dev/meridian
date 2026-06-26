@@ -50,6 +50,7 @@ export default function MobileKpiTiles({
   weightedPipelineValue,
   weekActivityCount,
   currency,
+  mixedCurrencies = false,
   recentContacts,
   openDeals,
   stageBreakdown,
@@ -61,6 +62,7 @@ export default function MobileKpiTiles({
   weightedPipelineValue: number;
   weekActivityCount: number;
   currency: string;
+  mixedCurrencies?: boolean;
   recentContacts: ContactItem[];
   openDeals: DealItem[];
   stageBreakdown: StageBreakdown[];
@@ -68,14 +70,26 @@ export default function MobileKpiTiles({
 }) {
   const [active, setActive] = useState<TileKey | null>(null);
 
-  const tiles: { key: TileKey; label: string; value: string }[] = [
+  const currencyNote = mixedCurrencies ? "Mixed currencies" : undefined;
+  const tiles: {
+    key: TileKey;
+    label: string;
+    value: string;
+    note?: string;
+  }[] = [
     { key: "contacts", label: "Total Contacts", value: totalContacts.toString() },
     { key: "openDeals", label: "Open Deals", value: openDealsCount.toString() },
-    { key: "pipeline", label: "Pipeline Value", value: formatCurrency(pipelineValue, currency) },
+    {
+      key: "pipeline",
+      label: "Pipeline Value",
+      value: formatCurrency(pipelineValue, currency),
+      note: currencyNote,
+    },
     {
       key: "weighted",
       label: "Weighted Pipeline",
       value: formatCurrency(weightedPipelineValue, currency),
+      note: currencyNote,
     },
     {
       key: "activities",
@@ -234,6 +248,11 @@ export default function MobileKpiTiles({
               <span className="text-title3 mt-1 font-semibold text-[var(--ink-1)]">
                 {tile.value}
               </span>
+              {tile.note && (
+                <span className="text-caption mt-0.5 text-[var(--ink-3)]">
+                  {tile.note}
+                </span>
+              )}
             </button>
           );
         })}

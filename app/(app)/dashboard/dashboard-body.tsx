@@ -9,7 +9,7 @@ import { OnboardingBanner } from "@/components/onboarding-banner";
 import TodayAgenda from "./today-agenda";
 import StaleDeals from "./stale-deals";
 import MobileKpiTiles from "./mobile-kpi-tiles";
-import { formatCurrency } from "@/lib/format";
+import { formatCurrency, sumByCurrency } from "@/lib/format";
 import { getCrmSettings } from "@/lib/settings";
 
 const STAGES = [
@@ -68,9 +68,11 @@ function WidgetSkeleton({ title }: { title: string }) {
 function KpiCard({
   label,
   value,
+  note,
 }: {
   label: string;
   value: string;
+  note?: string;
 }) {
   return (
     <div className="card p-3 sm:p-4">
@@ -80,6 +82,9 @@ function KpiCard({
       <p className="text-title3 sm:text-title2 mt-1 font-semibold text-[var(--ink-1)]">
         {value}
       </p>
+      {note && (
+        <p className="text-caption mt-0.5 text-[var(--ink-3)]">{note}</p>
+      )}
     </div>
   );
 }
@@ -92,6 +97,12 @@ export default async function DashboardBody() {
   let openDealsCount = 0;
   let pipelineValue = 0;
   let weightedPipelineValue = 0;
+  // Pipeline KPIs are reported in a single primary currency (the open-deal
+  // currency with the largest total). When open deals span more than one
+  // currency we surface a "Mixed currencies" note rather than silently summing
+  // them under one symbol.
+  let pipelineCurrency = defaultCurrency;
+  let mixedCurrencies = false;
   let weekActivityCount = 0;
   let recentActivities: Array<{
     id: number;
@@ -152,18 +163,20 @@ export default async function DashboardBody() {
       db
         .select({ value: sql<number>`count(*)` })
         .from(schema.contacts),
-      // Pipeline totals computed in SQL: one row per stage with the deal
-      // count, summed value, and probability-weighted value — so the page
-      // never pulls every deal into memory just to add them up.
+      // Pipeline totals computed in SQL: one row per (stage, currency) with the
+      // deal count, summed value, and probability-weighted value — so the page
+      // never pulls every deal into memory just to add them up, and mixed
+      // currencies stay separable for the currency-aware KPIs.
       db
         .select({
           stage: schema.deals.stage,
+          currency: schema.deals.currency,
           count: sql<number>`count(*)::int`,
           value: sql<number>`coalesce(sum(${schema.deals.value}), 0)`,
           weighted: sql<number>`coalesce(sum(${schema.deals.value} * ${schema.deals.probability} / 100.0), 0)`,
         })
         .from(schema.deals)
-        .groupBy(schema.deals.stage),
+        .groupBy(schema.deals.stage, schema.deals.currency),
       // Weekly wins: top closed-won deals updated in the last 7 days.
       db
         .select({ title: schema.deals.title, value: schema.deals.value })
@@ -323,33 +336,59 @@ export default async function DashboardBody() {
 
     totalContacts = Number(contactRows[0]?.value ?? 0);
 
+    const openStages: Stage[] = STAGES.filter(
+      (s) => s !== "won" && s !== "lost"
+    );
+    const openStageSet = new Set<string>(openStages);
+
+    // Rows arrive per (stage, currency). Collapse them back to a per-stage map
+    // (summed across currencies) for the chart/counts, while keeping the
+    // open-stage value/weighted amounts tagged with their currency so the KPIs
+    // can report a single primary currency instead of a meaningless mixed sum.
     const stageMap = new Map<
       string,
       { count: number; value: number; weighted: number }
     >();
+    const pipelineRows: { value: number; currency: string }[] = [];
+    const weightedRows: { value: number; currency: string }[] = [];
     for (const r of stageAggRows) {
-      stageMap.set(r.stage, {
-        count: Number(r.count),
-        value: Number(r.value),
-        weighted: Number(r.weighted),
-      });
+      const value = Number(r.value);
+      const weighted = Number(r.weighted);
+      const existing = stageMap.get(r.stage) ?? {
+        count: 0,
+        value: 0,
+        weighted: 0,
+      };
+      existing.count += Number(r.count);
+      existing.value += value;
+      existing.weighted += weighted;
+      stageMap.set(r.stage, existing);
+      if (openStageSet.has(r.stage)) {
+        pipelineRows.push({ value, currency: r.currency });
+        weightedRows.push({ value: weighted, currency: r.currency });
+      }
     }
 
-    const openStages: Stage[] = STAGES.filter(
-      (s) => s !== "won" && s !== "lost"
-    );
     openDealsCount = openStages.reduce(
       (sum, s) => sum + (stageMap.get(s)?.count ?? 0),
       0
     );
-    pipelineValue = openStages.reduce(
-      (sum, s) => sum + (stageMap.get(s)?.value ?? 0),
-      0
-    );
-    weightedPipelineValue = openStages.reduce(
-      (sum, s) => sum + (stageMap.get(s)?.weighted ?? 0),
-      0
-    );
+
+    // Group open-pipeline totals by currency, then report the currency with the
+    // largest total as the primary. Falls back to the CRM default when there
+    // are no open deals.
+    const pipelineByCurrency = sumByCurrency(pipelineRows);
+    const weightedByCurrency = sumByCurrency(weightedRows);
+    const currencyCodes = Object.keys(pipelineByCurrency);
+    pipelineCurrency =
+      currencyCodes.length === 0
+        ? defaultCurrency
+        : currencyCodes.reduce((a, b) =>
+            pipelineByCurrency[b] > pipelineByCurrency[a] ? b : a
+          );
+    mixedCurrencies = currencyCodes.length > 1;
+    pipelineValue = pipelineByCurrency[pipelineCurrency] ?? 0;
+    weightedPipelineValue = weightedByCurrency[pipelineCurrency] ?? 0;
 
     weekActivityCount = Number(weekRows[0]?.value ?? 0);
     recentActivities = activityRows;
@@ -526,11 +565,13 @@ export default async function DashboardBody() {
               <KpiCard label="Open Deals" value={openDealsCount.toString()} />
               <KpiCard
                 label="Pipeline Value"
-                value={formatCurrency(pipelineValue, defaultCurrency)}
+                value={formatCurrency(pipelineValue, pipelineCurrency)}
+                note={mixedCurrencies ? "Mixed currencies" : undefined}
               />
               <KpiCard
                 label="Weighted Pipeline"
-                value={formatCurrency(weightedPipelineValue, defaultCurrency)}
+                value={formatCurrency(weightedPipelineValue, pipelineCurrency)}
+                note={mixedCurrencies ? "Mixed currencies" : undefined}
               />
               <KpiCard
                 label="Activities This Week"
@@ -547,7 +588,8 @@ export default async function DashboardBody() {
               pipelineValue={pipelineValue}
               weightedPipelineValue={weightedPipelineValue}
               weekActivityCount={weekActivityCount}
-              currency={defaultCurrency}
+              currency={pipelineCurrency}
+              mixedCurrencies={mixedCurrencies}
               recentContacts={recentContacts}
               openDeals={openDeals}
               stageBreakdown={openStageBreakdown}
