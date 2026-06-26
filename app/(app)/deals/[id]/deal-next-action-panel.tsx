@@ -107,7 +107,7 @@ export default function DealNextActionPanel({
           type="button"
           onClick={handleSuggest}
           disabled={isPending}
-          className="rounded-lg bg-[--accent] px-3 py-1.5 text-xs font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
+          className="tap inline-flex items-center justify-center rounded-lg bg-[--accent] px-3 text-xs font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
         >
           {isPending ? "Thinking…" : hasResult ? "Re-suggest" : "Suggest action"}
         </button>
@@ -139,7 +139,7 @@ export default function DealNextActionPanel({
               <p className="text-sm font-medium text-[--accent]">{result.action}</p>
               {result.priority && (
                 <span
-                  className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${PRIORITY_STYLES[result.priority]}`}
+                  className={`inline-block rounded-full px-2 py-0.5 text-caption font-semibold uppercase tracking-wide ${PRIORITY_STYLES[result.priority]}`}
                 >
                   {result.priority} priority
                 </span>
@@ -152,7 +152,7 @@ export default function DealNextActionPanel({
             type="button"
             onClick={handleLogAsTask}
             disabled={isLogging}
-            className="w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-xs font-medium text-[--ink-2] transition-colors hover:border-[--line-2] hover:bg-[--surface-3] hover:text-[--ink-1] disabled:opacity-50"
+            className="tap inline-flex w-full items-center justify-center rounded-lg border border-[--line-1] bg-[--surface-2] px-3 text-xs font-medium text-[--ink-2] transition-colors hover:border-[--line-2] hover:bg-[--surface-3] hover:text-[--ink-1] disabled:opacity-50"
           >
             {isLogging ? "Saving…" : "Save as task"}
           </button>
@@ -162,7 +162,7 @@ export default function DealNextActionPanel({
           )}
 
           {result.suggestedAt && (
-            <p className="text-[11px] text-[--ink-3]">
+            <p className="text-caption text-[--ink-3]">
               Cached suggestion from{" "}
               {new Date(result.suggestedAt).toLocaleString(undefined, {
                 dateStyle: "medium",
@@ -179,7 +179,7 @@ export default function DealNextActionPanel({
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className="text-[10px] text-[--ink-3] hover:text-[--ink-1] transition-colors"
+                  className="tap inline-flex items-center justify-center rounded-md px-2 text-caption text-[--ink-3] hover:text-[--ink-1] transition-colors"
                 >
                   {copied ? "Copied!" : "Copy"}
                 </button>

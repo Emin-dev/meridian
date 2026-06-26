@@ -84,8 +84,8 @@ export default function DealDetailTop({ initialDeal, deleteButton }: Props) {
     <>
       {/* ── Page header ──────────────────────────────────────────────────────── */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h2 className="text-xl font-semibold text-[--ink-1]">{deal.title}</h2>
+        <div className="min-w-0">
+          <h2 className="text-xl font-semibold text-[--ink-1] break-words">{deal.title}</h2>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <span
               className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${stageMeta.bg} ${stageMeta.color}`}

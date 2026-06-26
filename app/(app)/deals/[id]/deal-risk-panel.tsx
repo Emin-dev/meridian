@@ -97,7 +97,7 @@ export default function DealRiskPanel({ dealId }: Props) {
             <div className="flex items-start gap-3 rounded-lg border border-[--accent]/30 bg-[--accent-tint] px-4 py-3">
               <span className="mt-0.5 shrink-0 text-[--accent]">→</span>
               <div className="min-w-0 space-y-0.5">
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-[--ink-3]">
+                <p className="text-caption font-semibold uppercase tracking-wide text-[--ink-3]">
                   Next step
                 </p>
                 <p className="text-sm font-medium text-[--accent]">

@@ -54,7 +54,7 @@ export default function EditDealForm({ deal, onSaved, onRollback }: Props) {
     : "";
 
   const inputCls =
-    "w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] placeholder-[--ink-3] focus:border-[--accent] focus:outline-none";
+    "tap w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] placeholder-[--ink-3] focus:border-[--accent] focus:outline-none";
   const labelCls = "mb-1 block text-xs font-medium text-[--ink-2]";
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -193,7 +193,7 @@ export default function EditDealForm({ deal, onSaved, onRollback }: Props) {
             step="1"
             value={probInput}
             onChange={(e) => setProbInput(e.target.value)}
-            className="w-24 rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] placeholder-[--ink-3] focus:border-[--accent] focus:outline-none"
+            className="tap w-24 rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] placeholder-[--ink-3] focus:border-[--accent] focus:outline-none"
           />
           <div className="flex-1 overflow-hidden rounded-full bg-[--surface-3] h-2">
             <div
@@ -214,7 +214,7 @@ export default function EditDealForm({ deal, onSaved, onRollback }: Props) {
         <button
           type="submit"
           disabled={pending}
-          className="rounded-lg bg-[--accent] px-4 py-2 text-sm font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
+          className="tap inline-flex items-center justify-center rounded-lg bg-[--accent] px-4 text-sm font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
         >
           {pending ? "Saving…" : "Save changes"}
         </button>
