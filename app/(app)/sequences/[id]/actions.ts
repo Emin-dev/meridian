@@ -14,6 +14,11 @@ const reorderSchema = z.object({
   direction: z.enum(["up", "down"]),
 });
 
+// A step delay is a whole number of days within a sane bound; the client input
+// is capped to the same range so this is the server-side enforcement of it.
+export const MAX_DELAY_DAYS = 365;
+const delaySchema = z.coerce.number().int().min(0).max(MAX_DELAY_DAYS);
+
 export type StepFormState = {
   error?: string;
   fieldErrors?: Record<string, string[]>;
@@ -33,16 +38,17 @@ export async function addStep(
 
   const subject = String(formData.get("subjectTemplate") ?? "").trim();
   const body = String(formData.get("bodyTemplate") ?? "").trim();
-  const delayRaw = String(formData.get("delayDays") ?? "0");
-  const delay = parseInt(delayRaw, 10);
+  const delayParsed = delaySchema.safeParse(formData.get("delayDays") ?? "0");
 
   const fieldErrors: Record<string, string[]> = {};
   if (!subject) fieldErrors["subjectTemplate"] = ["Subject is required"];
   if (!body) fieldErrors["bodyTemplate"] = ["Body is required"];
-  if (isNaN(delay) || delay < 0)
-    fieldErrors["delayDays"] = ["Delay must be 0 or more days"];
+  if (!delayParsed.success)
+    fieldErrors["delayDays"] = [`Delay must be a whole number between 0 and ${MAX_DELAY_DAYS} days`];
 
   if (Object.keys(fieldErrors).length > 0) return { fieldErrors };
+
+  const delay = delayParsed.success ? delayParsed.data : 0;
 
   const db = getDb();
   if (!db) return { noDb: true };
@@ -82,16 +88,17 @@ export async function updateStep(
 
   const subject = String(formData.get("subjectTemplate") ?? "").trim();
   const body = String(formData.get("bodyTemplate") ?? "").trim();
-  const delayRaw = String(formData.get("delayDays") ?? "0");
-  const delay = parseInt(delayRaw, 10);
+  const delayParsed = delaySchema.safeParse(formData.get("delayDays") ?? "0");
 
   const fieldErrors: Record<string, string[]> = {};
   if (!subject) fieldErrors["subjectTemplate"] = ["Subject is required"];
   if (!body) fieldErrors["bodyTemplate"] = ["Body is required"];
-  if (isNaN(delay) || delay < 0)
-    fieldErrors["delayDays"] = ["Delay must be 0 or more days"];
+  if (!delayParsed.success)
+    fieldErrors["delayDays"] = [`Delay must be a whole number between 0 and ${MAX_DELAY_DAYS} days`];
 
   if (Object.keys(fieldErrors).length > 0) return { fieldErrors };
+
+  const delay = delayParsed.success ? delayParsed.data : 0;
 
   const db = getDb();
   if (!db) return { noDb: true };

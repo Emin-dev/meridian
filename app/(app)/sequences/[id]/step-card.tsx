@@ -113,6 +113,7 @@ export function StepCard({
               type="number"
               name="delayDays"
               min={0}
+              max={365}
               defaultValue={step.delayDays}
               className="tap w-24 rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-2)] px-3 text-body text-[var(--ink-1)] focus:border-[var(--accent)] focus:outline-none [color-scheme:dark]"
             />
@@ -282,6 +283,7 @@ export function AddStepForm({
             type="number"
             name="delayDays"
             min={0}
+            max={365}
             defaultValue={0}
             className="tap w-24 rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-2)] px-3 text-body text-[var(--ink-1)] focus:border-[var(--accent)] focus:outline-none [color-scheme:dark]"
           />
