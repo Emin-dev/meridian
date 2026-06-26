@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { and, desc, eq, gte, inArray, isNotNull, isNull, lt, sql } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, isNotNull, isNull, lt, lte, notInArray, or, sql } from "drizzle-orm";
 import Link from "next/link";
 import { getDb, schema } from "@/db";
 import AiDigest from "@/components/ai-digest";
@@ -131,23 +131,59 @@ export default async function DashboardBody() {
   if (db) {
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     const now = new Date();
+    const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+    const soon = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
-    const [contactRows, allDeals, activityRows, weekRows, overdueRows, topContactRows, overdueActivityRows, activeEnrollmentRows] = await Promise.all([
+    const [contactRows, stageAggRows, weeklyWinRows, weeklyAtRiskRows, activityRows, weekRows, overdueRows, topContactRows, overdueActivityRows, activeEnrollmentRows] = await Promise.all([
       db
         .select({ value: sql<number>`count(*)` })
         .from(schema.contacts),
-      // Only the columns the dashboard actually reads — avoids hauling
-      // notes/closeReason/currency/owner for every deal into memory.
+      // Pipeline totals computed in SQL: one row per stage with the deal
+      // count, summed value, and probability-weighted value — so the page
+      // never pulls every deal into memory just to add them up.
+      db
+        .select({
+          stage: schema.deals.stage,
+          count: sql<number>`count(*)::int`,
+          value: sql<number>`coalesce(sum(${schema.deals.value}), 0)`,
+          weighted: sql<number>`coalesce(sum(${schema.deals.value} * ${schema.deals.probability} / 100.0), 0)`,
+        })
+        .from(schema.deals)
+        .groupBy(schema.deals.stage),
+      // Weekly wins: top closed-won deals updated in the last 7 days.
+      db
+        .select({ title: schema.deals.title, value: schema.deals.value })
+        .from(schema.deals)
+        .where(
+          and(
+            eq(schema.deals.stage, "won"),
+            gte(schema.deals.updatedAt, sevenDaysAgo)
+          )
+        )
+        .orderBy(sql`${schema.deals.value} desc nulls last`)
+        .limit(5),
+      // Weekly at-risk: top open deals that are closing soon / overdue, or
+      // have gone stale (no update in 14+ days). Reason is derived in JS.
       db
         .select({
           title: schema.deals.title,
           stage: schema.deals.stage,
           value: schema.deals.value,
-          probability: schema.deals.probability,
           expectedCloseDate: schema.deals.expectedCloseDate,
           updatedAt: schema.deals.updatedAt,
         })
-        .from(schema.deals),
+        .from(schema.deals)
+        .where(
+          and(
+            notInArray(schema.deals.stage, ["won", "lost"]),
+            or(
+              lte(schema.deals.expectedCloseDate, soon),
+              lt(schema.deals.updatedAt, fourteenDaysAgo)
+            )
+          )
+        )
+        .orderBy(sql`${schema.deals.value} desc nulls last`)
+        .limit(5),
       db
         .select({
           id: schema.activities.id,
@@ -226,16 +262,31 @@ export default async function DashboardBody() {
 
     totalContacts = Number(contactRows[0]?.value ?? 0);
 
-    const openDeals = allDeals.filter(
-      (d) => d.stage !== "won" && d.stage !== "lost"
+    const stageMap = new Map<
+      string,
+      { count: number; value: number; weighted: number }
+    >();
+    for (const r of stageAggRows) {
+      stageMap.set(r.stage, {
+        count: Number(r.count),
+        value: Number(r.value),
+        weighted: Number(r.weighted),
+      });
+    }
+
+    const openStages: Stage[] = STAGES.filter(
+      (s) => s !== "won" && s !== "lost"
     );
-    openDealsCount = openDeals.length;
-    pipelineValue = openDeals.reduce(
-      (sum, d) => sum + (d.value ? parseFloat(d.value) : 0),
+    openDealsCount = openStages.reduce(
+      (sum, s) => sum + (stageMap.get(s)?.count ?? 0),
       0
     );
-    weightedPipelineValue = openDeals.reduce(
-      (sum, d) => sum + (d.value ? parseFloat(d.value) * (d.probability / 100) : 0),
+    pipelineValue = openStages.reduce(
+      (sum, s) => sum + (stageMap.get(s)?.value ?? 0),
+      0
+    );
+    weightedPipelineValue = openStages.reduce(
+      (sum, s) => sum + (stageMap.get(s)?.weighted ?? 0),
       0
     );
 
@@ -252,28 +303,21 @@ export default async function DashboardBody() {
 
     dealsByStage = STAGES.map((stage: Stage) => ({
       stage,
-      count: allDeals.filter((d) => d.stage === stage).length,
-      value: allDeals
-        .filter((d) => d.stage === stage && d.value)
-        .reduce((sum, d) => sum + parseFloat(d.value!), 0),
+      count: stageMap.get(stage)?.count ?? 0,
+      value: stageMap.get(stage)?.value ?? 0,
     }));
 
-    // ── Weekly digest inputs (derived from deals already in memory) ──
-    const dealValue = (d: (typeof allDeals)[number]) =>
-      d.value ? parseFloat(d.value) : 0;
+    // ── Weekly digest inputs (from the targeted win/at-risk queries) ──
+    // Wins: top closed-won deals updated within the last 7 days.
+    weeklyWins = weeklyWinRows.map((d) => ({
+      title: d.title,
+      value: d.value ? parseFloat(d.value) : 0,
+    }));
 
-    // Wins: deals now closed-won that were updated within the last 7 days.
-    weeklyWins = allDeals
-      .filter((d) => d.stage === "won" && d.updatedAt >= sevenDaysAgo)
-      .sort((a, b) => dealValue(b) - dealValue(a))
-      .slice(0, 5)
-      .map((d) => ({ title: d.title, value: dealValue(d) }));
-
-    // At-risk: open deals whose expected close is overdue or imminent,
-    // or that have gone stale (no update in 14+ days). Highest value first.
-    const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
-    const soon = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-    weeklyAtRisk = openDeals
+    // At-risk: open deals whose expected close is overdue or imminent, or
+    // that have gone stale (no update in 14+ days). The query already orders
+    // by value and limits to 5; here we just label each with its reason.
+    weeklyAtRisk = weeklyAtRiskRows
       .map((d) => {
         let reason: string | null = null;
         if (d.expectedCloseDate && d.expectedCloseDate < now) {
@@ -284,12 +328,15 @@ export default async function DashboardBody() {
           reason = "no activity in 14+ days";
         }
         return reason
-          ? { title: d.title, stage: d.stage, reason, value: dealValue(d) }
+          ? {
+              title: d.title,
+              stage: d.stage,
+              reason,
+              value: d.value ? parseFloat(d.value) : 0,
+            }
           : null;
       })
-      .filter((d): d is NonNullable<typeof d> => d !== null)
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 5);
+      .filter((d): d is NonNullable<typeof d> => d !== null);
 
     if (activeEnrollmentRows.length > 0) {
       const seqIds = [...new Set(activeEnrollmentRows.map((e) => e.sequenceId))];
