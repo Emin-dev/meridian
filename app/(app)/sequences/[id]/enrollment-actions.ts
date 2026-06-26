@@ -1,6 +1,6 @@
 "use server";
 
-import { count, eq } from "drizzle-orm";
+import { and, count, eq } from "drizzle-orm";
 import { z } from "zod";
 import { getDb, schema } from "@/db";
 import { revalidatePath } from "next/cache";
@@ -24,19 +24,35 @@ export async function cancelEnrollmentFromSequence(
   const db = getDb();
   if (!db) return { error: "No database connected." };
 
+  let contactId: number | undefined;
   try {
-    await db
+    // Only cancel a row that's still active so a stale page can't clobber a
+    // completed/cancelled enrollment. Capture the contactId to revalidate the
+    // contact detail page too.
+    const [row] = await db
       .update(schema.contactSequenceEnrollments)
       .set({ status: "cancelled" })
-      .where(eq(schema.contactSequenceEnrollments.id, enrollmentId));
-
-    revalidatePath(`/sequences/${sequenceId}`);
+      .where(
+        and(
+          eq(schema.contactSequenceEnrollments.id, enrollmentId),
+          eq(schema.contactSequenceEnrollments.status, "active")
+        )
+      )
+      .returning({
+        contactId: schema.contactSequenceEnrollments.contactId,
+      });
+    contactId = row?.contactId;
   } catch {
     // Don't crash the route on a transient DB error; surface it so the user
     // can retry — the enrollment simply stays active.
     return { error: "Couldn't cancel the enrollment. Please try again." };
   }
 
+  // Enrollment data is rendered on the sequence detail, the contact detail, and
+  // the /sequences queue — revalidate all three so none goes stale.
+  revalidatePath(`/sequences/${sequenceId}`);
+  if (contactId !== undefined) revalidatePath(`/contacts/${contactId}`);
+  revalidatePath("/sequences");
   return {};
 }
 

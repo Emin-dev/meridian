@@ -180,10 +180,23 @@ export async function chat(
   }
 
   if (!res.ok) {
-    const text = await res.text().catch(() => res.statusText);
-    // Keep the message short and clear; include status for diagnosability.
-    const detail = (text || res.statusText).slice(0, 200);
-    throw new Error(`AI request failed (${res.status}): ${detail}`);
+    // Log the raw upstream detail server-side for diagnosability, but never let
+    // it reach the caller: the AI panels render this message verbatim in their
+    // error state, and a provider error body can contain noise or a masked API
+    // key (e.g. on a 401). Surface a short, friendly, status-aware message
+    // instead. (This branch never contains "DEEPSEEK_API_KEY", so it does not
+    // affect callers' no-key detection.)
+    const text = await res.text().catch(() => "");
+    if (text) {
+      console.error(`DeepSeek request failed (${res.status}): ${text.slice(0, 500)}`);
+    }
+    const friendly =
+      res.status === 429
+        ? "AI is busy right now (rate limited). Please try again in a moment."
+        : res.status === 401 || res.status === 403
+          ? "AI service rejected the request. Check the configured API key."
+          : "AI request failed. Please try again.";
+    throw new Error(friendly);
   }
 
   let data: DeepSeekResponse;

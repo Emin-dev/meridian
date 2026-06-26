@@ -86,7 +86,11 @@ export async function enrollInSequence(
     return { error: "Couldn't enroll the contact. Please try again." };
   }
 
+  // Enrollment data is rendered on the contact page, the sequence detail page,
+  // and the /sequences due-step queue — revalidate all three so none goes stale.
   revalidatePath(`/contacts/${contactId}`);
+  revalidatePath(`/sequences/${sequenceId}`);
+  revalidatePath("/sequences");
   return { success: true };
 }
 
@@ -106,11 +110,24 @@ export async function cancelEnrollment(
   const db = getDb();
   if (!db) return { error: "No database connected." };
 
+  let sequenceId: number | undefined;
   try {
-    await db
+    // Only cancel a row that's still active so a stale page can't clobber a
+    // completed/cancelled enrollment. Capture the sequenceId to revalidate the
+    // sequence detail page and the /sequences queue too.
+    const [row] = await db
       .update(schema.contactSequenceEnrollments)
       .set({ status: "cancelled" })
-      .where(eq(schema.contactSequenceEnrollments.id, enrollmentId));
+      .where(
+        and(
+          eq(schema.contactSequenceEnrollments.id, enrollmentId),
+          eq(schema.contactSequenceEnrollments.status, "active")
+        )
+      )
+      .returning({
+        sequenceId: schema.contactSequenceEnrollments.sequenceId,
+      });
+    sequenceId = row?.sequenceId;
   } catch {
     // Surface a transient DB error instead of tripping the route error
     // boundary; the enrollment simply stays active and the user can retry.
@@ -118,5 +135,7 @@ export async function cancelEnrollment(
   }
 
   revalidatePath(`/contacts/${contactId}`);
+  if (sequenceId !== undefined) revalidatePath(`/sequences/${sequenceId}`);
+  revalidatePath("/sequences");
   return {};
 }
