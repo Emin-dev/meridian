@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { asc, desc, eq } from "drizzle-orm";
@@ -19,6 +20,17 @@ import ActionItemsPanel from "@/components/action-items-panel";
 
 interface Props {
   params: Promise<{ id: string }>;
+}
+
+// Small fallback for an independently-streamed async section so a slow or
+// throwing query (timeline, linked deals/tasks) can't blank the whole page.
+function SectionFallback() {
+  return (
+    <div className="animate-pulse space-y-3">
+      <div className="h-4 w-28 rounded-[--r-md] bg-[--surface-2]" />
+      <div className="h-12 w-full rounded-[--r-md] bg-[--surface-2]" />
+    </div>
+  );
 }
 
 export default async function ContactDetailPage({ params }: Props) {
@@ -101,13 +113,17 @@ export default async function ContactDetailPage({ params }: Props) {
 
   const dealsSlot = (
     <div className="card p-4 sm:p-5">
-      <LinkedDealsSection contactId={contact.id} contactName={contact.name} />
+      <Suspense fallback={<SectionFallback />}>
+        <LinkedDealsSection contactId={contact.id} contactName={contact.name} />
+      </Suspense>
     </div>
   );
 
   const tasksSlot = (
     <div className="card p-4 sm:p-5">
-      <LinkedTasksSection contactId={contact.id} />
+      <Suspense fallback={<SectionFallback />}>
+        <LinkedTasksSection contactId={contact.id} />
+      </Suspense>
     </div>
   );
 
@@ -204,7 +220,9 @@ export default async function ContactDetailPage({ params }: Props) {
         )}
       </div>
       <div className="card p-4 sm:p-5">
-        <ActivityTimeline contactId={contact.id} />
+        <Suspense fallback={<SectionFallback />}>
+          <ActivityTimeline contactId={contact.id} />
+        </Suspense>
       </div>
     </>
   );

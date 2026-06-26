@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { eq } from "drizzle-orm";
@@ -18,6 +19,18 @@ import ActionItemsPanel from "@/components/action-items-panel";
 
 interface Props {
   params: Promise<{ id: string }>;
+}
+
+// Small fallback for an independently-streamed async section so a slow or
+// throwing query (linked tasks, activity timeline, change log) can't blank
+// the whole page.
+function SectionFallback() {
+  return (
+    <div className="animate-pulse space-y-3">
+      <div className="h-4 w-28 rounded-[--r-md] bg-[--surface-2]" />
+      <div className="h-12 w-full rounded-[--r-md] bg-[--surface-2]" />
+    </div>
+  );
 }
 
 export default async function DealDetailPage({ params }: Props) {
@@ -168,17 +181,23 @@ export default async function DealDetailPage({ params }: Props) {
 
       {/* Linked tasks */}
       <div className="rounded-xl border border-[--line-1] bg-[--surface-1] p-4 sm:p-5">
-        <LinkedTasksSection dealId={deal.id} />
+        <Suspense fallback={<SectionFallback />}>
+          <LinkedTasksSection dealId={deal.id} />
+        </Suspense>
       </div>
 
       {/* Activity timeline */}
       <div className="rounded-xl border border-[--line-1] bg-[--surface-1] p-4 sm:p-5">
-        <DealActivityTimeline dealId={deal.id} />
+        <Suspense fallback={<SectionFallback />}>
+          <DealActivityTimeline dealId={deal.id} />
+        </Suspense>
       </div>
 
       {/* Change log */}
       <div className="rounded-xl border border-[--line-1] bg-[--surface-1] p-4 sm:p-5">
-        <DealChangeLog dealId={deal.id} />
+        <Suspense fallback={<SectionFallback />}>
+          <DealChangeLog dealId={deal.id} />
+        </Suspense>
       </div>
     </div>
   );
