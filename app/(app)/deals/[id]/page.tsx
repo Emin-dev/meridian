@@ -16,6 +16,7 @@ import WinLossInsightCallout from "./win-loss-insight-callout";
 import { extractUserNotes, extractWinLossInsight } from "./notes-utils";
 import LinkedTasksSection from "@/app/(app)/tasks/linked-tasks-section";
 import ActionItemsPanel from "@/components/action-items-panel";
+import DealAiAccordion from "./deal-ai-accordion";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -147,37 +148,37 @@ export default async function DealDetailPage({ params }: Props) {
       </div>
 
       {/* AI win-probability score */}
-      <div className="rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)] p-4 sm:p-5">
+      <DealAiAccordion title="AI win score">
         <DealWinProbabilityPanel dealId={deal.id} initialScore={deal.probability} />
-      </div>
+      </DealAiAccordion>
 
       {/* AI deal risk & next step */}
-      <div className="rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)] p-4 sm:p-5">
+      <DealAiAccordion title="Deal risk & next step">
         <DealRiskPanel dealId={deal.id} />
-      </div>
+      </DealAiAccordion>
 
       {/* AI deal brief */}
-      <div className="rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)] p-4 sm:p-5">
+      <DealAiAccordion title="AI deal brief">
         <DealSummarizePanel
           dealId={deal.id}
           initialSummary={deal.aiSummary}
           initialSummaryAt={deal.aiSummaryAt}
         />
-      </div>
+      </DealAiAccordion>
 
       {/* AI next best action */}
-      <div className="rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)] p-4 sm:p-5">
+      <DealAiAccordion title="Next best action">
         <DealNextActionPanel
           dealId={deal.id}
           initialNextAction={deal.nextAction}
           initialNextActionAt={deal.nextActionAt}
         />
-      </div>
+      </DealAiAccordion>
 
       {/* AI action items extractor */}
-      <div className="rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)] p-4 sm:p-5">
+      <DealAiAccordion title="Action items">
         <ActionItemsPanel dealId={deal.id} />
-      </div>
+      </DealAiAccordion>
 
       {/* Linked tasks */}
       <div className="rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)] p-4 sm:p-5">

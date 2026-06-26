@@ -114,11 +114,11 @@ export default function KanbanBoard({
     : null;
 
   return (
-    <div className="@container">
+    <div className="@container min-w-0">
       {/* ── Phone view (container < 640px) ──────────────────────────────── */}
-      <div className="@[640px]:hidden">
+      <div className="min-w-0 @[640px]:hidden">
         {/* Sticky segmented stage control */}
-        <div className="sticky top-0 z-10 glass border-b border-[var(--line-1)] py-2">
+        <div className="sticky top-0 z-10 min-w-0 glass border-b border-[var(--line-1)] py-2">
           <div
             role="tablist"
             aria-label="Pipeline stages"
@@ -180,7 +180,7 @@ export default function KanbanBoard({
       </div>
 
       {/* ── Desktop view (container ≥ 640px) ────────────────────────────── */}
-      <div className="hidden @[640px]:block overflow-x-auto snap-x snap-mandatory pb-4">
+      <div className="hidden min-w-0 @[640px]:block overflow-x-auto snap-x snap-mandatory pb-4">
         <div className="flex gap-4">
           {STAGES.map((stage) => {
             const cards = dealsByStage[stage.key] ?? [];
