@@ -65,11 +65,6 @@ export default async function ActivityPage({
         {header}
         {logCard}
         <div className="card">
-          <div className="border-b border-[var(--line-1)] px-4 py-3 sm:px-5">
-            <p className="text-caption font-medium uppercase tracking-wide text-[var(--ink-3)]">
-              Recent events
-            </p>
-          </div>
           <EmptyState
             icon={<LightningIcon />}
             title="Database not connected"
