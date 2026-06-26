@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { eq, inArray } from "drizzle-orm";
+import { eq, inArray, count } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { revalidatePath } from "next/cache";
 import {
@@ -174,6 +174,22 @@ const BulkIdsSchema = z.array(z.number().int().positive()).min(1);
 
 const OwnerSchema = z.string().trim().max(120, "Owner name is too long.");
 
+// Confirm how many of the requested deals still exist. Returns an error string
+// ("N of M not found.") when any are missing so callers never report a full
+// success on a 0-row (or partial) update against a stale selection.
+async function missingDealsError(
+  db: NonNullable<ReturnType<typeof getDb>>,
+  ids: number[]
+): Promise<string | null> {
+  const [row] = await db
+    .select({ n: count() })
+    .from(schema.deals)
+    .where(inArray(schema.deals.id, ids));
+  const found = row?.n ?? 0;
+  if (found >= ids.length) return null;
+  return `${ids.length - found} of ${ids.length} not found.`;
+}
+
 export async function bulkMoveStage(
   ids: number[],
   stage: string
@@ -185,6 +201,9 @@ export async function bulkMoveStage(
 
   const db = getDb();
   if (!db) return { noDb: true };
+
+  const missing = await missingDealsError(db, parsedIds.data);
+  if (missing) return { error: missing };
 
   await db
     .update(schema.deals)
@@ -212,6 +231,9 @@ export async function bulkChangeOwner(
   const db = getDb();
   if (!db) return { noDb: true };
 
+  const missing = await missingDealsError(db, parsedIds.data);
+  if (missing) return { error: missing };
+
   await db
     .update(schema.deals)
     .set({ owner: parsedOwner.data || null, updatedAt: new Date() })
@@ -229,6 +251,9 @@ export async function bulkDeleteDeals(
 
   const db = getDb();
   if (!db) return { noDb: true };
+
+  const missing = await missingDealsError(db, parsedIds.data);
+  if (missing) return { error: missing };
 
   await db
     .delete(schema.deals)

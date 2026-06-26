@@ -994,6 +994,22 @@ type BulkContactStatus = (typeof CONTACT_STATUSES)[number];
 
 const BulkIdsSchema = z.array(z.number().int().positive()).min(1);
 
+// Confirm how many of the requested contacts still exist. Returns an error
+// string ("N of M not found.") when any are missing so callers never report a
+// full success on a 0-row (or partial) update against a stale selection.
+async function missingContactsError(
+  db: NonNullable<ReturnType<typeof getDb>>,
+  ids: number[]
+): Promise<string | null> {
+  const [row] = await db
+    .select({ n: countFn() })
+    .from(schema.contacts)
+    .where(inArray(schema.contacts.id, ids));
+  const found = row?.n ?? 0;
+  if (found >= ids.length) return null;
+  return `${ids.length - found} of ${ids.length} not found.`;
+}
+
 export async function bulkChangeStatus(
   ids: number[],
   status: BulkContactStatus
@@ -1003,6 +1019,9 @@ export async function bulkChangeStatus(
 
   const db = getDb();
   if (!db) return { noDb: true };
+
+  const missing = await missingContactsError(db, parsedIds.data);
+  if (missing) return { error: missing };
 
   await db
     .update(schema.contacts)
@@ -1024,6 +1043,9 @@ export async function bulkAddTag(
   if (!db) return { noDb: true };
   const trimmed = tag.trim();
   if (!trimmed) return { error: "Tag cannot be empty." };
+
+  const missing = await missingContactsError(db, parsedIds.data);
+  if (missing) return { error: missing };
 
   // Append the tag in a single query, touching only rows that don't already
   // have it. `returning` gives us the exact count of contacts updated.
@@ -1060,6 +1082,9 @@ export async function bulkChangeOwner(
   if (!db) return { noDb: true };
   if (ids.length === 0) return { count: 0 };
 
+  const missing = await missingContactsError(db, ids);
+  if (missing) return { error: missing };
+
   await db
     .update(schema.contacts)
     .set({ owner: parsedOwner.data || null, updatedAt: new Date() })
@@ -1079,6 +1104,9 @@ export async function bulkEnrollInSequence(
   const db = getDb();
   if (!db) return { noDb: true };
   if (!Number.isInteger(sequenceId)) return { error: "Invalid sequence." };
+
+  const missing = await missingContactsError(db, parsedIds.data);
+  if (missing) return { error: missing };
 
   const existing = await db
     .select({ contactId: schema.contactSequenceEnrollments.contactId })
