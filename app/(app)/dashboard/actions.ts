@@ -1,9 +1,12 @@
 "use server";
 
+import { z } from "zod";
 import { chat } from "@/lib/ai";
 import { eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb, schema } from "@/db";
+
+const idSchema = z.coerce.number().int().positive();
 
 const DIGEST_CACHE_TTL_MS = 4 * 60 * 60 * 1000; // 4 hours
 const WEEKLY_DIGEST_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
@@ -31,6 +34,7 @@ type DigestResult =
   | { noKey: true };
 
 export async function completeAgendaItem(id: number): Promise<void> {
+  if (!idSchema.safeParse(id).success) throw new Error("Invalid agenda item id.");
   const db = getDb();
   // No DB: surface the failure instead of resolving silently, which would make
   // the form action look like the item was completed when nothing was written.

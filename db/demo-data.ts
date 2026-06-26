@@ -290,7 +290,7 @@ export async function insertDemoData(db: Db): Promise<void> {
   await db
     .insert(appSettings)
     .values([
-      { key: "default_currency", value: "AZN" },
+      { key: "defaultCurrency", value: "AZN" },
       { key: "owner_display_name", value: "Elvin Məmmədov" },
     ])
     .onConflictDoNothing();

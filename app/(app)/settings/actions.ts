@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
-const VALID_CURRENCIES = ["USD", "EUR", "GBP", "CAD", "AUD", "JPY"] as const;
+const VALID_CURRENCIES = ["USD", "EUR", "GBP", "CAD", "AUD", "JPY", "AZN"] as const;
 const VALID_STAGES = [
   "lead",
   "qualified",

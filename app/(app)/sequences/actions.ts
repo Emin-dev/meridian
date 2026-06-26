@@ -14,6 +14,8 @@ export type SequenceFormState = {
   noDb?: boolean;
 };
 
+const idSchema = z.coerce.number().int().positive();
+
 export async function createSequence(
   _prev: SequenceFormState,
   formData: FormData
@@ -177,6 +179,8 @@ export async function updateSequenceStatus(
   id: number,
   status: "active" | "paused"
 ): Promise<{ error?: string }> {
+  if (!idSchema.safeParse(id).success) return { error: "Invalid sequence id." };
+
   const db = getDb();
   if (!db) return { error: "Database not connected." };
 

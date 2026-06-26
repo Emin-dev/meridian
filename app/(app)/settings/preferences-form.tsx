@@ -5,7 +5,7 @@ import { savePreferences, type PreferencesFormState } from "./actions";
 import type { CrmSettings } from "@/lib/settings";
 import MobileActionSheet from "@/components/mobile-action-sheet";
 
-const CURRENCIES = ["USD", "EUR", "GBP", "CAD", "AUD", "JPY"] as const;
+const CURRENCIES = ["USD", "EUR", "GBP", "CAD", "AUD", "JPY", "AZN"] as const;
 
 const STAGES = [
   { value: "lead", label: "Lead" },

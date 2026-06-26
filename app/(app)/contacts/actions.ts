@@ -968,7 +968,7 @@ export async function applyContactEnrichment(
   contactId: number,
   fields: { title: string; company: string; notes: string }
 ): Promise<ApplyEnrichmentState> {
-  if (!Number.isInteger(contactId) || contactId <= 0) {
+  if (!idSchema.safeParse(contactId).success) {
     return { error: "Contact not found" };
   }
 
