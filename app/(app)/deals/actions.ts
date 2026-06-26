@@ -271,13 +271,23 @@ export async function updateDeal(
   if (!db) return { noDb: true };
 
   const [current] = await db
-    .select({ stage: schema.deals.stage, value: schema.deals.value, notes: schema.deals.notes })
+    .select({
+      stage: schema.deals.stage,
+      value: schema.deals.value,
+      notes: schema.deals.notes,
+      probability: schema.deals.probability,
+    })
     .from(schema.deals)
     .where(eq(schema.deals.id, id))
     .limit(1);
 
   const { title, stage, value, currency, expectedCloseDate, contactId, notes, owner } =
     parsed.data;
+
+  // Derive probability from the new stage (like createDeal/moveDealStage) so
+  // editing a deal into Won/Lost can't leave a stale probability behind.
+  const newProbability = STAGE_PROBABILITY[stage] ?? 10;
+  const isTerminal = stage === "won" || stage === "lost";
 
   // Preserve any AI win/loss insight stored alongside the user notes — the edit
   // form only ever submits the user-authored portion, so re-attach the insight.
@@ -296,6 +306,10 @@ export async function updateDeal(
       stage,
       value: value,
       currency,
+      probability: newProbability,
+      // Clear the close reason when the deal leaves a terminal stage; the edit
+      // form never submits one, so leave it untouched while still won/lost.
+      ...(isTerminal ? {} : { closeReason: null }),
       expectedCloseDate: expectedCloseDate ? new Date(expectedCloseDate) : null,
       contactId: contactId,
       notes: finalNotes,
@@ -311,6 +325,14 @@ export async function updateDeal(
     }
     if (!_numericEqual(current.value, value)) {
       events.push({ dealId: id, field: "value", oldValue: current.value ?? null, newValue: value ?? null });
+    }
+    if (current.probability !== newProbability) {
+      events.push({
+        dealId: id,
+        field: "probability",
+        oldValue: String(current.probability),
+        newValue: String(newProbability),
+      });
     }
     if (events.length > 0) {
       await db.insert(schema.dealEvents).values(events);
