@@ -51,23 +51,14 @@ export default async function DealDetailPage({ params }: Props) {
     );
   }
 
-  const [deal] = await db
-    .select()
-    .from(schema.deals)
-    .where(eq(schema.deals.id, numId))
-    .limit(1);
+  const deal = await db.query.deals.findFirst({
+    where: eq(schema.deals.id, numId),
+    with: { contact: true },
+  });
 
   if (!deal) notFound();
 
-  let contact = null;
-  if (deal.contactId) {
-    const [c] = await db
-      .select()
-      .from(schema.contacts)
-      .where(eq(schema.contacts.id, deal.contactId))
-      .limit(1);
-    contact = c ?? null;
-  }
+  const contact = deal.contact;
 
   return (
     <div className="space-y-6">
