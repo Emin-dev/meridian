@@ -49,11 +49,16 @@ export async function addTask(
   const db = getDb();
   if (!db) return { noDb: true };
 
-  await db.insert(schema.activities).values({
-    type: "task",
-    subject: parsed.data.subject,
-    dueAt: parsed.data.dueAt,
-  });
+  try {
+    await db.insert(schema.activities).values({
+      type: "task",
+      subject: parsed.data.subject,
+      dueAt: parsed.data.dueAt,
+    });
+  } catch (err) {
+    console.error("addTask failed:", err);
+    return { error: "Could not add task — please try again." };
+  }
 
   revalidatePath("/tasks");
   revalidatePath("/activity");
@@ -82,13 +87,18 @@ export async function addLinkedTask(
   const db = getDb();
   if (!db) return { noDb: true };
 
-  await db.insert(schema.activities).values({
-    type: "task",
-    subject: parsed.data.subject,
-    dueAt: parsed.data.dueAt,
-    contactId: parsed.data.contactId,
-    dealId: parsed.data.dealId,
-  });
+  try {
+    await db.insert(schema.activities).values({
+      type: "task",
+      subject: parsed.data.subject,
+      dueAt: parsed.data.dueAt,
+      contactId: parsed.data.contactId,
+      dealId: parsed.data.dealId,
+    });
+  } catch (err) {
+    console.error("addLinkedTask failed:", err);
+    return { error: "Could not add task — please try again." };
+  }
 
   revalidatePath("/tasks");
   revalidatePath("/activity");
@@ -111,13 +121,18 @@ export async function toggleTaskComplete(
   const db = getDb();
   if (!db) return { error: "No database" };
 
-  await db
-    .update(schema.activities)
-    .set({
-      completedAt: isCompleted ? null : new Date(),
-      updatedAt: new Date(),
-    })
-    .where(eq(schema.activities.id, activityId));
+  try {
+    await db
+      .update(schema.activities)
+      .set({
+        completedAt: isCompleted ? null : new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(schema.activities.id, activityId));
+  } catch (err) {
+    console.error("toggleTaskComplete failed:", err);
+    return { error: "Could not update task — please try again." };
+  }
 
   revalidatePath("/tasks");
   revalidatePath("/activity");
