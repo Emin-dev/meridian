@@ -16,12 +16,12 @@ const STAGE_LABELS: Record<string, string> = {
 };
 
 const STAGE_COLORS: Record<string, string> = {
-  lead: "text-blue-400",
-  qualified: "text-violet-400",
-  proposal: "text-yellow-400",
-  negotiation: "text-orange-400",
-  won: "text-green-400",
-  lost: "text-red-400",
+  lead: "text-[--ink-2]",
+  qualified: "text-[--ink-2]",
+  proposal: "text-[--accent]",
+  negotiation: "text-[--accent]",
+  won: "text-[--ok]",
+  lost: "text-[--bad]",
 };
 
 const STAGE_OPTIONS = [
