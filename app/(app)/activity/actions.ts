@@ -5,6 +5,7 @@ import { eq, desc } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { revalidatePath } from "next/cache";
 import { chat } from "@/lib/ai";
+import { parseAiJson } from "@/lib/ai-json";
 
 const AddActivitySchema = z.object({
   type: z.enum(["call", "email", "meeting", "note", "task"]),
@@ -318,8 +319,8 @@ export async function extractActionItems(
       { json: true },
     );
 
-    const parsed = JSON.parse(raw) as { items: unknown };
-    if (!Array.isArray(parsed.items)) return { items: [] };
+    const parsed = parseAiJson<{ items: unknown }>(raw);
+    if (!parsed || !Array.isArray(parsed.items)) return { items: [] };
 
     const VALID_TYPES: ActionItemType[] = ["call", "email", "meeting", "task"];
     const items: ActionItem[] = parsed.items

@@ -4,6 +4,7 @@ import { count, desc, gte } from "drizzle-orm";
 import { z } from "zod";
 import { getDb, schema } from "@/db";
 import { chat } from "@/lib/ai";
+import { parseAiJson } from "@/lib/ai-json";
 
 // Bound the question length so oversized prompts can't inflate token cost and
 // empty questions can't trigger a needless dataset load + AI call.
@@ -218,11 +219,11 @@ ${context}`;
       ],
       { json: true }
     );
-    const parsed: unknown = JSON.parse(raw);
-    if (typeof parsed !== "object" || parsed === null) {
+    const parsed = parseAiJson<AiResponse>(raw);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
       throw new Error("AI returned a non-object response.");
     }
-    aiResponse = parsed as AiResponse;
+    aiResponse = parsed;
   } catch (err) {
     const msg = err instanceof Error ? err.message : "AI request failed.";
     const friendly = msg.includes("timed out")

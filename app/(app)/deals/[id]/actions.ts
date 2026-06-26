@@ -6,6 +6,7 @@ import { getDb, schema } from "@/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { chat } from "@/lib/ai";
+import { parseAiJson } from "@/lib/ai-json";
 import { numericEqual } from "@/lib/format";
 
 import {
@@ -423,7 +424,7 @@ export async function scoreDeal(dealId: number): Promise<DealScoreState> {
       { json: true }
     );
 
-    const parsed = JSON.parse(raw) as { score: unknown; reasoning: unknown };
+    const parsed = parseAiJson<{ score: unknown; reasoning: unknown }>(raw);
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
       return { error: "AI returned an unexpected format. Please try again." };
     }
@@ -654,11 +655,11 @@ export async function assessDealRisk(dealId: number): Promise<DealRiskState> {
       { json: true }
     );
 
-    const parsed = JSON.parse(raw) as {
+    const parsed = parseAiJson<{
       risk: unknown;
       reason: unknown;
       nextStep: unknown;
-    };
+    }>(raw);
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
       return { error: "AI returned an unexpected format. Please try again." };
     }
@@ -769,12 +770,12 @@ export async function suggestDealNextAction(dealId: number): Promise<DealNextAct
       { json: true }
     );
 
-    const parsed = JSON.parse(raw) as {
+    const parsed = parseAiJson<{
       action: unknown;
       priority: unknown;
       rationale: unknown;
       suggestedMessage: unknown;
-    };
+    }>(raw);
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
       return { error: "AI returned an unexpected format. Please try again." };
     }

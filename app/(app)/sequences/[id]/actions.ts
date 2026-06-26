@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { and, asc, eq, gt, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import { chat } from "@/lib/ai";
+import { parseAiJson } from "@/lib/ai-json";
 
 const reorderSchema = z.object({
   stepId: z.number().int().positive(),
@@ -215,11 +216,12 @@ export async function draftStepContent(
       ],
       { json: true }
     );
-    const parsed = JSON.parse(raw) as {
+    const parsed = parseAiJson<{
       subjectTemplate?: unknown;
       bodyTemplate?: unknown;
-    };
+    }>(raw);
     if (
+      !parsed ||
       typeof parsed.subjectTemplate !== "string" ||
       typeof parsed.bodyTemplate !== "string"
     ) {

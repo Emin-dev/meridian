@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { chat } from "@/lib/ai";
+import { parseAiJson } from "@/lib/ai-json";
 
 export type SequenceFormState = {
   error?: string;
@@ -139,10 +140,8 @@ Rules: max 5 steps, use {{firstName}} and {{company}} as merge fields, keep emai
       { json: true }
     );
 
-    let parsed: { name?: unknown; steps?: unknown };
-    try {
-      parsed = JSON.parse(raw) as { name?: unknown; steps?: unknown };
-    } catch {
+    const parsed = parseAiJson<{ name?: unknown; steps?: unknown }>(raw);
+    if (!parsed) {
       return { error: "AI returned an unexpected format. Please try again." };
     }
 
