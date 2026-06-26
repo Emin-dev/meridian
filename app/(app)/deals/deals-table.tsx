@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { bulkMoveStage, bulkChangeOwner, bulkDeleteDeals } from "./actions";
-import type { DealWithContact } from "./types";
+import type { DealListItem } from "./types";
 import MobileActionSheet from "@/components/mobile-action-sheet";
 import DetailField from "@/components/detail-field";
 import { STAGES, STAGE_LABELS, STAGE_COLORS } from "./stages";
@@ -22,7 +22,7 @@ function dealAgeInDays(createdAt: Date): number {
   return Math.floor(diffMs / 86_400_000);
 }
 
-function formatDealValue(deal: DealWithContact): string {
+function formatDealValue(deal: DealListItem): string {
   return deal.value
     ? formatCurrency(parseFloat(deal.value), deal.currency)
     : "—";
@@ -95,7 +95,7 @@ export default function DealsTable({
   dir,
   allSearchParams,
 }: {
-  deals: DealWithContact[];
+  deals: DealListItem[];
   owners: string[];
   sort: string;
   dir: SortDir;
@@ -106,7 +106,7 @@ export default function DealsTable({
   const [selectMode, setSelectMode] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   // Mobile-only: which deal's full detail is open in the bottom sheet.
-  const [detailDeal, setDetailDeal] = useState<DealWithContact | null>(null);
+  const [detailDeal, setDetailDeal] = useState<DealListItem | null>(null);
   const [stageSelect, setStageSelect] = useState("lead");
   const [ownerInput, setOwnerInput] = useState("");
   const [feedback, setFeedback] = useState<{ msg: string; ok: boolean } | null>(null);

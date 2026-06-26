@@ -6,7 +6,7 @@ import { useToast } from "@/components/toaster";
 import MobileActionSheet from "@/components/mobile-action-sheet";
 import KanbanColumn from "./kanban-column";
 import KanbanCard from "./kanban-card";
-import type { DealWithContact } from "./types";
+import type { DealListItem } from "./types";
 import { STAGES, type StageKey } from "./stages";
 import { formatCurrency } from "@/lib/format";
 
@@ -14,7 +14,7 @@ export default function KanbanBoard({
   initialDeals,
   currency,
 }: {
-  initialDeals: DealWithContact[];
+  initialDeals: DealListItem[];
   currency: string;
 }) {
   const { toast } = useToast();
@@ -62,7 +62,7 @@ export default function KanbanBoard({
 
   const dealsByStage = Object.fromEntries(
     STAGES.map((s) => [s.key, deals.filter((d) => d.stage === s.key)])
-  ) as Record<StageKey, DealWithContact[]>;
+  ) as Record<StageKey, DealListItem[]>;
 
   // ── Phone sheet helpers ──────────────────────────────────────────────────
   function openSheet(dealId: number) {

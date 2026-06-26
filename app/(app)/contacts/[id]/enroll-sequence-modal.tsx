@@ -186,11 +186,13 @@ export function CancelEnrollmentButton({
   enrollmentId: number;
   contactId: number;
 }) {
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
 
   function handleCancel() {
     startTransition(async () => {
-      await cancelEnrollment(enrollmentId, contactId);
+      const result = await cancelEnrollment(enrollmentId, contactId);
+      if (result.error) toast(result.error, "error");
     });
   }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { useToast } from "@/components/toaster";
 import { cancelEnrollmentFromSequence } from "./enrollment-actions";
 
 interface Props {
@@ -9,11 +10,13 @@ interface Props {
 }
 
 export function CancelEnrollmentButton({ enrollmentId, sequenceId }: Props) {
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
 
   function handleCancel() {
     startTransition(async () => {
-      await cancelEnrollmentFromSequence(enrollmentId, sequenceId);
+      const result = await cancelEnrollmentFromSequence(enrollmentId, sequenceId);
+      if (result.error) toast(result.error, "error");
     });
   }
 

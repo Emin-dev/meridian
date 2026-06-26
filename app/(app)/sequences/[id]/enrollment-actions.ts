@@ -7,9 +7,9 @@ import { revalidatePath } from "next/cache";
 export async function cancelEnrollmentFromSequence(
   enrollmentId: number,
   sequenceId: number
-): Promise<void> {
+): Promise<{ error?: string }> {
   const db = getDb();
-  if (!db) return;
+  if (!db) return { error: "No database connected." };
 
   try {
     await db
@@ -19,9 +19,12 @@ export async function cancelEnrollmentFromSequence(
 
     revalidatePath(`/sequences/${sequenceId}`);
   } catch {
-    // Swallow so a DB error never crashes the route; the enrollment simply
-    // stays active and the user can retry.
+    // Don't crash the route on a transient DB error; surface it so the user
+    // can retry — the enrollment simply stays active.
+    return { error: "Couldn't cancel the enrollment. Please try again." };
   }
+
+  return {};
 }
 
 export async function markStepSent(

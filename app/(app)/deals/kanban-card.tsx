@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import type { DealWithContact } from "./types";
+import type { DealListItem } from "./types";
 import { STAGES, type StageKey } from "./stages";
 import { formatCurrency } from "@/lib/format";
 
@@ -28,7 +28,7 @@ export default function KanbanCard({
   phoneMode = false,
   dragDisabled = false,
 }: {
-  deal: DealWithContact;
+  deal: DealListItem;
   onMove: (dealId: number, stage: string, reason?: string) => void;
   onMoveRequest?: (dealId: number) => void;
   phoneMode?: boolean;

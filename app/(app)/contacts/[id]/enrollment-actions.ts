@@ -54,9 +54,9 @@ export async function enrollInSequence(
 export async function cancelEnrollment(
   enrollmentId: number,
   contactId: number
-): Promise<void> {
+): Promise<{ error?: string }> {
   const db = getDb();
-  if (!db) return;
+  if (!db) return { error: "No database connected." };
 
   await db
     .update(schema.contactSequenceEnrollments)
@@ -64,4 +64,5 @@ export async function cancelEnrollment(
     .where(eq(schema.contactSequenceEnrollments.id, enrollmentId));
 
   revalidatePath(`/contacts/${contactId}`);
+  return {};
 }

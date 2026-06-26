@@ -2,7 +2,7 @@ import Link from "next/link";
 import { and, asc, eq, isNotNull, ne, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import { deals } from "@/db/schema";
-import type { DealWithContact } from "./types";
+import type { DealListItem } from "./types";
 import DealModal from "./deal-modal";
 import DealsTable from "./deals-table";
 import KanbanBoard from "./kanban-board";
@@ -81,7 +81,24 @@ export default async function DealsPage({
       db
         ? db.query.deals.findMany({
             where: listFilter,
-            with: { contact: true },
+            // Select only the columns the kanban cards / table actually render,
+            // and trim the joined contact to id+name, so a 200-row page never
+            // ships unused heavy text fields (deal aiSummary/closeReason/notes-
+            // adjacent metadata, the entire Contact record). See DealListItem.
+            columns: {
+              id: true,
+              title: true,
+              stage: true,
+              value: true,
+              currency: true,
+              probability: true,
+              contactId: true,
+              expectedCloseDate: true,
+              owner: true,
+              notes: true,
+              createdAt: true,
+            },
+            with: { contact: { columns: { id: true, name: true } } },
             orderBy: isTable
               ? (d, { asc, desc }) => {
                   const dirFn = sortDir === "asc" ? asc : desc;
@@ -106,7 +123,7 @@ export default async function DealsPage({
               : (d, { desc }) => [desc(d.createdAt)],
             limit: DEALS_LIMIT,
           })
-        : Promise.resolve([] as DealWithContact[]),
+        : Promise.resolve([] as DealListItem[]),
       // Pipeline + weighted totals over open (non-lost) deals matching the filter.
       db
         ? db
