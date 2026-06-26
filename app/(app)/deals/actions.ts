@@ -11,13 +11,14 @@ import {
 } from "./[id]/notes-utils";
 import { DEAL_STAGES, STAGE_PROBABILITY } from "./stages";
 import { numericEqual } from "@/lib/format";
+import { VALID_CURRENCIES } from "@/lib/currencies";
 import { dealValueSchema } from "./value-schema";
 
 const DealSchema = z.object({
   title: z.string().min(1, "Title is required"),
   stage: z.enum(DEAL_STAGES),
   value: dealValueSchema,
-  currency: z.string().min(1, "Currency required").max(10),
+  currency: z.enum(VALID_CURRENCIES),
   expectedCloseDate: z
     .string()
     .refine((v) => !Number.isNaN(Date.parse(v)), "Enter a valid date")

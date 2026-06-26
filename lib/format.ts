@@ -7,11 +7,18 @@
  */
 export function formatCurrency(amount: number, currency = "USD"): string {
   const safe = Number.isFinite(amount) ? amount : 0;
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  }).format(safe);
+  try {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 0,
+    }).format(safe);
+  } catch {
+    // An invalid ISO-4217 code (e.g. a legacy/bad deal row that bypassed the
+    // currency allow-list) makes Intl.NumberFormat throw a RangeError. Never let
+    // that crash a money-formatting render — fall back to a plain number + code.
+    return `${Math.round(safe).toLocaleString("en-US")} ${currency}`;
+  }
 }
 
 /**

@@ -6,8 +6,8 @@ import { sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { VALID_CURRENCIES } from "@/lib/currencies";
 
-const VALID_CURRENCIES = ["USD", "EUR", "GBP", "CAD", "AUD", "JPY", "AZN"] as const;
 const VALID_STAGES = [
   "lead",
   "qualified",

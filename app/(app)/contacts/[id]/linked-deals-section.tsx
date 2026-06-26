@@ -22,11 +22,16 @@ function fmtValue(value: string | null, currency: string) {
   if (!value) return null;
   const num = parseFloat(value);
   if (isNaN(num)) return null;
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  }).format(num);
+  try {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 0,
+    }).format(num);
+  } catch {
+    // Invalid currency code → Intl throws RangeError; fall back, don't crash.
+    return `${Math.round(num).toLocaleString("en-US")} ${currency}`;
+  }
 }
 
 export default async function LinkedDealsSection({
