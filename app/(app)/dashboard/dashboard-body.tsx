@@ -22,6 +22,15 @@ const STAGES = [
 
 type Stage = (typeof STAGES)[number];
 
+// Parse a numeric deal value (Postgres `numeric` → string) into a number,
+// coercing null and any non-numeric input to 0 so a bad value can never
+// turn a KPI/chart total into NaN.
+function parseDealValue(value: string | null): number {
+  if (!value) return 0;
+  const n = parseFloat(value);
+  return Number.isNaN(n) ? 0 : n;
+}
+
 const TYPE_META: Record<string, { label: string; color: string; bg: string }> =
   {
     call: { label: "Call", color: "text-[--info]", bg: "bg-[--info-tint]" },
@@ -260,7 +269,13 @@ export default async function DashboardBody() {
         .from(schema.contactSequenceEnrollments)
         .innerJoin(schema.contacts, eq(schema.contactSequenceEnrollments.contactId, schema.contacts.id))
         .innerJoin(schema.sequences, eq(schema.contactSequenceEnrollments.sequenceId, schema.sequences.id))
-        .where(eq(schema.contactSequenceEnrollments.status, "active")),
+        .where(eq(schema.contactSequenceEnrollments.status, "active"))
+        // Bound the read via cse_status_idx: the widget shows at most 5
+        // soonest-due steps, and a step's due date grows with enrolledAt, so
+        // ordering oldest-first and capping the window keeps this off a
+        // full-table scan while still capturing the rows JS will surface.
+        .orderBy(schema.contactSequenceEnrollments.enrolledAt)
+        .limit(50),
       // Mobile tap-to-expand detail: most recent contacts for the
       // "Total Contacts" tile sheet (small, indexed limit query).
       db
@@ -343,14 +358,14 @@ export default async function DashboardBody() {
     openDeals = openDealRows.map((d) => ({
       title: d.title,
       stage: d.stage,
-      value: d.value ? parseFloat(d.value) : 0,
+      value: parseDealValue(d.value),
     }));
 
     // ── Weekly digest inputs (from the targeted win/at-risk queries) ──
     // Wins: top closed-won deals updated within the last 7 days.
     weeklyWins = weeklyWinRows.map((d) => ({
       title: d.title,
-      value: d.value ? parseFloat(d.value) : 0,
+      value: parseDealValue(d.value),
     }));
 
     // At-risk: open deals whose expected close is overdue or imminent, or
@@ -371,7 +386,7 @@ export default async function DashboardBody() {
               title: d.title,
               stage: d.stage,
               reason,
-              value: d.value ? parseFloat(d.value) : 0,
+              value: parseDealValue(d.value),
             }
           : null;
       })
