@@ -8,6 +8,7 @@ import PipelineChart from "@/components/pipeline-chart-wrapper";
 import { OnboardingBanner } from "@/components/onboarding-banner";
 import TodayAgenda from "./today-agenda";
 import StaleDeals from "./stale-deals";
+import MobileKpiTiles from "./mobile-kpi-tiles";
 
 const STAGES = [
   "lead",
@@ -101,6 +102,14 @@ export default async function DashboardBody() {
     STAGES.map((s) => ({ stage: s, count: 0, value: 0 }));
   let overdueCount = 0;
   let topContacts: { name: string; leadScore: number }[] = [];
+  let recentContacts: { name: string; company: string | null }[] = [];
+  let openDeals: { title: string; stage: string; value: number }[] = [];
+  let openStageBreakdown: {
+    stage: string;
+    count: number;
+    value: number;
+    weighted: number;
+  }[] = [];
   let overdueActivities: Array<{
     id: number;
     type: string;
@@ -136,7 +145,7 @@ export default async function DashboardBody() {
     const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
     const soon = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
-    const [contactRows, stageAggRows, weeklyWinRows, weeklyAtRiskRows, activityRows, weekRows, overdueRows, topContactRows, overdueActivityRows, activeEnrollmentRows] = await Promise.all([
+    const [contactRows, stageAggRows, weeklyWinRows, weeklyAtRiskRows, activityRows, weekRows, overdueRows, topContactRows, overdueActivityRows, activeEnrollmentRows, recentContactRows, openDealRows] = await Promise.all([
       db
         .select({ value: sql<number>`count(*)` })
         .from(schema.contacts),
@@ -260,6 +269,25 @@ export default async function DashboardBody() {
         .innerJoin(schema.contacts, eq(schema.contactSequenceEnrollments.contactId, schema.contacts.id))
         .innerJoin(schema.sequences, eq(schema.contactSequenceEnrollments.sequenceId, schema.sequences.id))
         .where(eq(schema.contactSequenceEnrollments.status, "active")),
+      // Mobile tap-to-expand detail: most recent contacts for the
+      // "Total Contacts" tile sheet (small, indexed limit query).
+      db
+        .select({ name: schema.contacts.name, company: schema.contacts.company })
+        .from(schema.contacts)
+        .orderBy(desc(schema.contacts.createdAt))
+        .limit(6),
+      // Mobile tap-to-expand detail: top open deals for the "Open Deals"
+      // tile sheet, ordered by value (uses the deals_stage_idx).
+      db
+        .select({
+          title: schema.deals.title,
+          stage: schema.deals.stage,
+          value: schema.deals.value,
+        })
+        .from(schema.deals)
+        .where(notInArray(schema.deals.stage, ["won", "lost"]))
+        .orderBy(sql`${schema.deals.value} desc nulls last`)
+        .limit(8),
     ]);
 
     totalContacts = Number(contactRows[0]?.value ?? 0);
@@ -307,6 +335,23 @@ export default async function DashboardBody() {
       stage,
       count: stageMap.get(stage)?.count ?? 0,
       value: stageMap.get(stage)?.value ?? 0,
+    }));
+
+    // Mobile tile-sheet detail data (open-stage breakdown + recent lists).
+    openStageBreakdown = openStages.map((stage) => {
+      const m = stageMap.get(stage);
+      return {
+        stage,
+        count: m?.count ?? 0,
+        value: m?.value ?? 0,
+        weighted: m?.weighted ?? 0,
+      };
+    });
+    recentContacts = recentContactRows;
+    openDeals = openDealRows.map((d) => ({
+      title: d.title,
+      stage: d.stage,
+      value: d.value ? parseFloat(d.value) : 0,
     }));
 
     // ── Weekly digest inputs (from the targeted win/at-risk queries) ──
@@ -450,9 +495,9 @@ export default async function DashboardBody() {
 
       {db && totalContacts > 0 && (
         <>
-          {/* KPI cards */}
-          <div className="@container">
-            <div className="grid grid-cols-2 gap-3 @sm:grid-cols-2 @sm:gap-4 @lg:grid-cols-5">
+          {/* KPI cards — desktop: static grid (unchanged) */}
+          <div className="hidden lg:block">
+            <div className="grid grid-cols-5 gap-4">
               <KpiCard
                 label="Total Contacts"
                 value={totalContacts.toString()}
@@ -471,6 +516,26 @@ export default async function DashboardBody() {
                 value={weekActivityCount.toString()}
               />
             </div>
+          </div>
+
+          {/* KPI tiles — mobile: tap a tile to expand its detail sheet */}
+          <div className="lg:hidden">
+            <MobileKpiTiles
+              totalContacts={totalContacts}
+              openDealsCount={openDealsCount}
+              pipelineValue={pipelineValue}
+              weightedPipelineValue={weightedPipelineValue}
+              weekActivityCount={weekActivityCount}
+              recentContacts={recentContacts}
+              openDeals={openDeals}
+              stageBreakdown={openStageBreakdown}
+              recentActivities={recentActivities.map((a) => ({
+                subject: a.subject,
+                type: a.type,
+                contactName: a.contactName,
+                date: a.createdAt.toISOString().slice(0, 10),
+              }))}
+            />
           </div>
 
           {/* Today's agenda — streams independently so KPIs paint first */}
