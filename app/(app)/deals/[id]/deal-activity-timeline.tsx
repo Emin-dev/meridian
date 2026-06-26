@@ -17,14 +17,14 @@ const TYPE_META: Record<
   ActivityType,
   { label: string; color: string; bg: string }
 > = {
-  call: { label: "Call", color: "text-blue-400", bg: "bg-blue-900/30" },
-  email: { label: "Email", color: "text-purple-400", bg: "bg-purple-900/30" },
+  call: { label: "Call", color: "text-[--info]", bg: "bg-[--info-tint]" },
+  email: { label: "Email", color: "text-[--accent]", bg: "bg-[--accent-tint]" },
   meeting: {
     label: "Meeting",
-    color: "text-green-400",
-    bg: "bg-green-900/30",
+    color: "text-[--ok]",
+    bg: "bg-[--ok-tint]",
   },
-  note: { label: "Note", color: "text-amber-400", bg: "bg-amber-900/30" },
+  note: { label: "Note", color: "text-[--warn]", bg: "bg-[--warn-tint]" },
   task: { label: "Task", color: "text-[--accent]", bg: "bg-[--accent-tint]" },
 };
 
@@ -47,18 +47,18 @@ export default async function DealActivityTimeline({ dealId }: Props) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
-        <h3 className="text-sm font-medium text-neutral-300">Activity timeline</h3>
+        <h3 className="text-sm font-medium text-[--ink-2]">Activity timeline</h3>
         {db && <InlineActivityForm dealId={dealId} />}
       </div>
 
       {!db && (
-        <p className="text-xs text-neutral-500">
+        <p className="text-xs text-[--ink-3]">
           Connect a database to log and view activities.
         </p>
       )}
 
       {db && activities.length === 0 && (
-        <p className="py-4 text-center text-sm text-neutral-500">
+        <p className="py-4 text-center text-sm text-[--ink-3]">
           No activities yet. Log one above.
         </p>
       )}
@@ -74,7 +74,7 @@ export default async function DealActivityTimeline({ dealId }: Props) {
             return (
               <li
                 key={a.id}
-                className="flex gap-3 rounded-lg border border-neutral-800 bg-neutral-900/50 px-4 py-3"
+                className="flex gap-3 rounded-lg border border-[--line-1] bg-[--surface-1] px-4 py-3"
               >
                 <ActivityToggle
                   activityId={a.id}
@@ -90,20 +90,20 @@ export default async function DealActivityTimeline({ dealId }: Props) {
                   </span>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className={`text-sm font-medium ${isCompleted ? "text-neutral-500 line-through" : "text-neutral-200"}`}>
+                  <p className={`text-sm font-medium ${isCompleted ? "text-[--ink-3] line-through" : "text-[--ink-1]"}`}>
                     {a.subject}
                   </p>
                   {a.body && (
-                    <p className={`mt-0.5 line-clamp-2 text-xs ${isCompleted ? "text-neutral-600" : "text-neutral-400"}`}>
+                    <p className={`mt-0.5 line-clamp-2 text-xs ${isCompleted ? "text-[--ink-3]" : "text-[--ink-2]"}`}>
                       {a.body}
                     </p>
                   )}
-                  <div className="mt-1 flex items-center gap-2 text-xs text-neutral-600">
+                  <div className="mt-1 flex items-center gap-2 text-xs text-[--ink-3]">
                     <span>{date}</span>
                     {a.dueAt && (
                       <>
                         <span aria-hidden>·</span>
-                        <span className={isOverdue ? "text-amber-400" : "text-neutral-500"}>
+                        <span className={isOverdue ? "text-[--warn]" : "text-[--ink-3]"}>
                           Due {a.dueAt.toISOString().slice(0, 10)}
                         </span>
                       </>
@@ -111,7 +111,7 @@ export default async function DealActivityTimeline({ dealId }: Props) {
                     {isCompleted && a.completedAt && (
                       <>
                         <span aria-hidden>·</span>
-                        <span className="text-neutral-500">
+                        <span className="text-[--ink-3]">
                           Completed {formatCompletedAt(a.completedAt)}
                         </span>
                         <span aria-hidden>·</span>
