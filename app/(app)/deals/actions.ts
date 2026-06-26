@@ -174,15 +174,12 @@ export async function bulkMoveStage(
   const db = getDb();
   if (!db) return { noDb: true };
 
-  const isTerminal =
-    parsedStage.data === "won" || parsedStage.data === "lost";
-
   await db
     .update(schema.deals)
     .set({
       stage: parsedStage.data,
       probability: STAGE_PROBABILITY[parsedStage.data] ?? 10,
-      closeReason: isTerminal ? undefined : null,
+      closeReason: null,
       updatedAt: new Date(),
     })
     .where(inArray(schema.deals.id, parsedIds.data));
