@@ -1203,21 +1203,6 @@ export async function bulkChangeOwner(
   return { success: true, count: ids.length };
 }
 
-// Postgres raises SQLSTATE 23505 on a unique-constraint violation. Drizzle/Neon
-// wrap the driver error, so walk the cause chain to find the code.
-function isUniqueViolation(err: unknown): boolean {
-  for (let e: unknown = err; e != null; e = (e as { cause?: unknown }).cause) {
-    if (
-      typeof e === "object" &&
-      "code" in e &&
-      (e as { code?: unknown }).code === "23505"
-    ) {
-      return true;
-    }
-  }
-  return false;
-}
-
 export async function bulkEnrollInSequence(
   ids: number[],
   sequenceId: number
@@ -1241,40 +1226,31 @@ export async function bulkEnrollInSequence(
   const missing = await missingContactsError(db, parsedIds.data);
   if (missing) return { error: missing };
 
-  const existing = await db
-    .select({ contactId: schema.contactSequenceEnrollments.contactId })
-    .from(schema.contactSequenceEnrollments)
-    .where(
-      and(
-        inArray(schema.contactSequenceEnrollments.contactId, parsedIds.data),
-        eq(schema.contactSequenceEnrollments.sequenceId, sequenceId),
-        eq(schema.contactSequenceEnrollments.status, "active")
-      )
-    );
-
-  const alreadyEnrolled = new Set(existing.map((e) => e.contactId));
-  const toEnroll = parsedIds.data.filter((id) => !alreadyEnrolled.has(id));
-
-  if (toEnroll.length > 0) {
-    try {
-      await db
-        .insert(schema.contactSequenceEnrollments)
-        .values(toEnroll.map((contactId) => ({ contactId, sequenceId })));
-    } catch (err) {
-      // A concurrent enroll created active row(s) between our check and this
-      // insert, tripping the partial unique index and rolling back the batch.
-      // Retrying re-filters the now-enrolled contacts and succeeds for the rest.
-      if (isUniqueViolation(err)) {
-        return {
-          error: "Some contacts were just enrolled. Please try again.",
-        };
-      }
-      return { error: "Couldn't enroll the contacts. Please try again." };
-    }
+  // Single atomic insert: rows that would collide with an existing active
+  // enrollment are skipped by the cse_active_unique_idx partial index instead
+  // of aborting the batch. `returning` gives us the exact set of rows actually
+  // inserted, so the newly-enrolled count is correct even under concurrent
+  // enrolls — no check-then-insert race and no "try again" retry needed.
+  let inserted: { contactId: number }[];
+  try {
+    inserted = await db
+      .insert(schema.contactSequenceEnrollments)
+      .values(parsedIds.data.map((contactId) => ({ contactId, sequenceId })))
+      .onConflictDoNothing({
+        target: [
+          schema.contactSequenceEnrollments.contactId,
+          schema.contactSequenceEnrollments.sequenceId,
+        ],
+        where: eq(schema.contactSequenceEnrollments.status, "active"),
+      })
+      .returning({ contactId: schema.contactSequenceEnrollments.contactId });
+  } catch {
+    return { error: "Couldn't enroll the contacts. Please try again." };
   }
 
   revalidatePath("/contacts");
-  return { success: true, count: toEnroll.length };
+  // count = newly enrolled; the remainder of the selection were already active.
+  return { success: true, count: inserted.length };
 }
 
 // ─── AI: Find duplicate contacts ─────────────────────────────────────────────
