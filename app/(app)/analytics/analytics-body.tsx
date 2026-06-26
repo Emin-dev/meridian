@@ -603,9 +603,9 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                   </div>
                 </div>
 
-                {/* Bar chart — internal scroll so it never overflows the page */}
+                {/* Bar chart — fluid columns so it never overflows narrow phones */}
                 <div className="overflow-x-auto">
-                  <div className="flex min-w-[360px] items-end gap-2 px-6 pb-4 pt-6 sm:gap-4">
+                  <div className="flex items-end gap-1.5 px-4 pb-4 pt-6 sm:gap-4 sm:px-6">
                     {forecastMonths.map((bucket) => (
                       <div
                         key={`${bucket.year}-${bucket.month}`}
