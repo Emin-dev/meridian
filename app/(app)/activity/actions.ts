@@ -58,15 +58,19 @@ export async function addActivity(
   const db = getDb();
   if (!db) return { noDb: true };
 
-  await db.insert(schema.activities).values({
-    type: parsed.data.type,
-    subject: parsed.data.subject,
-    body: parsed.data.body,
-    contactId: parsed.data.contactId,
-    dealId: parsed.data.dealId,
-    dueAt: parsed.data.dueAt,
-    completedAt: parsed.data.completedAt,
-  });
+  try {
+    await db.insert(schema.activities).values({
+      type: parsed.data.type,
+      subject: parsed.data.subject,
+      body: parsed.data.body,
+      contactId: parsed.data.contactId,
+      dealId: parsed.data.dealId,
+      dueAt: parsed.data.dueAt,
+      completedAt: parsed.data.completedAt,
+    });
+  } catch {
+    return { error: "Couldn't log the activity. Please try again." };
+  }
 
   revalidatePath("/activity");
   if (parsed.data.contactId) {
@@ -97,14 +101,18 @@ export async function logAiTaskSuggestion(
   const db = getDb();
   if (!db) return { noDb: true };
 
-  await db.insert(schema.activities).values({
-    type: type ?? "task",
-    subject: parsedSubject.data,
-    body: body?.trim().slice(0, 2000) || null,
-    contactId: contactId ?? null,
-    dealId: dealId ?? null,
-    dueAt: new Date(),
-  });
+  try {
+    await db.insert(schema.activities).values({
+      type: type ?? "task",
+      subject: parsedSubject.data,
+      body: body?.trim().slice(0, 2000) || null,
+      contactId: contactId ?? null,
+      dealId: dealId ?? null,
+      dueAt: new Date(),
+    });
+  } catch {
+    return { error: "Couldn't save the task. Please try again." };
+  }
 
   revalidatePath("/tasks");
   revalidatePath("/activity");
@@ -192,13 +200,17 @@ export async function toggleActivityComplete(
   const db = getDb();
   if (!db) return { error: "No database" };
 
-  await db
-    .update(schema.activities)
-    .set({
-      completedAt: isCompleted ? null : new Date(),
-      updatedAt: new Date(),
-    })
-    .where(eq(schema.activities.id, activityId));
+  try {
+    await db
+      .update(schema.activities)
+      .set({
+        completedAt: isCompleted ? null : new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(schema.activities.id, activityId));
+  } catch {
+    return { error: "Couldn't update the task. Please try again." };
+  }
 
   revalidatePath("/activity");
   if (contactId) revalidatePath(`/contacts/${contactId}`);
