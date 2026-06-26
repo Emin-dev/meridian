@@ -395,13 +395,23 @@ export async function deleteContact(id: number): Promise<void> {
   // Catch real DB/FK failures and surface a friendly message; the redirect()
   // below stays OUTSIDE the try so its control-flow signal is never swallowed.
   try {
-    await db.delete(schema.contacts).where(eq(schema.contacts.id, id));
+    // Confirm the contact still exists before deleting + revalidating: a
+    // double-tap or stale link can land here after it's already gone, so skip
+    // the write and fall through to the safe list redirect.
+    const [existing] = await db
+      .select({ id: schema.contacts.id })
+      .from(schema.contacts)
+      .where(eq(schema.contacts.id, id))
+      .limit(1);
+    if (existing) {
+      await db.delete(schema.contacts).where(eq(schema.contacts.id, id));
+      revalidatePath("/contacts");
+    }
   } catch (err) {
     console.error("deleteContact failed:", err);
     throw new Error("Could not delete this contact — please try again.");
   }
 
-  revalidatePath("/contacts");
   redirect("/contacts");
 }
 

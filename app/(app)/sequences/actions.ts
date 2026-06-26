@@ -160,19 +160,33 @@ Rules: max 5 steps, use {{firstName}} and {{company}} as merge fields, keep emai
       return { error: "AI returned an unexpected format. Please try again." };
     }
 
-    const steps = (parsed.steps as unknown[]).slice(0, 5).map((s) => {
-      const step = s as Record<string, unknown>;
-      return {
-        delayDays:
-          typeof step.delayDays === "number" && Number.isInteger(step.delayDays)
-            ? Math.max(0, step.delayDays)
-            : 0,
-        subjectTemplate:
-          typeof step.subjectTemplate === "string" ? step.subjectTemplate : "",
-        bodyTemplate:
-          typeof step.bodyTemplate === "string" ? step.bodyTemplate : "",
-      };
-    });
+    const steps = (parsed.steps as unknown[])
+      .slice(0, 5)
+      .map((s) => {
+        const step = s as Record<string, unknown>;
+        return {
+          delayDays:
+            typeof step.delayDays === "number" &&
+            Number.isInteger(step.delayDays)
+              ? Math.max(0, step.delayDays)
+              : 0,
+          subjectTemplate:
+            typeof step.subjectTemplate === "string" ? step.subjectTemplate : "",
+          bodyTemplate:
+            typeof step.bodyTemplate === "string" ? step.bodyTemplate : "",
+        };
+      })
+      // Drop unusable steps: a blank subject or body would persist an empty,
+      // unsendable email. Keep only fully-populated steps.
+      .filter(
+        (step) =>
+          step.subjectTemplate.trim().length > 0 &&
+          step.bodyTemplate.trim().length > 0
+      );
+
+    if (steps.length === 0) {
+      return { error: "AI returned an unexpected format. Please try again." };
+    }
 
     return { name: parsed.name, steps };
   } catch (err) {

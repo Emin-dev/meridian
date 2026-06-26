@@ -249,7 +249,9 @@ export async function draftStepContent(
     if (
       !parsed ||
       typeof parsed.subjectTemplate !== "string" ||
-      typeof parsed.bodyTemplate !== "string"
+      typeof parsed.bodyTemplate !== "string" ||
+      parsed.subjectTemplate.trim().length === 0 ||
+      parsed.bodyTemplate.trim().length === 0
     ) {
       return { error: "AI returned incomplete content." };
     }

@@ -420,9 +420,19 @@ export async function deleteDeal(id: number): Promise<void> {
 
   const db = getDb();
   if (db) {
-    await db.delete(schema.deals).where(eq(schema.deals.id, id));
-    revalidatePath("/deals");
-    revalidatePath("/dashboard");
+    // Confirm the deal still exists before deleting + revalidating: a double-tap
+    // or stale link can land here after it's already gone, so skip the write and
+    // fall through to the safe list redirect rather than churning the cache.
+    const [existing] = await db
+      .select({ id: schema.deals.id })
+      .from(schema.deals)
+      .where(eq(schema.deals.id, id))
+      .limit(1);
+    if (existing) {
+      await db.delete(schema.deals).where(eq(schema.deals.id, id));
+      revalidatePath("/deals");
+      revalidatePath("/dashboard");
+    }
   }
   redirect("/deals");
 }
