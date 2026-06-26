@@ -25,7 +25,7 @@ Read this first. It is the durable contract for working in this repo. Keep chang
 - **Mutations = Server Actions** with `zod` validation; `revalidatePath` after writes; return the existing state-union shape (never widen a signature).
 - **`getDb()` returns `null`** when `DATABASE_URL` is unset — always handle null with a friendly empty state; the app must be viewable with no DB. Never wall the app behind a login when there is no DB.
 - **AI** only via `lib/ai.ts`; cheap model by default; never block render on AI; never call AI during build/SSG.
-- **Design**: follow `DESIGN.md` tokens (warm palette, no raw hex/neutral-/indigo- classes). Mobile = bottom tab bar + **action sheets instead of dropdowns**, 44px tap targets, zero horizontal overflow (see `MOBILE.md`).
+- **Design**: follow `DESIGN.md` tokens (premium indigo-violet accent on cool charcoal; no raw hex). **CSS variables in classNames MUST be wrapped as `[var(--token)]`** — e.g. `bg-[var(--surface-2)]`, `text-[var(--ink-2)]`, `border-[var(--line-1)]`, `rounded-[var(--r-lg)]`. The bare `[--token]` form does **NOT** compile in Tailwind v4 and silently emits no CSS (transparent sheets/modals, missing text/border/shadow). Never write `bg-[--surface-2]`. Mobile = ONE hamburger drawer (no second menu) + **action sheets instead of dropdowns**, 44px tap targets, zero horizontal overflow (see `MOBILE.md`).
 
 ## Do-not-touch zones (need a passing check / explicit care)
 - `lib/auth.ts`, `middleware.ts` — auth. Don't change without preserving the JWT/guard behavior.
