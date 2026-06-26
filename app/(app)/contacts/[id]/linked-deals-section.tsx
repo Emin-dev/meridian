@@ -6,6 +6,7 @@ import DealModal from "@/app/(app)/deals/deal-modal";
 
 interface Props {
   contactId: number;
+  contactName: string;
 }
 
 const STAGE_STYLES: Record<string, string> = {
@@ -28,7 +29,10 @@ function fmtValue(value: string | null, currency: string) {
   }).format(num);
 }
 
-export default async function LinkedDealsSection({ contactId }: Props) {
+export default async function LinkedDealsSection({
+  contactId,
+  contactName,
+}: Props) {
   const db = getDb();
 
   type DealRow = {
@@ -41,30 +45,27 @@ export default async function LinkedDealsSection({ contactId }: Props) {
   };
 
   let deals: DealRow[] = [];
-  let contacts: { id: number; name: string }[] = [];
 
   const settings = await getCrmSettings();
 
   if (db) {
-    [deals, contacts] = await Promise.all([
-      db
-        .select({
-          id: schema.deals.id,
-          title: schema.deals.title,
-          stage: schema.deals.stage,
-          value: schema.deals.value,
-          currency: schema.deals.currency,
-          expectedCloseDate: schema.deals.expectedCloseDate,
-        })
-        .from(schema.deals)
-        .where(eq(schema.deals.contactId, contactId))
-        .orderBy(asc(schema.deals.createdAt)),
-      db
-        .select({ id: schema.contacts.id, name: schema.contacts.name })
-        .from(schema.contacts)
-        .orderBy(asc(schema.contacts.name)),
-    ]);
+    deals = await db
+      .select({
+        id: schema.deals.id,
+        title: schema.deals.title,
+        stage: schema.deals.stage,
+        value: schema.deals.value,
+        currency: schema.deals.currency,
+        expectedCloseDate: schema.deals.expectedCloseDate,
+      })
+      .from(schema.deals)
+      .where(eq(schema.deals.contactId, contactId))
+      .orderBy(asc(schema.deals.createdAt));
   }
+
+  // A deal created from a contact's page belongs to that contact, so the
+  // modal's contact dropdown only needs this one contact — no full-table read.
+  const contacts = [{ id: contactId, name: contactName }];
 
   return (
     <>

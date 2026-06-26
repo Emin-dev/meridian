@@ -98,7 +98,7 @@ export default async function ContactDetailPage({ params }: Props) {
 
   const dealsSlot = (
     <div className="card p-4 sm:p-5">
-      <LinkedDealsSection contactId={contact.id} />
+      <LinkedDealsSection contactId={contact.id} contactName={contact.name} />
     </div>
   );
 
