@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { eq, desc, inArray, and, isNull, notInArray, sql, lte, getTableColumns } from "drizzle-orm";
+import { eq, desc, inArray, and, isNull, notInArray, sql, lte, count as countFn, getTableColumns } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -574,25 +574,39 @@ export async function scoreContact(contactId: number): Promise<ScoreState> {
 export type BulkScoreState = {
   count?: number;
   failed?: number;
+  remaining?: number;
   error?: string;
   noDb?: boolean;
   noKey?: boolean;
 };
+
+// Cap each run so the action stays well under Vercel's 10s limit and doesn't
+// burn tokens on huge workspaces. Any contacts beyond this are reported via
+// `remaining` so the user can re-run.
+const BULK_SCORE_BATCH = 25;
 
 export async function bulkScoreContacts(): Promise<BulkScoreState> {
   const db = getDb();
   if (!db) return { noDb: true };
   if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
 
-  // Pre-fetch every unscored contact in a single query rather than re-querying
-  // each contact inside scoreContact (which previously meant 101 queries for
-  // 100 contacts).
-  const contactsToScore = await db
-    .select()
+  // Count all unscored contacts so we can tell the user how many remain after
+  // this capped batch, then pre-fetch only the next BULK_SCORE_BATCH in a single
+  // query rather than re-querying each contact inside scoreContact.
+  const [{ value: totalUnscored }] = await db
+    .select({ value: countFn() })
     .from(schema.contacts)
     .where(isNull(schema.contacts.leadScore));
 
-  if (contactsToScore.length === 0) return { count: 0 };
+  if (totalUnscored === 0) return { count: 0, remaining: 0 };
+
+  const contactsToScore = await db
+    .select()
+    .from(schema.contacts)
+    .where(isNull(schema.contacts.leadScore))
+    .limit(BULK_SCORE_BATCH);
+
+  if (contactsToScore.length === 0) return { count: 0, remaining: 0 };
 
   // Fetch only the recent activities the scoring prompt actually uses: rank each
   // contact's activities newest-first and keep the top SCORING_WINDOW per contact
@@ -660,7 +674,10 @@ export async function bulkScoreContacts(): Promise<BulkScoreState> {
   );
 
   revalidatePath("/contacts");
-  return { count, failed };
+  // Successfully scored contacts now have a leadScore; failed ones remain null
+  // and will be picked up on a re-run, so they count toward `remaining`.
+  const remaining = Math.max(0, totalUnscored - count);
+  return { count, failed, remaining };
 }
 
 // ─── AI: Next best action suggestion ─────────────────────────────────────────
