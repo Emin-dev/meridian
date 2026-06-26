@@ -34,7 +34,7 @@ export default function MobileActionSheet({
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 z-40 bg-black/60"
+        className="anim-backdrop fixed inset-0 z-40 bg-black/60"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -45,7 +45,7 @@ export default function MobileActionSheet({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="fixed inset-x-0 bottom-0 z-50 rounded-t-[var(--r-2xl)] bg-[var(--surface-2)] shadow-[var(--shadow-3)] pb-[env(safe-area-inset-bottom)]"
+        className="anim-sheet-up fixed inset-x-0 bottom-0 z-50 rounded-t-[var(--r-2xl)] bg-[var(--surface-2)] shadow-[var(--shadow-3)] pb-[env(safe-area-inset-bottom)]"
       >
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-2">

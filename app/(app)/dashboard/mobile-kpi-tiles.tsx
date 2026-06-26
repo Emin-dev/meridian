@@ -213,7 +213,7 @@ export default function MobileKpiTiles({
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="anim-stagger grid grid-cols-2 gap-3">
         {tiles.map((tile, index) => {
           const isOrphan =
             index === tiles.length - 1 && tiles.length % 2 === 1;

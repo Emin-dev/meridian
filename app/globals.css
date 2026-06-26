@@ -180,6 +180,59 @@ dialog:not([open]) { display: none; }
   /* Mobile nav drawer: slide in from the left edge. */
   @keyframes _drawer-in { from { transform: translateX(-100%); } to { transform: translateX(0); } }
   .animate-drawer-in { animation: _drawer-in var(--dur-2) var(--ease) both; }
+
+  /* ── Motion layer ─────────────────────────────────────────────────────────
+     Tasteful enter animations + skeleton shimmer, the shared foundation other
+     tickets apply to sheets, modals, tiles and skeletons. Enter durations stay
+     within --dur-1..--dur-3 (120–320ms) on the shared --ease curve; `both`
+     holds the start frame before play and the end frame after, so there's no
+     pre-paint flash. The reduce block below zeroes every duration here. */
+  @keyframes _sheet-up   { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  @keyframes _fade-in-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes _backdrop   { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes _scale-in   { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+  @keyframes _shimmer    { from { background-position: -150% 0; } to { background-position: 250% 0; } }
+
+  .anim-sheet-up   { animation: _sheet-up   var(--dur-3) var(--ease) both; }   /* bottom sheets */
+  .anim-fade-in-up { animation: _fade-in-up var(--dur-2) var(--ease) both; }   /* cards / tiles on mount */
+  .anim-backdrop   { animation: _backdrop   var(--dur-2) var(--ease) both; }   /* dim layer */
+  .anim-scale-in   { animation: _scale-in   var(--dur-2) var(--ease) both; }   /* modals / popovers */
+
+  /* Stagger: direct children fade-in-up with a growing delay. Capped at 8 so a
+     long list doesn't accumulate a sluggish tail — later items reuse the last
+     step's delay. Just add .anim-stagger to the container. */
+  .anim-stagger > * { animation: _fade-in-up var(--dur-2) var(--ease) both; }
+  .anim-stagger > *:nth-child(1) { animation-delay: 0ms; }
+  .anim-stagger > *:nth-child(2) { animation-delay: 40ms; }
+  .anim-stagger > *:nth-child(3) { animation-delay: 80ms; }
+  .anim-stagger > *:nth-child(4) { animation-delay: 120ms; }
+  .anim-stagger > *:nth-child(5) { animation-delay: 160ms; }
+  .anim-stagger > *:nth-child(6) { animation-delay: 200ms; }
+  .anim-stagger > *:nth-child(7) { animation-delay: 240ms; }
+  .anim-stagger > *:nth-child(n+8) { animation-delay: 280ms; }
+
+  /* Explicit delay utilities for manual/inline staggering of single elements. */
+  .anim-delay-1 { animation-delay: 40ms; }
+  .anim-delay-2 { animation-delay: 80ms; }
+  .anim-delay-3 { animation-delay: 120ms; }
+  .anim-delay-4 { animation-delay: 160ms; }
+  .anim-delay-5 { animation-delay: 200ms; }
+
+  /* Skeleton shimmer: a slow highlight sweep over a placeholder block. Pair
+     with a surface background (e.g. bg-[var(--surface-2)]) — the gradient rides
+     on top as the moving "loading" highlight. Loops continuously, so it sits
+     outside the 120–320ms enter range by design. */
+  .shimmer {
+    background-image: linear-gradient(
+      100deg,
+      transparent 30%,
+      color-mix(in srgb, var(--ink-1) 9%, transparent) 50%,
+      transparent 70%
+    );
+    background-size: 200% 100%;
+    background-repeat: no-repeat;
+    animation: _shimmer 1.4s linear infinite;
+  }
 }
 
 @media (prefers-reduced-motion: reduce){
