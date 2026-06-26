@@ -23,7 +23,7 @@ export default function EditContactForm({ contact, onSaved, onRollback }: Props)
   >({});
 
   const inputCls =
-    "w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none";
+    "w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-[--accent] focus:outline-none";
   const labelCls = "mb-1 block text-xs font-medium text-neutral-400";
 
   async function handleDelete() {
@@ -220,7 +220,7 @@ export default function EditContactForm({ contact, onSaved, onRollback }: Props)
         <button
           type="submit"
           disabled={pending}
-          className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
+          className="rounded-lg bg-[--accent] px-4 py-2 text-sm font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
         >
           {pending ? "Saving…" : "Save changes"}
         </button>

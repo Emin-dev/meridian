@@ -41,7 +41,7 @@ export default function NewContactModal({ hasDb }: Props) {
       <button
         type="button"
         onClick={openModal}
-        className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
+        className="rounded-lg bg-[--accent] px-4 py-2 text-sm font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover]"
       >
         New contact
       </button>
@@ -130,7 +130,7 @@ export default function NewContactModal({ hasDb }: Props) {
                   type="text"
                   required
                   placeholder="Jane Smith"
-                  className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none"
+                  className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-[--accent] focus:outline-none"
                 />
                 {state.fieldErrors?.name && (
                   <p className="mt-1 text-xs text-red-400">
@@ -152,7 +152,7 @@ export default function NewContactModal({ hasDb }: Props) {
                   name="email"
                   type="email"
                   placeholder="jane@example.com"
-                  className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none"
+                  className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-[--accent] focus:outline-none"
                 />
                 {state.fieldErrors?.email && (
                   <p className="mt-1 text-xs text-red-400">
@@ -174,7 +174,7 @@ export default function NewContactModal({ hasDb }: Props) {
                   name="phone"
                   type="tel"
                   placeholder="+1 555 000 0000"
-                  className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none"
+                  className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-[--accent] focus:outline-none"
                 />
               </div>
 
@@ -192,7 +192,7 @@ export default function NewContactModal({ hasDb }: Props) {
                     name="company"
                     type="text"
                     placeholder="Acme Corp"
-                    className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none"
+                    className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-[--accent] focus:outline-none"
                   />
                 </div>
                 <div>
@@ -207,7 +207,7 @@ export default function NewContactModal({ hasDb }: Props) {
                     name="title"
                     type="text"
                     placeholder="VP Sales"
-                    className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none"
+                    className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-[--accent] focus:outline-none"
                   />
                 </div>
               </div>
@@ -224,7 +224,7 @@ export default function NewContactModal({ hasDb }: Props) {
                   <select
                     id="nc-source"
                     name="source"
-                    className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 focus:border-indigo-500 focus:outline-none"
+                    className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 focus:border-[--accent] focus:outline-none"
                   >
                     <option value="">— Select —</option>
                     <option value="website">Website</option>
@@ -246,7 +246,7 @@ export default function NewContactModal({ hasDb }: Props) {
                     name="owner"
                     type="text"
                     placeholder="Assigned rep"
-                    className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none"
+                    className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-[--accent] focus:outline-none"
                   />
                 </div>
               </div>
@@ -264,7 +264,7 @@ export default function NewContactModal({ hasDb }: Props) {
                   name="notes"
                   rows={3}
                   placeholder="Any notes about this contact…"
-                  className="w-full resize-none rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none"
+                  className="w-full resize-none rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-[--accent] focus:outline-none"
                 />
               </div>
 
@@ -293,7 +293,7 @@ export default function NewContactModal({ hasDb }: Props) {
               <button
                 type="submit"
                 disabled={pending}
-                className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
+                className="rounded-lg bg-[--accent] px-4 py-2 text-sm font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
               >
                 {pending ? "Saving…" : "Save contact"}
               </button>

@@ -52,7 +52,7 @@ export default function EnrichContactPanel({ contactId }: Props) {
   }
 
   const inputCls =
-    "w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-indigo-500 focus:outline-none";
+    "w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-[--accent] focus:outline-none";
   const textareaCls = `${inputCls} resize-none leading-relaxed`;
 
   return (
@@ -65,7 +65,7 @@ export default function EnrichContactPanel({ contactId }: Props) {
           type="button"
           onClick={handleEnrich}
           disabled={isPending}
-          className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
+          className="rounded-lg bg-[--accent] px-3 py-1.5 text-xs font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
         >
           {isPending ? "Enriching…" : hasResult ? "Re-enrich" : "Enrich with AI"}
         </button>

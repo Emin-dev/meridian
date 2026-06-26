@@ -245,7 +245,7 @@ export default function CsvImportModal({ hasDb }: Props) {
               <button
                 type="button"
                 onClick={handleClose}
-                className="tap flex items-center justify-center rounded-lg bg-indigo-600 px-4 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
+                className="tap flex items-center justify-center rounded-lg bg-[--accent] px-4 text-sm font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover]"
               >
                 Done
               </button>
@@ -296,7 +296,7 @@ export default function CsvImportModal({ hasDb }: Props) {
                       value={csvText}
                       onChange={(e) => handleTextChange(e.target.value)}
                       placeholder={"name,email,phone,company\nJane Smith,jane@example.com,+1 555 0001,Acme Corp"}
-                      className="w-full resize-y rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 font-mono text-xs text-neutral-100 placeholder-neutral-600 focus:border-indigo-500 focus:outline-none"
+                      className="w-full resize-y rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 font-mono text-xs text-neutral-100 placeholder-neutral-600 focus:border-[--accent] focus:outline-none"
                     />
                   </div>
 
@@ -365,7 +365,7 @@ export default function CsvImportModal({ hasDb }: Props) {
                   type="button"
                   onClick={handleImport}
                   disabled={parsed.length === 0 || isPending}
-                  className="tap flex items-center justify-center rounded-lg bg-indigo-600 px-4 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
+                  className="tap flex items-center justify-center rounded-lg bg-[--accent] px-4 text-sm font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
                 >
                   {isPending
                     ? "Importing…"
