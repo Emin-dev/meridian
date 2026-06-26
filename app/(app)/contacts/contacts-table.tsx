@@ -540,7 +540,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
             <table className="w-full min-w-[1100px] text-sm">
               <thead>
                 <tr className="border-b border-[var(--line-1)] text-left">
-                  <th className="px-3 py-3 w-10">
+                  <th className="sticky left-0 z-10 bg-[var(--surface-1)] px-3 py-3 w-10">
                     <input
                       type="checkbox"
                       checked={allSelected}
@@ -558,7 +558,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
                     currentSort={sort}
                     currentDir={dir}
                     allSearchParams={allSearchParams}
-                    className="sticky left-0 z-10 bg-[var(--surface-1)]"
+                    className="sticky left-10 z-10 bg-[var(--surface-1)]"
                   />
                   <SortableHeader col="status" label="Status" currentSort={sort} currentDir={dir} allSearchParams={allSearchParams} />
                   <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-[var(--ink-3)]">
@@ -600,7 +600,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
                         isSelected ? "bg-[var(--accent-tint)]" : "hover:bg-[var(--surface-2)]/40"
                       }`}
                     >
-                      <td className="px-3 py-3">
+                      <td className={`sticky left-0 z-10 px-3 py-3 ${isSelected ? "bg-[var(--accent-tint)]" : "bg-[var(--surface-1)]"}`}>
                         <input
                           type="checkbox"
                           checked={isSelected}
