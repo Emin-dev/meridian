@@ -90,6 +90,7 @@ export async function updateDealDetails(
     .from(schema.deals)
     .where(eq(schema.deals.id, id))
     .limit(1);
+  if (!current) return { error: "Deal not found." };
 
   await db
     .update(schema.deals)
@@ -173,6 +174,7 @@ export async function updateDealNotes(
     .from(schema.deals)
     .where(eq(schema.deals.id, id))
     .limit(1);
+  if (!existing) return { error: "Deal not found." };
 
   const insight = extractWinLossInsight(existing?.notes ?? null);
   const finalNotes =

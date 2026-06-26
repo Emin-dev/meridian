@@ -287,6 +287,13 @@ export async function updateContact(
   const db = getDb();
   if (!db) return { noDb: true };
 
+  const [existing] = await db
+    .select({ id: schema.contacts.id })
+    .from(schema.contacts)
+    .where(eq(schema.contacts.id, id))
+    .limit(1);
+  if (!existing) return { error: "Contact not found." };
+
   try {
     await db
       .update(schema.contacts)
@@ -330,6 +337,13 @@ export async function updateContactNotes(
   if (!db) return { noDb: true };
 
   const notes = String(formData.get("notes") ?? "").trim() || null;
+
+  const [existing] = await db
+    .select({ id: schema.contacts.id })
+    .from(schema.contacts)
+    .where(eq(schema.contacts.id, id))
+    .limit(1);
+  if (!existing) return { error: "Contact not found." };
 
   try {
     await db
