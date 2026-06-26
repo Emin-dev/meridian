@@ -179,12 +179,6 @@ export default function DealsTable({
     });
   }
 
-  if (deals.length === 0) {
-    return (
-      <p className="py-12 text-center text-sm text-[var(--ink-3)]">No deals yet.</p>
-    );
-  }
-
   return (
     <div className="space-y-3">
       {/* Bulk action bar — desktop only (mobile uses the action sheet) */}
