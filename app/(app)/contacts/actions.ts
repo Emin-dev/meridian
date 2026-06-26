@@ -1047,10 +1047,14 @@ export async function bulkChangeStatus(
   const missing = await missingContactsError(db, parsedIds.data);
   if (missing) return { error: missing };
 
-  await db
-    .update(schema.contacts)
-    .set({ status, updatedAt: new Date() })
-    .where(inArray(schema.contacts.id, parsedIds.data));
+  try {
+    await db
+      .update(schema.contacts)
+      .set({ status, updatedAt: new Date() })
+      .where(inArray(schema.contacts.id, parsedIds.data));
+  } catch {
+    return { error: "Couldn't update the contacts. Please try again." };
+  }
 
   revalidatePath("/contacts");
   return { success: true, count: parsedIds.data.length };
@@ -1073,19 +1077,24 @@ export async function bulkAddTag(
 
   // Append the tag in a single query, touching only rows that don't already
   // have it. `returning` gives us the exact count of contacts updated.
-  const updatedRows = await db
-    .update(schema.contacts)
-    .set({
-      tags: sql`array_append(${schema.contacts.tags}, ${trimmed})`,
-      updatedAt: new Date(),
-    })
-    .where(
-      and(
-        inArray(schema.contacts.id, parsedIds.data),
-        sql`NOT (${trimmed} = ANY(${schema.contacts.tags}))`
+  let updatedRows: { id: number }[];
+  try {
+    updatedRows = await db
+      .update(schema.contacts)
+      .set({
+        tags: sql`array_append(${schema.contacts.tags}, ${trimmed})`,
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          inArray(schema.contacts.id, parsedIds.data),
+          sql`NOT (${trimmed} = ANY(${schema.contacts.tags}))`
+        )
       )
-    )
-    .returning({ id: schema.contacts.id });
+      .returning({ id: schema.contacts.id });
+  } catch {
+    return { error: "Couldn't add the tag. Please try again." };
+  }
 
   revalidatePath("/contacts");
   return { success: true, count: updatedRows.length };
@@ -1109,10 +1118,14 @@ export async function bulkChangeOwner(
   const missing = await missingContactsError(db, ids);
   if (missing) return { error: missing };
 
-  await db
-    .update(schema.contacts)
-    .set({ owner: parsedOwner.data || null, updatedAt: new Date() })
-    .where(inArray(schema.contacts.id, ids));
+  try {
+    await db
+      .update(schema.contacts)
+      .set({ owner: parsedOwner.data || null, updatedAt: new Date() })
+      .where(inArray(schema.contacts.id, ids));
+  } catch {
+    return { error: "Couldn't change the owner. Please try again." };
+  }
 
   revalidatePath("/contacts");
   return { success: true, count: ids.length };
@@ -1154,9 +1167,13 @@ export async function bulkEnrollInSequence(
   const toEnroll = parsedIds.data.filter((id) => !alreadyEnrolled.has(id));
 
   if (toEnroll.length > 0) {
-    await db
-      .insert(schema.contactSequenceEnrollments)
-      .values(toEnroll.map((contactId) => ({ contactId, sequenceId })));
+    try {
+      await db
+        .insert(schema.contactSequenceEnrollments)
+        .values(toEnroll.map((contactId) => ({ contactId, sequenceId })));
+    } catch {
+      return { error: "Couldn't enroll the contacts. Please try again." };
+    }
   }
 
   revalidatePath("/contacts");

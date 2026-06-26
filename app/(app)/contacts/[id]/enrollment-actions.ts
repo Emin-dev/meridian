@@ -43,9 +43,15 @@ export async function enrollInSequence(
     return { error: "Sequence not found." };
   }
 
-  await db
-    .insert(schema.contactSequenceEnrollments)
-    .values({ contactId, sequenceId });
+  try {
+    await db
+      .insert(schema.contactSequenceEnrollments)
+      .values({ contactId, sequenceId });
+  } catch {
+    // Don't crash the route on a transient DB/constraint error; surface it so
+    // the user can retry — the contact simply stays unenrolled.
+    return { error: "Couldn't enroll the contact. Please try again." };
+  }
 
   revalidatePath(`/contacts/${contactId}`);
   return { success: true };
@@ -58,10 +64,16 @@ export async function cancelEnrollment(
   const db = getDb();
   if (!db) return { error: "No database connected." };
 
-  await db
-    .update(schema.contactSequenceEnrollments)
-    .set({ status: "cancelled" })
-    .where(eq(schema.contactSequenceEnrollments.id, enrollmentId));
+  try {
+    await db
+      .update(schema.contactSequenceEnrollments)
+      .set({ status: "cancelled" })
+      .where(eq(schema.contactSequenceEnrollments.id, enrollmentId));
+  } catch {
+    // Surface a transient DB error instead of tripping the route error
+    // boundary; the enrollment simply stays active and the user can retry.
+    return { error: "Couldn't cancel the enrollment. Please try again." };
+  }
 
   revalidatePath(`/contacts/${contactId}`);
   return {};

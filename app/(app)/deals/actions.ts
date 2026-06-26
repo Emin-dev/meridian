@@ -203,15 +203,19 @@ export async function bulkMoveStage(
   const missing = await missingDealsError(db, parsedIds.data);
   if (missing) return { error: missing };
 
-  await db
-    .update(schema.deals)
-    .set({
-      stage: parsedStage.data,
-      probability: STAGE_PROBABILITY[parsedStage.data] ?? 10,
-      closeReason: null,
-      updatedAt: new Date(),
-    })
-    .where(inArray(schema.deals.id, parsedIds.data));
+  try {
+    await db
+      .update(schema.deals)
+      .set({
+        stage: parsedStage.data,
+        probability: STAGE_PROBABILITY[parsedStage.data] ?? 10,
+        closeReason: null,
+        updatedAt: new Date(),
+      })
+      .where(inArray(schema.deals.id, parsedIds.data));
+  } catch {
+    return { error: "Couldn't move the deals. Please try again." };
+  }
 
   revalidatePath("/deals");
   return { count: parsedIds.data.length };
@@ -232,10 +236,14 @@ export async function bulkChangeOwner(
   const missing = await missingDealsError(db, parsedIds.data);
   if (missing) return { error: missing };
 
-  await db
-    .update(schema.deals)
-    .set({ owner: parsedOwner.data || null, updatedAt: new Date() })
-    .where(inArray(schema.deals.id, parsedIds.data));
+  try {
+    await db
+      .update(schema.deals)
+      .set({ owner: parsedOwner.data || null, updatedAt: new Date() })
+      .where(inArray(schema.deals.id, parsedIds.data));
+  } catch {
+    return { error: "Couldn't change the owner. Please try again." };
+  }
 
   revalidatePath("/deals");
   return { count: parsedIds.data.length };
@@ -253,9 +261,13 @@ export async function bulkDeleteDeals(
   const missing = await missingDealsError(db, parsedIds.data);
   if (missing) return { error: missing };
 
-  await db
-    .delete(schema.deals)
-    .where(inArray(schema.deals.id, parsedIds.data));
+  try {
+    await db
+      .delete(schema.deals)
+      .where(inArray(schema.deals.id, parsedIds.data));
+  } catch {
+    return { error: "Couldn't delete the deals. Please try again." };
+  }
 
   revalidatePath("/deals");
   return { count: parsedIds.data.length };

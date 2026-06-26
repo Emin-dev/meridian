@@ -84,32 +84,36 @@ export async function updateDealDetails(
     .limit(1);
   if (!current) return { error: "Deal not found." };
 
-  await db
-    .update(schema.deals)
-    .set({
-      title: parsed.data.title,
-      stage: parsed.data.stage,
-      value: parsed.data.value,
-      probability: parsed.data.probability,
-      expectedCloseDate: parsed.data.expectedCloseDate
-        ? new Date(parsed.data.expectedCloseDate)
-        : null,
-      updatedAt: new Date(),
-    })
-    .where(eq(schema.deals.id, id));
+  try {
+    await db
+      .update(schema.deals)
+      .set({
+        title: parsed.data.title,
+        stage: parsed.data.stage,
+        value: parsed.data.value,
+        probability: parsed.data.probability,
+        expectedCloseDate: parsed.data.expectedCloseDate
+          ? new Date(parsed.data.expectedCloseDate)
+          : null,
+        updatedAt: new Date(),
+      })
+      .where(eq(schema.deals.id, id));
 
-  // Log stage and value changes.
-  if (current) {
-    const events: Array<{ dealId: number; field: string; oldValue: string | null; newValue: string | null }> = [];
-    if (current.stage !== parsed.data.stage) {
-      events.push({ dealId: id, field: "stage", oldValue: current.stage, newValue: parsed.data.stage });
+    // Log stage and value changes.
+    if (current) {
+      const events: Array<{ dealId: number; field: string; oldValue: string | null; newValue: string | null }> = [];
+      if (current.stage !== parsed.data.stage) {
+        events.push({ dealId: id, field: "stage", oldValue: current.stage, newValue: parsed.data.stage });
+      }
+      if (!numericEqual(current.value, parsed.data.value)) {
+        events.push({ dealId: id, field: "value", oldValue: current.value ?? null, newValue: parsed.data.value ?? null });
+      }
+      if (events.length > 0) {
+        await db.insert(schema.dealEvents).values(events);
+      }
     }
-    if (!numericEqual(current.value, parsed.data.value)) {
-      events.push({ dealId: id, field: "value", oldValue: current.value ?? null, newValue: parsed.data.value ?? null });
-    }
-    if (events.length > 0) {
-      await db.insert(schema.dealEvents).values(events);
-    }
+  } catch {
+    return { error: "Couldn't save the deal. Please try again." };
   }
 
   // Trigger AI win/loss analysis when the stage is newly changed to won or lost.
