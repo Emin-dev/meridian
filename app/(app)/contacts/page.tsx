@@ -190,8 +190,8 @@ export default async function ContactsPage({
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-neutral-100">Contacts</h2>
-          <p className="mt-1 text-sm text-neutral-400">Manage your leads and customers.</p>
+          <h2 className="text-xl font-semibold text-[--ink-1]">Contacts</h2>
+          <p className="mt-1 text-sm text-[--ink-2]">Manage your leads and customers.</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {/* Secondary actions — visible on sm+ */}
@@ -244,9 +244,9 @@ export default async function ContactsPage({
       />
 
       {contacts.length === 0 ? (
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900">
-          <div className="flex items-center justify-between border-b border-neutral-800 px-5 py-3">
-            <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">
+        <div className="rounded-xl border border-[--line-1] bg-[--surface-1]">
+          <div className="flex items-center justify-between border-b border-[--line-1] px-5 py-3">
+            <p className="text-xs font-medium uppercase tracking-wide text-[--ink-3]">
               {hasActiveFilters ? "Filtered contacts" : "All Contacts"}
             </p>
           </div>
@@ -264,7 +264,7 @@ export default async function ContactsPage({
               action={
                 <Link
                   href="/contacts"
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-xs font-medium text-neutral-300 transition-colors hover:bg-neutral-700 hover:text-neutral-100"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-1.5 text-xs font-medium text-[--ink-2] transition-colors hover:bg-[--surface-3] hover:text-[--ink-1]"
                 >
                   Clear filters
                 </Link>
@@ -280,7 +280,7 @@ export default async function ContactsPage({
                   <NewContactModal hasDb={!!db} />
                   <DemoDataButton
                     label="Load demo data"
-                    className="inline-flex items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-xs font-medium text-neutral-400 transition-colors hover:bg-neutral-700 hover:text-neutral-200 disabled:opacity-50"
+                    className="inline-flex items-center gap-2 rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-1.5 text-xs font-medium text-[--ink-2] transition-colors hover:bg-[--surface-3] hover:text-[--ink-1] disabled:opacity-50"
                   />
                 </div>
               }
