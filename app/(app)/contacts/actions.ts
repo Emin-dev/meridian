@@ -187,7 +187,16 @@ export async function bulkImportContacts(
   }
 
   if (toInsert.length > 0) {
-    await db.insert(schema.contacts).values(toInsert);
+    try {
+      await db.insert(schema.contacts).values(toInsert);
+    } catch (e) {
+      console.error("bulkImportContacts insert failed:", e);
+      return {
+        count: 0,
+        skipped,
+        error: "Could not save contacts — the database rejected the import. Please try again.",
+      };
+    }
   }
 
   revalidatePath("/contacts");

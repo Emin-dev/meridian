@@ -143,7 +143,7 @@ export default function CsvImportModal({ hasDb }: Props) {
     if (parsed.length === 0) return;
     startTransition(async () => {
       const result = await bulkImportContacts(parsed);
-      if (result.error && result.count === 0 && result.skipped.length === 0) {
+      if (result.error) {
         toast(result.error, "error");
         dialogRef.current?.close();
         return;
