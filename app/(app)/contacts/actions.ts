@@ -1117,6 +1117,13 @@ export async function bulkEnrollInSequence(
   if (!db) return { noDb: true };
   if (!Number.isInteger(sequenceId)) return { error: "Invalid sequence." };
 
+  const sequence = await db
+    .select({ id: schema.sequences.id })
+    .from(schema.sequences)
+    .where(eq(schema.sequences.id, sequenceId))
+    .limit(1);
+  if (sequence.length === 0) return { error: "Sequence not found." };
+
   const missing = await missingContactsError(db, parsedIds.data);
   if (missing) return { error: missing };
 
