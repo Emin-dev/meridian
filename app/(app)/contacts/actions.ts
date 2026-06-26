@@ -971,30 +971,36 @@ export type BulkActionState = {
 const CONTACT_STATUSES = ["lead", "active", "inactive", "churned"] as const;
 type BulkContactStatus = (typeof CONTACT_STATUSES)[number];
 
+const BulkIdsSchema = z.array(z.number().int().positive()).min(1);
+
 export async function bulkChangeStatus(
   ids: number[],
   status: BulkContactStatus
 ): Promise<BulkActionState> {
+  const parsedIds = BulkIdsSchema.safeParse(ids);
+  if (!parsedIds.success) return { error: "Invalid contact IDs." };
+
   const db = getDb();
   if (!db) return { noDb: true };
-  if (ids.length === 0) return { count: 0 };
 
   await db
     .update(schema.contacts)
     .set({ status, updatedAt: new Date() })
-    .where(inArray(schema.contacts.id, ids));
+    .where(inArray(schema.contacts.id, parsedIds.data));
 
   revalidatePath("/contacts");
-  return { success: true, count: ids.length };
+  return { success: true, count: parsedIds.data.length };
 }
 
 export async function bulkAddTag(
   ids: number[],
   tag: string
 ): Promise<BulkActionState> {
+  const parsedIds = BulkIdsSchema.safeParse(ids);
+  if (!parsedIds.success) return { error: "Invalid contact IDs." };
+
   const db = getDb();
   if (!db) return { noDb: true };
-  if (ids.length === 0) return { count: 0 };
   const trimmed = tag.trim();
   if (!trimmed) return { error: "Tag cannot be empty." };
 
@@ -1008,7 +1014,7 @@ export async function bulkAddTag(
     })
     .where(
       and(
-        inArray(schema.contacts.id, ids),
+        inArray(schema.contacts.id, parsedIds.data),
         sql`NOT (${trimmed} = ANY(${schema.contacts.tags}))`
       )
     )
@@ -1046,9 +1052,11 @@ export async function bulkEnrollInSequence(
   ids: number[],
   sequenceId: number
 ): Promise<BulkActionState> {
+  const parsedIds = BulkIdsSchema.safeParse(ids);
+  if (!parsedIds.success) return { error: "Invalid contact IDs." };
+
   const db = getDb();
   if (!db) return { noDb: true };
-  if (ids.length === 0) return { count: 0 };
   if (!Number.isInteger(sequenceId)) return { error: "Invalid sequence." };
 
   const existing = await db
@@ -1056,14 +1064,14 @@ export async function bulkEnrollInSequence(
     .from(schema.contactSequenceEnrollments)
     .where(
       and(
-        inArray(schema.contactSequenceEnrollments.contactId, ids),
+        inArray(schema.contactSequenceEnrollments.contactId, parsedIds.data),
         eq(schema.contactSequenceEnrollments.sequenceId, sequenceId),
         eq(schema.contactSequenceEnrollments.status, "active")
       )
     );
 
   const alreadyEnrolled = new Set(existing.map((e) => e.contactId));
-  const toEnroll = ids.filter((id) => !alreadyEnrolled.has(id));
+  const toEnroll = parsedIds.data.filter((id) => !alreadyEnrolled.has(id));
 
   if (toEnroll.length > 0) {
     await db
