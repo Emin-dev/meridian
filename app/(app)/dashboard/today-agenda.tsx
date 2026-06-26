@@ -1,5 +1,6 @@
 import { and, eq, gte, isNull, lt } from "drizzle-orm";
 import { getDb, schema } from "@/db";
+import { formatCurrency } from "@/lib/format";
 import { completeAgendaItem } from "./actions";
 
 const TYPE_META: Record<string, { label: string; color: string; bg: string }> =
@@ -18,15 +19,6 @@ const TYPE_META: Record<string, { label: string; color: string; bg: string }> =
     note: { label: "Note", color: "text-[var(--warn)]", bg: "bg-[var(--warn-tint)]" },
     task: { label: "Task", color: "text-[var(--info)]", bg: "bg-[var(--info-tint)]" },
   };
-
-function formatCurrency(value: string | null) {
-  if (!value) return null;
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(parseFloat(value));
-}
 
 function CompleteButton({ id }: { id: number }) {
   const action = completeAgendaItem.bind(null, id);
@@ -117,6 +109,7 @@ export default async function TodayAgenda() {
         title: schema.deals.title,
         stage: schema.deals.stage,
         value: schema.deals.value,
+        currency: schema.deals.currency,
         contactName: schema.contacts.name,
       })
       .from(schema.deals)
@@ -319,7 +312,7 @@ export default async function TodayAgenda() {
                     </div>
                     {deal.value && (
                       <span className="shrink-0 text-xs font-medium text-[var(--ink-1)]">
-                        {formatCurrency(deal.value)}
+                        {formatCurrency(parseFloat(deal.value), deal.currency)}
                       </span>
                     )}
                   </li>

@@ -4,8 +4,11 @@ import { useActionState, useState } from "react";
 import { savePreferences, type PreferencesFormState } from "./actions";
 import type { CrmSettings } from "@/lib/settings";
 import MobileActionSheet from "@/components/mobile-action-sheet";
+import { VALID_CURRENCIES } from "@/lib/currencies";
 
-const CURRENCIES = ["USD", "EUR", "GBP", "CAD", "AUD", "JPY", "AZN"] as const;
+// Single source of truth shared with the deal modal + server validation so the
+// currency lists can never drift out of sync (see lib/currencies.ts).
+const CURRENCIES = VALID_CURRENCIES;
 
 const STAGES = [
   { value: "lead", label: "Lead" },

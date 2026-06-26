@@ -1,15 +1,7 @@
 import { and, desc, eq, ne, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
+import { formatCurrency } from "@/lib/format";
 import Link from "next/link";
-
-function formatCurrency(value: string | null) {
-  if (!value) return null;
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(parseFloat(value));
-}
 
 const STAGE_LABELS: Record<string, string> = {
   lead: "Lead",
@@ -57,6 +49,7 @@ export default async function StaleDeals() {
       id: schema.deals.id,
       title: schema.deals.title,
       value: schema.deals.value,
+      currency: schema.deals.currency,
       stage: schema.deals.stage,
     })
     .from(schema.deals)
@@ -71,6 +64,7 @@ export default async function StaleDeals() {
       schema.deals.id,
       schema.deals.title,
       schema.deals.value,
+      schema.deals.currency,
       schema.deals.stage
     )
     .having(
@@ -134,7 +128,7 @@ export default async function StaleDeals() {
                   <div className="shrink-0 text-right">
                     {deal.value ? (
                       <p className="text-sm font-semibold text-[var(--ink-1)]">
-                        {formatCurrency(deal.value)}
+                        {formatCurrency(parseFloat(deal.value), deal.currency)}
                       </p>
                     ) : (
                       <p className="text-sm text-[var(--ink-3)]">—</p>

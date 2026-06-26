@@ -8,6 +8,7 @@ import type { DealWithContact } from "./types";
 import StageControl from "./stage-control";
 import { extractUserNotes } from "./[id]/notes-utils";
 import MobileActionSheet from "@/components/mobile-action-sheet";
+import { VALID_CURRENCIES } from "@/lib/currencies";
 
 const STAGES = [
   { value: "lead", label: "Lead" },
@@ -18,7 +19,10 @@ const STAGES = [
   { value: "lost", label: "Lost" },
 ] as const;
 
-const CURRENCIES = ["USD", "EUR", "GBP", "CAD", "AUD", "JPY"];
+// Derive the picker options from the single server-side source so the modal can
+// never offer (or omit) a code the server rejects / the seeded data contains
+// (e.g. "AZN" — see lib/currencies.ts VALID_CURRENCIES).
+const CURRENCIES = VALID_CURRENCIES;
 
 type ContactOption = { id: number; name: string };
 
