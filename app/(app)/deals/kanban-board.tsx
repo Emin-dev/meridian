@@ -8,14 +8,12 @@ import KanbanColumn from "./kanban-column";
 import KanbanCard from "./kanban-card";
 import type { DealListItem } from "./types";
 import { STAGES, type StageKey } from "./stages";
-import { formatCurrency } from "@/lib/format";
+import { formatCurrency, sumByCurrency } from "@/lib/format";
 
 export default function KanbanBoard({
   initialDeals,
-  currency,
 }: {
   initialDeals: DealListItem[];
-  currency: string;
 }) {
   const { toast } = useToast();
   const [deals, setDeals] = useState(initialDeals);
@@ -189,9 +187,18 @@ export default function KanbanBoard({
         <div className="flex gap-4">
           {STAGES.map((stage) => {
             const cards = dealsByStage[stage.key] ?? [];
-            const stageTotal = cards
-              .filter((d) => d.value)
-              .reduce((sum, d) => sum + parseFloat(d.value!), 0);
+            // Group the stage subtotal by currency so mixed-currency pipelines
+            // aren't naively summed under one symbol; null/NaN values are
+            // skipped by sumByCurrency, so a valueless deal can't poison a total.
+            const stageTotals = sumByCurrency(
+              cards.map((d) => ({
+                value: d.value == null ? null : parseFloat(d.value),
+                currency: d.currency,
+              }))
+            );
+            const stageTotalEntries = Object.entries(stageTotals).filter(
+              ([, total]) => total > 0
+            );
 
             return (
               <KanbanColumn
@@ -212,12 +219,14 @@ export default function KanbanBoard({
                   </span>
                 </div>
 
-                {/* Stage value */}
-                {stageTotal > 0 && (
+                {/* Stage value — one line per currency present in the stage */}
+                {stageTotalEntries.length > 0 && (
                   <div className="border-b border-[var(--line-1)] px-4 py-2">
-                    <p className="text-xs text-[var(--ink-3)]">
-                      {formatCurrency(stageTotal, currency)}
-                    </p>
+                    {stageTotalEntries.map(([code, total]) => (
+                      <p key={code} className="text-xs text-[var(--ink-3)]">
+                        {formatCurrency(total, code)}
+                      </p>
+                    ))}
                   </div>
                 )}
 

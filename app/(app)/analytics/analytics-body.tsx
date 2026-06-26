@@ -710,6 +710,11 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                 }
               />
             </div>
+            {mixedCurrencyNote && (
+              <p className="mt-3 text-footnote text-[var(--ink-3)]">
+                {mixedCurrencyNote}
+              </p>
+            )}
           </div>
 
           {/* Stage funnel — @container for responsive rows */}

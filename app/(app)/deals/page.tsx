@@ -333,7 +333,6 @@ export default async function DealsPage({
           <KanbanBoard
             key={`${ownerFilter}::${stageMatch?.key ?? ""}::${pageNum}`}
             initialDeals={visibleDeals}
-            currency={displayCurrency}
           />
         )
       )}
