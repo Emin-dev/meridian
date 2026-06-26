@@ -647,24 +647,19 @@ export async function bulkScoreContacts(): Promise<BulkScoreState> {
   // per-contact try/catch keeps a single failure from aborting the whole batch.
   const CONCURRENCY = 4;
   const database = db;
-  let count = 0;
-  let failed = 0;
   let cursor = 0;
 
   async function worker() {
     while (cursor < contactsToScore.length) {
       const contact = contactsToScore[cursor++];
       try {
-        const result = await scoreContactFromData(
+        await scoreContactFromData(
           database,
           contact,
           activitiesByContact.get(contact.id) ?? []
         );
-        if (result.score !== undefined) count++;
-        else failed++;
       } catch {
         // Skip this contact; keep scoring the rest of the batch.
-        failed++;
       }
     }
   }
@@ -672,6 +667,18 @@ export async function bulkScoreContacts(): Promise<BulkScoreState> {
   await Promise.all(
     Array.from({ length: Math.min(CONCURRENCY, contactsToScore.length) }, () => worker())
   );
+
+  // Derive the tally from the DB rather than the in-loop result: a contact only
+  // counts as scored if its leadScore actually persisted. Any contact whose AI
+  // score errored — or whose best-effort write silently no-oped — is still
+  // null, so it counts as `failed` and is re-picked on the next run.
+  const [{ value: stillNullInBatch }] = await database
+    .select({ value: countFn() })
+    .from(schema.contacts)
+    .where(and(inArray(schema.contacts.id, contactIds), isNull(schema.contacts.leadScore)));
+
+  const count = contactsToScore.length - stillNullInBatch;
+  const failed = stillNullInBatch;
 
   revalidatePath("/contacts");
   // Successfully scored contacts now have a leadScore; failed ones remain null
