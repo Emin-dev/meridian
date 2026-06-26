@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
+
+import MobileActionSheet from "@/components/mobile-action-sheet";
 import ScoreAllUnscoredButton from "./score-all-unscored-button";
 import FindDuplicatesButton from "./find-duplicates-button";
 import ExportCsvButton from "./export-csv-button";
@@ -29,28 +31,9 @@ export default function ContactsOverflowMenu({
   noActivity,
 }: Props) {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    function handleOutside(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    }
-    function handleKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false);
-    }
-    document.addEventListener("mousedown", handleOutside);
-    document.addEventListener("keydown", handleKey);
-    return () => {
-      document.removeEventListener("mousedown", handleOutside);
-      document.removeEventListener("keydown", handleKey);
-    };
-  }, [open]);
 
   return (
-    <div ref={ref} className="relative sm:hidden">
+    <div className="relative sm:hidden">
       <button
         onClick={() => setOpen((v) => !v)}
         aria-label="More actions"
@@ -59,22 +42,28 @@ export default function ContactsOverflowMenu({
       >
         •••
       </button>
-      {open && (
-        <div role="menu" className="absolute right-0 top-full z-50 mt-1 flex min-w-[180px] flex-col gap-1 rounded-xl border border-neutral-700 bg-neutral-900 p-2 shadow-2xl">
-          <ScoreAllUnscoredButton hasUnscored={hasUnscored} />
-          <FindDuplicatesButton hasDb={hasDb} />
-          <ExportCsvButton
-            hasDb={hasDb}
-            status={status}
-            company={company}
-            minScore={minScore}
-            source={source}
-            tag={tag}
-            unscored={unscored}
-            noActivity={noActivity}
-          />
+      <MobileActionSheet open={open} onClose={() => setOpen(false)} title="More actions">
+        <div className="flex flex-col gap-1">
+          <div className="flex min-h-[44px] w-full flex-col [&>*]:w-full">
+            <ScoreAllUnscoredButton hasUnscored={hasUnscored} />
+          </div>
+          <div className="flex min-h-[44px] w-full flex-col [&>*]:w-full">
+            <FindDuplicatesButton hasDb={hasDb} />
+          </div>
+          <div className="flex min-h-[44px] w-full flex-col [&>*]:w-full">
+            <ExportCsvButton
+              hasDb={hasDb}
+              status={status}
+              company={company}
+              minScore={minScore}
+              source={source}
+              tag={tag}
+              unscored={unscored}
+              noActivity={noActivity}
+            />
+          </div>
         </div>
-      )}
+      </MobileActionSheet>
     </div>
   );
 }
