@@ -39,7 +39,7 @@ const STAGE_LABEL: Record<string, string> = {
 
 function EmptyRow({ children }: { children: string }) {
   return (
-    <p className="px-1 py-6 text-center text-sm text-[--ink-3]">{children}</p>
+    <p className="px-1 py-6 text-center text-sm text-[var(--ink-3)]">{children}</p>
   );
 }
 
@@ -98,15 +98,15 @@ export default function MobileKpiTiles({
             {recentContacts.length === 0 ? (
               <EmptyRow>No contacts yet.</EmptyRow>
             ) : (
-              <ul className="divide-y divide-[--line-1]">
+              <ul className="divide-y divide-[var(--line-1)]">
                 {recentContacts.map((c, i) => (
                   <li key={i} className="flex items-center gap-3 py-3">
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-[--ink-1]">
+                      <p className="truncate text-sm font-medium text-[var(--ink-1)]">
                         {c.name}
                       </p>
                       {c.company && (
-                        <p className="truncate text-xs text-[--ink-3]">
+                        <p className="truncate text-xs text-[var(--ink-3)]">
                           {c.company}
                         </p>
                       )}
@@ -118,7 +118,7 @@ export default function MobileKpiTiles({
             <Link
               href="/contacts"
               onClick={() => setActive(null)}
-              className="tap mt-2 flex items-center justify-center rounded-[--r-md] bg-[--surface-3] text-sm font-medium text-[--accent]"
+              className="tap mt-2 flex items-center justify-center rounded-[var(--r-md)] bg-[var(--surface-3)] text-sm font-medium text-[var(--accent)]"
             >
               View all contacts
             </Link>
@@ -130,18 +130,18 @@ export default function MobileKpiTiles({
             {openDeals.length === 0 ? (
               <EmptyRow>No open deals.</EmptyRow>
             ) : (
-              <ul className="divide-y divide-[--line-1]">
+              <ul className="divide-y divide-[var(--line-1)]">
                 {openDeals.map((d, i) => (
                   <li key={i} className="flex items-center gap-3 py-3">
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-[--ink-1]">
+                      <p className="truncate text-sm font-medium text-[var(--ink-1)]">
                         {d.title}
                       </p>
-                      <p className="text-xs text-[--ink-3]">
+                      <p className="text-xs text-[var(--ink-3)]">
                         {STAGE_LABEL[d.stage] ?? d.stage}
                       </p>
                     </div>
-                    <span className="shrink-0 text-sm font-semibold text-[--ink-1]">
+                    <span className="shrink-0 text-sm font-semibold text-[var(--ink-1)]">
                       {formatCurrency(d.value)}
                     </span>
                   </li>
@@ -151,7 +151,7 @@ export default function MobileKpiTiles({
             <Link
               href="/deals"
               onClick={() => setActive(null)}
-              className="tap mt-2 flex items-center justify-center rounded-[--r-md] bg-[--surface-3] text-sm font-medium text-[--accent]"
+              className="tap mt-2 flex items-center justify-center rounded-[var(--r-md)] bg-[var(--surface-3)] text-sm font-medium text-[var(--accent)]"
             >
               View all deals
             </Link>
@@ -164,18 +164,18 @@ export default function MobileKpiTiles({
         return rows.length === 0 ? (
           <EmptyRow>No open deals.</EmptyRow>
         ) : (
-          <ul className="divide-y divide-[--line-1]">
+          <ul className="divide-y divide-[var(--line-1)]">
             {rows.map((s) => (
               <li key={s.stage} className="flex items-center gap-3 py-3">
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-[--ink-1]">
+                  <p className="text-sm font-medium text-[var(--ink-1)]">
                     {STAGE_LABEL[s.stage] ?? s.stage}
                   </p>
-                  <p className="text-xs text-[--ink-3]">
+                  <p className="text-xs text-[var(--ink-3)]">
                     {s.count} {s.count === 1 ? "deal" : "deals"}
                   </p>
                 </div>
-                <span className="shrink-0 text-sm font-semibold text-[--ink-1]">
+                <span className="shrink-0 text-sm font-semibold text-[var(--ink-1)]">
                   {formatCurrency(weighted ? s.weighted : s.value)}
                 </span>
               </li>
@@ -187,14 +187,14 @@ export default function MobileKpiTiles({
         return recentActivities.length === 0 ? (
           <EmptyRow>No activity recorded yet.</EmptyRow>
         ) : (
-          <ul className="divide-y divide-[--line-1]">
+          <ul className="divide-y divide-[var(--line-1)]">
             {recentActivities.map((a, i) => (
               <li key={i} className="flex items-center gap-3 py-3">
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-[--ink-1]">
+                  <p className="truncate text-sm font-medium text-[var(--ink-1)]">
                     {a.subject}
                   </p>
-                  <div className="mt-0.5 flex items-center gap-2 text-xs text-[--ink-3]">
+                  <div className="mt-0.5 flex items-center gap-2 text-xs text-[var(--ink-3)]">
                     <span>{a.date}</span>
                     {a.contactName && (
                       <>
@@ -226,10 +226,10 @@ export default function MobileKpiTiles({
                 isOrphan ? " col-span-2" : ""
               }`}
             >
-              <span className="text-caption font-medium uppercase tracking-wide text-[--ink-3]">
+              <span className="text-caption font-medium uppercase tracking-wide text-[var(--ink-3)]">
                 {tile.label}
               </span>
-              <span className="text-title3 mt-1 font-semibold text-[--ink-1]">
+              <span className="text-title3 mt-1 font-semibold text-[var(--ink-1)]">
                 {tile.value}
               </span>
             </button>

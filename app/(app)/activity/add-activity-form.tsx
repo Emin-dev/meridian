@@ -12,8 +12,8 @@ const ACTIVITY_TYPES = ["call", "email", "meeting", "note", "task"] as const;
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 const inputCls =
-  "w-full rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-3 py-2 text-body text-[--ink-1] placeholder:text-[--ink-3] focus:border-[--accent] focus:outline-none [color-scheme:dark]";
-const labelCls = "mb-1 block text-caption font-medium text-[--ink-2]";
+  "w-full rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 text-body text-[var(--ink-1)] placeholder:text-[var(--ink-3)] focus:border-[var(--accent)] focus:outline-none [color-scheme:dark]";
+const labelCls = "mb-1 block text-caption font-medium text-[var(--ink-2)]";
 
 export default function AddActivityForm({
   contactId,
@@ -45,10 +45,10 @@ export default function AddActivityForm({
   return (
     <div className="space-y-3">
       {state.noDb && (
-        <div className="rounded-[--r-md] border border-[--warn] bg-[--warn-tint] px-3 py-2">
-          <p className="text-caption text-[--warn]">
+        <div className="rounded-[var(--r-md)] border border-[var(--warn)] bg-[var(--warn-tint)] px-3 py-2">
+          <p className="text-caption text-[var(--warn)]">
             Database not connected — set{" "}
-            <code className="rounded bg-[--surface-3] px-1">DATABASE_URL</code> to
+            <code className="rounded bg-[var(--surface-3)] px-1">DATABASE_URL</code> to
             save activities.
           </p>
         </div>
@@ -99,7 +99,7 @@ export default function AddActivityForm({
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="shrink-0 text-[--ink-3]"
+                className="shrink-0 text-[var(--ink-3)]"
                 aria-hidden="true"
               >
                 <path d="M6 9l6 6 6-6" />
@@ -109,7 +109,7 @@ export default function AddActivityForm({
 
           <div className="flex-1">
             <label htmlFor="af-subject" className={labelCls}>
-              Subject <span className="text-[--bad]">*</span>
+              Subject <span className="text-[var(--bad)]">*</span>
             </label>
             <input
               id="af-subject"
@@ -120,7 +120,7 @@ export default function AddActivityForm({
               className={inputCls}
             />
             {state.fieldErrors?.subject && (
-              <p className="mt-1 text-caption text-[--bad]">
+              <p className="mt-1 text-caption text-[var(--bad)]">
                 {state.fieldErrors.subject[0]}
               </p>
             )}
@@ -147,7 +147,7 @@ export default function AddActivityForm({
 
         <div>
           <label htmlFor="af-due" className={labelCls}>
-            Due date <span className="text-[--ink-3]">(optional)</span>
+            Due date <span className="text-[var(--ink-3)]">(optional)</span>
           </label>
           <input
             id="af-due"
@@ -162,11 +162,11 @@ export default function AddActivityForm({
             id="af-completed"
             name="completedAt"
             type="checkbox"
-            className="h-4 w-4 rounded border-[--line-2] bg-[--surface-2] accent-[--accent]"
+            className="h-4 w-4 rounded border-[var(--line-2)] bg-[var(--surface-2)] accent-[var(--accent)]"
           />
           <label
             htmlFor="af-completed"
-            className="text-caption text-[--ink-2] cursor-pointer select-none"
+            className="text-caption text-[var(--ink-2)] cursor-pointer select-none"
           >
             Mark as completed
           </label>
@@ -176,7 +176,7 @@ export default function AddActivityForm({
           <button
             type="submit"
             disabled={pending}
-            className="tap press inline-flex items-center justify-center rounded-[--r-md] bg-[--accent] px-5 text-body font-medium text-[--accent-ink] hover:opacity-90 disabled:opacity-50"
+            className="tap press inline-flex items-center justify-center rounded-[var(--r-md)] bg-[var(--accent)] px-5 text-body font-medium text-[var(--accent-ink)] hover:opacity-90 disabled:opacity-50"
           >
             {pending ? "Logging…" : "Log activity"}
           </button>
@@ -202,8 +202,8 @@ export default function AddActivityForm({
                 aria-pressed={type === t}
                 className={`tap flex items-center justify-between rounded-lg px-3 text-left text-body transition-colors ${
                   type === t
-                    ? "bg-[--surface-3] text-[--ink-1]"
-                    : "text-[--ink-2] hover:bg-[--surface-3]"
+                    ? "bg-[var(--surface-3)] text-[var(--ink-1)]"
+                    : "text-[var(--ink-2)] hover:bg-[var(--surface-3)]"
                 }`}
               >
                 <span>{cap(t)}</span>
@@ -217,7 +217,7 @@ export default function AddActivityForm({
                     strokeWidth="2.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className="shrink-0 text-[--accent]"
+                    className="shrink-0 text-[var(--accent)]"
                     aria-hidden="true"
                   >
                     <path d="M20 6L9 17l-5-5" />

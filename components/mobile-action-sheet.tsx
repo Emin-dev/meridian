@@ -45,16 +45,16 @@ export default function MobileActionSheet({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="fixed inset-x-0 bottom-0 z-50 rounded-t-[--r-2xl] bg-[--surface-2] shadow-[--shadow-3] pb-[env(safe-area-inset-bottom)]"
+        className="fixed inset-x-0 bottom-0 z-50 rounded-t-[var(--r-2xl)] bg-[var(--surface-2)] shadow-[var(--shadow-3)] pb-[env(safe-area-inset-bottom)]"
       >
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-2">
-          <div className="h-1 w-10 rounded-full bg-[--line-2]" />
+          <div className="h-1 w-10 rounded-full bg-[var(--line-2)]" />
         </div>
 
         <div className="px-4 pb-4">
           {title && (
-            <p className="mb-2 text-caption uppercase tracking-wider text-[--ink-3]">
+            <p className="mb-2 text-caption uppercase tracking-wider text-[var(--ink-3)]">
               {title}
             </p>
           )}

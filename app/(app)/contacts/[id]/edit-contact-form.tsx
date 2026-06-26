@@ -33,8 +33,8 @@ export default function EditContactForm({ contact, onSaved, onRollback }: Props)
   >({});
 
   const inputCls =
-    "tap w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] placeholder:text-[--ink-3] focus:border-[--accent] focus:outline-none";
-  const labelCls = "mb-1 block text-xs font-medium text-[--ink-2]";
+    "tap w-full rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--ink-1)] placeholder:text-[var(--ink-3)] focus:border-[var(--accent)] focus:outline-none";
+  const labelCls = "mb-1 block text-xs font-medium text-[var(--ink-2)]";
 
   async function handleDelete() {
     if (!window.confirm(`Delete "${contact.name}"? This cannot be undone.`)) return;
@@ -101,7 +101,7 @@ export default function EditContactForm({ contact, onSaved, onRollback }: Props)
       {/* Name */}
       <div>
         <label htmlFor="ec-name" className={labelCls}>
-          Name <span className="text-[--bad]">*</span>
+          Name <span className="text-[var(--bad)]">*</span>
         </label>
         <input
           id="ec-name"
@@ -112,7 +112,7 @@ export default function EditContactForm({ contact, onSaved, onRollback }: Props)
           className={inputCls}
         />
         {fieldErrors.name && (
-          <p className="mt-1 text-xs text-[--bad]">{fieldErrors.name[0]}</p>
+          <p className="mt-1 text-xs text-[var(--bad)]">{fieldErrors.name[0]}</p>
         )}
       </div>
 
@@ -129,7 +129,7 @@ export default function EditContactForm({ contact, onSaved, onRollback }: Props)
           className={inputCls}
         />
         {fieldErrors.email && (
-          <p className="mt-1 text-xs text-[--bad]">{fieldErrors.email[0]}</p>
+          <p className="mt-1 text-xs text-[var(--bad)]">{fieldErrors.email[0]}</p>
         )}
       </div>
 
@@ -211,7 +211,7 @@ export default function EditContactForm({ contact, onSaved, onRollback }: Props)
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="shrink-0 text-[--ink-3]"
+              className="shrink-0 text-[var(--ink-3)]"
               aria-hidden="true"
             >
               <path d="M6 9l6 6 6-6" />
@@ -247,14 +247,14 @@ export default function EditContactForm({ contact, onSaved, onRollback }: Props)
         <button
           type="button"
           onClick={handleDelete}
-          className="tap inline-flex items-center justify-center rounded-lg border border-[--bad]/40 px-4 text-sm text-[--bad] transition-colors hover:bg-[--bad-tint] hover:text-[--bad]"
+          className="tap inline-flex items-center justify-center rounded-lg border border-[var(--bad)]/40 px-4 text-sm text-[var(--bad)] transition-colors hover:bg-[var(--bad-tint)] hover:text-[var(--bad)]"
         >
           Delete contact
         </button>
         <button
           type="submit"
           disabled={pending}
-          className="tap inline-flex items-center justify-center rounded-lg bg-[--accent] px-4 text-sm font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
+          className="tap inline-flex items-center justify-center rounded-lg bg-[var(--accent)] px-4 text-sm font-medium text-[var(--accent-ink)] transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-50"
         >
           {pending ? "Saving…" : "Save changes"}
         </button>
@@ -280,8 +280,8 @@ export default function EditContactForm({ contact, onSaved, onRollback }: Props)
                 aria-pressed={source === value}
                 className={`tap flex items-center justify-between rounded-lg px-3 text-left text-body transition-colors ${
                   source === value
-                    ? "bg-[--surface-3] text-[--ink-1]"
-                    : "text-[--ink-2] hover:bg-[--surface-3]"
+                    ? "bg-[var(--surface-3)] text-[var(--ink-1)]"
+                    : "text-[var(--ink-2)] hover:bg-[var(--surface-3)]"
                 }`}
               >
                 <span>{label}</span>
@@ -295,7 +295,7 @@ export default function EditContactForm({ contact, onSaved, onRollback }: Props)
                     strokeWidth="2.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className="shrink-0 text-[--accent]"
+                    className="shrink-0 text-[var(--accent)]"
                     aria-hidden="true"
                   >
                     <path d="M20 6L9 17l-5-5" />

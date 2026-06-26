@@ -15,19 +15,19 @@ interface Props {
 }
 
 const STATUS_LABELS = {
-  active: { label: "Active", className: "bg-[--ok-tint] text-[--ok]" },
-  paused: { label: "Paused", className: "bg-[--surface-2] text-[--ink-2]" },
+  active: { label: "Active", className: "bg-[var(--ok-tint)] text-[var(--ok)]" },
+  paused: { label: "Paused", className: "bg-[var(--surface-2)] text-[var(--ink-2)]" },
 } as const;
 
 const ENROLLMENT_STATUS_LABELS = {
-  active: { label: "Active", className: "bg-[--ok-tint] text-[--ok]" },
+  active: { label: "Active", className: "bg-[var(--ok-tint)] text-[var(--ok)]" },
   cancelled: {
     label: "Cancelled",
-    className: "bg-[--surface-2] text-[--ink-2]",
+    className: "bg-[var(--surface-2)] text-[var(--ink-2)]",
   },
   completed: {
     label: "Completed",
-    className: "bg-[--info-tint] text-[--info]",
+    className: "bg-[var(--info-tint)] text-[var(--info)]",
   },
 } as const;
 
@@ -81,15 +81,15 @@ export default async function SequenceDetailPage({
       <div className="space-y-6">
         <Link
           href="/sequences"
-          className="text-sm text-[--ink-2] transition-colors hover:text-[--ink-1]"
+          className="text-sm text-[var(--ink-2)] transition-colors hover:text-[var(--ink-1)]"
         >
           ← Sequences
         </Link>
-        <div className="rounded-xl border border-[--line-1] bg-[--surface-1] px-6 py-16 text-center">
-          <p className="text-sm text-[--ink-2]">Database not connected.</p>
-          <p className="mt-1 text-xs text-[--ink-3]">
+        <div className="rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)] px-6 py-16 text-center">
+          <p className="text-sm text-[var(--ink-2)]">Database not connected.</p>
+          <p className="mt-1 text-xs text-[var(--ink-3)]">
             Set{" "}
-            <code className="rounded bg-[--surface-2] px-1 py-0.5">
+            <code className="rounded bg-[var(--surface-2)] px-1 py-0.5">
               DATABASE_URL
             </code>{" "}
             to connect your Neon database.
@@ -157,7 +157,7 @@ export default async function SequenceDetailPage({
       {/* Back link */}
       <Link
         href="/sequences"
-        className="text-sm text-[--ink-2] transition-colors hover:text-[--ink-1]"
+        className="text-sm text-[var(--ink-2)] transition-colors hover:text-[var(--ink-1)]"
       >
         ← Sequences
       </Link>
@@ -165,7 +165,7 @@ export default async function SequenceDetailPage({
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h2 className="text-xl font-semibold text-[--ink-1]">
+          <h2 className="text-xl font-semibold text-[var(--ink-1)]">
             {sequence.name}
           </h2>
           <div className="mt-2 flex items-center gap-2">
@@ -175,12 +175,12 @@ export default async function SequenceDetailPage({
               {statusMeta.label}
             </span>
             <SequenceStatusToggle id={numId} status={sequence.status} />
-            <span className="text-xs text-[--ink-3]">
+            <span className="text-xs text-[var(--ink-3)]">
               {steps.length} {steps.length === 1 ? "step" : "steps"}
             </span>
           </div>
         </div>
-        <div className="text-xs text-[--ink-3]">
+        <div className="text-xs text-[var(--ink-3)]">
           Created{" "}
           {sequence.createdAt.toLocaleDateString("en-US", {
             month: "short",
@@ -191,13 +191,13 @@ export default async function SequenceDetailPage({
       </div>
 
       {/* Tabs */}
-      <div className="flex overflow-x-auto border-b border-[--line-1] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex overflow-x-auto border-b border-[var(--line-1)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <Link
           href={`/sequences/${numId}`}
           className={`-mb-px shrink-0 whitespace-nowrap px-4 py-2 text-sm font-medium transition-colors ${
             !isContactsTab && !isPreviewTab
-              ? "border-b-2 border-[--accent] text-[--ink-1]"
-              : "text-[--ink-2] hover:text-[--ink-1]"
+              ? "border-b-2 border-[var(--accent)] text-[var(--ink-1)]"
+              : "text-[var(--ink-2)] hover:text-[var(--ink-1)]"
           }`}
         >
           Steps
@@ -206,13 +206,13 @@ export default async function SequenceDetailPage({
           href={`/sequences/${numId}?tab=contacts`}
           className={`-mb-px shrink-0 whitespace-nowrap px-4 py-2 text-sm font-medium transition-colors ${
             isContactsTab
-              ? "border-b-2 border-[--accent] text-[--ink-1]"
-              : "text-[--ink-2] hover:text-[--ink-1]"
+              ? "border-b-2 border-[var(--accent)] text-[var(--ink-1)]"
+              : "text-[var(--ink-2)] hover:text-[var(--ink-1)]"
           }`}
         >
           Enrolled Contacts
           {enrollments.length > 0 && (
-            <span className="ml-1.5 rounded-full bg-[--surface-2] px-1.5 py-0.5 text-xs font-normal text-[--ink-2]">
+            <span className="ml-1.5 rounded-full bg-[var(--surface-2)] px-1.5 py-0.5 text-xs font-normal text-[var(--ink-2)]">
               {enrollments.length}
             </span>
           )}
@@ -221,8 +221,8 @@ export default async function SequenceDetailPage({
           href={`/sequences/${numId}?tab=preview`}
           className={`-mb-px shrink-0 whitespace-nowrap px-4 py-2 text-sm font-medium transition-colors ${
             isPreviewTab
-              ? "border-b-2 border-[--accent] text-[--ink-1]"
-              : "text-[--ink-2] hover:text-[--ink-1]"
+              ? "border-b-2 border-[var(--accent)] text-[var(--ink-1)]"
+              : "text-[var(--ink-2)] hover:text-[var(--ink-1)]"
           }`}
         >
           Preview
@@ -237,9 +237,9 @@ export default async function SequenceDetailPage({
         /* Steps */
         <div>
           {steps.length === 0 ? (
-            <div className="mb-4 rounded-xl border border-dashed border-[--line-1] bg-[--surface-1]/50 px-6 py-10 text-center">
-              <p className="text-sm text-[--ink-3]">No steps yet.</p>
-              <p className="mt-1 text-xs text-[--ink-3]">
+            <div className="mb-4 rounded-xl border border-dashed border-[var(--line-1)] bg-[var(--surface-1)]/50 px-6 py-10 text-center">
+              <p className="text-sm text-[var(--ink-3)]">No steps yet.</p>
+              <p className="mt-1 text-xs text-[var(--ink-3)]">
                 Add the first step to this sequence below.
               </p>
             </div>
@@ -268,15 +268,15 @@ export default async function SequenceDetailPage({
         /* Enrolled Contacts */
         <div>
           {enrollments.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-[--line-1] bg-[--surface-1]/50 px-6 py-10 text-center">
-              <p className="text-sm text-[--ink-3]">No contacts enrolled.</p>
-              <p className="mt-1 text-xs text-[--ink-3]">
+            <div className="rounded-xl border border-dashed border-[var(--line-1)] bg-[var(--surface-1)]/50 px-6 py-10 text-center">
+              <p className="text-sm text-[var(--ink-3)]">No contacts enrolled.</p>
+              <p className="mt-1 text-xs text-[var(--ink-3)]">
                 Enroll contacts from a contact&apos;s detail page.
               </p>
             </div>
           ) : (
-            <div className="rounded-xl border border-[--line-1] bg-[--surface-1]">
-              <ul className="divide-y divide-[--line-1]">
+            <div className="rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)]">
+              <ul className="divide-y divide-[var(--line-1)]">
                 {enrollments.map((enrollment) => {
                   const enrStatus =
                     ENROLLMENT_STATUS_LABELS[enrollment.status];
@@ -306,12 +306,12 @@ export default async function SequenceDetailPage({
                         <div className="min-w-0 flex-1">
                           <Link
                             href={`/contacts/${enrollment.contactId}`}
-                            className="block truncate text-body font-medium text-[--ink-1] transition-colors hover:text-[--ink-2]"
+                            className="block truncate text-body font-medium text-[var(--ink-1)] transition-colors hover:text-[var(--ink-2)]"
                           >
                             {enrollment.contactName}
                           </Link>
                           {enrollment.contactEmail && (
-                            <p className="truncate text-footnote text-[--ink-3]">
+                            <p className="truncate text-footnote text-[var(--ink-3)]">
                               {enrollment.contactEmail}
                             </p>
                           )}
@@ -325,7 +325,7 @@ export default async function SequenceDetailPage({
                       {/* Row 2: step progress + action buttons */}
                       <div className="mt-2 flex flex-wrap items-center gap-2">
                         {progress.totalSteps > 0 && (
-                          <span className="text-footnote text-[--ink-3]">
+                          <span className="text-footnote text-[var(--ink-3)]">
                             {progress.isComplete
                               ? "Complete"
                               : `Step ${progress.currentStep} of ${progress.totalSteps}`}
@@ -368,14 +368,14 @@ export default async function SequenceDetailPage({
                       </div>
                       {/* Progress bar */}
                       {progress.totalSteps > 0 && (
-                        <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-[--surface-2]">
+                        <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-[var(--surface-2)]">
                           <div
                             className={`h-full rounded-full transition-all ${
                               isCancelled
-                                ? "bg-[--ink-3]"
+                                ? "bg-[var(--ink-3)]"
                                 : isCompleted || progress.isComplete
-                                  ? "bg-[--ok]"
-                                  : "bg-[--ok]/70"
+                                  ? "bg-[var(--ok)]"
+                                  : "bg-[var(--ok)]/70"
                             }`}
                             style={{ width: `${pct}%` }}
                           />

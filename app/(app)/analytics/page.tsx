@@ -5,7 +5,7 @@ import AnalyticsBody from "./analytics-body";
 const VALID_DAYS = ["7", "30", "90"] as const;
 
 function Bone({ className }: { className?: string }) {
-  return <div className={`rounded-[--r-md] bg-[--surface-2] ${className ?? ""}`} />;
+  return <div className={`rounded-[var(--r-md)] bg-[var(--surface-2)] ${className ?? ""}`} />;
 }
 
 function FunnelRowSkeleton({ widthPct }: { widthPct: number }) {
@@ -13,8 +13,8 @@ function FunnelRowSkeleton({ widthPct }: { widthPct: number }) {
     <div className="flex items-center gap-4 px-4 py-3">
       <Bone className="h-4 w-24 shrink-0" />
       <div className="flex-1">
-        <div className="h-1.5 rounded-full bg-[--surface-2]">
-          <div className="h-1.5 rounded-full bg-[--surface-3]" style={{ width: `${widthPct}%` }} />
+        <div className="h-1.5 rounded-full bg-[var(--surface-2)]">
+          <div className="h-1.5 rounded-full bg-[var(--surface-3)]" style={{ width: `${widthPct}%` }} />
         </div>
       </div>
       <Bone className="h-4 w-8 shrink-0" />
@@ -40,11 +40,11 @@ function AnalyticsBodySkeleton() {
 
       {/* Stage funnel */}
       <div className="card">
-        <div className="border-b border-[--line-1] px-6 py-4">
+        <div className="border-b border-[var(--line-1)] px-6 py-4">
           <Bone className="h-4 w-28" />
           <Bone className="mt-1 h-3 w-52" />
         </div>
-        <div className="divide-y divide-[--line-1]">
+        <div className="divide-y divide-[var(--line-1)]">
           {[70, 55, 42, 30, 20, 8].map((w, i) => (
             <FunnelRowSkeleton key={i} widthPct={w} />
           ))}
@@ -53,17 +53,17 @@ function AnalyticsBodySkeleton() {
 
       {/* Won deals per month */}
       <div className="card">
-        <div className="border-b border-[--line-1] px-6 py-4">
+        <div className="border-b border-[var(--line-1)] px-6 py-4">
           <Bone className="h-4 w-40" />
           <Bone className="mt-1 h-3 w-48" />
         </div>
-        <div className="divide-y divide-[--line-1]">
+        <div className="divide-y divide-[var(--line-1)]">
           {[40, 65, 30, 80, 50, 20].map((w, i) => (
             <div key={i} className="flex items-center gap-4 px-6 py-3">
               <Bone className="h-4 w-24 shrink-0" />
               <div className="flex-1">
-                <div className="h-1.5 rounded-full bg-[--surface-2]">
-                  <div className="h-1.5 rounded-full bg-[--surface-3]" style={{ width: `${w}%` }} />
+                <div className="h-1.5 rounded-full bg-[var(--surface-2)]">
+                  <div className="h-1.5 rounded-full bg-[var(--surface-3)]" style={{ width: `${w}%` }} />
                 </div>
               </div>
               <Bone className="h-4 w-6 shrink-0" />
@@ -80,7 +80,7 @@ function AnalyticsBodySkeleton() {
 
       {/* Forecast bar chart card */}
       <div className="card">
-        <div className="border-b border-[--line-1] px-6 py-4">
+        <div className="border-b border-[var(--line-1)] px-6 py-4">
           <Bone className="h-4 w-36" />
           <Bone className="mt-1 h-3 w-60" />
         </div>
@@ -88,8 +88,8 @@ function AnalyticsBodySkeleton() {
           {[55, 70, 40, 85, 60, 45].map((h, i) => (
             <div key={i} className="flex flex-1 flex-col items-center gap-2">
               <div className="flex h-32 w-full items-end justify-center gap-1">
-                <div className="flex-1 rounded-t bg-[--surface-3]" style={{ height: `${h}%` }} />
-                <div className="flex-1 rounded-t bg-[--surface-2]" style={{ height: `${Math.round(h * 0.6)}%` }} />
+                <div className="flex-1 rounded-t bg-[var(--surface-3)]" style={{ height: `${h}%` }} />
+                <div className="flex-1 rounded-t bg-[var(--surface-2)]" style={{ height: `${Math.round(h * 0.6)}%` }} />
               </div>
               <Bone className="h-3 w-10" />
             </div>
@@ -107,11 +107,11 @@ function AnalyticsBodySkeleton() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {[4, 5].map((rows, ci) => (
           <div key={ci} className="card">
-            <div className="border-b border-[--line-1] px-6 py-4">
+            <div className="border-b border-[var(--line-1)] px-6 py-4">
               <Bone className="h-4 w-36" />
               <Bone className="mt-1 h-3 w-48" />
             </div>
-            <div className="divide-y divide-[--line-1]">
+            <div className="divide-y divide-[var(--line-1)]">
               {Array.from({ length: rows }).map((_, i) => (
                 <FunnelRowSkeleton key={i} widthPct={70 - i * 14} />
               ))}
@@ -137,8 +137,8 @@ export default async function AnalyticsPage({
       {/* Header — renders immediately before DB queries start */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-xl font-semibold text-[--ink-1]">Analytics</h2>
-          <p className="mt-1 text-sm text-[--ink-2]">
+          <h2 className="text-xl font-semibold text-[var(--ink-1)]">Analytics</h2>
+          <p className="mt-1 text-sm text-[var(--ink-2)]">
             Pipeline performance and deal conversion metrics.
           </p>
         </div>

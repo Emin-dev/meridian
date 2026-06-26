@@ -31,12 +31,12 @@ export default function SummarizePanel({ contactId, initialSummary, initialSumma
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-[--ink-1]">AI contact brief</h3>
+        <h3 className="text-sm font-medium text-[var(--ink-1)]">AI contact brief</h3>
         <button
           type="button"
           onClick={handleSummarize}
           disabled={isPending}
-          className="tap inline-flex items-center justify-center rounded-lg bg-[--accent] px-3 text-xs font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
+          className="tap inline-flex items-center justify-center rounded-lg bg-[var(--accent)] px-3 text-xs font-medium text-[var(--accent-ink)] transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-50"
         >
           {isPending ? "Summarising…" : result.summary ? "Regenerate" : "Summarise"}
         </button>
@@ -50,7 +50,7 @@ export default function SummarizePanel({ contactId, initialSummary, initialSumma
         hasResult={Boolean(result.summary)}
         isPending={isPending}
         emptyHint={
-          <p className="text-xs text-[--ink-3]">
+          <p className="text-xs text-[var(--ink-3)]">
             Click &ldquo;Summarise&rdquo; to generate an AI brief of this contact&apos;s notes and recent activity.
           </p>
         }
@@ -58,11 +58,11 @@ export default function SummarizePanel({ contactId, initialSummary, initialSumma
 
       {result.summary && (
         <div className="space-y-1.5">
-          <p className="text-sm text-[--ink-1] leading-relaxed whitespace-pre-wrap">
+          <p className="text-sm text-[var(--ink-1)] leading-relaxed whitespace-pre-wrap">
             {result.summary}
           </p>
           {result.summaryAt && (
-            <p className="text-caption text-[--ink-3]">
+            <p className="text-caption text-[var(--ink-3)]">
               Cached brief from{" "}
               {new Date(result.summaryAt).toLocaleString(undefined, {
                 dateStyle: "medium",

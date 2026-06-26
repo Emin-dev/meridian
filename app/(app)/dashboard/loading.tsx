@@ -1,5 +1,5 @@
 function Bone({ className }: { className?: string }) {
-  return <div className={`rounded-[--r-md] bg-[--surface-2] ${className ?? ""}`} />;
+  return <div className={`rounded-[var(--r-md)] bg-[var(--surface-2)] ${className ?? ""}`} />;
 }
 
 export default function DashboardLoading() {
@@ -27,8 +27,8 @@ export default function DashboardLoading() {
       <div className="card p-4">
         <Bone className="mb-3 h-4 w-32" />
         <div className="space-y-2">
-          <Bone className="h-10 w-full rounded-[--r-md]" />
-          <Bone className="h-10 w-3/4 rounded-[--r-md]" />
+          <Bone className="h-10 w-full rounded-[var(--r-md)]" />
+          <Bone className="h-10 w-3/4 rounded-[var(--r-md)]" />
         </div>
       </div>
 
@@ -40,10 +40,10 @@ export default function DashboardLoading() {
 
       {/* Recent activity */}
       <div className="card">
-        <div className="border-b border-[--line-1] px-5 py-3">
+        <div className="border-b border-[var(--line-1)] px-5 py-3">
           <Bone className="h-3 w-28" />
         </div>
-        <ul className="divide-y divide-[--line-1]">
+        <ul className="divide-y divide-[var(--line-1)]">
           {Array.from({ length: 3 }).map((_, i) => (
             <li key={i} className="flex gap-4 px-5 py-4">
               <Bone className="mt-0.5 h-5 w-14 shrink-0 rounded-full" />

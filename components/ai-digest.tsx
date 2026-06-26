@@ -69,10 +69,10 @@ export default function AiDigest({
     <div className="card h-full p-4 sm:p-5">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-medium text-[--ink-1]">
+          <p className="text-sm font-medium text-[var(--ink-1)]">
             What should I do today?
           </p>
-          <p className="mt-0.5 text-xs text-[--ink-2]">
+          <p className="mt-0.5 text-xs text-[var(--ink-2)]">
             {cachedAt ? `Updated ${formatAge(cachedAt)}` : "AI daily digest"}
           </p>
         </div>
@@ -84,7 +84,7 @@ export default function AiDigest({
               disabled={isPending}
               aria-label="Refresh daily digest"
               title="Refresh digest"
-              className="tap grid place-items-center rounded-[--r-md] text-[--ink-2] transition-colors hover:bg-[--surface-2] hover:text-[--ink-1] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[--accent] disabled:opacity-50"
+              className="tap grid place-items-center rounded-[var(--r-md)] text-[var(--ink-2)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)] disabled:opacity-50"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -105,7 +105,7 @@ export default function AiDigest({
               type="button"
               onClick={() => generate(false)}
               disabled={isPending}
-              className="tap rounded-[--r-md] bg-[--accent] px-4 text-xs font-medium text-[--accent-ink] transition active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[--accent] disabled:opacity-50"
+              className="tap rounded-[var(--r-md)] bg-[var(--accent)] px-4 text-xs font-medium text-[var(--accent-ink)] transition active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)] disabled:opacity-50"
             >
               {isPending ? "Generating…" : "Generate"}
             </button>
@@ -114,7 +114,7 @@ export default function AiDigest({
       </div>
 
       {!hasDigest && !isPending && !noKey && !error && (
-        <p className="mt-4 text-xs text-[--ink-3]">
+        <p className="mt-4 text-xs text-[var(--ink-3)]">
           Click Generate to get AI‑powered priorities for your day based on the
           current pipeline.
         </p>
@@ -125,7 +125,7 @@ export default function AiDigest({
           {[80, 65, 72].map((w, i) => (
             <div
               key={i}
-              className="h-3 animate-pulse rounded-[--r-sm] bg-[--surface-2]"
+              className="h-3 animate-pulse rounded-[var(--r-sm)] bg-[var(--surface-2)]"
               style={{ width: `${w}%` }}
             />
           ))}
@@ -133,9 +133,9 @@ export default function AiDigest({
       )}
 
       {noKey && (
-        <p className="mt-4 text-xs text-[--ink-2]">
+        <p className="mt-4 text-xs text-[var(--ink-2)]">
           Set{" "}
-          <code className="rounded-[--r-sm] bg-[--surface-2] px-1 py-0.5 text-[--ink-1]">
+          <code className="rounded-[var(--r-sm)] bg-[var(--surface-2)] px-1 py-0.5 text-[var(--ink-1)]">
             DEEPSEEK_API_KEY
           </code>{" "}
           to enable this feature.
@@ -143,7 +143,7 @@ export default function AiDigest({
       )}
 
       {error && (
-        <p className="mt-4 text-xs text-[--bad]" role="alert">
+        <p className="mt-4 text-xs text-[var(--bad)]" role="alert">
           {error}
         </p>
       )}
@@ -151,8 +151,8 @@ export default function AiDigest({
       {hasDigest && (
         <ul className="mt-4 space-y-2.5">
           {bullets.map((line, i) => (
-            <li key={i} className="flex gap-2 text-sm text-[--ink-1]">
-              <span className="mt-0.5 shrink-0 text-[--accent]">•</span>
+            <li key={i} className="flex gap-2 text-sm text-[var(--ink-1)]">
+              <span className="mt-0.5 shrink-0 text-[var(--accent)]">•</span>
               <span>{line}</span>
             </li>
           ))}

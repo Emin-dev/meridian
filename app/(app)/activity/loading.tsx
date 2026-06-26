@@ -1,5 +1,5 @@
 function Bone({ className }: { className?: string }) {
-  return <div className={`rounded-[--r-md] bg-[--surface-2] ${className ?? ""}`} />;
+  return <div className={`rounded-[var(--r-md)] bg-[var(--surface-2)] ${className ?? ""}`} />;
 }
 
 export default function ActivityLoading() {
@@ -15,23 +15,23 @@ export default function ActivityLoading() {
       <div className="card px-4 py-5 sm:px-6">
         <Bone className="mb-4 h-4 w-32" />
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Bone className="h-10 w-28 rounded-[--r-md]" />
-          <Bone className="h-10 flex-1 rounded-[--r-md]" />
+          <Bone className="h-10 w-28 rounded-[var(--r-md)]" />
+          <Bone className="h-10 flex-1 rounded-[var(--r-md)]" />
         </div>
         <div className="mt-3">
-          <Bone className="h-16 w-full rounded-[--r-md]" />
+          <Bone className="h-16 w-full rounded-[var(--r-md)]" />
         </div>
         <div className="mt-3 flex justify-end">
-          <Bone className="h-10 w-28 rounded-[--r-md]" />
+          <Bone className="h-10 w-28 rounded-[var(--r-md)]" />
         </div>
       </div>
 
       {/* Events list */}
       <div className="card">
-        <div className="border-b border-[--line-1] px-5 py-3">
+        <div className="border-b border-[var(--line-1)] px-5 py-3">
           <Bone className="h-3 w-24" />
         </div>
-        <ul className="divide-y divide-[--line-1]">
+        <ul className="divide-y divide-[var(--line-1)]">
           {Array.from({ length: 5 }).map((_, i) => (
             <li key={i} className="flex gap-4 px-5 py-4">
               <Bone className="mt-0.5 h-5 w-14 shrink-0 rounded-full" />

@@ -35,14 +35,14 @@ export default function LeadScorePanel({ contactId, initialScore, initialRationa
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h3 className="text-sm font-medium text-[--ink-1]">Lead score</h3>
+          <h3 className="text-sm font-medium text-[var(--ink-1)]">Lead score</h3>
           {hasScore && <LeadScoreBadge score={result.score!} />}
         </div>
         <button
           type="button"
           onClick={handleScore}
           disabled={isPending}
-          className="tap inline-flex items-center justify-center rounded-lg bg-[--accent] px-3 text-xs font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
+          className="tap inline-flex items-center justify-center rounded-lg bg-[var(--accent)] px-3 text-xs font-medium text-[var(--accent-ink)] transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-50"
         >
           {isPending ? "Scoring…" : hasScore ? "Re-score" : "Score lead"}
         </button>
@@ -56,7 +56,7 @@ export default function LeadScorePanel({ contactId, initialScore, initialRationa
         hasResult={hasScore && Boolean(result.rationale)}
         isPending={isPending}
         emptyHint={
-          <p className="text-xs text-[--ink-3]">
+          <p className="text-xs text-[var(--ink-3)]">
             Click &ldquo;Score lead&rdquo; to generate an AI-powered 0–100 lead score based on
             this contact&apos;s profile and activity.
           </p>
@@ -64,7 +64,7 @@ export default function LeadScorePanel({ contactId, initialScore, initialRationa
       />
 
       {hasScore && result.rationale && (
-        <p className="text-sm text-[--ink-1] leading-relaxed">{result.rationale}</p>
+        <p className="text-sm text-[var(--ink-1)] leading-relaxed">{result.rationale}</p>
       )}
     </div>
   );

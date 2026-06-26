@@ -87,7 +87,7 @@ export default function ContactFilters({
   }
 
   const inputClass =
-    "min-h-[44px] rounded-lg border border-[--line-1] bg-[--surface-2] px-3 text-sm text-[--ink-1] placeholder-[--ink-3] focus:border-[--accent] focus:outline-none focus:ring-1 focus:ring-[--accent]";
+    "min-h-[44px] rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 text-sm text-[var(--ink-1)] placeholder-[var(--ink-3)] focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]";
 
   // Shared filter inputs, rendered both inline (desktop) and stacked (sheet).
   function fields(widths: {
@@ -173,7 +173,7 @@ export default function ContactFilters({
         <button
           onClick={apply}
           disabled={isPending}
-          className="tap flex items-center justify-center rounded-lg bg-[--accent] px-3 text-sm font-medium text-[--accent-ink] hover:bg-[--accent-hover] disabled:opacity-50"
+          className="tap flex items-center justify-center rounded-lg bg-[var(--accent)] px-3 text-sm font-medium text-[var(--accent-ink)] hover:bg-[var(--accent-hover)] disabled:opacity-50"
         >
           Apply
         </button>
@@ -182,7 +182,7 @@ export default function ContactFilters({
           <button
             onClick={clear}
             disabled={isPending}
-            className="tap flex items-center justify-center rounded-lg border border-[--line-1] px-3 text-sm text-[--ink-2] hover:border-[--line-2] hover:text-[--ink-1] disabled:opacity-50"
+            className="tap flex items-center justify-center rounded-lg border border-[var(--line-1)] px-3 text-sm text-[var(--ink-2)] hover:border-[var(--line-2)] hover:text-[var(--ink-1)] disabled:opacity-50"
           >
             Clear
           </button>
@@ -194,11 +194,11 @@ export default function ContactFilters({
         type="button"
         onClick={() => setSheetOpen(true)}
         aria-label="Filters"
-        className="tap flex items-center gap-2 rounded-lg border border-[--line-1] bg-[--surface-2] px-3 text-sm text-[--ink-1] transition-colors hover:border-[--line-2] lg:hidden"
+        className="tap flex items-center gap-2 rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 text-sm text-[var(--ink-1)] transition-colors hover:border-[var(--line-2)] lg:hidden"
       >
         Filters
         {activeCount > 0 && (
-          <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[--accent] px-1.5 text-xs font-medium text-[--accent-ink]">
+          <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--accent)] px-1.5 text-xs font-medium text-[var(--accent-ink)]">
             {activeCount}
           </span>
         )}
@@ -224,7 +224,7 @@ export default function ContactFilters({
                 setSheetOpen(false);
               }}
               disabled={isPending}
-              className="tap flex flex-1 items-center justify-center rounded-lg bg-[--accent] px-3 text-sm font-medium text-[--accent-ink] hover:bg-[--accent-hover] disabled:opacity-50"
+              className="tap flex flex-1 items-center justify-center rounded-lg bg-[var(--accent)] px-3 text-sm font-medium text-[var(--accent-ink)] hover:bg-[var(--accent-hover)] disabled:opacity-50"
             >
               Apply
             </button>
@@ -236,7 +236,7 @@ export default function ContactFilters({
                   setSheetOpen(false);
                 }}
                 disabled={isPending}
-                className="tap flex items-center justify-center rounded-lg border border-[--line-1] px-3 text-sm text-[--ink-2] hover:border-[--line-2] hover:text-[--ink-1] disabled:opacity-50"
+                className="tap flex items-center justify-center rounded-lg border border-[var(--line-1)] px-3 text-sm text-[var(--ink-2)] hover:border-[var(--line-2)] hover:text-[var(--ink-1)] disabled:opacity-50"
               >
                 Clear
               </button>

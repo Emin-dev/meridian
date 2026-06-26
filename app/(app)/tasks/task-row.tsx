@@ -35,8 +35,8 @@ function formatLong(iso: string): string {
 function DetailField({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0">
-      <dt className="text-caption uppercase tracking-wider text-[--ink-3]">{label}</dt>
-      <dd className="mt-0.5 truncate text-body text-[--ink-1]">{value}</dd>
+      <dt className="text-caption uppercase tracking-wider text-[var(--ink-3)]">{label}</dt>
+      <dd className="mt-0.5 truncate text-body text-[var(--ink-1)]">{value}</dd>
     </div>
   );
 }
@@ -68,15 +68,15 @@ export default function TaskRow({ task }: { task: TaskRowData }) {
           dealId={task.dealId}
         />
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <p className={`text-body text-[--ink-1] ${completed ? "line-through" : ""}`}>
+          <p className={`text-body text-[var(--ink-1)] ${completed ? "line-through" : ""}`}>
             {task.subject}
           </p>
           {(task.contactName || task.dealTitle) && (
-            <div className="flex flex-wrap items-center gap-2 text-footnote text-[--ink-3]">
+            <div className="flex flex-wrap items-center gap-2 text-footnote text-[var(--ink-3)]">
               {task.contactId && task.contactName && (
                 <Link
                   href={`/contacts/${task.contactId}`}
-                  className="transition-colors hover:text-[--accent]"
+                  className="transition-colors hover:text-[var(--accent)]"
                 >
                   {task.contactName}
                 </Link>
@@ -87,7 +87,7 @@ export default function TaskRow({ task }: { task: TaskRowData }) {
               {task.dealId && task.dealTitle && (
                 <Link
                   href={`/deals/${task.dealId}`}
-                  className="transition-colors hover:text-[--accent]"
+                  className="transition-colors hover:text-[var(--accent)]"
                 >
                   {task.dealTitle}
                 </Link>
@@ -95,7 +95,7 @@ export default function TaskRow({ task }: { task: TaskRowData }) {
             </div>
           )}
         </div>
-        <span className="shrink-0 text-footnote text-[--ink-3]">
+        <span className="shrink-0 text-footnote text-[var(--ink-3)]">
           {completed ? `Done ${formatted}` : formatted}
         </span>
       </div>
@@ -117,23 +117,23 @@ export default function TaskRow({ task }: { task: TaskRowData }) {
         >
           <div className="min-w-0 flex-1">
             <p
-              className={`truncate text-body text-[--ink-1] ${
+              className={`truncate text-body text-[var(--ink-1)] ${
                 completed ? "line-through" : ""
               }`}
             >
               {task.subject}
             </p>
             {(task.contactName || task.dealTitle) && (
-              <p className="mt-0.5 truncate text-footnote text-[--ink-3]">
+              <p className="mt-0.5 truncate text-footnote text-[var(--ink-3)]">
                 {[task.contactName, task.dealTitle].filter(Boolean).join(" · ")}
               </p>
             )}
           </div>
-          <span className="shrink-0 text-footnote text-[--ink-3]">
+          <span className="shrink-0 text-footnote text-[var(--ink-3)]">
             {completed ? `Done ${formatted}` : formatted}
           </span>
           <svg
-            className="shrink-0 text-[--ink-3]"
+            className="shrink-0 text-[var(--ink-3)]"
             width="16"
             height="16"
             viewBox="0 0 24 24"
@@ -161,7 +161,7 @@ export default function TaskRow({ task }: { task: TaskRowData }) {
             />
             <p
               className={`text-callout font-semibold ${
-                completed ? "text-[--ink-3] line-through" : "text-[--ink-1]"
+                completed ? "text-[var(--ink-3)] line-through" : "text-[var(--ink-1)]"
               }`}
             >
               {task.subject}
@@ -169,7 +169,7 @@ export default function TaskRow({ task }: { task: TaskRowData }) {
           </div>
 
           {task.body && (
-            <p className="whitespace-pre-wrap text-body text-[--ink-2]">{task.body}</p>
+            <p className="whitespace-pre-wrap text-body text-[var(--ink-2)]">{task.body}</p>
           )}
 
           <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
@@ -185,20 +185,20 @@ export default function TaskRow({ task }: { task: TaskRowData }) {
                 <Link
                   href={`/contacts/${task.contactId}`}
                   onClick={() => setOpen(false)}
-                  className="tap flex min-h-[44px] items-center justify-between rounded-[--r-md] border border-[--line-1] bg-[--surface-3] px-3 text-body text-[--ink-1]"
+                  className="tap flex min-h-[44px] items-center justify-between rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-3)] px-3 text-body text-[var(--ink-1)]"
                 >
                   <span className="truncate">{task.contactName}</span>
-                  <span className="shrink-0 text-caption text-[--ink-3]">Contact</span>
+                  <span className="shrink-0 text-caption text-[var(--ink-3)]">Contact</span>
                 </Link>
               )}
               {task.dealId && task.dealTitle && (
                 <Link
                   href={`/deals/${task.dealId}`}
                   onClick={() => setOpen(false)}
-                  className="tap flex min-h-[44px] items-center justify-between rounded-[--r-md] border border-[--line-1] bg-[--surface-3] px-3 text-body text-[--ink-1]"
+                  className="tap flex min-h-[44px] items-center justify-between rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-3)] px-3 text-body text-[var(--ink-1)]"
                 >
                   <span className="truncate">{task.dealTitle}</span>
-                  <span className="shrink-0 text-caption text-[--ink-3]">Deal</span>
+                  <span className="shrink-0 text-caption text-[var(--ink-3)]">Deal</span>
                 </Link>
               )}
             </div>

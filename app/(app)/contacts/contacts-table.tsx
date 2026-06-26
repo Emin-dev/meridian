@@ -26,10 +26,10 @@ function getLastContactedMeta(dateStr: string | null): { text: string; dotClass:
   const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
   const dotClass =
     diffDays < 7
-      ? "bg-[--ok]"
+      ? "bg-[var(--ok)]"
       : diffDays <= 30
-        ? "bg-[--warn]"
-        : "bg-[--bad]";
+        ? "bg-[var(--warn)]"
+        : "bg-[var(--bad)]";
   const sameYear = date.getFullYear() === now.getFullYear();
   const text = date.toLocaleDateString("en-US", {
     month: "short",
@@ -68,17 +68,17 @@ function SortableHeader({
   return (
     <th
       onClick={handleClick}
-      className={`cursor-pointer select-none px-4 py-3 text-xs font-medium uppercase tracking-wide text-[--ink-3] hover:text-[--ink-1] whitespace-nowrap${className ? ` ${className}` : ""}`}
+      className={`cursor-pointer select-none px-4 py-3 text-xs font-medium uppercase tracking-wide text-[var(--ink-3)] hover:text-[var(--ink-1)] whitespace-nowrap${className ? ` ${className}` : ""}`}
     >
       <span className="flex items-center gap-1">
         {label}
         {isActive ? (
           currentDir === "asc" ? (
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-[--accent]">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--accent)]">
               <path d="M12 19V5M5 12l7-7 7 7" />
             </svg>
           ) : (
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-[--accent]">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--accent)]">
               <path d="M12 5v14M5 12l7 7 7-7" />
             </svg>
           )
@@ -107,7 +107,7 @@ function ContactCards({
   onCardTap?: (c: ContactListItem) => void;
 }) {
   return (
-    <div className="divide-y divide-[--line-1]">
+    <div className="divide-y divide-[var(--line-1)]">
       {contacts.map((c) => {
         const statusMeta = c.status ? STATUS_LABELS[c.status] : null;
         const secondary = [
@@ -128,13 +128,13 @@ function ContactCards({
                 readOnly
                 tabIndex={-1}
                 aria-hidden
-                className="pointer-events-none h-4 w-4 flex-shrink-0 rounded border-[--line-2] accent-[--accent]"
+                className="pointer-events-none h-4 w-4 flex-shrink-0 rounded border-[var(--line-2)] accent-[var(--accent)]"
               />
             )}
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-[--ink-1]">{c.name}</p>
+              <p className="truncate text-sm font-medium text-[var(--ink-1)]">{c.name}</p>
               {secondary && (
-                <p className="truncate text-xs text-[--ink-2]">{secondary}</p>
+                <p className="truncate text-xs text-[var(--ink-2)]">{secondary}</p>
               )}
             </div>
             {!selectMode && (
@@ -147,7 +147,7 @@ function ContactCards({
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="flex-shrink-0 text-[--ink-3]"
+                className="flex-shrink-0 text-[var(--ink-3)]"
                 aria-hidden
               >
                 <path d="M9 18l6-6-6-6" />
@@ -166,8 +166,8 @@ function ContactCards({
               aria-label={`Select ${c.name}`}
               className={`flex min-h-[44px] w-full items-center gap-3 px-4 py-3 text-left transition-colors ${
                 isSelected
-                  ? "bg-[--accent-tint]"
-                  : "hover:bg-[--surface-2]/40 active:bg-[--surface-2]/60"
+                  ? "bg-[var(--accent-tint)]"
+                  : "hover:bg-[var(--surface-2)]/40 active:bg-[var(--surface-2)]/60"
               }`}
             >
               {body}
@@ -182,7 +182,7 @@ function ContactCards({
               type="button"
               onClick={() => onCardTap(c)}
               aria-label={`View ${c.name} details`}
-              className="flex min-h-[44px] w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[--surface-2]/40 active:bg-[--surface-2]/60"
+              className="flex min-h-[44px] w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[var(--surface-2)]/40 active:bg-[var(--surface-2)]/60"
             >
               {body}
             </button>
@@ -193,7 +193,7 @@ function ContactCards({
           <Link
             key={c.id}
             href={`/contacts/${c.id}`}
-            className="flex min-h-[44px] items-center gap-3 px-4 py-3 transition-colors hover:bg-[--surface-2]/40 active:bg-[--surface-2]/60"
+            className="flex min-h-[44px] items-center gap-3 px-4 py-3 transition-colors hover:bg-[var(--surface-2)]/40 active:bg-[var(--surface-2)]/60"
           >
             {body}
           </Link>
@@ -336,8 +336,8 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
     <div className="space-y-3">
       {/* Bulk action bar — desktop table view only (mobile uses the action sheet) */}
       {someSelected && view === "table" && (
-        <div className="sticky top-0 z-30 hidden flex-wrap items-center gap-2 rounded-lg border border-[--accent]/30 bg-[--accent-tint] px-4 py-2 shadow-sm shadow-black/20 backdrop-blur lg:flex">
-          <span className="flex min-h-[44px] items-center text-sm font-medium text-[--accent]">
+        <div className="sticky top-0 z-30 hidden flex-wrap items-center gap-2 rounded-lg border border-[var(--accent)]/30 bg-[var(--accent-tint)] px-4 py-2 shadow-sm shadow-black/20 backdrop-blur lg:flex">
+          <span className="flex min-h-[44px] items-center text-sm font-medium text-[var(--accent)]">
             {selectedIds.size} selected
           </span>
 
@@ -347,7 +347,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
               aria-label="Set status for selected contacts"
               value={statusSelect}
               onChange={(e) => setStatusSelect(e.target.value as ContactStatus)}
-              className="tap rounded border border-[--line-1] bg-[--surface-1] px-2 text-xs text-[--ink-1]"
+              className="tap rounded border border-[var(--line-1)] bg-[var(--surface-1)] px-2 text-xs text-[var(--ink-1)]"
             >
               {CONTACT_STATUSES.map((s) => (
                 <option key={s.value} value={s.value}>
@@ -358,7 +358,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
             <button
               onClick={handleChangeStatus}
               disabled={isPending}
-              className="tap flex items-center justify-center rounded bg-[--surface-2] px-2.5 text-xs font-medium text-[--ink-1] hover:bg-[--surface-3] disabled:opacity-50"
+              className="tap flex items-center justify-center rounded bg-[var(--surface-2)] px-2.5 text-xs font-medium text-[var(--ink-1)] hover:bg-[var(--surface-3)] disabled:opacity-50"
             >
               Set status
             </button>
@@ -372,12 +372,12 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
               onChange={(e) => setTagInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleAddTag()}
               placeholder="Tag name"
-              className="tap w-full rounded border border-[--line-1] bg-[--surface-1] px-2 text-xs text-[--ink-1] placeholder-[--ink-3] focus:outline-none focus:ring-1 focus:ring-[--accent] sm:w-32"
+              className="tap w-full rounded border border-[var(--line-1)] bg-[var(--surface-1)] px-2 text-xs text-[var(--ink-1)] placeholder-[var(--ink-3)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)] sm:w-32"
             />
             <button
               onClick={handleAddTag}
               disabled={isPending || !tagInput.trim()}
-              className="tap flex items-center justify-center rounded bg-[--surface-2] px-2.5 text-xs font-medium text-[--ink-1] hover:bg-[--surface-3] disabled:opacity-50"
+              className="tap flex items-center justify-center rounded bg-[var(--surface-2)] px-2.5 text-xs font-medium text-[var(--ink-1)] hover:bg-[var(--surface-3)] disabled:opacity-50"
             >
               Add tag
             </button>
@@ -391,12 +391,12 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
               onChange={(e) => setOwnerInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleChangeOwner()}
               placeholder="Owner name"
-              className="tap w-full rounded border border-[--line-1] bg-[--surface-1] px-2 text-xs text-[--ink-1] placeholder-[--ink-3] focus:outline-none focus:ring-1 focus:ring-[--accent] sm:w-32"
+              className="tap w-full rounded border border-[var(--line-1)] bg-[var(--surface-1)] px-2 text-xs text-[var(--ink-1)] placeholder-[var(--ink-3)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)] sm:w-32"
             />
             <button
               onClick={handleChangeOwner}
               disabled={isPending}
-              className="tap flex items-center justify-center rounded bg-[--surface-2] px-2.5 text-xs font-medium text-[--ink-1] hover:bg-[--surface-3] disabled:opacity-50"
+              className="tap flex items-center justify-center rounded bg-[var(--surface-2)] px-2.5 text-xs font-medium text-[var(--ink-1)] hover:bg-[var(--surface-3)] disabled:opacity-50"
             >
               Set owner
             </button>
@@ -408,7 +408,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
                 aria-label="Enroll selected contacts in sequence"
                 value={sequenceSelect}
                 onChange={(e) => setSequenceSelect(e.target.value)}
-                className="tap rounded border border-[--line-1] bg-[--surface-1] px-2 text-xs text-[--ink-1]"
+                className="tap rounded border border-[var(--line-1)] bg-[var(--surface-1)] px-2 text-xs text-[var(--ink-1)]"
               >
                 <option value="">Pick sequence…</option>
                 {sequences.map((s) => (
@@ -420,7 +420,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
               <button
                 onClick={handleEnrollSequence}
                 disabled={isPending || !sequenceSelect}
-                className="tap flex items-center justify-center rounded bg-[--surface-2] px-2.5 text-xs font-medium text-[--ink-1] hover:bg-[--surface-3] disabled:opacity-50"
+                className="tap flex items-center justify-center rounded bg-[var(--surface-2)] px-2.5 text-xs font-medium text-[var(--ink-1)] hover:bg-[var(--surface-3)] disabled:opacity-50"
               >
                 Enroll
               </button>
@@ -430,14 +430,14 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
           <div className="ml-auto flex items-center gap-3">
             {feedback && (
               <span
-                className={`text-xs ${feedback.ok ? "text-[--ok]" : "text-[--bad]"}`}
+                className={`text-xs ${feedback.ok ? "text-[var(--ok)]" : "text-[var(--bad)]"}`}
               >
                 {feedback.msg}
               </span>
             )}
             <button
               onClick={() => setSelectedIds(new Set())}
-              className="tap flex items-center justify-center text-xs text-[--ink-3] hover:text-[--ink-1]"
+              className="tap flex items-center justify-center text-xs text-[var(--ink-3)] hover:text-[var(--ink-1)]"
             >
               Clear selection
             </button>
@@ -446,10 +446,10 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
       )}
 
       {/* Table / Card container — edge-to-edge grouped-list on phones, boxed table from sm up */}
-      <div className="border-y border-[--line-1] bg-[--surface-1] sm:rounded-xl sm:border">
+      <div className="border-y border-[var(--line-1)] bg-[var(--surface-1)] sm:rounded-xl sm:border">
         {/* Header row */}
-        <div className="flex items-center justify-between border-b border-[--line-1] px-4 py-3">
-          <p className="text-xs font-medium uppercase tracking-wide text-[--ink-3]">
+        <div className="flex items-center justify-between border-b border-[var(--line-1)] px-4 py-3">
+          <p className="text-xs font-medium uppercase tracking-wide text-[var(--ink-3)]">
             {hasActiveFilters ? "Filtered contacts" : "All Contacts"}
             {hasActiveFilters && (
               <span className="ml-2 normal-case">
@@ -466,10 +466,10 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
         {/* Mobile: always stacked cards (the wide table would horizontal-scroll) */}
         <div className="lg:hidden">
           {/* Mobile select toolbar */}
-          <div className="flex items-center gap-3 px-4 py-2 sm:border-b sm:border-[--line-1]">
+          <div className="flex items-center gap-3 px-4 py-2 sm:border-b sm:border-[var(--line-1)]">
             {selectMode ? (
               <>
-                <label className="tap flex cursor-pointer items-center gap-2 text-xs font-medium text-[--ink-1]">
+                <label className="tap flex cursor-pointer items-center gap-2 text-xs font-medium text-[var(--ink-1)]">
                   <input
                     type="checkbox"
                     checked={allSelected}
@@ -478,7 +478,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
                     }}
                     onChange={toggleAll}
                     aria-label="Select all contacts"
-                    className="h-4 w-4 cursor-pointer rounded border-[--line-2] accent-[--accent]"
+                    className="h-4 w-4 cursor-pointer rounded border-[var(--line-2)] accent-[var(--accent)]"
                   />
                   {selectedIds.size > 0 ? `${selectedIds.size} selected` : "Select all"}
                 </label>
@@ -486,13 +486,13 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
                   <button
                     onClick={() => setSheetOpen(true)}
                     disabled={!someSelected}
-                    className="tap flex items-center justify-center rounded-lg bg-[--accent] px-3 text-xs font-medium text-[--accent-ink] hover:bg-[--accent-hover] disabled:opacity-40"
+                    className="tap flex items-center justify-center rounded-lg bg-[var(--accent)] px-3 text-xs font-medium text-[var(--accent-ink)] hover:bg-[var(--accent-hover)] disabled:opacity-40"
                   >
                     Actions
                   </button>
                   <button
                     onClick={exitSelectMode}
-                    className="tap flex items-center justify-center text-xs text-[--ink-2] hover:text-[--ink-1]"
+                    className="tap flex items-center justify-center text-xs text-[var(--ink-2)] hover:text-[var(--ink-1)]"
                   >
                     Cancel
                   </button>
@@ -501,7 +501,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
             ) : (
               <button
                 onClick={() => setSelectMode(true)}
-                className="tap ml-auto flex items-center justify-center text-xs font-medium text-[--ink-3] hover:text-[--ink-1]"
+                className="tap ml-auto flex items-center justify-center text-xs font-medium text-[var(--ink-3)] hover:text-[var(--ink-1)]"
               >
                 Select
               </button>
@@ -510,8 +510,8 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
 
           {feedback && (
             <div
-              className={`border-b border-[--line-1] px-4 py-2 text-xs ${
-                feedback.ok ? "text-[--ok]" : "text-[--bad]"
+              className={`border-b border-[var(--line-1)] px-4 py-2 text-xs ${
+                feedback.ok ? "text-[var(--ok)]" : "text-[var(--bad)]"
               }`}
             >
               {feedback.msg}
@@ -539,7 +539,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
           <div className="hidden overflow-x-auto lg:block">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[--line-1] text-left">
+                <tr className="border-b border-[var(--line-1)] text-left">
                   <th className="px-3 py-3 w-10">
                     <input
                       type="checkbox"
@@ -549,7 +549,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
                       }}
                       onChange={toggleAll}
                       aria-label="Select all contacts"
-                      className="h-4 w-4 cursor-pointer rounded border-[--line-2] accent-[--accent]"
+                      className="h-4 w-4 cursor-pointer rounded border-[var(--line-2)] accent-[var(--accent)]"
                     />
                   </th>
                   <SortableHeader
@@ -558,31 +558,31 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
                     currentSort={sort}
                     currentDir={dir}
                     allSearchParams={allSearchParams}
-                    className="sticky left-0 z-10 bg-[--surface-1]"
+                    className="sticky left-0 z-10 bg-[var(--surface-1)]"
                   />
                   <SortableHeader col="status" label="Status" currentSort={sort} currentDir={dir} allSearchParams={allSearchParams} />
-                  <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-[--ink-3]">
+                  <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-[var(--ink-3)]">
                     Email
                   </th>
-                  <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-[--ink-3]">
+                  <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-[var(--ink-3)]">
                     Phone
                   </th>
                   <SortableHeader col="company" label="Company" currentSort={sort} currentDir={dir} allSearchParams={allSearchParams} />
-                  <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-[--ink-3]">
+                  <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-[var(--ink-3)]">
                     Title
                   </th>
-                  <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-[--ink-3]">
+                  <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-[var(--ink-3)]">
                     Source
                   </th>
-                  <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-[--ink-3]">
+                  <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-[var(--ink-3)]">
                     Owner
                   </th>
                   <SortableHeader col="leadScore" label="Score" currentSort={sort} currentDir={dir} allSearchParams={allSearchParams} />
-                  <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-[--ink-3]">
+                  <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-[var(--ink-3)]">
                     Tags
                   </th>
                   {hasDb && (
-                    <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-[--ink-3]">
+                    <th className="px-4 py-3 text-xs font-medium uppercase tracking-wide text-[var(--ink-3)]">
                       Last contact
                     </th>
                   )}
@@ -596,8 +596,8 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
                   return (
                     <tr
                       key={c.id}
-                      className={`border-b border-[--line-1] last:border-0 transition-colors ${
-                        isSelected ? "bg-[--accent-tint]" : "hover:bg-[--surface-2]/40"
+                      className={`border-b border-[var(--line-1)] last:border-0 transition-colors ${
+                        isSelected ? "bg-[var(--accent-tint)]" : "hover:bg-[var(--surface-2)]/40"
                       }`}
                     >
                       <td className="px-3 py-3">
@@ -606,13 +606,13 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
                           checked={isSelected}
                           onChange={() => toggle(c.id)}
                           aria-label={`Select ${c.name}`}
-                          className="h-4 w-4 cursor-pointer rounded border-[--line-2] accent-[--accent]"
+                          className="h-4 w-4 cursor-pointer rounded border-[var(--line-2)] accent-[var(--accent)]"
                         />
                       </td>
-                      <td className={`sticky left-0 z-10 px-4 py-3 font-medium text-[--ink-1] ${isSelected ? "bg-[--accent-tint]" : "bg-[--surface-1]"}`}>
+                      <td className={`sticky left-0 z-10 px-4 py-3 font-medium text-[var(--ink-1)] ${isSelected ? "bg-[var(--accent-tint)]" : "bg-[var(--surface-1)]"}`}>
                         <Link
                           href={`/contacts/${c.id}`}
-                          className="hover:text-[--accent] transition-colors"
+                          className="hover:text-[var(--accent)] transition-colors"
                         >
                           {c.name}
                         </Link>
@@ -625,22 +625,22 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
                             {statusMeta.label}
                           </span>
                         ) : (
-                          <span className="text-[--ink-3]">—</span>
+                          <span className="text-[var(--ink-3)]">—</span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-[--ink-2]">{c.email ?? "—"}</td>
-                      <td className="px-4 py-3 text-[--ink-2]">{c.phone ?? "—"}</td>
-                      <td className="px-4 py-3 text-[--ink-2]">{c.company ?? "—"}</td>
-                      <td className="px-4 py-3 text-[--ink-2]">{c.title ?? "—"}</td>
-                      <td className="px-4 py-3 text-[--ink-2]">
+                      <td className="px-4 py-3 text-[var(--ink-2)]">{c.email ?? "—"}</td>
+                      <td className="px-4 py-3 text-[var(--ink-2)]">{c.phone ?? "—"}</td>
+                      <td className="px-4 py-3 text-[var(--ink-2)]">{c.company ?? "—"}</td>
+                      <td className="px-4 py-3 text-[var(--ink-2)]">{c.title ?? "—"}</td>
+                      <td className="px-4 py-3 text-[var(--ink-2)]">
                         {c.source ? SOURCE_LABELS[c.source] ?? c.source : "—"}
                       </td>
-                      <td className="px-4 py-3 text-[--ink-2]">{c.owner ?? "—"}</td>
+                      <td className="px-4 py-3 text-[var(--ink-2)]">{c.owner ?? "—"}</td>
                       <td className="px-4 py-3">
                         {c.leadScore != null ? (
                           <LeadScoreBadge score={c.leadScore} />
                         ) : (
-                          <span className="text-[--ink-3]">—</span>
+                          <span className="text-[var(--ink-3)]">—</span>
                         )}
                       </td>
                       <td className="px-4 py-3">
@@ -656,7 +656,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
                             ))}
                           </div>
                         ) : (
-                          <span className="text-[--ink-3]">—</span>
+                          <span className="text-[var(--ink-3)]">—</span>
                         )}
                       </td>
                       {hasDb && (() => {
@@ -666,15 +666,15 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
                             {meta ? (
                               <span className="flex items-center gap-1.5">
                                 <span className={`h-2 w-2 flex-shrink-0 rounded-full ${meta.dotClass}`} />
-                                <span className="text-xs text-[--ink-2]">{meta.text}</span>
+                                <span className="text-xs text-[var(--ink-2)]">{meta.text}</span>
                               </span>
                             ) : (
-                              <span className="text-[--ink-3]">—</span>
+                              <span className="text-[var(--ink-3)]">—</span>
                             )}
                           </td>
                         );
                       })()}
-                      <td className="px-4 py-3 whitespace-nowrap text-xs text-[--ink-3]">
+                      <td className="px-4 py-3 whitespace-nowrap text-xs text-[var(--ink-3)]">
                         {c.createdAt
                           ? new Date(c.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
                           : "—"}
@@ -694,7 +694,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
           <Link
             href={loadMoreHref}
             scroll={false}
-            className="tap flex items-center justify-center rounded-lg border border-[--line-1] bg-[--surface-1] px-5 text-sm font-medium text-[--ink-1] transition-colors hover:bg-[--surface-2]"
+            className="tap flex items-center justify-center rounded-lg border border-[var(--line-1)] bg-[var(--surface-1)] px-5 text-sm font-medium text-[var(--ink-1)] transition-colors hover:bg-[var(--surface-2)]"
           >
             Load more
           </Link>
@@ -710,17 +710,17 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
         <div className="flex flex-col gap-3">
           {/* Change status */}
           <div>
-            <p className="mb-1.5 text-caption uppercase tracking-wider text-[--ink-3]">
+            <p className="mb-1.5 text-caption uppercase tracking-wider text-[var(--ink-3)]">
               Set status
             </p>
-            <div className="flex flex-col divide-y divide-[--line-1]">
+            <div className="flex flex-col divide-y divide-[var(--line-1)]">
               {CONTACT_STATUSES.map((s) => (
                 <button
                   key={s.value}
                   type="button"
                   onClick={() => applyStatus(s.value)}
                   disabled={isPending}
-                  className="tap press flex min-h-[44px] items-center gap-3 px-1 text-left text-sm text-[--ink-1] transition-colors hover:text-[--accent] disabled:opacity-40"
+                  className="tap press flex min-h-[44px] items-center gap-3 px-1 text-left text-sm text-[var(--ink-1)] transition-colors hover:text-[var(--accent)] disabled:opacity-40"
                 >
                   <span className="flex-1">{s.label}</span>
                 </button>
@@ -736,12 +736,12 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
               onChange={(e) => setTagInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleAddTag()}
               placeholder="Tag name"
-              className="min-h-[44px] min-w-0 flex-1 rounded-lg border border-[--line-1] bg-[--surface-1] px-3 text-sm text-[--ink-1] placeholder-[--ink-3] focus:outline-none focus:ring-1 focus:ring-[--accent]"
+              className="min-h-[44px] min-w-0 flex-1 rounded-lg border border-[var(--line-1)] bg-[var(--surface-1)] px-3 text-sm text-[var(--ink-1)] placeholder-[var(--ink-3)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
             />
             <button
               onClick={handleAddTag}
               disabled={isPending || !tagInput.trim()}
-              className="tap flex shrink-0 items-center justify-center rounded-lg bg-[--surface-2] px-4 text-sm font-medium text-[--ink-1] hover:bg-[--surface-3] disabled:opacity-50"
+              className="tap flex shrink-0 items-center justify-center rounded-lg bg-[var(--surface-2)] px-4 text-sm font-medium text-[var(--ink-1)] hover:bg-[var(--surface-3)] disabled:opacity-50"
             >
               Add tag
             </button>
@@ -755,12 +755,12 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
               onChange={(e) => setOwnerInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleChangeOwner()}
               placeholder="Owner name"
-              className="min-h-[44px] min-w-0 flex-1 rounded-lg border border-[--line-1] bg-[--surface-1] px-3 text-sm text-[--ink-1] placeholder-[--ink-3] focus:outline-none focus:ring-1 focus:ring-[--accent]"
+              className="min-h-[44px] min-w-0 flex-1 rounded-lg border border-[var(--line-1)] bg-[var(--surface-1)] px-3 text-sm text-[var(--ink-1)] placeholder-[var(--ink-3)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
             />
             <button
               onClick={handleChangeOwner}
               disabled={isPending}
-              className="tap flex shrink-0 items-center justify-center rounded-lg bg-[--surface-2] px-4 text-sm font-medium text-[--ink-1] hover:bg-[--surface-3] disabled:opacity-50"
+              className="tap flex shrink-0 items-center justify-center rounded-lg bg-[var(--surface-2)] px-4 text-sm font-medium text-[var(--ink-1)] hover:bg-[var(--surface-3)] disabled:opacity-50"
             >
               Set owner
             </button>
@@ -769,17 +769,17 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
           {/* Enroll in sequence */}
           {sequences.length > 0 && (
             <div>
-              <p className="mb-1.5 text-caption uppercase tracking-wider text-[--ink-3]">
+              <p className="mb-1.5 text-caption uppercase tracking-wider text-[var(--ink-3)]">
                 Enroll in sequence
               </p>
-              <div className="flex flex-col divide-y divide-[--line-1]">
+              <div className="flex flex-col divide-y divide-[var(--line-1)]">
                 {sequences.map((s) => (
                   <button
                     key={s.id}
                     type="button"
                     onClick={() => applyEnroll(s.id)}
                     disabled={isPending}
-                    className="tap press flex min-h-[44px] items-center gap-3 px-1 text-left text-sm text-[--ink-1] transition-colors hover:text-[--accent] disabled:opacity-40"
+                    className="tap press flex min-h-[44px] items-center gap-3 px-1 text-left text-sm text-[var(--ink-1)] transition-colors hover:text-[var(--accent)] disabled:opacity-40"
                   >
                     <span className="flex-1">{s.name}</span>
                   </button>
@@ -803,7 +803,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
           return (
             <div className="space-y-4">
               <div>
-                <h3 className="text-title3 font-semibold text-[--ink-1]">
+                <h3 className="text-title3 font-semibold text-[var(--ink-1)]">
                   {detailContact.name}
                 </h3>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -838,7 +838,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
 
               {tags.length > 0 && (
                 <div>
-                  <dt className="text-caption uppercase tracking-wider text-[--ink-3]">Tags</dt>
+                  <dt className="text-caption uppercase tracking-wider text-[var(--ink-3)]">Tags</dt>
                   <dd className="mt-1.5 flex flex-wrap gap-1">
                     {tags.map((t) => (
                       <span
@@ -854,7 +854,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
 
               <Link
                 href={`/contacts/${detailContact.id}`}
-                className="tap flex min-h-[44px] items-center justify-center rounded-lg bg-[--accent] px-4 text-sm font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover]"
+                className="tap flex min-h-[44px] items-center justify-center rounded-lg bg-[var(--accent)] px-4 text-sm font-medium text-[var(--accent-ink)] transition-colors hover:bg-[var(--accent-hover)]"
               >
                 Open full contact
               </Link>

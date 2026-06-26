@@ -57,20 +57,20 @@ export default function EnrichContactPanel({ contactId }: Props) {
   }
 
   const inputCls =
-    "tap w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] placeholder-[--ink-3] focus:border-[--accent] focus:outline-none";
+    "tap w-full rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--ink-1)] placeholder-[var(--ink-3)] focus:border-[var(--accent)] focus:outline-none";
   const textareaCls = `${inputCls} resize-none leading-relaxed`;
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-[--ink-2]">
+        <h3 className="text-sm font-medium text-[var(--ink-2)]">
           AI contact enrichment
         </h3>
         <button
           type="button"
           onClick={handleEnrich}
           disabled={isPending}
-          className="tap inline-flex items-center justify-center rounded-lg bg-[--accent] px-3 text-xs font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
+          className="tap inline-flex items-center justify-center rounded-lg bg-[var(--accent)] px-3 text-xs font-medium text-[var(--accent-ink)] transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-50"
         >
           {isPending ? "Enriching…" : hasResult ? "Re-enrich" : "Enrich with AI"}
         </button>
@@ -84,7 +84,7 @@ export default function EnrichContactPanel({ contactId }: Props) {
         hasResult={hasResult}
         isPending={isPending}
         emptyHint={
-          <p className="text-xs text-[--ink-3]">
+          <p className="text-xs text-[var(--ink-3)]">
             Click &ldquo;Enrich with AI&rdquo; to infer missing fields (title,
             company, notes) from this contact&apos;s name, email, and activity.
           </p>
@@ -93,13 +93,13 @@ export default function EnrichContactPanel({ contactId }: Props) {
 
       {hasResult && (
         <div className="space-y-3">
-          <p className="text-xs text-[--ink-3]">
+          <p className="text-xs text-[var(--ink-3)]">
             Review the AI suggestions below, edit if needed, then apply.
           </p>
 
           <div className="space-y-2">
             <div>
-              <label className="mb-1 block text-xs text-[--ink-2]">
+              <label className="mb-1 block text-xs text-[var(--ink-2)]">
                 Title
               </label>
               <input
@@ -113,7 +113,7 @@ export default function EnrichContactPanel({ contactId }: Props) {
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs text-[--ink-2]">
+              <label className="mb-1 block text-xs text-[var(--ink-2)]">
                 Company
               </label>
               <input
@@ -127,7 +127,7 @@ export default function EnrichContactPanel({ contactId }: Props) {
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs text-[--ink-2]">
+              <label className="mb-1 block text-xs text-[var(--ink-2)]">
                 Notes context
               </label>
               <textarea
@@ -143,15 +143,15 @@ export default function EnrichContactPanel({ contactId }: Props) {
           </div>
 
           {saveState.noDb && (
-            <p className="text-xs text-[--ink-2]">
+            <p className="text-xs text-[var(--ink-2)]">
               Database not connected — cannot save changes.
             </p>
           )}
           {saveState.error && (
-            <p className="text-xs text-[--bad]">{saveState.error}</p>
+            <p className="text-xs text-[var(--bad)]">{saveState.error}</p>
           )}
           {saveState.success && (
-            <p className="text-xs text-[--ok]">
+            <p className="text-xs text-[var(--ok)]">
               Contact updated successfully.
             </p>
           )}
@@ -160,7 +160,7 @@ export default function EnrichContactPanel({ contactId }: Props) {
             type="button"
             onClick={handleSave}
             disabled={isSaving}
-            className="tap inline-flex items-center justify-center rounded-lg bg-[--accent] px-3 text-xs font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
+            className="tap inline-flex items-center justify-center rounded-lg bg-[var(--accent)] px-3 text-xs font-medium text-[var(--accent-ink)] transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-50"
           >
             {isSaving ? "Applying…" : "Apply suggestions"}
           </button>

@@ -26,17 +26,17 @@ function TaskGroup({
 }) {
   return (
     <div className="card overflow-hidden">
-      <div className="flex items-center gap-2 border-b border-[--line-1] px-4 py-3 sm:px-5">
+      <div className="flex items-center gap-2 border-b border-[var(--line-1)] px-4 py-3 sm:px-5">
         <span className={`h-2 w-2 rounded-full shrink-0 ${dotClass}`} />
-        <p className="text-caption font-medium uppercase tracking-wide text-[--ink-2]">
+        <p className="text-caption font-medium uppercase tracking-wide text-[var(--ink-2)]">
           {title}
         </p>
-        <span className="ml-auto text-caption text-[--ink-3]">{tasks.length}</span>
+        <span className="ml-auto text-caption text-[var(--ink-3)]">{tasks.length}</span>
       </div>
       {tasks.length === 0 ? (
-        <p className="px-4 py-4 text-body text-[--ink-3] sm:px-5">{emptyLabel}</p>
+        <p className="px-4 py-4 text-body text-[var(--ink-3)] sm:px-5">{emptyLabel}</p>
       ) : (
-        <div className="divide-y divide-[--line-1] px-4 sm:px-5">
+        <div className="divide-y divide-[var(--line-1)] px-4 sm:px-5">
           {tasks.map((t) => (
             <TaskRow key={t.id} task={t} />
           ))}
@@ -49,8 +49,8 @@ function TaskGroup({
 export default async function TasksPage() {
   const header = (
     <div>
-      <h2 className="text-title2 font-semibold text-[--ink-1]">Tasks</h2>
-      <p className="mt-1 text-body text-[--ink-2]">
+      <h2 className="text-title2 font-semibold text-[var(--ink-1)]">Tasks</h2>
+      <p className="mt-1 text-body text-[var(--ink-2)]">
         Track and complete tasks across your contacts and deals.
       </p>
     </div>
@@ -58,7 +58,7 @@ export default async function TasksPage() {
 
   const addCard = (
     <div className="card px-4 py-5 sm:px-6">
-      <h3 className="mb-4 text-callout font-medium text-[--ink-1]">Add a task</h3>
+      <h3 className="mb-4 text-callout font-medium text-[var(--ink-1)]">Add a task</h3>
       <TaskQuickAddForm />
     </div>
   );
@@ -167,7 +167,7 @@ export default async function TasksPage() {
                 <FocusAddTaskButton />
                 <DemoDataButton
                   label="Load demo data"
-                  className="tap inline-flex items-center gap-2 rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-3 text-caption font-medium text-[--ink-2] transition-colors hover:text-[--ink-1] disabled:opacity-50"
+                  className="tap inline-flex items-center gap-2 rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-2)] px-3 text-caption font-medium text-[var(--ink-2)] transition-colors hover:text-[var(--ink-1)] disabled:opacity-50"
                 />
               </div>
             }
@@ -178,26 +178,26 @@ export default async function TasksPage() {
           <TaskGroup
             title="Overdue"
             tasks={overdue}
-            dotClass="bg-[--bad]"
+            dotClass="bg-[var(--bad)]"
             emptyLabel="No overdue tasks."
           />
           <TaskGroup
             title="Due Today"
             tasks={dueToday}
-            dotClass="bg-[--warn]"
+            dotClass="bg-[var(--warn)]"
             emptyLabel="Nothing due today."
           />
           <TaskGroup
             title="Upcoming"
             tasks={upcoming}
-            dotClass="bg-[--accent]"
+            dotClass="bg-[var(--accent)]"
             emptyLabel="No upcoming tasks."
           />
           {completedTasks.length > 0 && (
             <TaskGroup
               title="Completed"
               tasks={completedTasks}
-              dotClass="bg-[--ok]"
+              dotClass="bg-[var(--ok)]"
               emptyLabel="No completed tasks."
             />
           )}

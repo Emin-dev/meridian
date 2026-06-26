@@ -18,7 +18,7 @@ const STAGES = [
 const initialState: PreferencesFormState = {};
 
 const inputCls =
-  "tap w-full rounded-[--r-md] border border-[--line-1] bg-[--surface-1] px-3 py-2.5 text-body text-[--ink-1] placeholder:text-[--ink-3] [color-scheme:dark] outline-none focus:border-[--accent] transition-colors";
+  "tap w-full rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-1)] px-3 py-2.5 text-body text-[var(--ink-1)] placeholder:text-[var(--ink-3)] [color-scheme:dark] outline-none focus:border-[var(--accent)] transition-colors";
 
 export function PreferencesForm({ current }: { current: CrmSettings }) {
   const [state, formAction, pending] = useActionState(
@@ -32,7 +32,7 @@ export function PreferencesForm({ current }: { current: CrmSettings }) {
       <div>
         <label
           htmlFor="pf-displayName"
-          className="mb-1.5 block text-footnote font-medium text-[--ink-2]"
+          className="mb-1.5 block text-footnote font-medium text-[var(--ink-2)]"
         >
           Display name
         </label>
@@ -45,9 +45,9 @@ export function PreferencesForm({ current }: { current: CrmSettings }) {
           maxLength={100}
           className={inputCls}
         />
-        <p className="mt-1 text-caption text-[--ink-3]">
+        <p className="mt-1 text-caption text-[var(--ink-3)]">
           Used as{" "}
-          <code className="rounded bg-[--surface-2] px-1 py-0.5">
+          <code className="rounded bg-[var(--surface-2)] px-1 py-0.5">
             {"{{ownerName}}"}
           </code>{" "}
           in sequence templates.
@@ -58,7 +58,7 @@ export function PreferencesForm({ current }: { current: CrmSettings }) {
       <div>
         <label
           htmlFor="pf-currency"
-          className="mb-1.5 block text-footnote font-medium text-[--ink-2]"
+          className="mb-1.5 block text-footnote font-medium text-[var(--ink-2)]"
         >
           Default currency
         </label>
@@ -74,7 +74,7 @@ export function PreferencesForm({ current }: { current: CrmSettings }) {
             </option>
           ))}
         </select>
-        <p className="mt-1 text-caption text-[--ink-3]">
+        <p className="mt-1 text-caption text-[var(--ink-3)]">
           Pre-selected when creating a new deal.
         </p>
       </div>
@@ -83,7 +83,7 @@ export function PreferencesForm({ current }: { current: CrmSettings }) {
       <div>
         <label
           htmlFor="pf-stage"
-          className="mb-1.5 block text-footnote font-medium text-[--ink-2]"
+          className="mb-1.5 block text-footnote font-medium text-[var(--ink-2)]"
         >
           Default deal stage
         </label>
@@ -99,23 +99,23 @@ export function PreferencesForm({ current }: { current: CrmSettings }) {
             </option>
           ))}
         </select>
-        <p className="mt-1 text-caption text-[--ink-3]">
+        <p className="mt-1 text-caption text-[var(--ink-3)]">
           Pre-selected stage when creating a new deal.
         </p>
       </div>
 
       {state.noDb && (
-        <p role="alert" className="text-caption text-[--warn]">
+        <p role="alert" className="text-caption text-[var(--warn)]">
           Connect a database to save preferences.
         </p>
       )}
       {state.error && (
-        <p role="alert" className="text-caption text-[--bad]">
+        <p role="alert" className="text-caption text-[var(--bad)]">
           {state.error}
         </p>
       )}
       {state.success && (
-        <p role="status" className="text-caption text-[--ok]">
+        <p role="status" className="text-caption text-[var(--ok)]">
           Preferences saved.
         </p>
       )}
@@ -124,7 +124,7 @@ export function PreferencesForm({ current }: { current: CrmSettings }) {
         <button
           type="submit"
           disabled={pending}
-          className="tap press w-full rounded-[--r-md] bg-[--accent] px-5 text-body font-medium text-[--accent-ink] hover:opacity-90 disabled:opacity-50 sm:w-auto"
+          className="tap press w-full rounded-[var(--r-md)] bg-[var(--accent)] px-5 text-body font-medium text-[var(--accent-ink)] hover:opacity-90 disabled:opacity-50 sm:w-auto"
         >
           {pending ? "Saving…" : "Save preferences"}
         </button>

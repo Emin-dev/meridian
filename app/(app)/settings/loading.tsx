@@ -1,5 +1,5 @@
 function Bone({ className }: { className?: string }) {
-  return <div className={`rounded-[--r-md] bg-[--surface-2] ${className ?? ""}`} />;
+  return <div className={`rounded-[var(--r-md)] bg-[var(--surface-2)] ${className ?? ""}`} />;
 }
 
 export default function SettingsLoading() {
@@ -26,7 +26,7 @@ export default function SettingsLoading() {
       {/* Connection health card */}
       <div className="card p-4 sm:p-5">
         <Bone className="mb-4 h-4 w-40" />
-        <div className="divide-y divide-[--line-1]">
+        <div className="divide-y divide-[var(--line-1)]">
           {Array.from({ length: 2 }).map((_, i) => (
             <div
               key={i}
@@ -36,7 +36,7 @@ export default function SettingsLoading() {
                 <Bone className="h-4 w-32" />
                 <Bone className="h-3 w-52" />
               </div>
-              <Bone className="h-4 w-24 shrink-0 rounded-[--r-pill]" />
+              <Bone className="h-4 w-24 shrink-0 rounded-[var(--r-pill)]" />
             </div>
           ))}
         </div>
@@ -51,7 +51,7 @@ export default function SettingsLoading() {
         {Array.from({ length: 3 }).map((_, i) => (
           <div key={i} className="space-y-2">
             <Bone className="h-3 w-28" />
-            <Bone className="h-10 w-full rounded-[--r-md]" />
+            <Bone className="h-10 w-full rounded-[var(--r-md)]" />
           </div>
         ))}
       </div>
@@ -62,7 +62,7 @@ export default function SettingsLoading() {
           <Bone className="h-4 w-28" />
           <Bone className="h-3 w-full max-w-md" />
         </div>
-        <Bone className="h-10 w-32 rounded-[--r-md]" />
+        <Bone className="h-10 w-32 rounded-[var(--r-md)]" />
       </div>
     </div>
   );

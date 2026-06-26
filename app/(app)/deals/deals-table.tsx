@@ -15,7 +15,7 @@ type SortCol = "title" | "stage" | "value" | "closeDate" | "owner" | "age";
 type SortDir = "asc" | "desc";
 
 const thClass =
-  "px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[--ink-3] cursor-pointer select-none hover:text-[--ink-1] whitespace-nowrap";
+  "px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-[var(--ink-3)] cursor-pointer select-none hover:text-[var(--ink-1)] whitespace-nowrap";
 
 function dealAgeInDays(createdAt: Date): number {
   const diffMs = Date.now() - new Date(createdAt).getTime();
@@ -29,9 +29,9 @@ function formatDealValue(deal: DealWithContact): string {
 }
 
 function ageBadgeClass(days: number): string {
-  if (days <= 14) return "bg-[--surface-2] text-[--ink-2]";
-  if (days <= 30) return "bg-[--warn-tint] text-[--warn]";
-  return "bg-[--bad-tint] text-[--bad]";
+  if (days <= 14) return "bg-[var(--surface-2)] text-[var(--ink-2)]";
+  if (days <= 30) return "bg-[var(--warn-tint)] text-[var(--warn)]";
+  return "bg-[var(--bad-tint)] text-[var(--bad)]";
 }
 
 function SortIcon({ active, dir }: { active: boolean; dir: SortDir }) {
@@ -181,7 +181,7 @@ export default function DealsTable({
 
   if (deals.length === 0) {
     return (
-      <p className="py-12 text-center text-sm text-[--ink-3]">No deals yet.</p>
+      <p className="py-12 text-center text-sm text-[var(--ink-3)]">No deals yet.</p>
     );
   }
 
@@ -189,8 +189,8 @@ export default function DealsTable({
     <div className="space-y-3">
       {/* Bulk action bar — desktop only (mobile uses the action sheet) */}
       {someSelected && (
-        <div className="sticky top-0 z-30 hidden flex-wrap items-center gap-2 rounded-lg border border-[--accent]/30 bg-[--accent-tint] px-4 py-2 shadow-sm shadow-black/20 backdrop-blur lg:flex">
-          <span className="flex min-h-[44px] items-center text-sm font-medium text-[--accent]">
+        <div className="sticky top-0 z-30 hidden flex-wrap items-center gap-2 rounded-lg border border-[var(--accent)]/30 bg-[var(--accent-tint)] px-4 py-2 shadow-sm shadow-black/20 backdrop-blur lg:flex">
+          <span className="flex min-h-[44px] items-center text-sm font-medium text-[var(--accent)]">
             {selectedIds.size} selected
           </span>
 
@@ -199,7 +199,7 @@ export default function DealsTable({
             <select
               value={stageSelect}
               onChange={(e) => setStageSelect(e.target.value)}
-              className="tap rounded border border-[--line-1] bg-[--surface-1] px-2 text-xs text-[--ink-1]"
+              className="tap rounded border border-[var(--line-1)] bg-[var(--surface-1)] px-2 text-xs text-[var(--ink-1)]"
             >
               {STAGES.map((s) => (
                 <option key={s.key} value={s.key}>
@@ -210,7 +210,7 @@ export default function DealsTable({
             <button
               onClick={handleMoveStage}
               disabled={isPending}
-              className="tap flex items-center justify-center rounded bg-[--surface-2] px-2.5 text-xs font-medium text-[--ink-1] hover:bg-[--surface-3] disabled:opacity-50"
+              className="tap flex items-center justify-center rounded bg-[var(--surface-2)] px-2.5 text-xs font-medium text-[var(--ink-1)] hover:bg-[var(--surface-3)] disabled:opacity-50"
             >
               Move to stage
             </button>
@@ -224,7 +224,7 @@ export default function DealsTable({
               onChange={(e) => setOwnerInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleChangeOwner()}
               placeholder="Owner name"
-              className="tap w-full rounded border border-[--line-1] bg-[--surface-1] px-2 text-xs text-[--ink-1] placeholder-[--ink-3] focus:outline-none focus:ring-1 focus:ring-[--accent] sm:w-32"
+              className="tap w-full rounded border border-[var(--line-1)] bg-[var(--surface-1)] px-2 text-xs text-[var(--ink-1)] placeholder-[var(--ink-3)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)] sm:w-32"
             />
             {owners.length > 0 && (
               <datalist id="deal-owners-list">
@@ -236,7 +236,7 @@ export default function DealsTable({
             <button
               onClick={handleChangeOwner}
               disabled={isPending}
-              className="tap flex items-center justify-center rounded bg-[--surface-2] px-2.5 text-xs font-medium text-[--ink-1] hover:bg-[--surface-3] disabled:opacity-50"
+              className="tap flex items-center justify-center rounded bg-[var(--surface-2)] px-2.5 text-xs font-medium text-[var(--ink-1)] hover:bg-[var(--surface-3)] disabled:opacity-50"
             >
               Set owner
             </button>
@@ -246,20 +246,20 @@ export default function DealsTable({
           <button
             onClick={handleDelete}
             disabled={isPending}
-            className="tap flex items-center justify-center rounded bg-[--bad-tint] px-2.5 text-xs font-medium text-[--bad] hover:opacity-80 disabled:opacity-50"
+            className="tap flex items-center justify-center rounded bg-[var(--bad-tint)] px-2.5 text-xs font-medium text-[var(--bad)] hover:opacity-80 disabled:opacity-50"
           >
             Delete
           </button>
 
           <div className="ml-auto flex items-center gap-3">
             {feedback && (
-              <span className={`text-xs ${feedback.ok ? "text-[--ok]" : "text-[--bad]"}`}>
+              <span className={`text-xs ${feedback.ok ? "text-[var(--ok)]" : "text-[var(--bad)]"}`}>
                 {feedback.msg}
               </span>
             )}
             <button
               onClick={() => setSelectedIds(new Set())}
-              className="tap flex items-center justify-center text-xs text-[--ink-3] hover:text-[--ink-1]"
+              className="tap flex items-center justify-center text-xs text-[var(--ink-3)] hover:text-[var(--ink-1)]"
             >
               Clear selection
             </button>
@@ -268,12 +268,12 @@ export default function DealsTable({
       )}
 
       {/* Mobile stacked cards — edge-to-edge grouped-list on phones, boxed table from sm up */}
-      <div className="overflow-hidden border-y border-[--line-1] sm:rounded-xl sm:border lg:hidden">
+      <div className="overflow-hidden border-y border-[var(--line-1)] sm:rounded-xl sm:border lg:hidden">
         {/* Mobile select toolbar */}
-        <div className="flex items-center gap-3 px-4 py-2 sm:border-b sm:border-[--line-1]">
+        <div className="flex items-center gap-3 px-4 py-2 sm:border-b sm:border-[var(--line-1)]">
           {selectMode ? (
             <>
-              <label className="tap flex cursor-pointer items-center gap-2 text-xs font-medium text-[--ink-1]">
+              <label className="tap flex cursor-pointer items-center gap-2 text-xs font-medium text-[var(--ink-1)]">
                 <input
                   type="checkbox"
                   checked={allSelected}
@@ -282,7 +282,7 @@ export default function DealsTable({
                   }}
                   onChange={toggleAll}
                   aria-label="Select all deals"
-                  className="h-4 w-4 cursor-pointer rounded border-[--line-2] accent-[--accent]"
+                  className="h-4 w-4 cursor-pointer rounded border-[var(--line-2)] accent-[var(--accent)]"
                 />
                 {selectedIds.size > 0 ? `${selectedIds.size} selected` : "Select all"}
               </label>
@@ -290,13 +290,13 @@ export default function DealsTable({
                 <button
                   onClick={() => setSheetOpen(true)}
                   disabled={!someSelected}
-                  className="tap flex items-center justify-center rounded-lg bg-[--accent] px-3 text-xs font-medium text-[--accent-ink] hover:bg-[--accent-hover] disabled:opacity-40"
+                  className="tap flex items-center justify-center rounded-lg bg-[var(--accent)] px-3 text-xs font-medium text-[var(--accent-ink)] hover:bg-[var(--accent-hover)] disabled:opacity-40"
                 >
                   Actions
                 </button>
                 <button
                   onClick={exitSelectMode}
-                  className="tap flex items-center justify-center text-xs text-[--ink-2] hover:text-[--ink-1]"
+                  className="tap flex items-center justify-center text-xs text-[var(--ink-2)] hover:text-[var(--ink-1)]"
                 >
                   Cancel
                 </button>
@@ -305,7 +305,7 @@ export default function DealsTable({
           ) : (
             <button
               onClick={() => setSelectMode(true)}
-              className="tap ml-auto flex items-center justify-center text-xs font-medium text-[--ink-3] hover:text-[--ink-1]"
+              className="tap ml-auto flex items-center justify-center text-xs font-medium text-[var(--ink-3)] hover:text-[var(--ink-1)]"
             >
               Select
             </button>
@@ -314,15 +314,15 @@ export default function DealsTable({
 
         {feedback && (
           <div
-            className={`border-b border-[--line-1] px-4 py-2 text-xs ${
-              feedback.ok ? "text-[--ok]" : "text-[--bad]"
+            className={`border-b border-[var(--line-1)] px-4 py-2 text-xs ${
+              feedback.ok ? "text-[var(--ok)]" : "text-[var(--bad)]"
             }`}
           >
             {feedback.msg}
           </div>
         )}
 
-        <div className="divide-y divide-[--line-1]">
+        <div className="divide-y divide-[var(--line-1)]">
           {deals.map((deal) => {
             const age = dealAgeInDays(deal.createdAt);
             const isSelected = selectedIds.has(deal.id);
@@ -337,16 +337,16 @@ export default function DealsTable({
                     readOnly
                     tabIndex={-1}
                     aria-hidden
-                    className="pointer-events-none h-4 w-4 flex-shrink-0 rounded border-[--line-2] accent-[--accent]"
+                    className="pointer-events-none h-4 w-4 flex-shrink-0 rounded border-[var(--line-2)] accent-[var(--accent)]"
                   />
                 )}
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-body font-medium text-[--ink-1]">{deal.title}</p>
-                  <p className="truncate text-xs text-[--ink-2]">
+                  <p className="truncate text-body font-medium text-[var(--ink-1)]">{deal.title}</p>
+                  <p className="truncate text-xs text-[var(--ink-2)]">
                     {deal.contact?.name && (
-                      <span className="text-[--ink-1]">{deal.contact.name} • </span>
+                      <span className="text-[var(--ink-1)]">{deal.contact.name} • </span>
                     )}
-                    <span className={`font-medium ${STAGE_COLORS[deal.stage] ?? "text-[--ink-2]"}`}>
+                    <span className={`font-medium ${STAGE_COLORS[deal.stage] ?? "text-[var(--ink-2)]"}`}>
                       {STAGE_LABELS[deal.stage] ?? deal.stage}
                     </span>
                     <span> • {value}</span>
@@ -367,7 +367,7 @@ export default function DealsTable({
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className="flex-shrink-0 text-[--ink-3]"
+                    className="flex-shrink-0 text-[var(--ink-3)]"
                     aria-hidden
                   >
                     <path d="M9 18l6-6-6-6" />
@@ -386,8 +386,8 @@ export default function DealsTable({
                   aria-label={`Select ${deal.title}`}
                   className={`flex min-h-[44px] w-full items-center gap-3 px-4 py-3 text-left transition-colors ${
                     isSelected
-                      ? "bg-[--accent-tint]"
-                      : "hover:bg-[--surface-2]/40 active:bg-[--surface-2]/60"
+                      ? "bg-[var(--accent-tint)]"
+                      : "hover:bg-[var(--surface-2)]/40 active:bg-[var(--surface-2)]/60"
                   }`}
                 >
                   {body}
@@ -401,7 +401,7 @@ export default function DealsTable({
                 type="button"
                 onClick={() => setDetailDeal(deal)}
                 aria-label={`View ${deal.title} details`}
-                className="flex min-h-[44px] w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[--surface-2]/40 active:bg-[--surface-2]/60"
+                className="flex min-h-[44px] w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[var(--surface-2)]/40 active:bg-[var(--surface-2)]/60"
               >
                 {body}
               </button>
@@ -411,11 +411,11 @@ export default function DealsTable({
       </div>
 
       {/* Desktop table */}
-      <div className="hidden max-w-full overflow-x-auto overscroll-x-contain rounded-xl border border-[--line-1] lg:block">
+      <div className="hidden max-w-full overflow-x-auto overscroll-x-contain rounded-xl border border-[var(--line-1)] lg:block">
         <table className="w-full text-sm">
-          <thead className="border-b border-[--line-1] bg-[--surface-1]">
+          <thead className="border-b border-[var(--line-1)] bg-[var(--surface-1)]">
             <tr>
-              <th className="sticky left-0 z-20 w-11 bg-[--surface-1]">
+              <th className="sticky left-0 z-20 w-11 bg-[var(--surface-1)]">
                 <label className="flex min-h-[44px] min-w-[44px] cursor-pointer items-center justify-center">
                   <input
                     type="checkbox"
@@ -425,7 +425,7 @@ export default function DealsTable({
                     }}
                     onChange={toggleAll}
                     aria-label="Select all deals"
-                    className="h-4 w-4 cursor-pointer rounded border-[--line-2] accent-[--accent]"
+                    className="h-4 w-4 cursor-pointer rounded border-[var(--line-2)] accent-[var(--accent)]"
                   />
                 </label>
               </th>
@@ -435,9 +435,9 @@ export default function DealsTable({
                 sort={sort}
                 dir={dir}
                 params={allSearchParams}
-                className="sticky left-11 z-20 bg-[--surface-1] border-r border-[--line-1]"
+                className="sticky left-11 z-20 bg-[var(--surface-1)] border-r border-[var(--line-1)]"
               />
-              <th className={`${thClass} cursor-default hover:text-[--ink-3]`}>
+              <th className={`${thClass} cursor-default hover:text-[var(--ink-3)]`}>
                 Contact
               </th>
               <SortableTh col="stage" label="Stage" sort={sort} dir={dir} params={allSearchParams} />
@@ -465,31 +465,31 @@ export default function DealsTable({
               return (
                 <tr
                   key={deal.id}
-                  className={`border-b border-[--line-1] last:border-0 transition-colors ${
+                  className={`border-b border-[var(--line-1)] last:border-0 transition-colors ${
                     isSelected
-                      ? "bg-[--accent-tint]"
+                      ? "bg-[var(--accent-tint)]"
                       : i % 2 === 0
-                        ? "bg-[--surface-1] hover:bg-[--surface-2]/40"
-                        : "bg-[--surface-1]/60 hover:bg-[--surface-2]/40"
+                        ? "bg-[var(--surface-1)] hover:bg-[var(--surface-2)]/40"
+                        : "bg-[var(--surface-1)]/60 hover:bg-[var(--surface-2)]/40"
                   }`}
                 >
-                  <td className={`sticky left-0 z-10 w-11 ${isSelected ? "bg-[--accent-tint]" : "bg-[--surface-1]"}`}>
+                  <td className={`sticky left-0 z-10 w-11 ${isSelected ? "bg-[var(--accent-tint)]" : "bg-[var(--surface-1)]"}`}>
                     <label className="flex min-h-[44px] min-w-[44px] cursor-pointer items-center justify-center">
                       <input
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => toggle(deal.id)}
                         aria-label={`Select ${deal.title}`}
-                        className="h-4 w-4 cursor-pointer rounded border-[--line-2] accent-[--accent]"
+                        className="h-4 w-4 cursor-pointer rounded border-[var(--line-2)] accent-[var(--accent)]"
                       />
                     </label>
                   </td>
-                  <td className={`px-4 py-3 font-medium text-[--ink-1] sticky left-11 z-10 border-r border-[--line-1] ${isSelected ? "bg-[--accent-tint]" : "bg-[--surface-1]"}`}>
+                  <td className={`px-4 py-3 font-medium text-[var(--ink-1)] sticky left-11 z-10 border-r border-[var(--line-1)] ${isSelected ? "bg-[var(--accent-tint)]" : "bg-[var(--surface-1)]"}`}>
                     <Link href={`/deals/${deal.id}`} className="hover:underline">
                       {deal.title}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-[--ink-2]">
+                  <td className="px-4 py-3 text-[var(--ink-2)]">
                     {deal.contact ? (
                       <Link
                         href={`/contacts/${deal.contact.id}`}
@@ -502,13 +502,13 @@ export default function DealsTable({
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`font-medium ${STAGE_COLORS[deal.stage] ?? "text-[--ink-2]"}`}>
+                    <span className={`font-medium ${STAGE_COLORS[deal.stage] ?? "text-[var(--ink-2)]"}`}>
                       {STAGE_LABELS[deal.stage] ?? deal.stage}
                     </span>
                   </td>
-                  <td className="px-4 py-3 tabular-nums text-[--ink-2]">{value}</td>
-                  <td className="px-4 py-3 tabular-nums text-[--ink-2]">{closeDate}</td>
-                  <td className="px-4 py-3 text-[--ink-2]">{deal.owner ?? "—"}</td>
+                  <td className="px-4 py-3 tabular-nums text-[var(--ink-2)]">{value}</td>
+                  <td className="px-4 py-3 tabular-nums text-[var(--ink-2)]">{closeDate}</td>
+                  <td className="px-4 py-3 text-[var(--ink-2)]">{deal.owner ?? "—"}</td>
                   <td className="px-4 py-3 tabular-nums">
                     <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${ageBadgeClass(age)}`}>
                       {age}d
@@ -534,7 +534,7 @@ export default function DealsTable({
               aria-label="Set stage for selected deals"
               value={stageSelect}
               onChange={(e) => setStageSelect(e.target.value)}
-              className="min-h-[44px] min-w-0 flex-1 rounded-lg border border-[--line-1] bg-[--surface-1] px-3 text-sm text-[--ink-1]"
+              className="min-h-[44px] min-w-0 flex-1 rounded-lg border border-[var(--line-1)] bg-[var(--surface-1)] px-3 text-sm text-[var(--ink-1)]"
             >
               {STAGES.map((s) => (
                 <option key={s.key} value={s.key}>
@@ -545,7 +545,7 @@ export default function DealsTable({
             <button
               onClick={handleMoveStage}
               disabled={isPending}
-              className="tap flex shrink-0 items-center justify-center rounded-lg bg-[--surface-2] px-4 text-sm font-medium text-[--ink-1] hover:bg-[--surface-3] disabled:opacity-50"
+              className="tap flex shrink-0 items-center justify-center rounded-lg bg-[var(--surface-2)] px-4 text-sm font-medium text-[var(--ink-1)] hover:bg-[var(--surface-3)] disabled:opacity-50"
             >
               Move to stage
             </button>
@@ -560,7 +560,7 @@ export default function DealsTable({
               onChange={(e) => setOwnerInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleChangeOwner()}
               placeholder="Owner name"
-              className="min-h-[44px] min-w-0 flex-1 rounded-lg border border-[--line-1] bg-[--surface-1] px-3 text-sm text-[--ink-1] placeholder-[--ink-3] focus:outline-none focus:ring-1 focus:ring-[--accent]"
+              className="min-h-[44px] min-w-0 flex-1 rounded-lg border border-[var(--line-1)] bg-[var(--surface-1)] px-3 text-sm text-[var(--ink-1)] placeholder-[var(--ink-3)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
             />
             {owners.length > 0 && (
               <datalist id="deal-owners-list-sheet">
@@ -572,7 +572,7 @@ export default function DealsTable({
             <button
               onClick={handleChangeOwner}
               disabled={isPending}
-              className="tap flex shrink-0 items-center justify-center rounded-lg bg-[--surface-2] px-4 text-sm font-medium text-[--ink-1] hover:bg-[--surface-3] disabled:opacity-50"
+              className="tap flex shrink-0 items-center justify-center rounded-lg bg-[var(--surface-2)] px-4 text-sm font-medium text-[var(--ink-1)] hover:bg-[var(--surface-3)] disabled:opacity-50"
             >
               Set owner
             </button>
@@ -582,7 +582,7 @@ export default function DealsTable({
           <button
             onClick={handleDelete}
             disabled={isPending}
-            className="tap flex items-center justify-center rounded-lg bg-[--bad-tint] px-4 text-sm font-medium text-[--bad] hover:opacity-80 disabled:opacity-50"
+            className="tap flex items-center justify-center rounded-lg bg-[var(--bad-tint)] px-4 text-sm font-medium text-[var(--bad)] hover:opacity-80 disabled:opacity-50"
           >
             Delete {selectedIds.size} deal(s)
           </button>
@@ -598,13 +598,13 @@ export default function DealsTable({
         {detailDeal && (
           <div className="space-y-4">
             <div>
-              <h3 className="text-title3 font-semibold text-[--ink-1]">
+              <h3 className="text-title3 font-semibold text-[var(--ink-1)]">
                 {detailDeal.title}
               </h3>
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <span
-                  className={`inline-flex items-center rounded-full bg-[--surface-1] px-2.5 py-0.5 text-xs font-medium ${
-                    STAGE_COLORS[detailDeal.stage] ?? "text-[--ink-2]"
+                  className={`inline-flex items-center rounded-full bg-[var(--surface-1)] px-2.5 py-0.5 text-xs font-medium ${
+                    STAGE_COLORS[detailDeal.stage] ?? "text-[var(--ink-2)]"
                   }`}
                 >
                   {STAGE_LABELS[detailDeal.stage] ?? detailDeal.stage}
@@ -633,10 +633,10 @@ export default function DealsTable({
 
             {detailDeal.notes && (
               <div>
-                <dt className="text-caption uppercase tracking-wider text-[--ink-3]">
+                <dt className="text-caption uppercase tracking-wider text-[var(--ink-3)]">
                   Notes
                 </dt>
-                <dd className="mt-1 whitespace-pre-wrap text-body text-[--ink-2]">
+                <dd className="mt-1 whitespace-pre-wrap text-body text-[var(--ink-2)]">
                   {detailDeal.notes}
                 </dd>
               </div>
@@ -644,7 +644,7 @@ export default function DealsTable({
 
             <Link
               href={`/deals/${detailDeal.id}`}
-              className="tap flex min-h-[44px] items-center justify-center rounded-lg bg-[--accent] px-4 text-sm font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover]"
+              className="tap flex min-h-[44px] items-center justify-center rounded-lg bg-[var(--accent)] px-4 text-sm font-medium text-[var(--accent-ink)] transition-colors hover:bg-[var(--accent-hover)]"
             >
               Open full deal
             </Link>

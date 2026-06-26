@@ -96,8 +96,8 @@ export default function WeeklyDigest({
     <div className="card p-4 sm:p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-callout font-semibold text-[--ink-1]">This week</p>
-          <p className="text-footnote mt-0.5 text-[--ink-2]">
+          <p className="text-callout font-semibold text-[var(--ink-1)]">This week</p>
+          <p className="text-footnote mt-0.5 text-[var(--ink-2)]">
             {cachedAt ? `Updated ${formatAge(cachedAt)}` : "AI weekly digest"}
           </p>
         </div>
@@ -109,7 +109,7 @@ export default function WeeklyDigest({
               disabled={isPending}
               aria-label="Refresh weekly digest"
               title="Refresh"
-              className="tap grid place-items-center rounded-[--r-md] text-[--ink-2] transition-colors hover:bg-[--surface-2] hover:text-[--ink-1] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[--accent] disabled:opacity-50"
+              className="tap grid place-items-center rounded-[var(--r-md)] text-[var(--ink-2)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)] disabled:opacity-50"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -130,7 +130,7 @@ export default function WeeklyDigest({
               type="button"
               onClick={() => generate(false)}
               disabled={isPending}
-              className="tap rounded-[--r-md] bg-[--accent] px-4 text-body font-medium text-[--accent-ink] transition active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[--accent] disabled:opacity-50"
+              className="tap rounded-[var(--r-md)] bg-[var(--accent)] px-4 text-body font-medium text-[var(--accent-ink)] transition active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)] disabled:opacity-50"
             >
               {isPending ? "Generating…" : "Generate"}
             </button>
@@ -139,7 +139,7 @@ export default function WeeklyDigest({
       </div>
 
       {!hasDigest && !isPending && !noKey && !error && (
-        <p className="text-footnote mt-4 text-[--ink-3]">
+        <p className="text-footnote mt-4 text-[var(--ink-3)]">
           Get an AI recap of the week — wins, at-risk deals, and top priorities
           from your live pipeline.
         </p>
@@ -149,9 +149,9 @@ export default function WeeklyDigest({
         <div className="mt-4 space-y-3" aria-hidden="true">
           {[78, 90, 70].map((w, i) => (
             <div key={i} className="space-y-1.5">
-              <div className="h-2.5 w-16 animate-pulse rounded-[--r-sm] bg-[--surface-2]" />
+              <div className="h-2.5 w-16 animate-pulse rounded-[var(--r-sm)] bg-[var(--surface-2)]" />
               <div
-                className="h-3 animate-pulse rounded-[--r-sm] bg-[--surface-2]"
+                className="h-3 animate-pulse rounded-[var(--r-sm)] bg-[var(--surface-2)]"
                 style={{ width: `${w}%` }}
               />
             </div>
@@ -160,9 +160,9 @@ export default function WeeklyDigest({
       )}
 
       {noKey && (
-        <p className="text-footnote mt-4 text-[--ink-2]">
+        <p className="text-footnote mt-4 text-[var(--ink-2)]">
           Set{" "}
-          <code className="rounded-[--r-sm] bg-[--surface-2] px-1 py-0.5 text-[--ink-1]">
+          <code className="rounded-[var(--r-sm)] bg-[var(--surface-2)] px-1 py-0.5 text-[var(--ink-1)]">
             DEEPSEEK_API_KEY
           </code>{" "}
           to enable this feature.
@@ -170,7 +170,7 @@ export default function WeeklyDigest({
       )}
 
       {error && (
-        <p className="text-footnote mt-4 text-[--bad]" role="alert">
+        <p className="text-footnote mt-4 text-[var(--bad)]" role="alert">
           {error}
         </p>
       )}
@@ -181,16 +181,16 @@ export default function WeeklyDigest({
             <div key={i} className="flex gap-2.5">
               <span
                 aria-hidden="true"
-                className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-[--r-pill]"
+                className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-[var(--r-pill)]"
                 style={{ background: TONE_DOT[s.tone] }}
               />
               <div className="min-w-0">
                 {s.label && (
-                  <dt className="text-caption font-semibold uppercase tracking-wide text-[--ink-3]">
+                  <dt className="text-caption font-semibold uppercase tracking-wide text-[var(--ink-3)]">
                     {s.label}
                   </dt>
                 )}
-                <dd className="text-footnote text-[--ink-1]">{s.body}</dd>
+                <dd className="text-footnote text-[var(--ink-1)]">{s.body}</dd>
               </div>
             </div>
           ))}

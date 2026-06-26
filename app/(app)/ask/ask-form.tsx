@@ -39,18 +39,18 @@ export default function AskForm({
       {/* Guard banners */}
       {!hasDb && (
         <div className="card px-5 py-8 text-center">
-          <p className="text-body text-[--ink-2]">Database not connected.</p>
-          <p className="mt-1 text-footnote text-[--ink-3]">
-            Set <code className="text-[--ink-2]">DATABASE_URL</code> to enable AI search.
+          <p className="text-body text-[var(--ink-2)]">Database not connected.</p>
+          <p className="mt-1 text-footnote text-[var(--ink-3)]">
+            Set <code className="text-[var(--ink-2)]">DATABASE_URL</code> to enable AI search.
           </p>
         </div>
       )}
 
       {hasDb && !hasKey && (
         <div className="card px-5 py-8 text-center">
-          <p className="text-body text-[--ink-2]">AI not configured.</p>
-          <p className="mt-1 text-footnote text-[--ink-3]">
-            Set <code className="text-[--ink-2]">DEEPSEEK_API_KEY</code> to enable Ask your CRM.
+          <p className="text-body text-[var(--ink-2)]">AI not configured.</p>
+          <p className="mt-1 text-footnote text-[var(--ink-3)]">
+            Set <code className="text-[var(--ink-2)]">DEEPSEEK_API_KEY</code> to enable Ask your CRM.
           </p>
         </div>
       )}
@@ -71,12 +71,12 @@ export default function AskForm({
           placeholder="Ask anything about your CRM…"
           disabled={isPending || !canAsk}
           aria-label="Ask your CRM"
-          className="tap flex-1 min-w-0 rounded-[--r-md] border border-[--line-1] bg-[--surface-1] px-4 text-body text-[--ink-1] placeholder:text-[--ink-3] focus:border-[--accent] focus:outline-none disabled:opacity-40 [color-scheme:dark]"
+          className="tap flex-1 min-w-0 rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-1)] px-4 text-body text-[var(--ink-1)] placeholder:text-[var(--ink-3)] focus:border-[var(--accent)] focus:outline-none disabled:opacity-40 [color-scheme:dark]"
         />
         <button
           type="submit"
           disabled={isPending || !question.trim() || !canAsk}
-          className="tap flex shrink-0 items-center justify-center gap-2 rounded-[--r-md] bg-[--accent] px-4 text-body font-medium text-white transition active:scale-[0.98] disabled:opacity-40"
+          className="tap flex shrink-0 items-center justify-center gap-2 rounded-[var(--r-md)] bg-[var(--accent)] px-4 text-body font-medium text-white transition active:scale-[0.98] disabled:opacity-40"
         >
           {isPending ? (
             <span
@@ -100,7 +100,7 @@ export default function AskForm({
                 setQuestion(ex);
                 submit(ex);
               }}
-              className="tap inline-flex items-center rounded-[--r-pill] border border-[--line-1] bg-[--surface-1] px-4 py-2 text-footnote text-[--ink-2] transition hover:border-[--line-2] hover:text-[--ink-1]"
+              className="tap inline-flex items-center rounded-[var(--r-pill)] border border-[var(--line-1)] bg-[var(--surface-1)] px-4 py-2 text-footnote text-[var(--ink-2)] transition hover:border-[var(--line-2)] hover:text-[var(--ink-1)]"
             >
               {ex}
             </button>
@@ -111,9 +111,9 @@ export default function AskForm({
       {/* Loading skeleton */}
       {isPending && (
         <div className="card space-y-3 p-5">
-          <div className="h-4 w-3/4 animate-pulse rounded bg-[--surface-2]" />
-          <div className="h-4 w-1/2 animate-pulse rounded bg-[--surface-2]" />
-          <div className="h-4 w-2/3 animate-pulse rounded bg-[--surface-2]" />
+          <div className="h-4 w-3/4 animate-pulse rounded bg-[var(--surface-2)]" />
+          <div className="h-4 w-1/2 animate-pulse rounded bg-[var(--surface-2)]" />
+          <div className="h-4 w-2/3 animate-pulse rounded bg-[var(--surface-2)]" />
         </div>
       )}
 
@@ -122,26 +122,26 @@ export default function AskForm({
         <div className="space-y-4">
           {/* AI answer */}
           <div className="card p-5">
-            <p className="text-body leading-relaxed text-[--ink-1]">{result.answer}</p>
+            <p className="text-body leading-relaxed text-[var(--ink-1)]">{result.answer}</p>
           </div>
 
           {/* Matched contacts */}
           {result.contacts.length > 0 && (
             <div>
-              <p className="mb-2 text-footnote font-medium text-[--ink-2]">
+              <p className="mb-2 text-footnote font-medium text-[var(--ink-2)]">
                 Contacts ({result.contacts.length})
               </p>
-              <div className="card divide-y divide-[--line-1] overflow-hidden">
+              <div className="card divide-y divide-[var(--line-1)] overflow-hidden">
                 {result.contacts.map((c) => (
                   <Link
                     key={c.id}
                     href={`/contacts/${c.id}`}
-                    className="tap flex items-center gap-3 px-4 transition-colors hover:bg-[--surface-2]"
+                    className="tap flex items-center gap-3 px-4 transition-colors hover:bg-[var(--surface-2)]"
                   >
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[--surface-2] text-footnote font-medium text-[--ink-1]">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--surface-2)] text-footnote font-medium text-[var(--ink-1)]">
                       {c.name[0]?.toUpperCase() ?? "?"}
                     </span>
-                    <span className="min-w-0 flex-1 truncate text-body text-[--ink-1]">
+                    <span className="min-w-0 flex-1 truncate text-body text-[var(--ink-1)]">
                       {c.name}
                     </span>
                     <svg
@@ -153,7 +153,7 @@ export default function AskForm({
                       strokeWidth={2}
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      className="shrink-0 text-[--ink-3]"
+                      className="shrink-0 text-[var(--ink-3)]"
                       aria-hidden="true"
                     >
                       <path d="m9 18 6-6-6-6" />
@@ -167,17 +167,17 @@ export default function AskForm({
           {/* Matched deals */}
           {result.deals.length > 0 && (
             <div>
-              <p className="mb-2 text-footnote font-medium text-[--ink-2]">
+              <p className="mb-2 text-footnote font-medium text-[var(--ink-2)]">
                 Deals ({result.deals.length})
               </p>
-              <div className="card divide-y divide-[--line-1] overflow-hidden">
+              <div className="card divide-y divide-[var(--line-1)] overflow-hidden">
                 {result.deals.map((d) => (
                   <Link
                     key={d.id}
                     href={`/deals/${d.id}`}
-                    className="tap flex items-center gap-3 px-4 transition-colors hover:bg-[--surface-2]"
+                    className="tap flex items-center gap-3 px-4 transition-colors hover:bg-[var(--surface-2)]"
                   >
-                    <span className="min-w-0 flex-1 truncate text-body text-[--ink-1]">
+                    <span className="min-w-0 flex-1 truncate text-body text-[var(--ink-1)]">
                       {d.title}
                     </span>
                     <svg
@@ -189,7 +189,7 @@ export default function AskForm({
                       strokeWidth={2}
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      className="shrink-0 text-[--ink-3]"
+                      className="shrink-0 text-[var(--ink-3)]"
                       aria-hidden="true"
                     >
                       <path d="m9 18 6-6-6-6" />

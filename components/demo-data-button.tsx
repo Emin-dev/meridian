@@ -32,7 +32,7 @@ export function DemoDataButton({
         disabled={pending}
         className={
           className ??
-          "press inline-flex items-center gap-2 rounded-lg bg-[--accent] px-4 py-2 text-sm font-medium text-[--accent-ink] hover:bg-[--accent-hover] disabled:opacity-50"
+          "press inline-flex items-center gap-2 rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-ink)] hover:bg-[var(--accent-hover)] disabled:opacity-50"
         }
       >
         {pending ? (
@@ -62,7 +62,7 @@ export function DemoDataButton({
           label
         )}
       </button>
-      {error && <p className="text-xs text-[--bad]">{error}</p>}
+      {error && <p className="text-xs text-[var(--bad)]">{error}</p>}
     </div>
   );
 }

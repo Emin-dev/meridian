@@ -64,27 +64,27 @@ export default function NewSequenceForm() {
       <div className="flex items-center gap-3">
         <Link
           href="/sequences"
-          className="text-body text-[--ink-2] transition-colors hover:text-[--ink-1]"
+          className="text-body text-[var(--ink-2)] transition-colors hover:text-[var(--ink-1)]"
         >
           &larr; Sequences
         </Link>
-        <span className="text-[--ink-3]">/</span>
-        <h2 className="text-body font-semibold text-[--ink-1]">New Sequence</h2>
+        <span className="text-[var(--ink-3)]">/</span>
+        <h2 className="text-body font-semibold text-[var(--ink-1)]">New Sequence</h2>
       </div>
 
       {/* AI generation panel */}
-      <div className="rounded-[--r-lg] border border-[--accent-tint] bg-[--accent-tint]/30 p-4 sm:p-5 space-y-3">
+      <div className="rounded-[var(--r-lg)] border border-[var(--accent-tint)] bg-[var(--accent-tint)]/30 p-4 sm:p-5 space-y-3">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h3 className="text-body font-semibold text-[--accent]">Generate with AI</h3>
-            <p className="text-footnote text-[--ink-2] mt-0.5">
+            <h3 className="text-body font-semibold text-[var(--accent)]">Generate with AI</h3>
+            <p className="text-footnote text-[var(--ink-2)] mt-0.5">
               Describe your goal and DeepSeek will draft the full sequence for you.
             </p>
           </div>
           <button
             type="button"
             onClick={() => setShowAI((v) => !v)}
-            className="tap self-start flex items-center justify-center rounded-[--r-md] px-3 text-xs font-medium text-[--accent] transition-colors hover:opacity-80 sm:self-auto"
+            className="tap self-start flex items-center justify-center rounded-[var(--r-md)] px-3 text-xs font-medium text-[var(--accent)] transition-colors hover:opacity-80 sm:self-auto"
           >
             {showAI ? "Hide" : "Show"}
           </button>
@@ -97,14 +97,14 @@ export default function NewSequenceForm() {
               onChange={(e) => setGoal(e.target.value)}
               rows={3}
               placeholder="e.g. cold outreach to SaaS founders, 3 steps"
-              className="w-full resize-y rounded-[--r-md] border border-[--accent-tint] bg-[--surface-2] px-3 py-2 text-body text-[--ink-1] placeholder-[--ink-3] focus:border-[--accent] focus:outline-none"
+              className="w-full resize-y rounded-[var(--r-md)] border border-[var(--accent-tint)] bg-[var(--surface-2)] px-3 py-2 text-body text-[var(--ink-1)] placeholder-[var(--ink-3)] focus:border-[var(--accent)] focus:outline-none"
             />
-            {aiError && <p className="text-xs text-[--bad]">{aiError}</p>}
+            {aiError && <p className="text-xs text-[var(--bad)]">{aiError}</p>}
             <button
               type="button"
               onClick={handleGenerate}
               disabled={aiPending || !goal.trim()}
-              className="tap flex items-center justify-center rounded-[--r-md] bg-[--accent] px-4 text-body font-medium text-[--accent-ink] press hover:bg-[--accent-hover] disabled:cursor-not-allowed disabled:opacity-50"
+              className="tap flex items-center justify-center rounded-[var(--r-md)] bg-[var(--accent)] px-4 text-body font-medium text-[var(--accent-ink)] press hover:bg-[var(--accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {aiPending ? "Generating…" : "Generate sequence"}
             </button>
@@ -113,15 +113,15 @@ export default function NewSequenceForm() {
       </div>
 
       {aiFilled && (
-        <div className="rounded-[--r-md] border border-[--ok-tint] bg-[--ok-tint]/30 px-4 py-3 text-body text-[--ok]">
+        <div className="rounded-[var(--r-md)] border border-[var(--ok-tint)] bg-[var(--ok-tint)]/30 px-4 py-3 text-body text-[var(--ok)]">
           Sequence drafted by AI &mdash; review and edit below, then save.
         </div>
       )}
 
       {state.noDb && (
-        <div className="rounded-[--r-md] border border-[--warn-tint] bg-[--warn-tint]/30 px-4 py-3 text-body text-[--warn]">
+        <div className="rounded-[var(--r-md)] border border-[var(--warn-tint)] bg-[var(--warn-tint)]/30 px-4 py-3 text-body text-[var(--warn)]">
           Database not connected. Set{" "}
-          <code className="rounded bg-[--surface-2] px-1 py-0.5 text-footnote">DATABASE_URL</code> to
+          <code className="rounded bg-[var(--surface-2)] px-1 py-0.5 text-footnote">DATABASE_URL</code> to
           save sequences.
         </div>
       )}
@@ -129,14 +129,14 @@ export default function NewSequenceForm() {
       <form action={formAction} className="space-y-5">
         {/* Sequence details */}
         <div className="card p-4 sm:p-5 space-y-4">
-          <h3 className="text-body font-semibold text-[--ink-1]">Sequence details</h3>
+          <h3 className="text-body font-semibold text-[var(--ink-1)]">Sequence details</h3>
 
           <div>
             <label
               htmlFor="seq-name"
-              className="mb-1 block text-footnote font-medium text-[--ink-2]"
+              className="mb-1 block text-footnote font-medium text-[var(--ink-2)]"
             >
-              Name <span className="text-[--bad]">*</span>
+              Name <span className="text-[var(--bad)]">*</span>
             </label>
             <input
               id="seq-name"
@@ -146,10 +146,10 @@ export default function NewSequenceForm() {
               placeholder="Welcome sequence"
               value={seqName}
               onChange={(e) => setSeqName(e.target.value)}
-              className="tap w-full rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-3 text-body text-[--ink-1] placeholder-[--ink-3] focus:border-[--accent] focus:outline-none"
+              className="tap w-full rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-2)] px-3 text-body text-[var(--ink-1)] placeholder-[var(--ink-3)] focus:border-[var(--accent)] focus:outline-none"
             />
             {state.fieldErrors?.["name"] && (
-              <p className="mt-1 text-xs text-[--bad]">{state.fieldErrors["name"][0]}</p>
+              <p className="mt-1 text-xs text-[var(--bad)]">{state.fieldErrors["name"][0]}</p>
             )}
           </div>
         </div>
@@ -157,9 +157,9 @@ export default function NewSequenceForm() {
         {/* Steps */}
         <div className="card p-4 sm:p-5 space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h3 className="text-body font-semibold text-[--ink-1]">
+            <h3 className="text-body font-semibold text-[var(--ink-1)]">
               Steps{" "}
-              <span className="ml-1 text-footnote font-normal text-[--ink-3]">
+              <span className="ml-1 text-footnote font-normal text-[var(--ink-3)]">
                 ({steps.length}/5)
               </span>
             </h3>
@@ -167,7 +167,7 @@ export default function NewSequenceForm() {
               type="button"
               onClick={addStep}
               disabled={steps.length >= 5}
-              className="tap flex items-center justify-center rounded-[--r-md] px-3 text-xs font-medium text-[--accent] transition-colors hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
+              className="tap flex items-center justify-center rounded-[var(--r-md)] px-3 text-xs font-medium text-[var(--accent)] transition-colors hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
             >
               + Add step
             </button>
@@ -177,18 +177,18 @@ export default function NewSequenceForm() {
             {steps.map((step, i) => (
               <div
                 key={i}
-                className="rounded-[--r-md] border border-[--line-1] bg-[--surface-2] p-4 space-y-3"
+                className="rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-2)] p-4 space-y-3"
               >
                 {/* Step header */}
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-caption font-semibold uppercase tracking-wide text-[--ink-2]">
+                  <span className="text-caption font-semibold uppercase tracking-wide text-[var(--ink-2)]">
                     Step {i + 1}
                   </span>
                   {steps.length > 1 && (
                     <button
                       type="button"
                       onClick={() => removeStep(i)}
-                      className="tap flex items-center justify-center rounded-[--r-md] px-3 text-xs text-[--ink-3] transition-colors hover:text-[--bad]"
+                      className="tap flex items-center justify-center rounded-[var(--r-md)] px-3 text-xs text-[var(--ink-3)] transition-colors hover:text-[var(--bad)]"
                     >
                       Remove
                     </button>
@@ -197,7 +197,7 @@ export default function NewSequenceForm() {
 
                 {/* Delay */}
                 <div>
-                  <label className="mb-1 block text-footnote font-medium text-[--ink-3]">
+                  <label className="mb-1 block text-footnote font-medium text-[var(--ink-3)]">
                     Send after (days)
                   </label>
                   <input
@@ -208,10 +208,10 @@ export default function NewSequenceForm() {
                     onChange={(e) =>
                       updateStep(i, "delayDays", Math.max(0, parseInt(e.target.value, 10) || 0))
                     }
-                    className="tap w-28 rounded-[--r-md] border border-[--line-1] bg-[--surface-1] px-3 text-body text-[--ink-1] focus:border-[--accent] focus:outline-none [color-scheme:dark]"
+                    className="tap w-28 rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-1)] px-3 text-body text-[var(--ink-1)] focus:border-[var(--accent)] focus:outline-none [color-scheme:dark]"
                   />
                   {state.fieldErrors?.[`step_${i}_delay`] && (
-                    <p className="mt-1 text-xs text-[--bad]">
+                    <p className="mt-1 text-xs text-[var(--bad)]">
                       {state.fieldErrors[`step_${i}_delay`][0]}
                     </p>
                   )}
@@ -219,8 +219,8 @@ export default function NewSequenceForm() {
 
                 {/* Subject template */}
                 <div>
-                  <label className="mb-1 block text-footnote font-medium text-[--ink-3]">
-                    Subject template <span className="text-[--bad]">*</span>
+                  <label className="mb-1 block text-footnote font-medium text-[var(--ink-3)]">
+                    Subject template <span className="text-[var(--bad)]">*</span>
                   </label>
                   <input
                     name={`step_${i}_subject`}
@@ -228,10 +228,10 @@ export default function NewSequenceForm() {
                     placeholder="Hi {{firstName}}, quick question…"
                     value={step.subjectTemplate}
                     onChange={(e) => updateStep(i, "subjectTemplate", e.target.value)}
-                    className="tap w-full rounded-[--r-md] border border-[--line-1] bg-[--surface-1] px-3 text-body text-[--ink-1] placeholder-[--ink-3] focus:border-[--accent] focus:outline-none"
+                    className="tap w-full rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-1)] px-3 text-body text-[var(--ink-1)] placeholder-[var(--ink-3)] focus:border-[var(--accent)] focus:outline-none"
                   />
                   {state.fieldErrors?.[`step_${i}_subject`] && (
-                    <p className="mt-1 text-xs text-[--bad]">
+                    <p className="mt-1 text-xs text-[var(--bad)]">
                       {state.fieldErrors[`step_${i}_subject`][0]}
                     </p>
                   )}
@@ -239,8 +239,8 @@ export default function NewSequenceForm() {
 
                 {/* Body template */}
                 <div>
-                  <label className="mb-1 block text-footnote font-medium text-[--ink-3]">
-                    Body template <span className="text-[--bad]">*</span>
+                  <label className="mb-1 block text-footnote font-medium text-[var(--ink-3)]">
+                    Body template <span className="text-[var(--bad)]">*</span>
                   </label>
                   <textarea
                     name={`step_${i}_body`}
@@ -248,10 +248,10 @@ export default function NewSequenceForm() {
                     placeholder={`Hi {{firstName}},\n\n`}
                     value={step.bodyTemplate}
                     onChange={(e) => updateStep(i, "bodyTemplate", e.target.value)}
-                    className="w-full resize-y rounded-[--r-md] border border-[--line-1] bg-[--surface-1] px-3 py-2 text-body text-[--ink-1] placeholder-[--ink-3] focus:border-[--accent] focus:outline-none"
+                    className="w-full resize-y rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-1)] px-3 py-2 text-body text-[var(--ink-1)] placeholder-[var(--ink-3)] focus:border-[var(--accent)] focus:outline-none"
                   />
                   {state.fieldErrors?.[`step_${i}_body`] && (
-                    <p className="mt-1 text-xs text-[--bad]">
+                    <p className="mt-1 text-xs text-[var(--bad)]">
                       {state.fieldErrors[`step_${i}_body`][0]}
                     </p>
                   )}
@@ -261,7 +261,7 @@ export default function NewSequenceForm() {
           </div>
 
           {state.error && (
-            <p className="text-xs text-[--bad]">{state.error}</p>
+            <p className="text-xs text-[var(--bad)]">{state.error}</p>
           )}
         </div>
 
@@ -269,14 +269,14 @@ export default function NewSequenceForm() {
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <Link
             href="/sequences"
-            className="tap flex items-center justify-center rounded-[--r-md] border border-[--line-1] px-4 text-body text-[--ink-2] transition-colors hover:bg-[--surface-2] hover:text-[--ink-1]"
+            className="tap flex items-center justify-center rounded-[var(--r-md)] border border-[var(--line-1)] px-4 text-body text-[var(--ink-2)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)]"
           >
             Cancel
           </Link>
           <button
             type="submit"
             disabled={pending}
-            className="tap flex items-center justify-center rounded-[--r-md] bg-[--accent] px-4 text-body font-medium text-[--accent-ink] press hover:bg-[--accent-hover] disabled:opacity-50"
+            className="tap flex items-center justify-center rounded-[var(--r-md)] bg-[var(--accent)] px-4 text-body font-medium text-[var(--accent-ink)] press hover:bg-[var(--accent-hover)] disabled:opacity-50"
           >
             {pending ? "Creating…" : "Create sequence"}
           </button>

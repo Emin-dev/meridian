@@ -38,7 +38,7 @@ export default function OwnerFilter({ owners, selected }: OwnerFilterProps) {
         <select
           value={selected}
           onChange={handleChange}
-          className="tap rounded-lg border border-[--line-1] bg-[--surface-1] px-3 text-xs text-[--ink-2] focus:border-[--accent] focus:outline-none"
+          className="tap rounded-lg border border-[var(--line-1)] bg-[var(--surface-1)] px-3 text-xs text-[var(--ink-2)] focus:border-[var(--accent)] focus:outline-none"
           aria-label="Filter by owner"
         >
           <option value="">All owners</option>
@@ -55,7 +55,7 @@ export default function OwnerFilter({ owners, selected }: OwnerFilterProps) {
         type="button"
         onClick={() => setSheetOpen(true)}
         aria-label="Filter by owner"
-        className="tap lg:hidden rounded-lg border border-[--line-1] bg-[--surface-1] px-3 text-xs text-[--ink-2] transition-colors hover:bg-[--surface-2] focus:border-[--accent] focus:outline-none"
+        className="tap lg:hidden rounded-lg border border-[var(--line-1)] bg-[var(--surface-1)] px-3 text-xs text-[var(--ink-2)] transition-colors hover:bg-[var(--surface-2)] focus:border-[var(--accent)] focus:outline-none"
       >
         {selected || "All owners"}
       </button>
@@ -74,8 +74,8 @@ export default function OwnerFilter({ owners, selected }: OwnerFilterProps) {
             }}
             className={`tap flex min-h-[44px] w-full items-center rounded-lg px-3 text-sm transition-colors ${
               selected === ""
-                ? "bg-[--surface-2] text-[--ink-1]"
-                : "text-[--ink-2] hover:bg-[--surface-2]"
+                ? "bg-[var(--surface-2)] text-[var(--ink-1)]"
+                : "text-[var(--ink-2)] hover:bg-[var(--surface-2)]"
             }`}
           >
             All owners
@@ -90,8 +90,8 @@ export default function OwnerFilter({ owners, selected }: OwnerFilterProps) {
               }}
               className={`tap flex min-h-[44px] w-full items-center rounded-lg px-3 text-sm transition-colors ${
                 selected === o
-                  ? "bg-[--surface-2] text-[--ink-1]"
-                  : "text-[--ink-2] hover:bg-[--surface-2]"
+                  ? "bg-[var(--surface-2)] text-[var(--ink-1)]"
+                  : "text-[var(--ink-2)] hover:bg-[var(--surface-2)]"
               }`}
             >
               {o}

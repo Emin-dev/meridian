@@ -1,5 +1,5 @@
 function Bone({ className }: { className?: string }) {
-  return <div className={`rounded-[--r-md] bg-[--surface-2] ${className ?? ""}`} />;
+  return <div className={`rounded-[var(--r-md)] bg-[var(--surface-2)] ${className ?? ""}`} />;
 }
 
 const STAGE_COUNT = 6;
@@ -14,8 +14,8 @@ export default function DealsLoading() {
           <Bone className="mt-2 h-4 w-56" />
         </div>
         <div className="flex gap-2">
-          <Bone className="h-10 w-24 rounded-[--r-md]" />
-          <Bone className="h-10 w-24 rounded-[--r-md]" />
+          <Bone className="h-10 w-24 rounded-[var(--r-md)]" />
+          <Bone className="h-10 w-24 rounded-[var(--r-md)]" />
         </div>
       </div>
 
@@ -25,9 +25,9 @@ export default function DealsLoading() {
           {Array.from({ length: STAGE_COUNT }).map((_, i) => (
             <div
               key={i}
-              className="flex w-[min(80vw,320px)] flex-none flex-col rounded-[--r-lg] border border-[--line-1] bg-[--surface-1]"
+              className="flex w-[min(80vw,320px)] flex-none flex-col rounded-[var(--r-lg)] border border-[var(--line-1)] bg-[var(--surface-1)]"
             >
-              <div className="flex items-center justify-between border-b border-[--line-1] px-4 py-3">
+              <div className="flex items-center justify-between border-b border-[var(--line-1)] px-4 py-3">
                 <Bone className="h-3 w-20" />
                 <Bone className="h-4 w-6 rounded-full" />
               </div>
@@ -35,7 +35,7 @@ export default function DealsLoading() {
                 {Array.from({ length: i % 2 === 0 ? 2 : 1 }).map((_, j) => (
                   <div
                     key={j}
-                    className="space-y-2 rounded-[--r-md] border border-[--line-1] bg-[--surface-2] p-3"
+                    className="space-y-2 rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-2)] p-3"
                   >
                     <Bone className="h-4 w-full" />
                     <Bone className="h-4 w-2/3" />

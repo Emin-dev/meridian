@@ -3,9 +3,9 @@ interface Props {
 }
 
 function colorClass(score: number): string {
-  if (score >= 70) return "bg-[--ok-tint] text-[--ok] ring-1 ring-[--ok]/30";
-  if (score >= 40) return "bg-[--warn-tint] text-[--warn] ring-1 ring-[--warn]/30";
-  return "bg-[--bad-tint] text-[--bad] ring-1 ring-[--bad]/30";
+  if (score >= 70) return "bg-[var(--ok-tint)] text-[var(--ok)] ring-1 ring-[var(--ok)]/30";
+  if (score >= 40) return "bg-[var(--warn-tint)] text-[var(--warn)] ring-1 ring-[var(--warn)]/30";
+  return "bg-[var(--bad-tint)] text-[var(--bad)] ring-1 ring-[var(--bad)]/30";
 }
 
 export default function LeadScoreBadge({ score }: Props) {

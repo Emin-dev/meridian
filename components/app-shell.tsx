@@ -63,18 +63,18 @@ export default function AppShell({ children, signedIn = false, overdueCount = 0,
   const overdueTotal = overdueCount + overdueTaskCount;
 
   return (
-    <div className="flex h-dvh bg-[--bg] text-[--ink-1] overflow-hidden">
+    <div className="flex h-dvh bg-[var(--bg)] text-[var(--ink-1)] overflow-hidden">
       {/* Desktop sidebar (lg+) — permanent, in-flow. Mobile uses the slide-in drawer (one menu) instead. */}
       <aside
         aria-label="Navigation"
-        className="hidden w-60 shrink-0 flex-col bg-[--surface-1] border-r border-[--line-1] lg:flex"
+        className="hidden w-60 shrink-0 flex-col bg-[var(--surface-1)] border-r border-[var(--line-1)] lg:flex"
       >
         {/* Logo */}
-        <div className="flex items-center gap-2.5 px-4 py-4 border-b border-[--line-1] shrink-0">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[--accent] text-sm font-bold text-[--accent-ink]">
+        <div className="flex items-center gap-2.5 px-4 py-4 border-b border-[var(--line-1)] shrink-0">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--accent)] text-sm font-bold text-[var(--accent-ink)]">
             M
           </div>
-          <span className="text-sm font-semibold tracking-tight text-[--ink-1]">Meridian</span>
+          <span className="text-sm font-semibold tracking-tight text-[var(--ink-1)]">Meridian</span>
         </div>
 
         {/* Nav */}
@@ -95,14 +95,14 @@ export default function AppShell({ children, signedIn = false, overdueCount = 0,
                 className={[
                   "press flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium",
                   active
-                    ? "bg-[--accent] text-[--accent-ink]"
-                    : "text-[--ink-2] hover:bg-[--surface-2] hover:text-[--ink-1]",
+                    ? "bg-[var(--accent)] text-[var(--accent-ink)]"
+                    : "text-[var(--ink-2)] hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)]",
                 ].join(" ")}
               >
                 <span className="shrink-0">{item.icon}</span>
                 {item.label}
                 {badge > 0 && (
-                  <span className="ml-auto inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-[--bad] px-1 text-xs font-semibold text-[--accent-ink]">
+                  <span className="ml-auto inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-[var(--bad)] px-1 text-xs font-semibold text-[var(--accent-ink)]">
                     {badge > 99 ? "99+" : badge}
                   </span>
                 )}
@@ -112,13 +112,13 @@ export default function AppShell({ children, signedIn = false, overdueCount = 0,
         </nav>
 
         {/* Sidebar footer */}
-        <div className="shrink-0 border-t border-[--line-1] px-4 py-3 flex items-center justify-between">
-          <p className="text-xs text-[--ink-3]">v0.1.0</p>
+        <div className="shrink-0 border-t border-[var(--line-1)] px-4 py-3 flex items-center justify-between">
+          <p className="text-xs text-[var(--ink-3)]">v0.1.0</p>
           {signedIn && (
             <form action={logout}>
               <button
                 type="submit"
-                className="text-xs text-[--ink-3] transition-colors hover:text-[--ink-1]"
+                className="text-xs text-[var(--ink-3)] transition-colors hover:text-[var(--ink-1)]"
               >
                 Sign out
               </button>
@@ -130,7 +130,7 @@ export default function AppShell({ children, signedIn = false, overdueCount = 0,
       {/* Main column */}
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         {/* Topbar */}
-        <header className="sticky top-0 z-30 glass border-b border-[--line-1] flex items-center gap-3 px-4 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top))]">
+        <header className="sticky top-0 z-30 glass border-b border-[var(--line-1)] flex items-center gap-3 px-4 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top))]">
           {/* Hamburger — opens the mobile nav drawer (one menu, <lg only) */}
           <button
             type="button"
@@ -138,22 +138,22 @@ export default function AppShell({ children, signedIn = false, overdueCount = 0,
             aria-label="Open navigation menu"
             aria-expanded={navOpen}
             aria-controls="mobile-nav-drawer"
-            className="tap press relative -ml-1 flex items-center justify-center rounded-lg text-[--ink-2] hover:text-[--ink-1] lg:hidden"
+            className="tap press relative -ml-1 flex items-center justify-center rounded-lg text-[var(--ink-2)] hover:text-[var(--ink-1)] lg:hidden"
           >
             <MenuIcon size={20} aria-hidden="true" />
             {overdueTotal > 0 && (
-              <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-[--bad] ring-2 ring-[--bg]" aria-hidden="true" />
+              <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-[var(--bad)] ring-2 ring-[var(--bg)]" aria-hidden="true" />
             )}
           </button>
-          <h1 className="flex-1 truncate min-w-0 text-sm font-semibold text-[--ink-1]">{pageLabel}</h1>
+          <h1 className="flex-1 truncate min-w-0 text-sm font-semibold text-[var(--ink-1)]">{pageLabel}</h1>
           <button
             onClick={() => setSearchOpen(true)}
-            className="tap press flex items-center gap-2 rounded-lg border border-[--line-1] bg-[--surface-2] px-3 text-xs text-[--ink-2] hover:border-[--line-2] hover:text-[--ink-1]"
+            className="tap press flex items-center gap-2 rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 text-xs text-[var(--ink-2)] hover:border-[var(--line-2)] hover:text-[var(--ink-1)]"
             aria-label="Open search"
           >
             <SearchIcon size={13} aria-hidden="true" />
             <span className="hidden sm:inline">Search</span>
-            <kbd className="hidden rounded border border-[--line-1] px-1 font-mono text-xs sm:inline">
+            <kbd className="hidden rounded border border-[var(--line-1)] px-1 font-mono text-xs sm:inline">
               {isMac ? "⌘K" : "Ctrl+K"}
             </kbd>
           </button>
@@ -214,19 +214,19 @@ function MobileNavDrawer({
         role="dialog"
         aria-modal="true"
         aria-label="Navigation"
-        // Explicit opaque background: the `bg-[--token]` shorthand is a no-op in
+        // Explicit opaque background: the `bg-[var(--token)]` shorthand is a no-op in
         // this Tailwind v4 setup, which is invisible for the in-flow sidebar (it
         // sits over the near-identical dark body) but would let page content bleed
         // through this overlay drawer.
         style={{ backgroundColor: "var(--surface-1)" }}
-        className="animate-drawer-in fixed inset-y-0 left-0 z-50 flex w-[min(80vw,18rem)] flex-col border-r border-[--line-1] shadow-[--shadow-3] pb-[env(safe-area-inset-bottom)]"
+        className="animate-drawer-in fixed inset-y-0 left-0 z-50 flex w-[min(80vw,18rem)] flex-col border-r border-[var(--line-1)] shadow-[var(--shadow-3)] pb-[env(safe-area-inset-bottom)]"
       >
         {/* Logo */}
-        <div className="flex items-center gap-2.5 px-4 py-4 border-b border-[--line-1] shrink-0 pt-[calc(1rem+env(safe-area-inset-top))]">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[--accent] text-sm font-bold text-[--accent-ink]">
+        <div className="flex items-center gap-2.5 px-4 py-4 border-b border-[var(--line-1)] shrink-0 pt-[calc(1rem+env(safe-area-inset-top))]">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--accent)] text-sm font-bold text-[var(--accent-ink)]">
             M
           </div>
-          <span className="text-sm font-semibold tracking-tight text-[--ink-1]">Meridian</span>
+          <span className="text-sm font-semibold tracking-tight text-[var(--ink-1)]">Meridian</span>
         </div>
 
         {/* Nav — full nav, same as the desktop sidebar */}
@@ -248,14 +248,14 @@ function MobileNavDrawer({
                 className={[
                   "press flex min-h-[44px] items-center gap-3 rounded-lg px-3 text-sm font-medium",
                   active
-                    ? "bg-[--accent] text-[--accent-ink]"
-                    : "text-[--ink-2] hover:bg-[--surface-2] hover:text-[--ink-1]",
+                    ? "bg-[var(--accent)] text-[var(--accent-ink)]"
+                    : "text-[var(--ink-2)] hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)]",
                 ].join(" ")}
               >
                 <span className="shrink-0">{item.icon}</span>
                 {item.label}
                 {badge > 0 && (
-                  <span className="ml-auto inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-[--bad] px-1 text-xs font-semibold text-[--accent-ink]">
+                  <span className="ml-auto inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-[var(--bad)] px-1 text-xs font-semibold text-[var(--accent-ink)]">
                     {badge > 99 ? "99+" : badge}
                   </span>
                 )}
@@ -266,11 +266,11 @@ function MobileNavDrawer({
 
         {/* Footer — Sign out (only when actually signed in) */}
         {signedIn && (
-          <div className="shrink-0 border-t border-[--line-1] px-2 py-2">
+          <div className="shrink-0 border-t border-[var(--line-1)] px-2 py-2">
             <form action={logout}>
               <button
                 type="submit"
-                className="press flex min-h-[44px] w-full items-center gap-3 rounded-lg px-3 text-sm font-medium text-[--ink-2] hover:bg-[--surface-2] hover:text-[--ink-1]"
+                className="press flex min-h-[44px] w-full items-center gap-3 rounded-lg px-3 text-sm font-medium text-[var(--ink-2)] hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)]"
               >
                 Sign out
               </button>

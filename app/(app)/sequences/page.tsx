@@ -9,8 +9,8 @@ import { EmptyState } from "@/components/empty-state";
 import EmptyStateActions from "@/components/empty-state-actions";
 
 const STATUS_LABELS: Record<string, { label: string; className: string }> = {
-  active: { label: "Active", className: "bg-[--ok-tint] text-[--ok]" },
-  paused: { label: "Paused", className: "bg-[--surface-2] text-[--ink-3]" },
+  active: { label: "Active", className: "bg-[var(--ok-tint)] text-[var(--ok)]" },
+  paused: { label: "Paused", className: "bg-[var(--surface-2)] text-[var(--ink-3)]" },
 };
 
 const SequenceIcon = () => (
@@ -160,14 +160,14 @@ export default async function SequencesPage() {
       {/* Responsive page header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-title2 font-semibold text-[--ink-1]">Sequences</h2>
-          <p className="mt-1 text-body text-[--ink-2]">
+          <h2 className="text-title2 font-semibold text-[var(--ink-1)]">Sequences</h2>
+          <p className="mt-1 text-body text-[var(--ink-2)]">
             Automated email sequences for outreach campaigns.
           </p>
         </div>
         <Link
           href="/sequences/new"
-          className="tap press flex items-center justify-center self-start rounded-[--r-md] bg-[--accent] px-4 text-body font-medium text-[--accent-ink] hover:bg-[--accent-hover] sm:self-auto"
+          className="tap press flex items-center justify-center self-start rounded-[var(--r-md)] bg-[var(--accent)] px-4 text-body font-medium text-[var(--accent-ink)] hover:bg-[var(--accent-hover)] sm:self-auto"
         >
           New sequence
         </Link>
@@ -180,8 +180,8 @@ export default async function SequencesPage() {
       />
 
       <div className="card overflow-hidden">
-        <div className="border-b border-[--line-1] px-4 py-3">
-          <p className="text-caption font-medium uppercase tracking-wide text-[--ink-3]">
+        <div className="border-b border-[var(--line-1)] px-4 py-3">
+          <p className="text-caption font-medium uppercase tracking-wide text-[var(--ink-3)]">
             All Sequences
           </p>
         </div>
@@ -203,7 +203,7 @@ export default async function SequencesPage() {
                   primaryAction={
                     <Link
                       href="/sequences/new"
-                      className="tap press flex items-center justify-center rounded-[--r-md] bg-[--accent] px-4 text-body font-medium text-[--accent-ink] hover:bg-[--accent-hover]"
+                      className="tap press flex items-center justify-center rounded-[var(--r-md)] bg-[var(--accent)] px-4 text-body font-medium text-[var(--accent-ink)] hover:bg-[var(--accent-hover)]"
                     >
                       New sequence
                     </Link>
@@ -215,7 +215,7 @@ export default async function SequencesPage() {
         ) : (
           <>
             {/* Mobile: card list */}
-            <ul className="divide-y divide-[--line-1] sm:hidden">
+            <ul className="divide-y divide-[var(--line-1)] sm:hidden">
               {sequences.map((seq) => {
                 const statusMeta = STATUS_LABELS[seq.status];
                 const count = stepCounts.get(seq.id) ?? 0;
@@ -225,7 +225,7 @@ export default async function SequencesPage() {
                       <div className="min-w-0 flex-1">
                         <Link
                           href={`/sequences/${seq.id}`}
-                          className="block truncate text-body font-medium text-[--ink-1] transition-colors hover:text-[--accent]"
+                          className="block truncate text-body font-medium text-[var(--ink-1)] transition-colors hover:text-[var(--accent)]"
                         >
                           {seq.name}
                         </Link>
@@ -235,10 +235,10 @@ export default async function SequencesPage() {
                           >
                             {statusMeta.label}
                           </span>
-                          <span className="text-footnote text-[--ink-3]">
+                          <span className="text-footnote text-[var(--ink-3)]">
                             {count} {count === 1 ? "step" : "steps"}
                           </span>
-                          <span className="text-footnote text-[--ink-3]">
+                          <span className="text-footnote text-[var(--ink-3)]">
                             {seq.createdAt.toLocaleDateString("en-US", {
                               month: "short",
                               day: "numeric",
@@ -258,17 +258,17 @@ export default async function SequencesPage() {
             <div className="hidden overflow-x-auto sm:block">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-[--line-1] text-left">
-                    <th className="px-5 py-3 text-caption font-medium uppercase tracking-wide text-[--ink-3]">
+                  <tr className="border-b border-[var(--line-1)] text-left">
+                    <th className="px-5 py-3 text-caption font-medium uppercase tracking-wide text-[var(--ink-3)]">
                       Name
                     </th>
-                    <th className="px-5 py-3 text-caption font-medium uppercase tracking-wide text-[--ink-3]">
+                    <th className="px-5 py-3 text-caption font-medium uppercase tracking-wide text-[var(--ink-3)]">
                       Status
                     </th>
-                    <th className="px-5 py-3 text-caption font-medium uppercase tracking-wide text-[--ink-3]">
+                    <th className="px-5 py-3 text-caption font-medium uppercase tracking-wide text-[var(--ink-3)]">
                       Steps
                     </th>
-                    <th className="px-5 py-3 text-caption font-medium uppercase tracking-wide text-[--ink-3]">
+                    <th className="px-5 py-3 text-caption font-medium uppercase tracking-wide text-[var(--ink-3)]">
                       Created
                     </th>
                   </tr>
@@ -280,12 +280,12 @@ export default async function SequencesPage() {
                     return (
                       <tr
                         key={seq.id}
-                        className="border-b border-[--line-1] last:border-0 transition-colors hover:bg-[--surface-2]/40"
+                        className="border-b border-[var(--line-1)] last:border-0 transition-colors hover:bg-[var(--surface-2)]/40"
                       >
-                        <td className="px-5 py-3 font-medium text-[--ink-1]">
+                        <td className="px-5 py-3 font-medium text-[var(--ink-1)]">
                           <Link
                             href={`/sequences/${seq.id}`}
-                            className="transition-colors hover:text-[--accent]"
+                            className="transition-colors hover:text-[var(--accent)]"
                           >
                             {seq.name}
                           </Link>
@@ -300,10 +300,10 @@ export default async function SequencesPage() {
                             <SequenceStatusToggle id={seq.id} status={seq.status} />
                           </div>
                         </td>
-                        <td className="px-5 py-3 text-[--ink-2]">
+                        <td className="px-5 py-3 text-[var(--ink-2)]">
                           {count} {count === 1 ? "step" : "steps"}
                         </td>
-                        <td className="px-5 py-3 text-[--ink-2]">
+                        <td className="px-5 py-3 text-[var(--ink-2)]">
                           {seq.createdAt.toLocaleDateString("en-US", {
                             month: "short",
                             day: "numeric",

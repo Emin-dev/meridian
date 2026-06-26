@@ -41,14 +41,14 @@ export default function MobileAnalyticsTiles({
             onClick={() => setActive(tile.key)}
             className="card tap flex flex-col items-start p-3 text-left"
           >
-            <span className="text-caption font-medium uppercase tracking-wide text-[--ink-3]">
+            <span className="text-caption font-medium uppercase tracking-wide text-[var(--ink-3)]">
               {tile.label}
             </span>
-            <span className="text-title3 mt-1 font-semibold text-[--ink-1]">
+            <span className="text-title3 mt-1 font-semibold text-[var(--ink-1)]">
               {tile.value}
             </span>
             {tile.subtext && (
-              <span className="mt-0.5 text-footnote text-[--ink-3]">
+              <span className="mt-0.5 text-footnote text-[var(--ink-3)]">
                 {tile.subtext}
               </span>
             )}

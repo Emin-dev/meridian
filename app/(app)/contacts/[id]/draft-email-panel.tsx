@@ -26,17 +26,17 @@ export default function DraftEmailPanel({ contactId }: Props) {
   }
 
   const textareaCls =
-    "w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] placeholder-[--ink-3] focus:border-[--accent] focus:outline-none resize-none leading-relaxed";
+    "w-full rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--ink-1)] placeholder-[var(--ink-3)] focus:border-[var(--accent)] focus:outline-none resize-none leading-relaxed";
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-[--ink-1]">AI outreach email</h3>
+        <h3 className="text-sm font-medium text-[var(--ink-1)]">AI outreach email</h3>
         <button
           type="button"
           onClick={handleDraft}
           disabled={isPending}
-          className="tap inline-flex items-center justify-center rounded-lg bg-[--accent] px-3 text-xs font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
+          className="tap inline-flex items-center justify-center rounded-lg bg-[var(--accent)] px-3 text-xs font-medium text-[var(--accent-ink)] transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-50"
         >
           {isPending ? "Drafting…" : draftText ? "Re-draft" : "Draft email"}
         </button>
@@ -50,7 +50,7 @@ export default function DraftEmailPanel({ contactId }: Props) {
         hasResult={Boolean(draftText)}
         isPending={isPending}
         emptyHint={
-          <p className="text-xs text-[--ink-3]">
+          <p className="text-xs text-[var(--ink-3)]">
             Click &ldquo;Draft email&rdquo; to generate a personalized AI outreach email using this contact&apos;s details.
           </p>
         }
@@ -58,7 +58,7 @@ export default function DraftEmailPanel({ contactId }: Props) {
 
       {draftText && (
         <div className="space-y-1.5">
-          <p className="text-xs text-[--ink-3]">
+          <p className="text-xs text-[var(--ink-3)]">
             Edit the draft below before sending.
           </p>
           <textarea

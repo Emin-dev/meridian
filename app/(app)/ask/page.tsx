@@ -9,10 +9,10 @@ export default function AskPage() {
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
         <div className="flex items-center gap-2">
-          <SparklesIcon size={20} className="text-[--accent]" aria-hidden="true" />
-          <h2 className="text-title2 font-semibold text-[--ink-1]">Ask your CRM</h2>
+          <SparklesIcon size={20} className="text-[var(--accent)]" aria-hidden="true" />
+          <h2 className="text-title2 font-semibold text-[var(--ink-1)]">Ask your CRM</h2>
         </div>
-        <p className="mt-1 text-footnote text-[--ink-2]">
+        <p className="mt-1 text-footnote text-[var(--ink-2)]">
           Ask questions in plain language and get AI-powered answers with links to matching contacts and deals.
         </p>
       </div>

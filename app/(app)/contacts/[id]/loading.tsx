@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 function Bone({ className }: { className?: string }) {
-  return <div className={`rounded-[--r-md] bg-[--surface-2] ${className ?? ""}`} />;
+  return <div className={`rounded-[var(--r-md)] bg-[var(--surface-2)] ${className ?? ""}`} />;
 }
 
 function SkeletonCard({ children }: { children: ReactNode }) {
@@ -31,7 +31,7 @@ export default function ContactDetailLoading() {
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i}>
               <Bone className="mb-1 h-3 w-16" />
-              <Bone className="h-10 w-full rounded-[--r-md]" />
+              <Bone className="h-10 w-full rounded-[var(--r-md)]" />
             </div>
           ))}
         </div>
@@ -41,7 +41,7 @@ export default function ContactDetailLoading() {
       {Array.from({ length: 5 }).map((_, i) => (
         <SkeletonCard key={i}>
           <Bone className="mb-3 h-4 w-32" />
-          <Bone className="h-16 w-full rounded-[--r-md]" />
+          <Bone className="h-16 w-full rounded-[var(--r-md)]" />
         </SkeletonCard>
       ))}
 

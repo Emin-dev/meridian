@@ -16,7 +16,7 @@ export default function InlineActivityForm({
     return (
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 text-sm text-[--accent] transition-colors hover:text-[--accent-hover]"
+        className="flex items-center gap-1.5 text-sm text-[var(--accent)] transition-colors hover:text-[var(--accent-hover)]"
       >
         <span aria-hidden className="text-base leading-none">+</span>
         Log activity

@@ -13,18 +13,18 @@ const RISK_META: Record<
 > = {
   low: {
     label: "Low risk",
-    badge: "bg-[--ok-tint] text-[--ok] ring-1 ring-[--ok]/30",
-    dot: "bg-[--ok]",
+    badge: "bg-[var(--ok-tint)] text-[var(--ok)] ring-1 ring-[var(--ok)]/30",
+    dot: "bg-[var(--ok)]",
   },
   medium: {
     label: "Medium risk",
-    badge: "bg-[--warn-tint] text-[--warn] ring-1 ring-[--warn]/30",
-    dot: "bg-[--warn]",
+    badge: "bg-[var(--warn-tint)] text-[var(--warn)] ring-1 ring-[var(--warn)]/30",
+    dot: "bg-[var(--warn)]",
   },
   high: {
     label: "High risk",
-    badge: "bg-[--bad-tint] text-[--bad] ring-1 ring-[--bad]/30",
-    dot: "bg-[--bad]",
+    badge: "bg-[var(--bad-tint)] text-[var(--bad)] ring-1 ring-[var(--bad)]/30",
+    dot: "bg-[var(--bad)]",
   },
 };
 
@@ -48,34 +48,34 @@ export default function DealRiskPanel({ dealId }: Props) {
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="min-w-0 text-sm font-medium text-[--ink-2]">
+        <h3 className="min-w-0 text-sm font-medium text-[var(--ink-2)]">
           Deal risk &amp; next step
         </h3>
         <button
           type="button"
           onClick={handleAssess}
           disabled={isPending}
-          className="inline-flex min-h-[44px] items-center rounded-lg bg-[--accent] px-3 text-xs font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] active:scale-[0.98] disabled:opacity-50"
+          className="inline-flex min-h-[44px] items-center rounded-lg bg-[var(--accent)] px-3 text-xs font-medium text-[var(--accent-ink)] transition-colors hover:bg-[var(--accent-hover)] active:scale-[0.98] disabled:opacity-50"
         >
           {isPending ? "Assessing…" : hasResult ? "Re-assess" : "Assess risk"}
         </button>
       </div>
 
       {result.noDb && (
-        <p className="text-xs text-[--ink-2]">
+        <p className="text-xs text-[var(--ink-2)]">
           Database not connected — cannot load deal data.
         </p>
       )}
 
       {result.noKey && (
-        <p className="text-xs text-[--warn]">
+        <p className="text-xs text-[var(--warn)]">
           Set{" "}
-          <code className="rounded bg-[--surface-2] px-1 py-0.5">DEEPSEEK_API_KEY</code>{" "}
+          <code className="rounded bg-[var(--surface-2)] px-1 py-0.5">DEEPSEEK_API_KEY</code>{" "}
           in your environment to enable AI risk assessment.
         </p>
       )}
 
-      {result.error && <p className="text-xs text-[--bad]">{result.error}</p>}
+      {result.error && <p className="text-xs text-[var(--bad)]">{result.error}</p>}
 
       {hasResult ? (
         <div className="space-y-3">
@@ -92,19 +92,19 @@ export default function DealRiskPanel({ dealId }: Props) {
           )}
 
           {result.reason && (
-            <p className="text-sm leading-relaxed text-[--ink-2]">
+            <p className="text-sm leading-relaxed text-[var(--ink-2)]">
               {result.reason}
             </p>
           )}
 
           {result.nextStep && (
-            <div className="flex items-start gap-3 rounded-lg border border-[--accent]/30 bg-[--accent-tint] px-4 py-3">
-              <span className="mt-0.5 shrink-0 text-[--accent]">→</span>
+            <div className="flex items-start gap-3 rounded-lg border border-[var(--accent)]/30 bg-[var(--accent-tint)] px-4 py-3">
+              <span className="mt-0.5 shrink-0 text-[var(--accent)]">→</span>
               <div className="min-w-0 space-y-0.5">
-                <p className="text-caption font-semibold uppercase tracking-wide text-[--ink-3]">
+                <p className="text-caption font-semibold uppercase tracking-wide text-[var(--ink-3)]">
                   Next step
                 </p>
-                <p className="text-sm font-medium text-[--accent]">
+                <p className="text-sm font-medium text-[var(--accent)]">
                   {result.nextStep}
                 </p>
               </div>
@@ -116,7 +116,7 @@ export default function DealRiskPanel({ dealId }: Props) {
         !result.noKey &&
         !result.error &&
         !isPending && (
-          <p className="text-xs text-[--ink-3]">
+          <p className="text-xs text-[var(--ink-3)]">
             Click &ldquo;Assess risk&rdquo; for an AI read on this deal&apos;s risk
             level, the main reason, and the next step to take — based on its stage,
             value, close date, and recent activity.

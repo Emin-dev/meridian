@@ -168,7 +168,7 @@ export default function CsvImportModal({ hasDb }: Props) {
               <button
                 type="button"
                 onClick={handleClose}
-                className="tap flex items-center justify-center rounded-lg bg-[--accent] px-4 text-sm font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover]"
+                className="tap flex items-center justify-center rounded-lg bg-[var(--accent)] px-4 text-sm font-medium text-[var(--accent-ink)] transition-colors hover:bg-[var(--accent-hover)]"
               >
                 Done
               </button>
@@ -219,7 +219,7 @@ export default function CsvImportModal({ hasDb }: Props) {
                       value={csvText}
                       onChange={(e) => handleTextChange(e.target.value)}
                       placeholder={"name,email,phone,company\nJane Smith,jane@example.com,+1 555 0001,Acme Corp"}
-                      className="w-full resize-y rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 font-mono text-xs text-[var(--ink-1)] placeholder-[var(--ink-3)] focus:border-[--accent] focus:outline-none"
+                      className="w-full resize-y rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 font-mono text-xs text-[var(--ink-1)] placeholder-[var(--ink-3)] focus:border-[var(--accent)] focus:outline-none"
                     />
                   </div>
 
@@ -288,7 +288,7 @@ export default function CsvImportModal({ hasDb }: Props) {
                   type="button"
                   onClick={handleImport}
                   disabled={parsed.length === 0 || isPending}
-                  className="tap flex items-center justify-center rounded-lg bg-[--accent] px-4 text-sm font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
+                  className="tap flex items-center justify-center rounded-lg bg-[var(--accent)] px-4 text-sm font-medium text-[var(--accent-ink)] transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-50"
                 >
                   {isPending
                     ? "Importing…"

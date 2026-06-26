@@ -15,7 +15,7 @@ interface Props {
 }
 
 const inputCls =
-  "w-full rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-3 py-2 text-body text-[--ink-1] placeholder:text-[--ink-3] focus:border-[--accent] focus:outline-none [color-scheme:dark]";
+  "w-full rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 text-body text-[var(--ink-1)] placeholder:text-[var(--ink-3)] focus:border-[var(--accent)] focus:outline-none [color-scheme:dark]";
 
 /**
  * Smart compose — turn a short intent into a polished, editable draft via AI.
@@ -77,7 +77,7 @@ export default function SmartCompose({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={`tap press inline-flex items-center gap-1.5 rounded-[--r-md] border border-[--line-1] bg-[--surface-1] px-3 text-footnote font-medium text-[--ink-2] transition-colors hover:border-[--line-2] hover:text-[--ink-1] ${className ?? ""}`}
+        className={`tap press inline-flex items-center gap-1.5 rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-1)] px-3 text-footnote font-medium text-[var(--ink-2)] transition-colors hover:border-[var(--line-2)] hover:text-[var(--ink-1)] ${className ?? ""}`}
       >
         <SparkleIcon />
         {triggerLabel}
@@ -89,10 +89,10 @@ export default function SmartCompose({
     <div
       ref={panelRef}
       tabIndex={-1}
-      className="space-y-3 rounded-[--r-md] border border-[--line-1] bg-[--surface-2] p-3 outline-none"
+      className="space-y-3 rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-2)] p-3 outline-none"
     >
       <div className="flex items-center justify-between gap-2">
-        <div className="flex min-w-0 items-center gap-1.5 text-footnote font-medium text-[--ink-1]">
+        <div className="flex min-w-0 items-center gap-1.5 text-footnote font-medium text-[var(--ink-1)]">
           <SparkleIcon />
           <span className="truncate">Smart compose</span>
         </div>
@@ -100,14 +100,14 @@ export default function SmartCompose({
           type="button"
           onClick={close}
           aria-label="Close smart compose"
-          className="tap -mr-2 -mt-2 -mb-2 inline-flex items-center justify-center text-[--ink-3] hover:text-[--ink-1]"
+          className="tap -mr-2 -mt-2 -mb-2 inline-flex items-center justify-center text-[var(--ink-3)] hover:text-[var(--ink-1)]"
         >
           <CloseIcon />
         </button>
       </div>
 
       <div>
-        <label htmlFor={intentId} className="mb-1 block text-caption font-medium text-[--ink-2]">
+        <label htmlFor={intentId} className="mb-1 block text-caption font-medium text-[var(--ink-2)]">
           What do you want to say?
         </label>
         <textarea
@@ -121,19 +121,19 @@ export default function SmartCompose({
       </div>
 
       {noKey && (
-        <p className="text-caption text-[--warn]">
+        <p className="text-caption text-[var(--warn)]">
           Set{" "}
-          <code className="rounded bg-[--surface-3] px-1 py-0.5">DEEPSEEK_API_KEY</code>{" "}
+          <code className="rounded bg-[var(--surface-3)] px-1 py-0.5">DEEPSEEK_API_KEY</code>{" "}
           in your environment to enable AI drafting.
         </p>
       )}
 
-      {error && <p className="text-caption text-[--bad]">{error}</p>}
+      {error && <p className="text-caption text-[var(--bad)]">{error}</p>}
 
       {draft ? (
         <div className="space-y-2">
-          <label htmlFor={draftId} className="block text-caption font-medium text-[--ink-2]">
-            Draft <span className="font-normal text-[--ink-3]">(edit before using)</span>
+          <label htmlFor={draftId} className="block text-caption font-medium text-[var(--ink-2)]">
+            Draft <span className="font-normal text-[var(--ink-3)]">(edit before using)</span>
           </label>
           <textarea
             id={draftId}
@@ -147,7 +147,7 @@ export default function SmartCompose({
               type="button"
               onClick={handleGenerate}
               disabled={isPending || !intent.trim()}
-              className="tap press inline-flex items-center justify-center rounded-[--r-md] border border-[--line-1] bg-[--surface-1] px-3 text-footnote font-medium text-[--ink-2] transition-colors hover:border-[--line-2] hover:text-[--ink-1] disabled:opacity-50"
+              className="tap press inline-flex items-center justify-center rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-1)] px-3 text-footnote font-medium text-[var(--ink-2)] transition-colors hover:border-[var(--line-2)] hover:text-[var(--ink-1)] disabled:opacity-50"
             >
               {isPending ? "Redrafting…" : "Redraft"}
             </button>
@@ -155,7 +155,7 @@ export default function SmartCompose({
               type="button"
               onClick={handleUse}
               disabled={!draft.trim()}
-              className="tap press inline-flex items-center justify-center rounded-[--r-md] bg-[--accent] px-4 text-footnote font-medium text-[--accent-ink] transition hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
+              className="tap press inline-flex items-center justify-center rounded-[var(--r-md)] bg-[var(--accent)] px-4 text-footnote font-medium text-[var(--accent-ink)] transition hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
             >
               Use draft
             </button>
@@ -167,7 +167,7 @@ export default function SmartCompose({
             type="button"
             onClick={handleGenerate}
             disabled={isPending || !intent.trim()}
-            className="tap press inline-flex items-center justify-center rounded-[--r-md] bg-[--accent] px-4 text-footnote font-medium text-[--accent-ink] transition hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
+            className="tap press inline-flex items-center justify-center rounded-[var(--r-md)] bg-[var(--accent)] px-4 text-footnote font-medium text-[var(--accent-ink)] transition hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
           >
             {isPending ? "Drafting…" : "Draft message"}
           </button>

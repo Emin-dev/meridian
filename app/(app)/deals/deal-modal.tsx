@@ -38,9 +38,9 @@ function stageAgeInDays(updatedAt: Date): number {
 }
 
 function ageBadgeClass(days: number): string {
-  if (days < 7) return "bg-[--surface-2] text-[--ink-2]";
-  if (days <= 14) return "bg-[--warn-tint] text-[--warn]";
-  return "bg-[--bad-tint] text-[--bad]";
+  if (days < 7) return "bg-[var(--surface-2)] text-[var(--ink-2)]";
+  if (days <= 14) return "bg-[var(--warn-tint)] text-[var(--warn)]";
+  return "bg-[var(--bad-tint)] text-[var(--bad)]";
 }
 
 function formatValue(value: string | null, currency: string) {
@@ -119,9 +119,9 @@ export default function DealModal({
     <>
       {/* Trigger: card (edit) or button (create) */}
       {isEdit ? (
-        <div className="rounded-lg border border-[--line-1] bg-[--surface-1] p-3 transition-colors hover:border-[--line-2] hover:bg-[--surface-2]">
+        <div className="rounded-lg border border-[var(--line-1)] bg-[var(--surface-1)] p-3 transition-colors hover:border-[var(--line-2)] hover:bg-[var(--surface-2)]">
           <div className="flex items-start justify-between gap-2">
-            <p className="text-sm font-medium text-[--ink-1] leading-snug">
+            <p className="text-sm font-medium text-[var(--ink-1)] leading-snug">
               {deal.title}
             </p>
             <div className="flex shrink-0 items-center gap-1.5">
@@ -138,7 +138,7 @@ export default function DealModal({
               <button
                 type="button"
                 onClick={openModal}
-                className="shrink-0 rounded p-0.5 text-[--ink-3] hover:bg-[--surface-2] hover:text-[--ink-2] transition-colors"
+                className="shrink-0 rounded p-0.5 text-[var(--ink-3)] hover:bg-[var(--surface-2)] hover:text-[var(--ink-2)] transition-colors"
                 aria-label="Edit deal"
               >
                 <svg
@@ -158,23 +158,23 @@ export default function DealModal({
             </div>
           </div>
           {formatted && (
-            <p className="mt-1 text-sm font-semibold text-[--accent]">
+            <p className="mt-1 text-sm font-semibold text-[var(--accent)]">
               {formatted}
             </p>
           )}
           {deal.contact && (
             <Link
               href={`/contacts/${deal.contact.id}`}
-              className="mt-2 flex items-center gap-1.5 text-xs text-[--ink-3] hover:text-[--ink-2] transition-colors"
+              className="mt-2 flex items-center gap-1.5 text-xs text-[var(--ink-3)] hover:text-[var(--ink-2)] transition-colors"
             >
-              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[--surface-3] text-[10px] font-medium text-[--ink-2]">
+              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[var(--surface-3)] text-[10px] font-medium text-[var(--ink-2)]">
                 {(deal.contact.name[0] ?? "?").toUpperCase()}
               </span>
               {deal.contact.name}
             </Link>
           )}
           {deal.expectedCloseDate && (
-            <p className="mt-1.5 text-xs text-[--ink-3]">
+            <p className="mt-1.5 text-xs text-[var(--ink-3)]">
               Close:{" "}
               {new Date(deal.expectedCloseDate).toLocaleDateString("en-US", {
                 month: "short",
@@ -185,7 +185,7 @@ export default function DealModal({
           )}
           <Link
             href={`/deals/${deal.id}`}
-            className="mt-2 inline-block text-xs text-[--ink-3] hover:text-[--accent] transition-colors"
+            className="mt-2 inline-block text-xs text-[var(--ink-3)] hover:text-[var(--accent)] transition-colors"
           >
             View details →
           </Link>
@@ -195,7 +195,7 @@ export default function DealModal({
         <button
           type="button"
           onClick={openModal}
-          className="rounded-lg bg-[--accent] px-4 py-2 text-sm font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover]"
+          className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-ink)] transition-colors hover:bg-[var(--accent-hover)]"
         >
           {buttonLabel}
         </button>
@@ -215,20 +215,20 @@ export default function DealModal({
           m-0 inset-x-0 bottom-0 top-auto
           w-full max-w-none rounded-t-[var(--r-2xl)]
           max-h-[90dvh] overflow-hidden flex flex-col
-          border border-[--line-1] bg-[--surface-1] p-0 text-[--ink-1] shadow-2xl
+          border border-[var(--line-1)] bg-[var(--surface-1)] p-0 text-[var(--ink-1)] shadow-2xl
           backdrop:bg-black/60
           sm:m-auto sm:inset-0 sm:max-w-lg sm:w-full sm:rounded-xl
         "
       >
         {/* Header */}
-        <div className="shrink-0 flex items-center justify-between border-b border-[--line-1] px-6 py-4">
+        <div className="shrink-0 flex items-center justify-between border-b border-[var(--line-1)] px-6 py-4">
           <h2 className="text-base font-semibold">
             {isEdit ? "Edit Deal" : "New Deal"}
           </h2>
           <button
             type="button"
             onClick={() => dialogRef.current?.close()}
-            className="tap flex items-center justify-center rounded-lg text-[--ink-2] hover:bg-[--surface-2] hover:text-[--ink-1] transition-colors"
+            className="tap flex items-center justify-center rounded-lg text-[var(--ink-2)] hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)] transition-colors"
             aria-label="Close"
           >
             <svg
@@ -249,10 +249,10 @@ export default function DealModal({
         {/* No-DB state */}
         {noDb ? (
           <div className="flex-1 overflow-y-auto space-y-2 px-6 py-10 text-center">
-            <p className="text-sm text-[--ink-2]">Database not connected.</p>
-            <p className="text-xs text-[--ink-3]">
+            <p className="text-sm text-[var(--ink-2)]">Database not connected.</p>
+            <p className="text-xs text-[var(--ink-3)]">
               Set{" "}
-              <code className="rounded bg-[--surface-3] px-1 py-0.5">
+              <code className="rounded bg-[var(--surface-3)] px-1 py-0.5">
                 DATABASE_URL
               </code>{" "}
               to save deals.
@@ -260,7 +260,7 @@ export default function DealModal({
             <button
               type="button"
               onClick={() => dialogRef.current?.close()}
-              className="mt-4 rounded-lg bg-[--surface-2] px-4 py-2 text-sm text-[--ink-2] hover:bg-[--surface-3]"
+              className="mt-4 rounded-lg bg-[var(--surface-2)] px-4 py-2 text-sm text-[var(--ink-2)] hover:bg-[var(--surface-3)]"
             >
               Close
             </button>
@@ -278,9 +278,9 @@ export default function DealModal({
               <div>
                 <label
                   htmlFor="dm-title"
-                  className="mb-1 block text-xs font-medium text-[--ink-2]"
+                  className="mb-1 block text-xs font-medium text-[var(--ink-2)]"
                 >
-                  Title <span className="text-[--bad]">*</span>
+                  Title <span className="text-[var(--bad)]">*</span>
                 </label>
                 <input
                   id="dm-title"
@@ -289,10 +289,10 @@ export default function DealModal({
                   required
                   placeholder="Acme Corp — Enterprise"
                   defaultValue={deal?.title ?? ""}
-                  className="w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] placeholder:text-[--ink-3] focus:border-[--accent] focus:outline-none"
+                  className="w-full rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--ink-1)] placeholder:text-[var(--ink-3)] focus:border-[var(--accent)] focus:outline-none"
                 />
                 {state.fieldErrors?.title && (
-                  <p className="mt-1 text-xs text-[--bad]">
+                  <p className="mt-1 text-xs text-[var(--bad)]">
                     {state.fieldErrors.title[0]}
                   </p>
                 )}
@@ -302,7 +302,7 @@ export default function DealModal({
               <div>
                 <label
                   htmlFor="dm-stage"
-                  className="mb-1 block text-xs font-medium text-[--ink-2]"
+                  className="mb-1 block text-xs font-medium text-[var(--ink-2)]"
                 >
                   Stage
                 </label>
@@ -312,7 +312,7 @@ export default function DealModal({
                   name="stage"
                   value={stage}
                   onChange={(e) => setStage(e.target.value)}
-                  className="hidden w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] focus:border-[--accent] focus:outline-none sm:block"
+                  className="hidden w-full rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--ink-1)] focus:border-[var(--accent)] focus:outline-none sm:block"
                 >
                   {STAGES.map((s) => (
                     <option key={s.value} value={s.value}>
@@ -324,7 +324,7 @@ export default function DealModal({
                 <button
                   type="button"
                   onClick={() => setStageSheetOpen(true)}
-                  className="tap flex w-full items-center justify-between gap-2 rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-left text-sm text-[--ink-1] focus:border-[--accent] focus:outline-none sm:hidden"
+                  className="tap flex w-full items-center justify-between gap-2 rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 text-left text-sm text-[var(--ink-1)] focus:border-[var(--accent)] focus:outline-none sm:hidden"
                 >
                   <span>
                     {STAGES.find((s) => s.value === stage)?.label ?? "Lead"}
@@ -338,7 +338,7 @@ export default function DealModal({
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className="shrink-0 text-[--ink-3]"
+                    className="shrink-0 text-[var(--ink-3)]"
                     aria-hidden="true"
                   >
                     <path d="M6 9l6 6 6-6" />
@@ -351,7 +351,7 @@ export default function DealModal({
                 <div>
                   <label
                     htmlFor="dm-value"
-                    className="mb-1 block text-xs font-medium text-[--ink-2]"
+                    className="mb-1 block text-xs font-medium text-[var(--ink-2)]"
                   >
                     Value
                   </label>
@@ -363,13 +363,13 @@ export default function DealModal({
                     step="0.01"
                     placeholder="10000"
                     defaultValue={deal?.value ?? ""}
-                    className="w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] placeholder:text-[--ink-3] focus:border-[--accent] focus:outline-none"
+                    className="w-full rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--ink-1)] placeholder:text-[var(--ink-3)] focus:border-[var(--accent)] focus:outline-none"
                   />
                 </div>
                 <div>
                   <label
                     htmlFor="dm-currency"
-                    className="mb-1 block text-xs font-medium text-[--ink-2]"
+                    className="mb-1 block text-xs font-medium text-[var(--ink-2)]"
                   >
                     Currency
                   </label>
@@ -379,7 +379,7 @@ export default function DealModal({
                     name="currency"
                     value={currency}
                     onChange={(e) => setCurrency(e.target.value)}
-                    className="hidden w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] focus:border-[--accent] focus:outline-none sm:block"
+                    className="hidden w-full rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--ink-1)] focus:border-[var(--accent)] focus:outline-none sm:block"
                   >
                     {CURRENCIES.map((c) => (
                       <option key={c} value={c}>
@@ -391,7 +391,7 @@ export default function DealModal({
                   <button
                     type="button"
                     onClick={() => setCurrencySheetOpen(true)}
-                    className="tap flex w-full items-center justify-between gap-2 rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-left text-sm text-[--ink-1] focus:border-[--accent] focus:outline-none sm:hidden"
+                    className="tap flex w-full items-center justify-between gap-2 rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 text-left text-sm text-[var(--ink-1)] focus:border-[var(--accent)] focus:outline-none sm:hidden"
                   >
                     <span>{currency}</span>
                     <svg
@@ -403,7 +403,7 @@ export default function DealModal({
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      className="shrink-0 text-[--ink-3]"
+                      className="shrink-0 text-[var(--ink-3)]"
                       aria-hidden="true"
                     >
                       <path d="M6 9l6 6 6-6" />
@@ -416,7 +416,7 @@ export default function DealModal({
               <div>
                 <label
                   htmlFor="dm-close-date"
-                  className="mb-1 block text-xs font-medium text-[--ink-2]"
+                  className="mb-1 block text-xs font-medium text-[var(--ink-2)]"
                 >
                   Expected Close Date
                 </label>
@@ -425,7 +425,7 @@ export default function DealModal({
                   name="expectedCloseDate"
                   type="date"
                   defaultValue={defaultDate}
-                  className="w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] focus:border-[--accent] focus:outline-none"
+                  className="w-full rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--ink-1)] focus:border-[var(--accent)] focus:outline-none"
                 />
               </div>
 
@@ -433,7 +433,7 @@ export default function DealModal({
               <div>
                 <label
                   htmlFor="dm-contact"
-                  className="mb-1 block text-xs font-medium text-[--ink-2]"
+                  className="mb-1 block text-xs font-medium text-[var(--ink-2)]"
                 >
                   Contact
                 </label>
@@ -445,7 +445,7 @@ export default function DealModal({
                     defaultContactId?.toString() ??
                     ""
                   }
-                  className="w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] focus:border-[--accent] focus:outline-none"
+                  className="w-full rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--ink-1)] focus:border-[var(--accent)] focus:outline-none"
                 >
                   <option value="">— None —</option>
                   {contacts.map((c) => (
@@ -460,7 +460,7 @@ export default function DealModal({
               <div>
                 <label
                   htmlFor="dm-owner"
-                  className="mb-1 block text-xs font-medium text-[--ink-2]"
+                  className="mb-1 block text-xs font-medium text-[var(--ink-2)]"
                 >
                   Owner
                 </label>
@@ -470,7 +470,7 @@ export default function DealModal({
                   type="text"
                   placeholder="Assigned rep"
                   defaultValue={deal?.owner ?? ""}
-                  className="w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] placeholder:text-[--ink-3] focus:border-[--accent] focus:outline-none"
+                  className="w-full rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--ink-1)] placeholder:text-[var(--ink-3)] focus:border-[var(--accent)] focus:outline-none"
                 />
               </div>
 
@@ -478,7 +478,7 @@ export default function DealModal({
               <div>
                 <label
                   htmlFor="dm-notes"
-                  className="mb-1 block text-xs font-medium text-[--ink-2]"
+                  className="mb-1 block text-xs font-medium text-[var(--ink-2)]"
                 >
                   Notes
                 </label>
@@ -488,28 +488,28 @@ export default function DealModal({
                   rows={3}
                   placeholder="Any notes about this deal…"
                   defaultValue={extractUserNotes(deal?.notes ?? null) ?? ""}
-                  className="w-full resize-none rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] placeholder:text-[--ink-3] focus:border-[--accent] focus:outline-none"
+                  className="w-full resize-none rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--ink-1)] placeholder:text-[var(--ink-3)] focus:border-[var(--accent)] focus:outline-none"
                 />
               </div>
 
               {state.error && (
-                <p className="text-xs text-[--bad]">{state.error}</p>
+                <p className="text-xs text-[var(--bad)]">{state.error}</p>
               )}
             </div>
 
             {/* Sticky footer — pb absorbs iOS home indicator */}
-            <div className="shrink-0 flex justify-end gap-3 border-t border-[--line-1] px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+            <div className="shrink-0 flex justify-end gap-3 border-t border-[var(--line-1)] px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
               <button
                 type="button"
                 onClick={() => dialogRef.current?.close()}
-                className="rounded-lg px-4 py-2 text-sm text-[--ink-2] hover:bg-[--surface-2] hover:text-[--ink-1]"
+                className="rounded-lg px-4 py-2 text-sm text-[var(--ink-2)] hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)]"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={pending}
-                className="rounded-lg bg-[--accent] px-4 py-2 text-sm font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
+                className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-ink)] transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-50"
               >
                 {pending ? "Saving…" : isEdit ? "Save changes" : "Create deal"}
               </button>
@@ -534,8 +534,8 @@ export default function DealModal({
                       aria-pressed={stage === s.value}
                       className={`tap flex items-center justify-between rounded-lg px-3 text-left text-body transition-colors ${
                         stage === s.value
-                          ? "bg-[--surface-3] text-[--ink-1]"
-                          : "text-[--ink-2] hover:bg-[--surface-3]"
+                          ? "bg-[var(--surface-3)] text-[var(--ink-1)]"
+                          : "text-[var(--ink-2)] hover:bg-[var(--surface-3)]"
                       }`}
                     >
                       <span>{s.label}</span>
@@ -549,7 +549,7 @@ export default function DealModal({
                           strokeWidth="2.5"
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          className="shrink-0 text-[--accent]"
+                          className="shrink-0 text-[var(--accent)]"
                           aria-hidden="true"
                         >
                           <path d="M20 6L9 17l-5-5" />
@@ -577,8 +577,8 @@ export default function DealModal({
                       aria-pressed={currency === c}
                       className={`tap flex items-center justify-between rounded-lg px-3 text-left text-body transition-colors ${
                         currency === c
-                          ? "bg-[--surface-3] text-[--ink-1]"
-                          : "text-[--ink-2] hover:bg-[--surface-3]"
+                          ? "bg-[var(--surface-3)] text-[var(--ink-1)]"
+                          : "text-[var(--ink-2)] hover:bg-[var(--surface-3)]"
                       }`}
                     >
                       <span>{c}</span>
@@ -592,7 +592,7 @@ export default function DealModal({
                           strokeWidth="2.5"
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          className="shrink-0 text-[--accent]"
+                          className="shrink-0 text-[var(--accent)]"
                           aria-hidden="true"
                         >
                           <path d="M20 6L9 17l-5-5" />

@@ -59,12 +59,12 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             key={t.id}
             role="status"
             className={[
-              "pointer-events-auto flex min-w-[220px] max-w-xs items-center gap-2.5 rounded-[--r-lg] px-4 py-3 text-body bg-[--surface-2] border border-[--line-1] shadow-[--shadow-2]",
+              "pointer-events-auto flex min-w-[220px] max-w-xs items-center gap-2.5 rounded-[var(--r-lg)] px-4 py-3 text-body bg-[var(--surface-2)] border border-[var(--line-1)] shadow-[var(--shadow-2)]",
               t.variant === "error"
-                ? "text-[--bad]"
+                ? "text-[var(--bad)]"
                 : t.variant === "info"
-                  ? "text-[--info]"
-                  : "text-[--ok]",
+                  ? "text-[var(--info)]"
+                  : "text-[var(--ok)]",
             ].join(" ")}
           >
             {t.variant === "success" && (

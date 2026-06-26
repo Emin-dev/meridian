@@ -1,5 +1,5 @@
 function Bone({ className }: { className?: string }) {
-  return <div className={`rounded-[--r-md] bg-[--surface-2] ${className ?? ""}`} />;
+  return <div className={`rounded-[var(--r-md)] bg-[var(--surface-2)] ${className ?? ""}`} />;
 }
 
 export default function SearchLoading() {
@@ -14,13 +14,13 @@ export default function SearchLoading() {
       {/* Result tabs */}
       <div className="flex flex-wrap gap-2">
         {Array.from({ length: 3 }).map((_, i) => (
-          <Bone key={i} className="h-8 w-24 rounded-[--r-pill]" />
+          <Bone key={i} className="h-8 w-24 rounded-[var(--r-pill)]" />
         ))}
       </div>
 
       {/* Result rows */}
       <div className="card">
-        <div className="divide-y divide-[--line-1]">
+        <div className="divide-y divide-[var(--line-1)]">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="flex min-w-0 items-center gap-4 overflow-hidden px-5 py-3.5">
               <Bone className="h-9 w-9 shrink-0 rounded-full" />
@@ -28,7 +28,7 @@ export default function SearchLoading() {
                 <Bone className="h-4 w-40" />
                 <Bone className="h-3 w-56" />
               </div>
-              <Bone className="h-5 w-14 shrink-0 rounded-[--r-pill]" />
+              <Bone className="h-5 w-14 shrink-0 rounded-[var(--r-pill)]" />
             </div>
           ))}
         </div>

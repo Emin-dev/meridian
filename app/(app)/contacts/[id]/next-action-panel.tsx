@@ -13,9 +13,9 @@ interface Props {
 }
 
 const PRIORITY_STYLES = {
-  high: "bg-[--bad-tint] text-[--bad] ring-1 ring-[--bad]/30",
-  medium: "bg-[--warn-tint] text-[--warn] ring-1 ring-[--warn]/30",
-  low: "bg-[--surface-2] text-[--ink-2] ring-1 ring-[--line-2]",
+  high: "bg-[var(--bad-tint)] text-[var(--bad)] ring-1 ring-[var(--bad)]/30",
+  medium: "bg-[var(--warn-tint)] text-[var(--warn)] ring-1 ring-[var(--warn)]/30",
+  low: "bg-[var(--surface-2)] text-[var(--ink-2)] ring-1 ring-[var(--line-2)]",
 };
 
 // Rehydrate the last cached suggestion (stored as JSON text on the contact row)
@@ -107,12 +107,12 @@ export default function NextActionPanel({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-[--ink-1]">Next best action</h3>
+        <h3 className="text-sm font-medium text-[var(--ink-1)]">Next best action</h3>
         <button
           type="button"
           onClick={handleSuggest}
           disabled={isPending}
-          className="tap inline-flex items-center justify-center rounded-lg bg-[--accent] px-3 text-xs font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
+          className="tap inline-flex items-center justify-center rounded-lg bg-[var(--accent)] px-3 text-xs font-medium text-[var(--accent-ink)] transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-50"
         >
           {isPending ? "Thinking…" : hasResult ? "Re-suggest" : "Suggest action"}
         </button>
@@ -126,7 +126,7 @@ export default function NextActionPanel({
         hasResult={hasResult}
         isPending={isPending}
         emptyHint={
-          <p className="text-xs text-[--ink-3]">
+          <p className="text-xs text-[var(--ink-3)]">
             Click &ldquo;Suggest action&rdquo; to get an AI-recommended next step based on this
             contact&apos;s profile, lead score, and recent activity.
           </p>
@@ -136,10 +136,10 @@ export default function NextActionPanel({
       {hasResult && (
         <div className="space-y-3">
           {/* Recommended action */}
-          <div className="flex items-start gap-3 rounded-lg border border-[--accent]/30 bg-[--accent-tint] px-4 py-3">
-            <span className="mt-0.5 text-[--accent]">→</span>
+          <div className="flex items-start gap-3 rounded-lg border border-[var(--accent)]/30 bg-[var(--accent-tint)] px-4 py-3">
+            <span className="mt-0.5 text-[var(--accent)]">→</span>
             <div className="flex-1 space-y-1">
-              <p className="text-sm font-medium text-[--ink-1]">{result.action}</p>
+              <p className="text-sm font-medium text-[var(--ink-1)]">{result.action}</p>
               {result.priority && (
                 <span
                   className={`inline-block rounded-full px-2 py-0.5 text-caption font-semibold uppercase tracking-wide ${PRIORITY_STYLES[result.priority]}`}
@@ -155,18 +155,18 @@ export default function NextActionPanel({
             type="button"
             onClick={handleLogAsTask}
             disabled={isLogging}
-            className="tap inline-flex w-full items-center justify-center rounded-lg border border-[--line-1] bg-[--surface-2] px-3 text-xs font-medium text-[--ink-1] transition-colors hover:border-[--line-2] hover:bg-[--surface-3] disabled:opacity-50"
+            className="tap inline-flex w-full items-center justify-center rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 text-xs font-medium text-[var(--ink-1)] transition-colors hover:border-[var(--line-2)] hover:bg-[var(--surface-3)] disabled:opacity-50"
           >
             {isLogging ? "Saving…" : "Save as task"}
           </button>
 
           {/* Rationale */}
           {result.rationale && (
-            <p className="text-xs text-[--ink-2] leading-relaxed">{result.rationale}</p>
+            <p className="text-xs text-[var(--ink-2)] leading-relaxed">{result.rationale}</p>
           )}
 
           {result.suggestedAt && (
-            <p className="text-caption text-[--ink-3]">
+            <p className="text-caption text-[var(--ink-3)]">
               Cached suggestion from{" "}
               {new Date(result.suggestedAt).toLocaleString(undefined, {
                 dateStyle: "medium",
@@ -180,16 +180,16 @@ export default function NextActionPanel({
           {result.suggestedMessage && (
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-medium text-[--ink-3]">Suggested message</p>
+                <p className="text-xs font-medium text-[var(--ink-3)]">Suggested message</p>
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className="tap inline-flex items-center justify-center rounded-md px-2 text-caption text-[--ink-3] hover:text-[--ink-1] transition-colors"
+                  className="tap inline-flex items-center justify-center rounded-md px-2 text-caption text-[var(--ink-3)] hover:text-[var(--ink-1)] transition-colors"
                 >
                   {copied ? "Copied!" : "Copy"}
                 </button>
               </div>
-              <pre className="whitespace-pre-wrap rounded-lg border border-[--line-1] bg-[--bg] px-4 py-3 text-xs text-[--ink-1] leading-relaxed font-sans">
+              <pre className="whitespace-pre-wrap rounded-lg border border-[var(--line-1)] bg-[var(--bg)] px-4 py-3 text-xs text-[var(--ink-1)] leading-relaxed font-sans">
                 {result.suggestedMessage}
               </pre>
             </div>

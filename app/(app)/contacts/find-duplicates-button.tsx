@@ -151,7 +151,7 @@ export default function FindDuplicatesButton({ hasDb }: { hasDb: boolean }) {
                 <div className="flex justify-center py-6">
                   <button
                     onClick={handleScan}
-                    className="rounded-lg bg-[--accent] px-5 py-2 text-sm font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover]"
+                    className="rounded-lg bg-[var(--accent)] px-5 py-2 text-sm font-medium text-[var(--accent-ink)] transition-colors hover:bg-[var(--accent-hover)]"
                   >
                     Scan for duplicates
                   </button>
@@ -160,7 +160,7 @@ export default function FindDuplicatesButton({ hasDb }: { hasDb: boolean }) {
 
               {isPending && (
                 <div className="flex flex-col items-center gap-2 py-10">
-                  <span className="h-6 w-6 animate-spin rounded-full border-2 border-[--accent] border-t-transparent" />
+                  <span className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--accent)] border-t-transparent" />
                   <p className="text-xs text-[var(--ink-3)]">AI is scanning contacts…</p>
                 </div>
               )}
@@ -180,7 +180,7 @@ export default function FindDuplicatesButton({ hasDb }: { hasDb: boolean }) {
                   <button
                     onClick={handleScan}
                     disabled={isPending}
-                    className="mt-4 text-xs text-[--accent] hover:text-[--accent-hover] disabled:opacity-50"
+                    className="mt-4 text-xs text-[var(--accent)] hover:text-[var(--accent-hover)] disabled:opacity-50"
                   >
                     Re-scan
                   </button>
@@ -197,7 +197,7 @@ export default function FindDuplicatesButton({ hasDb }: { hasDb: boolean }) {
                     <button
                       onClick={handleScan}
                       disabled={isPending}
-                      className="text-xs text-[--accent] hover:text-[--accent-hover] disabled:opacity-50"
+                      className="text-xs text-[var(--accent)] hover:text-[var(--accent-hover)] disabled:opacity-50"
                     >
                       Re-scan
                     </button>

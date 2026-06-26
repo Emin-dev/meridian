@@ -44,8 +44,8 @@ function formatRelativeTime(isoString: string, nowMs: number): string {
 function DetailField({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0">
-      <dt className="text-caption uppercase tracking-wider text-[--ink-3]">{label}</dt>
-      <dd className="mt-0.5 truncate text-body text-[--ink-1]">{value}</dd>
+      <dt className="text-caption uppercase tracking-wider text-[var(--ink-3)]">{label}</dt>
+      <dd className="mt-0.5 truncate text-body text-[var(--ink-1)]">{value}</dd>
     </div>
   );
 }
@@ -53,11 +53,11 @@ function DetailField({ label, value }: { label: string; value: string }) {
 type ActivityType = "call" | "email" | "meeting" | "note" | "task";
 
 const TYPE_META: Record<ActivityType, { label: string; color: string; bg: string }> = {
-  call:    { label: "Call",    color: "text-[--info]",   bg: "bg-[--info-tint]" },
-  email:   { label: "Email",   color: "text-[--accent]", bg: "bg-[--accent-tint]" },
-  meeting: { label: "Meeting", color: "text-[--ok]",     bg: "bg-[--ok-tint]" },
-  note:    { label: "Note",    color: "text-[--warn]",   bg: "bg-[--warn-tint]" },
-  task:    { label: "Task",    color: "text-[--info]",   bg: "bg-[--info-tint]" },
+  call:    { label: "Call",    color: "text-[var(--info)]",   bg: "bg-[var(--info-tint)]" },
+  email:   { label: "Email",   color: "text-[var(--accent)]", bg: "bg-[var(--accent-tint)]" },
+  meeting: { label: "Meeting", color: "text-[var(--ok)]",     bg: "bg-[var(--ok-tint)]" },
+  note:    { label: "Note",    color: "text-[var(--warn)]",   bg: "bg-[var(--warn-tint)]" },
+  task:    { label: "Task",    color: "text-[var(--info)]",   bg: "bg-[var(--info-tint)]" },
 };
 
 const TYPE_ICON: Record<ActivityType, ReactNode> = {
@@ -215,9 +215,9 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
   return (
     <div className="card overflow-hidden">
       {/* Filter bar */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-[--line-1] px-4 py-2">
+      <div className="flex flex-wrap items-center gap-2 border-b border-[var(--line-1)] px-4 py-2">
         {total > 0 && (
-          <span className="shrink-0 text-footnote text-[--ink-3]">
+          <span className="shrink-0 text-footnote text-[var(--ink-3)]">
             {pages.length < total
               ? `${pages.length} of ${total}`
               : String(total)}{" "}
@@ -234,10 +234,10 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
                 key={value || "all"}
                 onClick={() => navigate(value, currentRange)}
                 disabled={isPending}
-                className={`tap inline-flex items-center rounded-[--r-pill] px-3 text-caption font-medium transition-all disabled:opacity-50 ${
+                className={`tap inline-flex items-center rounded-[var(--r-pill)] px-3 text-caption font-medium transition-all disabled:opacity-50 ${
                   isActive
-                    ? "bg-[--accent] text-[--accent-ink]"
-                    : "bg-[--surface-2] text-[--ink-2] hover:text-[--ink-1]"
+                    ? "bg-[var(--accent)] text-[var(--accent-ink)]"
+                    : "bg-[var(--surface-2)] text-[var(--ink-2)] hover:text-[var(--ink-1)]"
                 }`}
               >
                 {label}
@@ -251,7 +251,7 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
           value={currentRange}
           onChange={(e) => navigate(currentType, e.target.value)}
           disabled={isPending}
-          className="tap hidden rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-2.5 text-caption text-[--ink-2] focus:border-[--accent] focus:outline-none disabled:opacity-50 [color-scheme:dark] lg:block"
+          className="tap hidden rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-2)] px-2.5 text-caption text-[var(--ink-2)] focus:border-[var(--accent)] focus:outline-none disabled:opacity-50 [color-scheme:dark] lg:block"
           aria-label="Date range"
         >
           {RANGE_OPTIONS.map(({ value, label }) => (
@@ -266,7 +266,7 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
           onClick={() => setRangeSheetOpen(true)}
           disabled={isPending}
           aria-label="Date range"
-          className="tap inline-flex items-center gap-1.5 rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-2.5 text-caption text-[--ink-2] transition-colors hover:text-[--ink-1] disabled:opacity-50 lg:hidden"
+          className="tap inline-flex items-center gap-1.5 rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-2)] px-2.5 text-caption text-[var(--ink-2)] transition-colors hover:text-[var(--ink-1)] disabled:opacity-50 lg:hidden"
         >
           {currentRangeLabel}
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -290,10 +290,10 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
                     navigate(currentType, value);
                     setRangeSheetOpen(false);
                   }}
-                  className={`tap flex min-h-[44px] w-full items-center rounded-[--r-md] px-3 text-body transition-colors ${
+                  className={`tap flex min-h-[44px] w-full items-center rounded-[var(--r-md)] px-3 text-body transition-colors ${
                     isActive
-                      ? "bg-[--surface-3] text-[--ink-1]"
-                      : "text-[--ink-2] hover:bg-[--surface-3]"
+                      ? "bg-[var(--surface-3)] text-[var(--ink-1)]"
+                      : "text-[var(--ink-2)] hover:bg-[var(--surface-3)]"
                   }`}
                 >
                   {label}
@@ -309,13 +309,13 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
           value={contactQuery}
           onChange={(e) => setContactQuery(e.target.value)}
           placeholder="Search contact…"
-          className="tap w-full rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-3 text-caption text-[--ink-1] placeholder:text-[--ink-3] outline-none focus:border-[--accent] sm:ml-auto sm:w-40 [color-scheme:dark]"
+          className="tap w-full rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-2)] px-3 text-caption text-[var(--ink-1)] placeholder:text-[var(--ink-3)] outline-none focus:border-[var(--accent)] sm:ml-auto sm:w-40 [color-scheme:dark]"
         />
       </div>
 
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center gap-3 px-6 py-16 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-[--r-lg] border border-[--line-1] bg-[--surface-2] text-[--ink-3]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-[var(--r-lg)] border border-[var(--line-1)] bg-[var(--surface-2)] text-[var(--ink-3)]">
             {isNoData ? (
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
@@ -326,14 +326,14 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
               </svg>
             )}
           </div>
-          <p className="text-body font-medium text-[--ink-1]">
+          <p className="text-body font-medium text-[var(--ink-1)]">
             {isNoData
               ? "No activity logged yet"
               : isClientFilterZero
               ? "No activities match your search"
               : "No activities match the current filters"}
           </p>
-          <p className="max-w-xs text-footnote text-[--ink-3]">
+          <p className="max-w-xs text-footnote text-[var(--ink-3)]">
             {isNoData
               ? "Use the form above to log your first call, email, or meeting."
               : isClientFilterZero
@@ -343,7 +343,7 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
           {isServerFilterZero && (
             <button
               onClick={() => navigate("", "")}
-              className="tap mt-1 inline-flex items-center gap-1.5 rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-3 text-caption font-medium text-[--ink-2] transition-colors hover:text-[--ink-1]"
+              className="tap mt-1 inline-flex items-center gap-1.5 rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-2)] px-3 text-caption font-medium text-[var(--ink-2)] transition-colors hover:text-[var(--ink-1)]"
             >
               Clear filters
             </button>
@@ -351,7 +351,7 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
           {isClientFilterZero && (
             <button
               onClick={() => setContactQuery("")}
-              className="tap mt-1 inline-flex items-center gap-1.5 rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-3 text-caption font-medium text-[--ink-2] transition-colors hover:text-[--ink-1]"
+              className="tap mt-1 inline-flex items-center gap-1.5 rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-2)] px-3 text-caption font-medium text-[var(--ink-2)] transition-colors hover:text-[var(--ink-1)]"
             >
               Clear search
             </button>
@@ -360,7 +360,7 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
       ) : (
         <>
           {/* Desktop list — full inline detail, unchanged */}
-          <ul className="hidden divide-y divide-[--line-1] lg:block">
+          <ul className="hidden divide-y divide-[var(--line-1)] lg:block">
             {filtered.map(({ activity, contactName, dealTitle }) => {
               const meta = TYPE_META[activity.type as ActivityType];
               const date = activity.createdAt.slice(0, 10);
@@ -370,7 +370,7 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
               return (
                 <li
                   key={activity.id}
-                  className={`flex gap-3 px-4 py-3 ${isOverdue ? "bg-[--bad-tint]" : ""}`}
+                  className={`flex gap-3 px-4 py-3 ${isOverdue ? "bg-[var(--bad-tint)]" : ""}`}
                 >
                   <ActivityToggle
                     activityId={activity.id}
@@ -384,12 +384,12 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
                     }`}
                   >
                     <span
-                      className={`inline-block rounded-[--r-pill] ${meta.bg} px-2 py-0.5 text-caption font-medium ${meta.color}`}
+                      className={`inline-block rounded-[var(--r-pill)] ${meta.bg} px-2 py-0.5 text-caption font-medium ${meta.color}`}
                     >
                       {meta.label}
                     </span>
                     {isOverdue && (
-                      <span className="inline-block rounded-[--r-pill] bg-[--bad-tint] px-2 py-0.5 text-caption font-medium text-[--bad]">
+                      <span className="inline-block rounded-[var(--r-pill)] bg-[var(--bad-tint)] px-2 py-0.5 text-caption font-medium text-[var(--bad)]">
                         Overdue
                       </span>
                     )}
@@ -397,7 +397,7 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
                   <div className="min-w-0 flex-1">
                     <p
                       className={`text-body font-medium ${
-                        isCompleted ? "text-[--ink-3] line-through" : "text-[--ink-1]"
+                        isCompleted ? "text-[var(--ink-3)] line-through" : "text-[var(--ink-1)]"
                       }`}
                     >
                       {activity.subject}
@@ -405,18 +405,18 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
                     {activity.body && (
                       <p
                         className={`mt-0.5 line-clamp-2 text-footnote ${
-                          isCompleted ? "text-[--ink-3]" : "text-[--ink-2]"
+                          isCompleted ? "text-[var(--ink-3)]" : "text-[var(--ink-2)]"
                         }`}
                       >
                         {activity.body}
                       </p>
                     )}
-                    <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-caption text-[--ink-3]">
+                    <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-caption text-[var(--ink-3)]">
                       <span>{date}</span>
                       {activity.dueAt && (
                         <>
                           <span aria-hidden>·</span>
-                          <span className={isOverdue ? "text-[--bad]" : "text-[--ink-3]"}>
+                          <span className={isOverdue ? "text-[var(--bad)]" : "text-[var(--ink-3)]"}>
                             Due {activity.dueAt.slice(0, 10)}
                           </span>
                         </>
@@ -436,7 +436,7 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
                       {isCompleted && activity.completedAt && (
                         <>
                           <span aria-hidden>·</span>
-                          <span className="text-[--ink-3]">
+                          <span className="text-[var(--ink-3)]">
                             Completed {formatCompletedAt(activity.completedAt)}
                           </span>
                           <span aria-hidden>·</span>
@@ -466,15 +466,15 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
               return (
                 <li
                   key={activity.id}
-                  className={`flex items-start gap-3 rounded-[--r-lg] border px-3 py-3 ${
+                  className={`flex items-start gap-3 rounded-[var(--r-lg)] border px-3 py-3 ${
                     isOverdue
-                      ? "border-[--bad]/30 bg-[--bad-tint]"
-                      : "border-[--line-1] bg-[--surface-2]"
+                      ? "border-[var(--bad)]/30 bg-[var(--bad-tint)]"
+                      : "border-[var(--line-1)] bg-[var(--surface-2)]"
                   }`}
                 >
                   {/* Type icon badge */}
                   <div
-                    className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[--r-md] ${meta.bg} ${
+                    className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--r-md)] ${meta.bg} ${
                       isCompleted ? "opacity-40" : ""
                     }`}
                   >
@@ -502,16 +502,16 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
                     <div className="flex items-start gap-2">
                       <p
                         className={`min-w-0 flex-1 text-body font-semibold leading-snug ${
-                          isCompleted ? "text-[--ink-3] line-through" : "text-[--ink-1]"
+                          isCompleted ? "text-[var(--ink-3)] line-through" : "text-[var(--ink-1)]"
                         }`}
                       >
                         {activity.subject}
                       </p>
-                      <span className="shrink-0 text-caption text-[--ink-3]">
+                      <span className="shrink-0 text-caption text-[var(--ink-3)]">
                         {formatRelativeTime(activity.createdAt, now.getTime())}
                       </span>
                     </div>
-                    <p className="mt-1 flex items-center gap-1.5 truncate text-footnote text-[--ink-3]">
+                    <p className="mt-1 flex items-center gap-1.5 truncate text-footnote text-[var(--ink-3)]">
                       <span className={`shrink-0 font-medium ${meta.color}`}>
                         {meta.label}
                       </span>
@@ -525,7 +525,7 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
                       )}
                     </p>
                     {isOverdue && (
-                      <span className="mt-1.5 inline-flex w-fit items-center rounded-[--r-pill] bg-[--bad-tint] px-2 py-0.5 text-caption font-medium text-[--bad]">
+                      <span className="mt-1.5 inline-flex w-fit items-center rounded-[var(--r-pill)] bg-[var(--bad-tint)] px-2 py-0.5 text-caption font-medium text-[var(--bad)]">
                         Overdue
                       </span>
                     )}
@@ -543,11 +543,11 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
           </ul>
 
           {hasMore && !contactQuery.trim() && (
-            <div className="border-t border-[--line-1] px-4 py-3 text-center">
+            <div className="border-t border-[var(--line-1)] px-4 py-3 text-center">
               <button
                 onClick={loadMore}
                 disabled={isPending}
-                className="tap inline-flex items-center gap-2 rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-4 text-caption font-medium text-[--ink-2] transition-colors hover:text-[--ink-1] disabled:opacity-50"
+                className="tap inline-flex items-center gap-2 rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-2)] px-4 text-caption font-medium text-[var(--ink-2)] transition-colors hover:text-[var(--ink-1)] disabled:opacity-50"
               >
                 {isPending ? "Loading…" : `Load more (${total - pages.length} remaining)`}
               </button>
@@ -573,17 +573,17 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
               <div className="space-y-4">
                 <div className="flex flex-wrap items-center gap-1.5">
                   <span
-                    className={`inline-block rounded-[--r-pill] ${meta.bg} px-2 py-0.5 text-caption font-medium ${meta.color}`}
+                    className={`inline-block rounded-[var(--r-pill)] ${meta.bg} px-2 py-0.5 text-caption font-medium ${meta.color}`}
                   >
                     {meta.label}
                   </span>
                   {isOverdue && (
-                    <span className="inline-block rounded-[--r-pill] bg-[--bad-tint] px-2 py-0.5 text-caption font-medium text-[--bad]">
+                    <span className="inline-block rounded-[var(--r-pill)] bg-[var(--bad-tint)] px-2 py-0.5 text-caption font-medium text-[var(--bad)]">
                       Overdue
                     </span>
                   )}
                   {isCompleted && (
-                    <span className="inline-block rounded-[--r-pill] bg-[--ok-tint] px-2 py-0.5 text-caption font-medium text-[--ok]">
+                    <span className="inline-block rounded-[var(--r-pill)] bg-[var(--ok-tint)] px-2 py-0.5 text-caption font-medium text-[var(--ok)]">
                       Completed
                     </span>
                   )}
@@ -591,14 +591,14 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
 
                 <p
                   className={`text-callout font-semibold ${
-                    isCompleted ? "text-[--ink-3] line-through" : "text-[--ink-1]"
+                    isCompleted ? "text-[var(--ink-3)] line-through" : "text-[var(--ink-1)]"
                   }`}
                 >
                   {activity.subject}
                 </p>
 
                 {activity.body && (
-                  <p className="whitespace-pre-wrap text-body text-[--ink-2]">
+                  <p className="whitespace-pre-wrap text-body text-[var(--ink-2)]">
                     {activity.body}
                   </p>
                 )}
@@ -622,27 +622,27 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
                       <Link
                         href={`/contacts/${activity.contactId}`}
                         onClick={() => setDetailRow(null)}
-                        className="tap flex min-h-[44px] items-center justify-between rounded-[--r-md] border border-[--line-1] bg-[--surface-3] px-3 text-body text-[--ink-1]"
+                        className="tap flex min-h-[44px] items-center justify-between rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-3)] px-3 text-body text-[var(--ink-1)]"
                       >
                         <span className="truncate">{contactName}</span>
-                        <span className="shrink-0 text-caption text-[--ink-3]">Contact</span>
+                        <span className="shrink-0 text-caption text-[var(--ink-3)]">Contact</span>
                       </Link>
                     )}
                     {activity.dealId && dealTitle && (
                       <Link
                         href={`/deals/${activity.dealId}`}
                         onClick={() => setDetailRow(null)}
-                        className="tap flex min-h-[44px] items-center justify-between rounded-[--r-md] border border-[--line-1] bg-[--surface-3] px-3 text-body text-[--ink-1]"
+                        className="tap flex min-h-[44px] items-center justify-between rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-3)] px-3 text-body text-[var(--ink-1)]"
                       >
                         <span className="truncate">{dealTitle}</span>
-                        <span className="shrink-0 text-caption text-[--ink-3]">Deal</span>
+                        <span className="shrink-0 text-caption text-[var(--ink-3)]">Deal</span>
                       </Link>
                     )}
                   </div>
                 )}
 
                 {isCompleted && activity.completedAt && (
-                  <div className="flex flex-wrap items-center gap-2 border-t border-[--line-1] pt-3 text-footnote text-[--ink-3]">
+                  <div className="flex flex-wrap items-center gap-2 border-t border-[var(--line-1)] pt-3 text-footnote text-[var(--ink-3)]">
                     <span>Completed {formatCompletedAt(activity.completedAt)}</span>
                     <ActivityUndoButton
                       activityId={activity.id}

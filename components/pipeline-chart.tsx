@@ -61,12 +61,12 @@ export default function PipelineChart({ data }: { data: StageData[] }) {
   }));
 
   return (
-    <div className="h-full rounded-xl border border-[--line-1] bg-[--surface-1] p-5">
-      <p className="mb-4 text-sm font-medium text-[--ink-2]">
+    <div className="h-full rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)] p-5">
+      <p className="mb-4 text-sm font-medium text-[var(--ink-2)]">
         Pipeline by Stage
       </p>
       {!hasDeals ? (
-        <p className="py-8 text-center text-sm text-[--ink-2]">
+        <p className="py-8 text-center text-sm text-[var(--ink-2)]">
           No deals in the pipeline yet.
         </p>
       ) : (

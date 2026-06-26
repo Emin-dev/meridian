@@ -160,25 +160,25 @@ export default async function DealsPage({
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-[--ink-1]">Deals</h2>
-          <p className="mt-1 text-sm text-[--ink-2]">
+          <h2 className="text-xl font-semibold text-[var(--ink-1)]">Deals</h2>
+          <p className="mt-1 text-sm text-[var(--ink-2)]">
             Track your pipeline and close more revenue.
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:items-end">
           {/* Pipeline / Weighted stats — stack above controls on mobile */}
           {matchingDealCount > 0 && (
-            <div className="flex flex-wrap items-center gap-4 text-sm text-[--ink-2]">
+            <div className="flex flex-wrap items-center gap-4 text-sm text-[var(--ink-2)]">
               <span>
                 Pipeline:{" "}
-                <span className="font-semibold text-[--ink-1]">
+                <span className="font-semibold text-[var(--ink-1)]">
                   {formatCurrency(totalValue)}
                 </span>
               </span>
-              <span aria-hidden className="text-[--ink-3]">|</span>
+              <span aria-hidden className="text-[var(--ink-3)]">|</span>
               <span>
                 Weighted:{" "}
-                <span className="font-semibold text-[--accent]">
+                <span className="font-semibold text-[var(--accent)]">
                   {formatCurrency(weightedValue)}
                 </span>
               </span>
@@ -191,12 +191,12 @@ export default async function DealsPage({
 
             {/* Stage filter chip — shown when arriving from analytics funnel */}
             {stageMatch && (
-              <div className="flex items-center gap-1.5 rounded-lg border border-[--line-1] bg-[--surface-2] px-2.5 text-xs text-[--ink-2]">
+              <div className="flex items-center gap-1.5 rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-2.5 text-xs text-[var(--ink-2)]">
                 <span className={`h-2 w-2 shrink-0 rounded-full ${stageMatch.dot}`} />
                 <span>{stageMatch.label}</span>
                 <Link
                   href={`?view=${view}${ownerFilter ? `&owner=${encodeURIComponent(ownerFilter)}` : ""}`}
-                  className="tap ml-0.5 inline-flex items-center justify-center px-1 text-[--ink-3] hover:text-[--ink-1]"
+                  className="tap ml-0.5 inline-flex items-center justify-center px-1 text-[var(--ink-3)] hover:text-[var(--ink-1)]"
                   aria-label="Clear stage filter"
                 >
                   ×
@@ -231,7 +231,7 @@ export default async function DealsPage({
 
       {/* No DB state */}
       {!db && (
-        <div className="rounded-xl border border-[--line-1] bg-[--surface-1]">
+        <div className="rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)]">
           <EmptyState
             icon={<PipelineIcon />}
             title="Database not connected"
@@ -243,7 +243,7 @@ export default async function DealsPage({
       {/* Kanban board */}
       {db && !isTable && (
         visibleDeals.length === 0 ? (
-          <div className="rounded-xl border border-[--line-1] bg-[--surface-1]">
+          <div className="rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)]">
             <EmptyState
               icon={(ownerFilter || stageMatch) ? <FilterIcon /> : <PipelineIcon />}
               title={
@@ -287,7 +287,7 @@ export default async function DealsPage({
       {/* Table view */}
       {db && isTable && (
         visibleDeals.length === 0 ? (
-          <div className="rounded-xl border border-[--line-1] bg-[--surface-1]">
+          <div className="rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)]">
             <EmptyState
               icon={(ownerFilter || stageMatch) ? <FilterIcon /> : <PipelineIcon />}
               title={
@@ -334,7 +334,7 @@ export default async function DealsPage({
 
       {/* Capped-list affordance — only when more deals match than are shown */}
       {db && visibleDeals.length > 0 && matchingDealCount > visibleDeals.length && (
-        <p className="text-center text-xs text-[--ink-3]">
+        <p className="text-center text-xs text-[var(--ink-3)]">
           Showing {visibleDeals.length} of {matchingDealCount} deals — use the
           filters above to narrow the list.
         </p>

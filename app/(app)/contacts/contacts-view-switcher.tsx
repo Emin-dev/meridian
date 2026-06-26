@@ -45,13 +45,13 @@ export function ContactsViewSwitcher({
   const isCards = currentView === "cards";
 
   return (
-    <div className="flex items-center rounded-lg border border-[--line-1] bg-[--surface-1] p-0.5">
+    <div className="flex items-center rounded-lg border border-[var(--line-1)] bg-[var(--surface-1)] p-0.5">
       <button
         onClick={() => setView("cards")}
         className={`flex min-h-[44px] items-center gap-1.5 rounded-md px-3 text-xs font-medium transition-colors sm:min-h-0 sm:py-1.5 ${
           isCards
-            ? "bg-[--surface-2] text-[--ink-1]"
-            : "text-[--ink-2] hover:text-[--ink-1]"
+            ? "bg-[var(--surface-2)] text-[var(--ink-1)]"
+            : "text-[var(--ink-2)] hover:text-[var(--ink-1)]"
         }`}
         aria-label="Card view"
         aria-pressed={isCards}
@@ -71,8 +71,8 @@ export function ContactsViewSwitcher({
         onClick={() => setView("table")}
         className={`flex min-h-[44px] items-center gap-1.5 rounded-md px-3 text-xs font-medium transition-colors sm:min-h-0 sm:py-1.5 ${
           !isCards
-            ? "bg-[--surface-2] text-[--ink-1]"
-            : "text-[--ink-2] hover:text-[--ink-1]"
+            ? "bg-[var(--surface-2)] text-[var(--ink-1)]"
+            : "text-[var(--ink-2)] hover:text-[var(--ink-1)]"
         }`}
         aria-label="Table view"
         aria-pressed={!isCards}

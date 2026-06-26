@@ -33,32 +33,32 @@ function parseDealValue(value: string | null): number {
 
 const TYPE_META: Record<string, { label: string; color: string; bg: string }> =
   {
-    call: { label: "Call", color: "text-[--info]", bg: "bg-[--info-tint]" },
+    call: { label: "Call", color: "text-[var(--info)]", bg: "bg-[var(--info-tint)]" },
     email: {
       label: "Email",
-      color: "text-[--accent]",
-      bg: "bg-[--accent-tint]",
+      color: "text-[var(--accent)]",
+      bg: "bg-[var(--accent-tint)]",
     },
     meeting: {
       label: "Meeting",
-      color: "text-[--ok]",
-      bg: "bg-[--ok-tint]",
+      color: "text-[var(--ok)]",
+      bg: "bg-[var(--ok-tint)]",
     },
-    note: { label: "Note", color: "text-[--warn]", bg: "bg-[--warn-tint]" },
-    task: { label: "Task", color: "text-[--info]", bg: "bg-[--info-tint]" },
+    note: { label: "Note", color: "text-[var(--warn)]", bg: "bg-[var(--warn-tint)]" },
+    task: { label: "Task", color: "text-[var(--info)]", bg: "bg-[var(--info-tint)]" },
   };
 
 function WidgetSkeleton({ title }: { title: string }) {
   return (
     <div className="card">
-      <div className="border-b border-[--line-1] px-5 py-3">
-        <p className="text-xs font-medium uppercase tracking-wide text-[--ink-2]">
+      <div className="border-b border-[var(--line-1)] px-5 py-3">
+        <p className="text-xs font-medium uppercase tracking-wide text-[var(--ink-2)]">
           {title}
         </p>
       </div>
       <div className="animate-pulse space-y-2 p-5">
-        <div className="h-10 w-full rounded-[--r-md] bg-[--surface-2]" />
-        <div className="h-10 w-3/4 rounded-[--r-md] bg-[--surface-2]" />
+        <div className="h-10 w-full rounded-[var(--r-md)] bg-[var(--surface-2)]" />
+        <div className="h-10 w-3/4 rounded-[var(--r-md)] bg-[var(--surface-2)]" />
       </div>
     </div>
   );
@@ -73,10 +73,10 @@ function KpiCard({
 }) {
   return (
     <div className="card p-3 sm:p-4">
-      <p className="text-caption font-medium uppercase tracking-wide text-[--ink-3]">
+      <p className="text-caption font-medium uppercase tracking-wide text-[var(--ink-3)]">
         {label}
       </p>
-      <p className="text-title3 sm:text-title2 mt-1 font-semibold text-[--ink-1]">
+      <p className="text-title3 sm:text-title2 mt-1 font-semibold text-[var(--ink-1)]">
         {value}
       </p>
     </div>
@@ -487,10 +487,10 @@ export default async function DashboardBody() {
     <>
       {!db && (
         <div className="card flex flex-col items-center gap-3 px-5 py-16 text-center">
-          <p className="text-sm text-[--ink-2]">Database not connected.</p>
-          <p className="text-xs text-[--ink-3]">
+          <p className="text-sm text-[var(--ink-2)]">Database not connected.</p>
+          <p className="text-xs text-[var(--ink-3)]">
             Set{" "}
-            <code className="rounded bg-[--surface-2] px-1 py-0.5">
+            <code className="rounded bg-[var(--surface-2)] px-1 py-0.5">
               DATABASE_URL
             </code>{" "}
             to connect your Neon database.
@@ -596,13 +596,13 @@ export default async function DashboardBody() {
 
           {/* Overdue activities alert */}
           {overdueActivities.length > 0 && (
-            <div className="rounded-xl border border-[--bad]/40 bg-[--bad-tint]">
-              <div className="flex items-center gap-2 border-b border-[--bad]/40 px-5 py-3">
+            <div className="rounded-xl border border-[var(--bad)]/40 bg-[var(--bad-tint)]">
+              <div className="flex items-center gap-2 border-b border-[var(--bad)]/40 px-5 py-3">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
                   fill="currentColor"
-                  className="h-4 w-4 shrink-0 text-[--bad]"
+                  className="h-4 w-4 shrink-0 text-[var(--bad)]"
                 >
                   <path
                     fillRule="evenodd"
@@ -610,21 +610,21 @@ export default async function DashboardBody() {
                     clipRule="evenodd"
                   />
                 </svg>
-                <p className="text-xs font-medium uppercase tracking-wide text-[--bad]">
+                <p className="text-xs font-medium uppercase tracking-wide text-[var(--bad)]">
                   Overdue Activities
                   {overdueCount > 5 && (
-                    <span className="ml-1 font-normal normal-case text-[--ink-3]">
+                    <span className="ml-1 font-normal normal-case text-[var(--ink-3)]">
                       ({overdueCount} total)
                     </span>
                   )}
                 </p>
               </div>
-              <ul className="divide-y divide-[--bad]/20">
+              <ul className="divide-y divide-[var(--bad)]/20">
                 {overdueActivities.map((activity) => {
                   const meta = TYPE_META[activity.type] ?? {
                     label: activity.type,
-                    color: "text-[--ink-2]",
-                    bg: "bg-[--surface-2]",
+                    color: "text-[var(--ink-2)]",
+                    bg: "bg-[var(--surface-2)]",
                   };
                   const msOverdue = Date.now() - activity.dueAt.getTime();
                   const daysOverdue = Math.floor(
@@ -640,17 +640,17 @@ export default async function DashboardBody() {
                         </span>
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-[--ink-1]">
+                        <p className="text-sm font-medium text-[var(--ink-1)]">
                           {activity.subject}
                         </p>
                         {activity.contactName && (
-                          <p className="mt-0.5 text-xs text-[--ink-3]">
+                          <p className="mt-0.5 text-xs text-[var(--ink-3)]">
                             {activity.contactName}
                           </p>
                         )}
                       </div>
                       <div className="shrink-0 text-right">
-                        <span className="text-xs font-semibold text-[--bad]">
+                        <span className="text-xs font-semibold text-[var(--bad)]">
                           {daysOverdue === 0
                             ? "Due today"
                             : daysOverdue === 1
@@ -667,13 +667,13 @@ export default async function DashboardBody() {
 
           {/* Sequences due */}
           {sequencesDue.length > 0 && (
-            <div className="rounded-xl border border-[--warn]/40 bg-[--warn-tint]">
-              <div className="flex items-center gap-2 border-b border-[--warn]/40 px-5 py-3">
+            <div className="rounded-xl border border-[var(--warn)]/40 bg-[var(--warn-tint)]">
+              <div className="flex items-center gap-2 border-b border-[var(--warn)]/40 px-5 py-3">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
                   fill="currentColor"
-                  className="h-4 w-4 shrink-0 text-[--warn]"
+                  className="h-4 w-4 shrink-0 text-[var(--warn)]"
                 >
                   <path
                     fillRule="evenodd"
@@ -681,26 +681,26 @@ export default async function DashboardBody() {
                     clipRule="evenodd"
                   />
                 </svg>
-                <p className="text-xs font-medium uppercase tracking-wide text-[--warn]">
+                <p className="text-xs font-medium uppercase tracking-wide text-[var(--warn)]">
                   Sequences Due
                 </p>
               </div>
-              <ul className="divide-y divide-[--warn]/20">
+              <ul className="divide-y divide-[var(--warn)]/20">
                 {sequencesDue.map((item) => {
                   const msOverdue = Date.now() - item.nextStepDueDate.getTime();
                   const daysOverdue = Math.floor(msOverdue / (1000 * 60 * 60 * 24));
                   return (
                     <li key={item.enrollmentId} className="flex items-center gap-4 px-5 py-4">
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-[--ink-1]">
+                        <p className="text-sm font-medium text-[var(--ink-1)]">
                           {item.contactName}
                         </p>
-                        <p className="mt-0.5 text-xs text-[--ink-3]">
+                        <p className="mt-0.5 text-xs text-[var(--ink-3)]">
                           {item.sequenceName} · Step {item.stepNum} of {item.totalSteps}
                         </p>
                       </div>
                       <div className="flex shrink-0 items-center gap-3">
-                        <span className="text-xs font-semibold text-[--warn]">
+                        <span className="text-xs font-semibold text-[var(--warn)]">
                           {daysOverdue === 0
                             ? "Due today"
                             : daysOverdue === 1
@@ -709,7 +709,7 @@ export default async function DashboardBody() {
                         </span>
                         <Link
                           href={`/sequences/${item.sequenceId}`}
-                          className="text-xs text-[--warn] hover:text-[--ink-1] hover:underline"
+                          className="text-xs text-[var(--warn)] hover:text-[var(--ink-1)] hover:underline"
                         >
                           View →
                         </Link>
@@ -723,27 +723,27 @@ export default async function DashboardBody() {
 
           {/* Recent activity */}
           <div className="card">
-            <div className="border-b border-[--line-1] px-5 py-3">
-              <p className="text-xs font-medium uppercase tracking-wide text-[--ink-2]">
+            <div className="border-b border-[var(--line-1)] px-5 py-3">
+              <p className="text-xs font-medium uppercase tracking-wide text-[var(--ink-2)]">
                 Recent Activity
               </p>
             </div>
             {recentActivities.length === 0 ? (
               <div className="px-5 py-8 text-center">
-                <p className="text-sm text-[--ink-2]">
+                <p className="text-sm text-[var(--ink-2)]">
                   No activity recorded yet.
                 </p>
-                <p className="mt-1 text-xs text-[--ink-3]">
+                <p className="mt-1 text-xs text-[var(--ink-3)]">
                   Start by adding contacts and deals.
                 </p>
               </div>
             ) : (
-              <ul className="divide-y divide-[--line-1]">
+              <ul className="divide-y divide-[var(--line-1)]">
                 {recentActivities.map((activity) => {
                   const meta = TYPE_META[activity.type] ?? {
                     label: activity.type,
-                    color: "text-[--ink-2]",
-                    bg: "bg-[--surface-2]",
+                    color: "text-[var(--ink-2)]",
+                    bg: "bg-[var(--surface-2)]",
                   };
                   const date = activity.createdAt
                     .toISOString()
@@ -758,10 +758,10 @@ export default async function DashboardBody() {
                         </span>
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-[--ink-1]">
+                        <p className="text-sm font-medium text-[var(--ink-1)]">
                           {activity.subject}
                         </p>
-                        <div className="mt-1 flex items-center gap-2 text-xs text-[--ink-3]">
+                        <div className="mt-1 flex items-center gap-2 text-xs text-[var(--ink-3)]">
                           <span>{date}</span>
                           {activity.contactName && (
                             <>

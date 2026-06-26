@@ -38,7 +38,7 @@ export default function ContactNotesSection({
           <button
             type="button"
             onClick={() => setIsEditing(true)}
-            className="tap inline-flex items-center justify-center rounded-lg border border-[--line-1] px-3 text-xs text-[--ink-2] transition-colors hover:border-[--line-2] hover:text-[--ink-1]"
+            className="tap inline-flex items-center justify-center rounded-lg border border-[var(--line-1)] px-3 text-xs text-[var(--ink-2)] transition-colors hover:border-[var(--line-2)] hover:text-[var(--ink-1)]"
           >
             Edit
           </button>
@@ -50,7 +50,7 @@ export default function ContactNotesSection({
   return (
     <form action={formAction} className="space-y-3">
       {state.noDb && (
-        <p className="text-xs text-[--warn]">
+        <p className="text-xs text-[var(--warn)]">
           Database not connected — notes cannot be saved.
         </p>
       )}
@@ -59,14 +59,14 @@ export default function ContactNotesSection({
         rows={4}
         placeholder="Add notes about this contact…"
         defaultValue={initialNotes ?? ""}
-        className="w-full resize-none rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] placeholder:text-[--ink-3] focus:border-[--accent] focus:outline-none"
+        className="w-full resize-none rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--ink-1)] placeholder:text-[var(--ink-3)] focus:border-[var(--accent)] focus:outline-none"
       />
       <div className="flex items-center justify-end gap-2">
         {initialNotes && (
           <button
             type="button"
             onClick={() => setIsEditing(false)}
-            className="tap inline-flex items-center justify-center rounded-lg border border-[--line-1] px-3 text-xs text-[--ink-2] transition-colors hover:border-[--line-2] hover:text-[--ink-1]"
+            className="tap inline-flex items-center justify-center rounded-lg border border-[var(--line-1)] px-3 text-xs text-[var(--ink-2)] transition-colors hover:border-[var(--line-2)] hover:text-[var(--ink-1)]"
           >
             Cancel
           </button>
@@ -74,7 +74,7 @@ export default function ContactNotesSection({
         <button
           type="submit"
           disabled={pending}
-          className="tap inline-flex items-center justify-center rounded-lg bg-[--accent] px-4 text-sm font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
+          className="tap inline-flex items-center justify-center rounded-lg bg-[var(--accent)] px-4 text-sm font-medium text-[var(--accent-ink)] transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-50"
         >
           {pending ? "Saving…" : "Save notes"}
         </button>

@@ -37,22 +37,22 @@ export default function AiPanelStatus({
   return (
     <>
       {noDb && (
-        <p className="text-xs text-[--ink-2]">
+        <p className="text-xs text-[var(--ink-2)]">
           Database not connected — cannot load contact data.
         </p>
       )}
 
       {noKey && (
-        <p className="text-xs text-[--warn]">
+        <p className="text-xs text-[var(--warn)]">
           Set{" "}
-          <code className="rounded bg-[--surface-2] px-1 py-0.5">
+          <code className="rounded bg-[var(--surface-2)] px-1 py-0.5">
             DEEPSEEK_API_KEY
           </code>{" "}
           in your environment to {keyHint}
         </p>
       )}
 
-      {error && <p className="text-xs text-[--bad]">{error}</p>}
+      {error && <p className="text-xs text-[var(--bad)]">{error}</p>}
 
       {!hasResult && !noDb && !noKey && !error && !isPending && emptyHint}
     </>

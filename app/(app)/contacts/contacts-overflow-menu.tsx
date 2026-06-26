@@ -38,7 +38,7 @@ export default function ContactsOverflowMenu({
         onClick={() => setOpen((v) => !v)}
         aria-label="More actions"
         aria-expanded={open}
-        className="tap flex items-center justify-center rounded-lg border border-[--line-1] bg-[--surface-2] px-3 text-sm text-[--ink-2] transition-colors hover:bg-[--surface-3] hover:text-[--ink-1]"
+        className="tap flex items-center justify-center rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 text-sm text-[var(--ink-2)] transition-colors hover:bg-[var(--surface-3)] hover:text-[var(--ink-1)]"
       >
         •••
       </button>

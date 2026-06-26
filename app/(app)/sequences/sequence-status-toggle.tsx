@@ -24,8 +24,8 @@ export function SequenceStatusToggle({ id, status }: Props) {
       disabled={isPending}
       className={`tap inline-flex items-center justify-center rounded-md px-3 text-xs font-medium transition-colors disabled:opacity-50 ${
         status === "active"
-          ? "text-[--warn] hover:opacity-80"
-          : "text-[--ok] hover:opacity-80"
+          ? "text-[var(--warn)] hover:opacity-80"
+          : "text-[var(--ok)] hover:opacity-80"
       }`}
     >
       {isPending

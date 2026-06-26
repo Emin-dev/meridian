@@ -17,10 +17,10 @@ export const SOURCE_LABELS: Record<string, string> = {
 
 /** Label + tokenized badge classes for each contact `status` value. */
 export const STATUS_LABELS: Record<string, { label: string; className: string }> = {
-  lead: { label: "Lead", className: "bg-[--accent-tint] text-[--accent]" },
-  active: { label: "Active", className: "bg-[--ok-tint] text-[--ok]" },
-  inactive: { label: "Inactive", className: "bg-[--surface-2] text-[--ink-2]" },
-  churned: { label: "Churned", className: "bg-[--bad-tint] text-[--bad]" },
+  lead: { label: "Lead", className: "bg-[var(--accent-tint)] text-[var(--accent)]" },
+  active: { label: "Active", className: "bg-[var(--ok-tint)] text-[var(--ok)]" },
+  inactive: { label: "Inactive", className: "bg-[var(--surface-2)] text-[var(--ink-2)]" },
+  churned: { label: "Churned", className: "bg-[var(--bad-tint)] text-[var(--bad)]" },
 };
 
 /** Ordered status options for selects (bulk actions, etc.). */

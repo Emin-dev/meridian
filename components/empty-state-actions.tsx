@@ -22,7 +22,7 @@ export default function EmptyStateActions({
     return (
       <Link
         href={clearFiltersHref}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-1.5 text-xs font-medium text-[--ink-2] transition-colors hover:bg-[--surface-3] hover:text-[--ink-1]"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-1.5 text-xs font-medium text-[var(--ink-2)] transition-colors hover:bg-[var(--surface-3)] hover:text-[var(--ink-1)]"
       >
         Clear filters
       </Link>
@@ -34,7 +34,7 @@ export default function EmptyStateActions({
       {primaryAction}
       <DemoDataButton
         label="Load demo data"
-        className="inline-flex items-center gap-2 rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-1.5 text-xs font-medium text-[--ink-2] transition-colors hover:bg-[--surface-3] hover:text-[--ink-1] disabled:opacity-50"
+        className="inline-flex items-center gap-2 rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-1.5 text-xs font-medium text-[var(--ink-2)] transition-colors hover:bg-[var(--surface-3)] hover:text-[var(--ink-1)] disabled:opacity-50"
       />
     </div>
   );

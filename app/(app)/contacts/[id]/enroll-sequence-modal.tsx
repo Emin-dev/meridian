@@ -130,7 +130,7 @@ export default function EnrollSequenceModal({
                     <span className="text-sm text-[var(--ink-1)]">{seq.name}</span>
                     <div className="flex shrink-0 items-center gap-2">
                       {errors[seq.id] && (
-                        <span className="text-xs text-[--bad]">
+                        <span className="text-xs text-[var(--bad)]">
                           {errors[seq.id]}
                         </span>
                       )}
@@ -143,7 +143,7 @@ export default function EnrollSequenceModal({
                           type="button"
                           onClick={() => handleEnroll(seq.id)}
                           disabled={isEnrolling || isPending}
-                          className="tap inline-flex items-center justify-center rounded-lg bg-[--accent] px-3 text-xs font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
+                          className="tap inline-flex items-center justify-center rounded-lg bg-[var(--accent)] px-3 text-xs font-medium text-[var(--accent-ink)] transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-50"
                         >
                           {isEnrolling ? "Enrolling…" : "Enroll"}
                         </button>
@@ -190,7 +190,7 @@ export function CancelEnrollmentButton({
       type="button"
       onClick={handleCancel}
       disabled={isPending}
-      className="tap inline-flex items-center justify-center rounded-lg px-3 text-xs font-medium text-[var(--ink-2)] transition-colors hover:bg-[--bad-tint] hover:text-[--bad] disabled:opacity-50"
+      className="tap inline-flex items-center justify-center rounded-lg px-3 text-xs font-medium text-[var(--ink-2)] transition-colors hover:bg-[var(--bad-tint)] hover:text-[var(--bad)] disabled:opacity-50"
     >
       {isPending ? "Cancelling…" : "Cancel"}
     </button>

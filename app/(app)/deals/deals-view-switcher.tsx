@@ -53,13 +53,13 @@ export function DealsViewSwitcher({
   const isTable = currentView === "table";
 
   return (
-    <div className="hidden items-center rounded-lg border border-[--line-1] bg-[--surface-1] p-0.5 lg:flex">
+    <div className="hidden items-center rounded-lg border border-[var(--line-1)] bg-[var(--surface-1)] p-0.5 lg:flex">
       <button
         onClick={() => setView("kanban")}
         className={`flex min-h-[44px] items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
           !isTable
-            ? "bg-[--surface-2] text-[--ink-1]"
-            : "text-[--ink-2] hover:text-[--ink-1]"
+            ? "bg-[var(--surface-2)] text-[var(--ink-1)]"
+            : "text-[var(--ink-2)] hover:text-[var(--ink-1)]"
         }`}
         aria-label="Kanban view"
         aria-pressed={!isTable}
@@ -75,8 +75,8 @@ export function DealsViewSwitcher({
         onClick={() => setView("table")}
         className={`flex min-h-[44px] items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
           isTable
-            ? "bg-[--surface-2] text-[--ink-1]"
-            : "text-[--ink-2] hover:text-[--ink-1]"
+            ? "bg-[var(--surface-2)] text-[var(--ink-1)]"
+            : "text-[var(--ink-2)] hover:text-[var(--ink-1)]"
         }`}
         aria-label="Table view"
         aria-pressed={isTable}

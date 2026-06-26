@@ -46,7 +46,7 @@ export default function TaskToggle({
             if (result?.error) toast(result.error, "error");
           });
         }}
-        className="h-4 w-4 cursor-pointer rounded border-[--line-2] bg-[--surface-2] accent-[--accent] disabled:opacity-50"
+        className="h-4 w-4 cursor-pointer rounded border-[var(--line-2)] bg-[var(--surface-2)] accent-[var(--accent)] disabled:opacity-50"
       />
     </label>
   );

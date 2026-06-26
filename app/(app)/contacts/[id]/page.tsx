@@ -27,8 +27,8 @@ interface Props {
 function SectionFallback() {
   return (
     <div className="animate-pulse space-y-3">
-      <div className="h-4 w-28 rounded-[--r-md] bg-[--surface-2]" />
-      <div className="h-12 w-full rounded-[--r-md] bg-[--surface-2]" />
+      <div className="h-4 w-28 rounded-[var(--r-md)] bg-[var(--surface-2)]" />
+      <div className="h-12 w-full rounded-[var(--r-md)] bg-[var(--surface-2)]" />
     </div>
   );
 }

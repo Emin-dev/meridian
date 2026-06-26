@@ -204,8 +204,8 @@ export default async function ContactsPage({
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-[--ink-1]">Contacts</h2>
-          <p className="mt-1 text-sm text-[--ink-2]">Manage your leads and customers.</p>
+          <h2 className="text-xl font-semibold text-[var(--ink-1)]">Contacts</h2>
+          <p className="mt-1 text-sm text-[var(--ink-2)]">Manage your leads and customers.</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {/* Secondary actions — visible on sm+ */}
@@ -258,9 +258,9 @@ export default async function ContactsPage({
       />
 
       {contacts.length === 0 ? (
-        <div className="border-y border-[--line-1] bg-[--surface-1] sm:rounded-xl sm:border">
-          <div className="flex items-center justify-between border-b border-[--line-1] px-5 py-3">
-            <p className="text-xs font-medium uppercase tracking-wide text-[--ink-3]">
+        <div className="border-y border-[var(--line-1)] bg-[var(--surface-1)] sm:rounded-xl sm:border">
+          <div className="flex items-center justify-between border-b border-[var(--line-1)] px-5 py-3">
+            <p className="text-xs font-medium uppercase tracking-wide text-[var(--ink-3)]">
               {hasActiveFilters ? "Filtered contacts" : "All Contacts"}
             </p>
           </div>

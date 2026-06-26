@@ -1,5 +1,5 @@
 function Bone({ className }: { className?: string }) {
-  return <div className={`rounded-[--r-md] bg-[--surface-2] ${className ?? ""}`} />;
+  return <div className={`rounded-[var(--r-md)] bg-[var(--surface-2)] ${className ?? ""}`} />;
 }
 
 export default function SequencesLoading() {
@@ -11,7 +11,7 @@ export default function SequencesLoading() {
           <Bone className="h-7 w-32" />
           <Bone className="mt-2 h-4 w-64 max-w-full" />
         </div>
-        <Bone className="h-10 w-32 self-start rounded-[--r-md] sm:self-auto" />
+        <Bone className="h-10 w-32 self-start rounded-[var(--r-md)] sm:self-auto" />
       </div>
 
       {/* Due steps card */}
@@ -29,21 +29,21 @@ export default function SequencesLoading() {
 
       {/* All sequences card */}
       <div className="card overflow-hidden">
-        <div className="border-b border-[--line-1] px-4 py-3">
+        <div className="border-b border-[var(--line-1)] px-4 py-3">
           <Bone className="h-3 w-28" />
         </div>
-        <div className="divide-y divide-[--line-1]">
+        <div className="divide-y divide-[var(--line-1)]">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="flex items-center justify-between gap-3 px-4 py-4 sm:px-5">
               <div className="min-w-0 flex-1 space-y-2">
                 <Bone className="h-4 w-40 max-w-full" />
                 <div className="flex flex-wrap gap-2">
-                  <Bone className="h-5 w-16 rounded-[--r-pill]" />
+                  <Bone className="h-5 w-16 rounded-[var(--r-pill)]" />
                   <Bone className="h-4 w-14" />
                   <Bone className="h-4 w-20" />
                 </div>
               </div>
-              <Bone className="h-8 w-16 shrink-0 rounded-[--r-md]" />
+              <Bone className="h-8 w-16 shrink-0 rounded-[var(--r-md)]" />
             </div>
           ))}
         </div>

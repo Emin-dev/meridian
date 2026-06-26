@@ -51,10 +51,10 @@ export function StepCard({
     <div className="card p-4 sm:p-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-3">
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[--accent-tint] text-xs font-semibold text-[--accent]">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--accent-tint)] text-xs font-semibold text-[var(--accent)]">
             {step.position}
           </span>
-          <span className="text-footnote text-[--ink-3]">
+          <span className="text-footnote text-[var(--ink-3)]">
             {step.delayDays === 0
               ? "Send immediately"
               : `Send after ${step.delayDays} day${step.delayDays === 1 ? "" : "s"}`}
@@ -67,7 +67,7 @@ export function StepCard({
                 onClick={() => handleReorder("up")}
                 disabled={isFirst || reordering}
                 title="Move up"
-                className="tap flex items-center justify-center rounded-[--r-sm] text-[--ink-3] transition-colors hover:bg-[--surface-2] hover:text-[--ink-1] disabled:cursor-not-allowed disabled:opacity-30"
+                className="tap flex items-center justify-center rounded-[var(--r-sm)] text-[var(--ink-3)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)] disabled:cursor-not-allowed disabled:opacity-30"
               >
                 ▲
               </button>
@@ -75,21 +75,21 @@ export function StepCard({
                 onClick={() => handleReorder("down")}
                 disabled={isLast || reordering}
                 title="Move down"
-                className="tap flex items-center justify-center rounded-[--r-sm] text-[--ink-3] transition-colors hover:bg-[--surface-2] hover:text-[--ink-1] disabled:cursor-not-allowed disabled:opacity-30"
+                className="tap flex items-center justify-center rounded-[var(--r-sm)] text-[var(--ink-3)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)] disabled:cursor-not-allowed disabled:opacity-30"
               >
                 ▼
               </button>
             </div>
             <button
               onClick={() => setEditing(true)}
-              className="tap flex items-center justify-center rounded-[--r-md] px-3 text-xs font-medium text-[--ink-2] transition-colors hover:bg-[--surface-2] hover:text-[--ink-1]"
+              className="tap flex items-center justify-center rounded-[var(--r-md)] px-3 text-xs font-medium text-[var(--ink-2)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)]"
             >
               Edit
             </button>
             <button
               onClick={handleDelete}
               disabled={deleting}
-              className="tap flex items-center justify-center rounded-[--r-md] px-3 text-xs font-medium text-[--bad] transition-colors hover:bg-[--bad-tint] disabled:opacity-50"
+              className="tap flex items-center justify-center rounded-[var(--r-md)] px-3 text-xs font-medium text-[var(--bad)] transition-colors hover:bg-[var(--bad-tint)] disabled:opacity-50"
             >
               {deleting ? "Deleting…" : "Delete"}
             </button>
@@ -103,10 +103,10 @@ export function StepCard({
           className="space-y-3"
         >
           {state.noDb && (
-            <p className="text-xs text-[--warn]">Database not connected.</p>
+            <p className="text-xs text-[var(--warn)]">Database not connected.</p>
           )}
           <div>
-            <label className="mb-1 block text-footnote font-medium text-[--ink-2]">
+            <label className="mb-1 block text-footnote font-medium text-[var(--ink-2)]">
               Delay (days)
             </label>
             <input
@@ -114,42 +114,42 @@ export function StepCard({
               name="delayDays"
               min={0}
               defaultValue={step.delayDays}
-              className="tap w-24 rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-3 text-body text-[--ink-1] focus:border-[--accent] focus:outline-none [color-scheme:dark]"
+              className="tap w-24 rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-2)] px-3 text-body text-[var(--ink-1)] focus:border-[var(--accent)] focus:outline-none [color-scheme:dark]"
             />
             {state.fieldErrors?.delayDays && (
-              <p className="mt-1 text-xs text-[--bad]">
+              <p className="mt-1 text-xs text-[var(--bad)]">
                 {state.fieldErrors.delayDays[0]}
               </p>
             )}
           </div>
           <div>
-            <label className="mb-1 block text-footnote font-medium text-[--ink-2]">
+            <label className="mb-1 block text-footnote font-medium text-[var(--ink-2)]">
               Subject template
             </label>
             <input
               type="text"
               name="subjectTemplate"
               defaultValue={step.subjectTemplate}
-              className="tap w-full rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-3 text-body text-[--ink-1] placeholder-[--ink-3] focus:border-[--accent] focus:outline-none"
+              className="tap w-full rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-2)] px-3 text-body text-[var(--ink-1)] placeholder-[var(--ink-3)] focus:border-[var(--accent)] focus:outline-none"
             />
             {state.fieldErrors?.subjectTemplate && (
-              <p className="mt-1 text-xs text-[--bad]">
+              <p className="mt-1 text-xs text-[var(--bad)]">
                 {state.fieldErrors.subjectTemplate[0]}
               </p>
             )}
           </div>
           <div>
-            <label className="mb-1 block text-footnote font-medium text-[--ink-2]">
+            <label className="mb-1 block text-footnote font-medium text-[var(--ink-2)]">
               Body template
             </label>
             <textarea
               name="bodyTemplate"
               rows={4}
               defaultValue={step.bodyTemplate}
-              className="w-full resize-none rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-3 py-2 text-body text-[--ink-1] placeholder-[--ink-3] focus:border-[--accent] focus:outline-none"
+              className="w-full resize-none rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 text-body text-[var(--ink-1)] placeholder-[var(--ink-3)] focus:border-[var(--accent)] focus:outline-none"
             />
             {state.fieldErrors?.bodyTemplate && (
-              <p className="mt-1 text-xs text-[--bad]">
+              <p className="mt-1 text-xs text-[var(--bad)]">
                 {state.fieldErrors.bodyTemplate[0]}
               </p>
             )}
@@ -158,14 +158,14 @@ export function StepCard({
             <button
               type="submit"
               disabled={pending}
-              className="tap flex items-center justify-center rounded-[--r-md] bg-[--accent] px-4 text-body font-medium text-[--accent-ink] press hover:bg-[--accent-hover] disabled:opacity-50"
+              className="tap flex items-center justify-center rounded-[var(--r-md)] bg-[var(--accent)] px-4 text-body font-medium text-[var(--accent-ink)] press hover:bg-[var(--accent-hover)] disabled:opacity-50"
             >
               {pending ? "Saving…" : "Save"}
             </button>
             <button
               type="button"
               onClick={() => setEditing(false)}
-              className="tap flex items-center justify-center rounded-[--r-md] border border-[--line-1] px-4 text-body font-medium text-[--ink-2] transition-colors hover:bg-[--surface-2]"
+              className="tap flex items-center justify-center rounded-[var(--r-md)] border border-[var(--line-1)] px-4 text-body font-medium text-[var(--ink-2)] transition-colors hover:bg-[var(--surface-2)]"
             >
               Cancel
             </button>
@@ -174,12 +174,12 @@ export function StepCard({
       ) : (
         <div className="space-y-3">
           <div>
-            <p className="mb-0.5 text-footnote font-medium text-[--ink-3]">Subject</p>
-            <p className="text-body text-[--ink-1] break-words">{step.subjectTemplate}</p>
+            <p className="mb-0.5 text-footnote font-medium text-[var(--ink-3)]">Subject</p>
+            <p className="text-body text-[var(--ink-1)] break-words">{step.subjectTemplate}</p>
           </div>
           <div>
-            <p className="mb-0.5 text-footnote font-medium text-[--ink-3]">Body</p>
-            <p className="whitespace-pre-wrap text-body text-[--ink-2] break-words">
+            <p className="mb-0.5 text-footnote font-medium text-[var(--ink-3)]">Body</p>
+            <p className="whitespace-pre-wrap text-body text-[var(--ink-2)] break-words">
               {step.bodyTemplate}
             </p>
           </div>
@@ -234,7 +234,7 @@ export function AddStepForm({
     return (
       <button
         onClick={() => setOpen(true)}
-        className="tap flex w-full items-center justify-center gap-2 rounded-[--r-xl] border border-dashed border-[--line-2] bg-[--surface-1]/50 text-body font-medium text-[--ink-2] transition-colors hover:border-[--accent] hover:text-[--accent]"
+        className="tap flex w-full items-center justify-center gap-2 rounded-[var(--r-xl)] border border-dashed border-[var(--line-2)] bg-[var(--surface-1)]/50 text-body font-medium text-[var(--ink-2)] transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
       >
         <span className="text-lg leading-none">+</span>
         Add step
@@ -245,17 +245,17 @@ export function AddStepForm({
   return (
     <div className="card p-4 sm:p-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-        <p className="text-body font-medium text-[--ink-1]">New step</p>
+        <p className="text-body font-medium text-[var(--ink-1)]">New step</p>
         {hasAiKey && (
           <button
             type="button"
             onClick={handleAiDraft}
             disabled={drafting}
-            className="tap flex items-center justify-center gap-1.5 rounded-[--r-md] border border-[--accent-tint] bg-[--accent-tint] px-3 text-xs font-medium text-[--accent] transition-colors hover:bg-[--accent-tint]/80 disabled:cursor-not-allowed disabled:opacity-50"
+            className="tap flex items-center justify-center gap-1.5 rounded-[var(--r-md)] border border-[var(--accent-tint)] bg-[var(--accent-tint)] px-3 text-xs font-medium text-[var(--accent)] transition-colors hover:bg-[var(--accent-tint)]/80 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {drafting ? (
               <>
-                <span className="inline-block h-3 w-3 animate-spin rounded-full border border-[--accent] border-t-transparent" />
+                <span className="inline-block h-3 w-3 animate-spin rounded-full border border-[var(--accent)] border-t-transparent" />
                 Drafting…
               </>
             ) : (
@@ -265,17 +265,17 @@ export function AddStepForm({
         )}
       </div>
       {draftError && (
-        <p className="mb-3 text-xs text-[--bad]">{draftError}</p>
+        <p className="mb-3 text-xs text-[var(--bad)]">{draftError}</p>
       )}
       <form
         action={(fd) => startTransition(() => formAction(fd))}
         className="space-y-3"
       >
         {state.noDb && (
-          <p className="text-xs text-[--warn]">Database not connected.</p>
+          <p className="text-xs text-[var(--warn)]">Database not connected.</p>
         )}
         <div>
-          <label className="mb-1 block text-footnote font-medium text-[--ink-2]">
+          <label className="mb-1 block text-footnote font-medium text-[var(--ink-2)]">
             Delay (days before sending)
           </label>
           <input
@@ -283,16 +283,16 @@ export function AddStepForm({
             name="delayDays"
             min={0}
             defaultValue={0}
-            className="tap w-24 rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-3 text-body text-[--ink-1] focus:border-[--accent] focus:outline-none [color-scheme:dark]"
+            className="tap w-24 rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-2)] px-3 text-body text-[var(--ink-1)] focus:border-[var(--accent)] focus:outline-none [color-scheme:dark]"
           />
           {state.fieldErrors?.delayDays && (
-            <p className="mt-1 text-xs text-[--bad]">
+            <p className="mt-1 text-xs text-[var(--bad)]">
               {state.fieldErrors.delayDays[0]}
             </p>
           )}
         </div>
         <div>
-          <label className="mb-1 block text-footnote font-medium text-[--ink-2]">
+          <label className="mb-1 block text-footnote font-medium text-[var(--ink-2)]">
             Subject template
           </label>
           <input
@@ -301,16 +301,16 @@ export function AddStepForm({
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             placeholder="e.g. Quick question, {{firstName}}"
-            className="tap w-full rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-3 text-body text-[--ink-1] placeholder-[--ink-3] focus:border-[--accent] focus:outline-none"
+            className="tap w-full rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-2)] px-3 text-body text-[var(--ink-1)] placeholder-[var(--ink-3)] focus:border-[var(--accent)] focus:outline-none"
           />
           {state.fieldErrors?.subjectTemplate && (
-            <p className="mt-1 text-xs text-[--bad]">
+            <p className="mt-1 text-xs text-[var(--bad)]">
               {state.fieldErrors.subjectTemplate[0]}
             </p>
           )}
         </div>
         <div>
-          <label className="mb-1 block text-footnote font-medium text-[--ink-2]">
+          <label className="mb-1 block text-footnote font-medium text-[var(--ink-2)]">
             Body template
           </label>
           <textarea
@@ -319,10 +319,10 @@ export function AddStepForm({
             value={body}
             onChange={(e) => setBody(e.target.value)}
             placeholder={"Hi {{firstName}},\n\n…"}
-            className="w-full resize-none rounded-[--r-md] border border-[--line-1] bg-[--surface-2] px-3 py-2 text-body text-[--ink-1] placeholder-[--ink-3] focus:border-[--accent] focus:outline-none"
+            className="w-full resize-none rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 text-body text-[var(--ink-1)] placeholder-[var(--ink-3)] focus:border-[var(--accent)] focus:outline-none"
           />
           {state.fieldErrors?.bodyTemplate && (
-            <p className="mt-1 text-xs text-[--bad]">
+            <p className="mt-1 text-xs text-[var(--bad)]">
               {state.fieldErrors.bodyTemplate[0]}
             </p>
           )}
@@ -331,7 +331,7 @@ export function AddStepForm({
           <button
             type="submit"
             disabled={pending}
-            className="tap flex items-center justify-center rounded-[--r-md] bg-[--accent] px-4 text-body font-medium text-[--accent-ink] press hover:bg-[--accent-hover] disabled:opacity-50"
+            className="tap flex items-center justify-center rounded-[var(--r-md)] bg-[var(--accent)] px-4 text-body font-medium text-[var(--accent-ink)] press hover:bg-[var(--accent-hover)] disabled:opacity-50"
           >
             {pending ? "Adding…" : "Add step"}
           </button>
@@ -343,7 +343,7 @@ export function AddStepForm({
               setBody("");
               setDraftError(null);
             }}
-            className="tap flex items-center justify-center rounded-[--r-md] border border-[--line-1] px-4 text-body font-medium text-[--ink-2] transition-colors hover:bg-[--surface-2]"
+            className="tap flex items-center justify-center rounded-[var(--r-md)] border border-[var(--line-1)] px-4 text-body font-medium text-[var(--ink-2)] transition-colors hover:bg-[var(--surface-2)]"
           >
             Cancel
           </button>

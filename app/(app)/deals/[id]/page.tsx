@@ -27,8 +27,8 @@ interface Props {
 function SectionFallback() {
   return (
     <div className="animate-pulse space-y-3">
-      <div className="h-4 w-28 rounded-[--r-md] bg-[--surface-2]" />
-      <div className="h-12 w-full rounded-[--r-md] bg-[--surface-2]" />
+      <div className="h-4 w-28 rounded-[var(--r-md)] bg-[var(--surface-2)]" />
+      <div className="h-12 w-full rounded-[var(--r-md)] bg-[var(--surface-2)]" />
     </div>
   );
 }
@@ -46,15 +46,15 @@ export default async function DealDetailPage({ params }: Props) {
       <div className="space-y-6">
         <Link
           href="/deals"
-          className="text-sm text-[--ink-2] hover:text-[--ink-1] transition-colors"
+          className="text-sm text-[var(--ink-2)] hover:text-[var(--ink-1)] transition-colors"
         >
           ← Deals
         </Link>
-        <div className="rounded-xl border border-[--line-1] bg-[--surface-1] px-4 py-16 text-center sm:px-5">
-          <p className="text-sm text-[--ink-2]">Database not connected.</p>
-          <p className="mt-1 text-xs text-[--ink-3]">
+        <div className="rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)] px-4 py-16 text-center sm:px-5">
+          <p className="text-sm text-[var(--ink-2)]">Database not connected.</p>
+          <p className="mt-1 text-xs text-[var(--ink-3)]">
             Set{" "}
-            <code className="rounded bg-[--surface-2] px-1 py-0.5">
+            <code className="rounded bg-[var(--surface-2)] px-1 py-0.5">
               DATABASE_URL
             </code>{" "}
             to connect your Neon database.
@@ -78,7 +78,7 @@ export default async function DealDetailPage({ params }: Props) {
       {/* Back link */}
       <Link
         href="/deals"
-        className="text-sm text-[--ink-2] hover:text-[--ink-1] transition-colors"
+        className="text-sm text-[var(--ink-2)] hover:text-[var(--ink-1)] transition-colors"
       >
         ← Deals
       </Link>
@@ -91,43 +91,43 @@ export default async function DealDetailPage({ params }: Props) {
 
       {/* Linked contact */}
       {contact ? (
-        <div className="rounded-xl border border-[--line-1] bg-[--surface-1] p-4 sm:p-5">
-          <h3 className="mb-3 text-sm font-medium text-[--ink-2]">
+        <div className="rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)] p-4 sm:p-5">
+          <h3 className="mb-3 text-sm font-medium text-[var(--ink-2)]">
             Linked contact
           </h3>
           <Link
             href={`/contacts/${contact.id}`}
             className="group flex items-center gap-3"
           >
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[--surface-2] text-sm font-medium text-[--ink-2] transition-colors group-hover:bg-[--surface-3]">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--surface-2)] text-sm font-medium text-[var(--ink-2)] transition-colors group-hover:bg-[var(--surface-3)]">
               {(contact.name[0] ?? "?").toUpperCase()}
             </span>
             <div>
-              <p className="text-sm font-medium text-[--ink-1] transition-colors group-hover:text-[--accent]">
+              <p className="text-sm font-medium text-[var(--ink-1)] transition-colors group-hover:text-[var(--accent)]">
                 {contact.name}
               </p>
               {(contact.title || contact.company) && (
-                <p className="text-xs text-[--ink-2]">
+                <p className="text-xs text-[var(--ink-2)]">
                   {[contact.title, contact.company].filter(Boolean).join(" · ")}
                 </p>
               )}
               {contact.email && (
-                <p className="text-xs text-[--ink-3]">{contact.email}</p>
+                <p className="text-xs text-[var(--ink-3)]">{contact.email}</p>
               )}
             </div>
           </Link>
         </div>
       ) : deal.contactId ? (
-        <div className="rounded-xl border border-dashed border-[--line-1] bg-[--surface-1]/50 p-4 sm:p-5">
-          <p className="text-xs text-[--ink-2]">Contact was removed</p>
-          <p className="mt-1 text-xs text-[--ink-3]">
+        <div className="rounded-xl border border-dashed border-[var(--line-1)] bg-[var(--surface-1)]/50 p-4 sm:p-5">
+          <p className="text-xs text-[var(--ink-2)]">Contact was removed</p>
+          <p className="mt-1 text-xs text-[var(--ink-3)]">
             The contact linked to this deal no longer exists and may have been
             deleted.
           </p>
         </div>
       ) : (
-        <div className="rounded-xl border border-dashed border-[--line-1] bg-[--surface-1]/50 p-4 sm:p-5">
-          <p className="text-xs text-[--ink-3]">No contact linked to this deal.</p>
+        <div className="rounded-xl border border-dashed border-[var(--line-1)] bg-[var(--surface-1)]/50 p-4 sm:p-5">
+          <p className="text-xs text-[var(--ink-3)]">No contact linked to this deal.</p>
         </div>
       )}
 
@@ -141,23 +141,23 @@ export default async function DealDetailPage({ params }: Props) {
       )}
 
       {/* Notes */}
-      <div className="rounded-xl border border-[--line-1] bg-[--surface-1] p-4 sm:p-5">
-        <h3 className="mb-4 text-sm font-medium text-[--ink-2]">Notes</h3>
+      <div className="rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)] p-4 sm:p-5">
+        <h3 className="mb-4 text-sm font-medium text-[var(--ink-2)]">Notes</h3>
         <EditNotesForm dealId={deal.id} initialNotes={extractUserNotes(deal.notes)} />
       </div>
 
       {/* AI win-probability score */}
-      <div className="rounded-xl border border-[--line-1] bg-[--surface-1] p-4 sm:p-5">
+      <div className="rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)] p-4 sm:p-5">
         <DealWinProbabilityPanel dealId={deal.id} initialScore={deal.probability} />
       </div>
 
       {/* AI deal risk & next step */}
-      <div className="rounded-xl border border-[--line-1] bg-[--surface-1] p-4 sm:p-5">
+      <div className="rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)] p-4 sm:p-5">
         <DealRiskPanel dealId={deal.id} />
       </div>
 
       {/* AI deal brief */}
-      <div className="rounded-xl border border-[--line-1] bg-[--surface-1] p-4 sm:p-5">
+      <div className="rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)] p-4 sm:p-5">
         <DealSummarizePanel
           dealId={deal.id}
           initialSummary={deal.aiSummary}
@@ -166,7 +166,7 @@ export default async function DealDetailPage({ params }: Props) {
       </div>
 
       {/* AI next best action */}
-      <div className="rounded-xl border border-[--line-1] bg-[--surface-1] p-4 sm:p-5">
+      <div className="rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)] p-4 sm:p-5">
         <DealNextActionPanel
           dealId={deal.id}
           initialNextAction={deal.nextAction}
@@ -175,26 +175,26 @@ export default async function DealDetailPage({ params }: Props) {
       </div>
 
       {/* AI action items extractor */}
-      <div className="rounded-xl border border-[--line-1] bg-[--surface-1] p-4 sm:p-5">
+      <div className="rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)] p-4 sm:p-5">
         <ActionItemsPanel dealId={deal.id} />
       </div>
 
       {/* Linked tasks */}
-      <div className="rounded-xl border border-[--line-1] bg-[--surface-1] p-4 sm:p-5">
+      <div className="rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)] p-4 sm:p-5">
         <Suspense fallback={<SectionFallback />}>
           <LinkedTasksSection dealId={deal.id} />
         </Suspense>
       </div>
 
       {/* Activity timeline */}
-      <div className="rounded-xl border border-[--line-1] bg-[--surface-1] p-4 sm:p-5">
+      <div className="rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)] p-4 sm:p-5">
         <Suspense fallback={<SectionFallback />}>
           <DealActivityTimeline dealId={deal.id} />
         </Suspense>
       </div>
 
       {/* Change log */}
-      <div className="rounded-xl border border-[--line-1] bg-[--surface-1] p-4 sm:p-5">
+      <div className="rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)] p-4 sm:p-5">
         <Suspense fallback={<SectionFallback />}>
           <DealChangeLog dealId={deal.id} />
         </Suspense>

@@ -18,7 +18,7 @@ export default function FocusAddTaskButton() {
         });
         el.focus({ preventScroll: true });
       }}
-      className="tap press inline-flex items-center justify-center gap-2 rounded-[--r-md] bg-[--accent] px-5 text-body font-medium text-[--accent-ink] transition-opacity hover:opacity-90"
+      className="tap press inline-flex items-center justify-center gap-2 rounded-[var(--r-md)] bg-[var(--accent)] px-5 text-body font-medium text-[var(--accent-ink)] transition-opacity hover:opacity-90"
     >
       Add a task
     </button>

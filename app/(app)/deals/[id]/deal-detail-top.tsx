@@ -6,12 +6,12 @@ import EditDealForm from "./edit-deal-form";
 import StageControl from "../stage-control";
 
 const STAGE_META = {
-  lead:        { label: "Lead",        color: "text-[--ink-2]", bg: "bg-[--surface-2]"   },
-  qualified:   { label: "Qualified",   color: "text-[--info]",  bg: "bg-[--info-tint]"   },
-  proposal:    { label: "Proposal",    color: "text-[--accent]", bg: "bg-[--accent-tint]" },
-  negotiation: { label: "Negotiation", color: "text-[--warn]",  bg: "bg-[--warn-tint]"   },
-  won:         { label: "Won",         color: "text-[--ok]",    bg: "bg-[--ok-tint]"     },
-  lost:        { label: "Lost",        color: "text-[--bad]",   bg: "bg-[--bad-tint]"    },
+  lead:        { label: "Lead",        color: "text-[var(--ink-2)]", bg: "bg-[var(--surface-2)]"   },
+  qualified:   { label: "Qualified",   color: "text-[var(--info)]",  bg: "bg-[var(--info-tint)]"   },
+  proposal:    { label: "Proposal",    color: "text-[var(--accent)]", bg: "bg-[var(--accent-tint)]" },
+  negotiation: { label: "Negotiation", color: "text-[var(--warn)]",  bg: "bg-[var(--warn-tint)]"   },
+  won:         { label: "Won",         color: "text-[var(--ok)]",    bg: "bg-[var(--ok-tint)]"     },
+  lost:        { label: "Lost",        color: "text-[var(--bad)]",   bg: "bg-[var(--bad-tint)]"    },
 } as const;
 
 function formatValue(value: string | null, currency: string) {
@@ -47,7 +47,7 @@ export default function DealDetailTop({ initialDeal, deleteButton }: Props) {
 
   const stageMeta =
     STAGE_META[deal.stage as keyof typeof STAGE_META] ??
-    ({ label: deal.stage, color: "text-[--ink-2]", bg: "bg-[--surface-2]" } as const);
+    ({ label: deal.stage, color: "text-[var(--ink-2)]", bg: "bg-[var(--surface-2)]" } as const);
   const formatted = formatValue(deal.value, deal.currency);
 
   // ── Form callbacks ──────────────────────────────────────────────────────────
@@ -85,7 +85,7 @@ export default function DealDetailTop({ initialDeal, deleteButton }: Props) {
       {/* ── Page header ──────────────────────────────────────────────────────── */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <h2 className="text-xl font-semibold text-[--ink-1] break-words">{deal.title}</h2>
+          <h2 className="text-xl font-semibold text-[var(--ink-1)] break-words">{deal.title}</h2>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <span
               className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${stageMeta.bg} ${stageMeta.color}`}
@@ -93,12 +93,12 @@ export default function DealDetailTop({ initialDeal, deleteButton }: Props) {
               {stageMeta.label}
             </span>
             {formatted ? (
-              <span className="text-sm font-semibold text-[--accent]">{formatted}</span>
+              <span className="text-sm font-semibold text-[var(--accent)]">{formatted}</span>
             ) : (
-              <span className="text-xs text-[--ink-3]">Not set</span>
+              <span className="text-xs text-[var(--ink-3)]">Not set</span>
             )}
             {deal.expectedCloseDate && (
-              <span className="text-xs text-[--ink-3]">
+              <span className="text-xs text-[var(--ink-3)]">
                 Close:{" "}
                 {new Date(deal.expectedCloseDate).toLocaleDateString("en-US", {
                   month: "short",
@@ -109,8 +109,8 @@ export default function DealDetailTop({ initialDeal, deleteButton }: Props) {
             )}
           </div>
           {(deal.stage === "won" || deal.stage === "lost") && deal.closeReason && (
-            <p className="mt-1.5 text-xs text-[--ink-2]">
-              <span className="text-[--ink-3]">Reason: </span>
+            <p className="mt-1.5 text-xs text-[var(--ink-2)]">
+              <span className="text-[var(--ink-3)]">Reason: </span>
               {deal.closeReason}
             </p>
           )}
@@ -125,18 +125,18 @@ export default function DealDetailTop({ initialDeal, deleteButton }: Props) {
       </div>
 
       {/* ── Edit deal details card ────────────────────────────────────────────── */}
-      <div className="rounded-xl border border-[--line-1] bg-[--surface-1] p-4 sm:p-5">
-        <h3 className="mb-4 text-sm font-medium text-[--ink-2]">Details</h3>
+      <div className="rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)] p-4 sm:p-5">
+        <h3 className="mb-4 text-sm font-medium text-[var(--ink-2)]">Details</h3>
         <EditDealForm
           key={formVersion}
           deal={deal}
           onSaved={handleFormSaved}
           onRollback={handleFormRollback}
         />
-        <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 border-t border-[--line-1] pt-4 text-sm sm:grid-cols-2">
+        <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 border-t border-[var(--line-1)] pt-4 text-sm sm:grid-cols-2">
           <div>
-            <dt className="text-xs text-[--ink-3]">Created</dt>
-            <dd className="mt-0.5 text-[--ink-1]">
+            <dt className="text-xs text-[var(--ink-3)]">Created</dt>
+            <dd className="mt-0.5 text-[var(--ink-1)]">
               {initialDeal.createdAt.toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",
@@ -145,8 +145,8 @@ export default function DealDetailTop({ initialDeal, deleteButton }: Props) {
             </dd>
           </div>
           <div>
-            <dt className="text-xs text-[--ink-3]">Last updated</dt>
-            <dd className="mt-0.5 text-[--ink-1]">
+            <dt className="text-xs text-[var(--ink-3)]">Last updated</dt>
+            <dd className="mt-0.5 text-[var(--ink-1)]">
               {initialDeal.updatedAt.toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",

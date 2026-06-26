@@ -49,21 +49,21 @@ export function DueStepsSection({ dueEnrollments, defaultOwnerName }: Props) {
   }
 
   return (
-    <div className="rounded-[--r-lg] border border-[--warn-tint] bg-[--surface-1]">
+    <div className="rounded-[var(--r-lg)] border border-[var(--warn-tint)] bg-[var(--surface-1)]">
       {/* Responsive header */}
-      <div className="flex flex-col gap-2 border-b border-[--line-1] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-2 border-b border-[var(--line-1)] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
-          <p className="text-caption font-medium uppercase tracking-wide text-[--warn]">
+          <p className="text-caption font-medium uppercase tracking-wide text-[var(--warn)]">
             Due Steps
           </p>
-          <span className="rounded-full bg-[--warn-tint] px-1.5 py-0.5 text-caption font-medium text-[--warn]">
+          <span className="rounded-full bg-[var(--warn-tint)] px-1.5 py-0.5 text-caption font-medium text-[var(--warn)]">
             {dueEnrollments.length}
           </span>
         </div>
         <button
           onClick={handleSendAll}
           disabled={isPending}
-          className="tap flex items-center justify-center self-start rounded-[--r-md] bg-[--ok] px-4 text-xs font-medium text-[--bg] transition-colors hover:opacity-90 disabled:opacity-50 sm:self-auto"
+          className="tap flex items-center justify-center self-start rounded-[var(--r-md)] bg-[var(--ok)] px-4 text-xs font-medium text-[var(--bg)] transition-colors hover:opacity-90 disabled:opacity-50 sm:self-auto"
         >
           {isPending
             ? "Logging…"
@@ -72,45 +72,45 @@ export function DueStepsSection({ dueEnrollments, defaultOwnerName }: Props) {
       </div>
 
       {batchError && (
-        <p className="border-b border-[--line-1] px-4 py-2 text-xs text-[--bad]">
+        <p className="border-b border-[var(--line-1)] px-4 py-2 text-xs text-[var(--bad)]">
           {batchError}
         </p>
       )}
       {batchDone !== null && (
-        <p className="border-b border-[--line-1] px-4 py-2 text-xs text-[--ok]">
+        <p className="border-b border-[var(--line-1)] px-4 py-2 text-xs text-[var(--ok)]">
           Logged {batchDone} {batchDone === 1 ? "step" : "steps"} as sent.
         </p>
       )}
 
       {/* Mobile: card list */}
-      <ul className="divide-y divide-[--line-1] sm:hidden">
+      <ul className="divide-y divide-[var(--line-1)] sm:hidden">
         {dueEnrollments.map((e) => (
           <li key={e.enrollmentId} className="px-4 py-4 space-y-2">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 flex-1">
                 <Link
                   href={`/contacts/${e.contactId}`}
-                  className="block truncate text-body font-medium text-[--ink-1] transition-colors hover:text-[--accent]"
+                  className="block truncate text-body font-medium text-[var(--ink-1)] transition-colors hover:text-[var(--accent)]"
                 >
                   {e.contactName}
                 </Link>
                 {e.contactEmail && (
-                  <p className="truncate text-footnote text-[--ink-3]">
+                  <p className="truncate text-footnote text-[var(--ink-3)]">
                     {e.contactEmail}
                   </p>
                 )}
               </div>
-              <span className="shrink-0 text-caption font-medium text-[--warn]">
+              <span className="shrink-0 text-caption font-medium text-[var(--warn)]">
                 {e.daysOverdue === 0 ? "Today" : `${e.daysOverdue}d overdue`}
               </span>
             </div>
             <Link
               href={`/sequences/${e.sequenceId}`}
-              className="block text-footnote text-[--ink-2] transition-colors hover:text-[--accent]"
+              className="block text-footnote text-[var(--ink-2)] transition-colors hover:text-[var(--accent)]"
             >
               {e.sequenceName}
             </Link>
-            <p className="truncate text-footnote text-[--ink-3]">{e.stepSubjectTemplate}</p>
+            <p className="truncate text-footnote text-[var(--ink-3)]">{e.stepSubjectTemplate}</p>
             <div className="pt-0.5">
               <SendStepButton
                 enrollmentId={e.enrollmentId}
@@ -136,17 +136,17 @@ export function DueStepsSection({ dueEnrollments, defaultOwnerName }: Props) {
       <div className="hidden overflow-x-auto sm:block">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-[--line-1] text-left">
-              <th className="px-5 py-3 text-caption font-medium uppercase tracking-wide text-[--ink-3]">
+            <tr className="border-b border-[var(--line-1)] text-left">
+              <th className="px-5 py-3 text-caption font-medium uppercase tracking-wide text-[var(--ink-3)]">
                 Contact
               </th>
-              <th className="px-5 py-3 text-caption font-medium uppercase tracking-wide text-[--ink-3]">
+              <th className="px-5 py-3 text-caption font-medium uppercase tracking-wide text-[var(--ink-3)]">
                 Sequence
               </th>
-              <th className="px-5 py-3 text-caption font-medium uppercase tracking-wide text-[--ink-3]">
+              <th className="px-5 py-3 text-caption font-medium uppercase tracking-wide text-[var(--ink-3)]">
                 Step subject
               </th>
-              <th className="px-5 py-3 text-caption font-medium uppercase tracking-wide text-[--ink-3]">
+              <th className="px-5 py-3 text-caption font-medium uppercase tracking-wide text-[var(--ink-3)]">
                 Overdue
               </th>
               <th className="px-5 py-3" />
@@ -156,17 +156,17 @@ export function DueStepsSection({ dueEnrollments, defaultOwnerName }: Props) {
             {dueEnrollments.map((e) => (
               <tr
                 key={e.enrollmentId}
-                className="border-b border-[--line-1] last:border-0 transition-colors hover:bg-[--surface-2]/40"
+                className="border-b border-[var(--line-1)] last:border-0 transition-colors hover:bg-[var(--surface-2)]/40"
               >
                 <td className="px-5 py-3">
                   <Link
                     href={`/contacts/${e.contactId}`}
-                    className="font-medium text-[--ink-1] transition-colors hover:text-[--accent]"
+                    className="font-medium text-[var(--ink-1)] transition-colors hover:text-[var(--accent)]"
                   >
                     {e.contactName}
                   </Link>
                   {e.contactEmail && (
-                    <p className="truncate text-xs text-[--ink-3]">
+                    <p className="truncate text-xs text-[var(--ink-3)]">
                       {e.contactEmail}
                     </p>
                   )}
@@ -174,16 +174,16 @@ export function DueStepsSection({ dueEnrollments, defaultOwnerName }: Props) {
                 <td className="px-5 py-3">
                   <Link
                     href={`/sequences/${e.sequenceId}`}
-                    className="text-[--ink-2] transition-colors hover:text-[--accent]"
+                    className="text-[var(--ink-2)] transition-colors hover:text-[var(--accent)]"
                   >
                     {e.sequenceName}
                   </Link>
                 </td>
-                <td className="max-w-xs px-5 py-3 text-[--ink-2]">
+                <td className="max-w-xs px-5 py-3 text-[var(--ink-2)]">
                   <span className="block truncate">{e.stepSubjectTemplate}</span>
                 </td>
                 <td className="px-5 py-3">
-                  <span className="text-xs font-medium text-[--warn]">
+                  <span className="text-xs font-medium text-[var(--warn)]">
                     {e.daysOverdue === 0 ? "Today" : `${e.daysOverdue}d`}
                   </span>
                 </td>

@@ -54,8 +54,8 @@ export default function EditDealForm({ deal, onSaved, onRollback }: Props) {
     : "";
 
   const inputCls =
-    "tap w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] placeholder-[--ink-3] focus:border-[--accent] focus:outline-none";
-  const labelCls = "mb-1 block text-xs font-medium text-[--ink-2]";
+    "tap w-full rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--ink-1)] placeholder-[var(--ink-3)] focus:border-[var(--accent)] focus:outline-none";
+  const labelCls = "mb-1 block text-xs font-medium text-[var(--ink-2)]";
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -101,7 +101,7 @@ export default function EditDealForm({ deal, onSaved, onRollback }: Props) {
       {/* Title */}
       <div>
         <label htmlFor="ed-title" className={labelCls}>
-          Title <span className="text-[--bad]">*</span>
+          Title <span className="text-[var(--bad)]">*</span>
         </label>
         <input
           id="ed-title"
@@ -112,7 +112,7 @@ export default function EditDealForm({ deal, onSaved, onRollback }: Props) {
           className={inputCls}
         />
         {fieldErrors.title && (
-          <p className="mt-1 text-xs text-[--bad]">{fieldErrors.title[0]}</p>
+          <p className="mt-1 text-xs text-[var(--bad)]">{fieldErrors.title[0]}</p>
         )}
       </div>
 
@@ -135,7 +135,7 @@ export default function EditDealForm({ deal, onSaved, onRollback }: Props) {
           ))}
         </select>
         {fieldErrors.stage && (
-          <p className="mt-1 text-xs text-[--bad]">{fieldErrors.stage[0]}</p>
+          <p className="mt-1 text-xs text-[var(--bad)]">{fieldErrors.stage[0]}</p>
         )}
       </div>
 
@@ -155,7 +155,7 @@ export default function EditDealForm({ deal, onSaved, onRollback }: Props) {
           className={inputCls}
         />
         {fieldErrors.value && (
-          <p className="mt-1 text-xs text-[--bad]">{fieldErrors.value[0]}</p>
+          <p className="mt-1 text-xs text-[var(--bad)]">{fieldErrors.value[0]}</p>
         )}
       </div>
 
@@ -172,7 +172,7 @@ export default function EditDealForm({ deal, onSaved, onRollback }: Props) {
           className={inputCls}
         />
         {fieldErrors.expectedCloseDate && (
-          <p className="mt-1 text-xs text-[--bad]">
+          <p className="mt-1 text-xs text-[var(--bad)]">
             {fieldErrors.expectedCloseDate[0]}
           </p>
         )}
@@ -193,20 +193,20 @@ export default function EditDealForm({ deal, onSaved, onRollback }: Props) {
             step="1"
             value={probInput}
             onChange={(e) => setProbInput(e.target.value)}
-            className="tap w-24 rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] placeholder-[--ink-3] focus:border-[--accent] focus:outline-none"
+            className="tap w-24 rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--ink-1)] placeholder-[var(--ink-3)] focus:border-[var(--accent)] focus:outline-none"
           />
-          <div className="flex-1 overflow-hidden rounded-full bg-[--surface-3] h-2">
+          <div className="flex-1 overflow-hidden rounded-full bg-[var(--surface-3)] h-2">
             <div
-              className="h-2 rounded-full bg-[--accent] transition-all"
+              className="h-2 rounded-full bg-[var(--accent)] transition-all"
               style={{ width: `${probPercent}%` }}
             />
           </div>
-          <span className="w-10 text-right text-xs text-[--ink-2]">
+          <span className="w-10 text-right text-xs text-[var(--ink-2)]">
             {probPercent}%
           </span>
         </div>
         {fieldErrors.probability && (
-          <p className="mt-1 text-xs text-[--bad]">{fieldErrors.probability[0]}</p>
+          <p className="mt-1 text-xs text-[var(--bad)]">{fieldErrors.probability[0]}</p>
         )}
       </div>
 
@@ -214,7 +214,7 @@ export default function EditDealForm({ deal, onSaved, onRollback }: Props) {
         <button
           type="submit"
           disabled={pending}
-          className="tap inline-flex items-center justify-center rounded-lg bg-[--accent] px-4 text-sm font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
+          className="tap inline-flex items-center justify-center rounded-lg bg-[var(--accent)] px-4 text-sm font-medium text-[var(--accent-ink)] transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-50"
         >
           {pending ? "Saving…" : "Save changes"}
         </button>

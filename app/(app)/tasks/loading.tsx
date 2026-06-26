@@ -1,5 +1,5 @@
 function Bone({ className }: { className?: string }) {
-  return <div className={`rounded-[--r-md] bg-[--surface-2] ${className ?? ""}`} />;
+  return <div className={`rounded-[var(--r-md)] bg-[var(--surface-2)] ${className ?? ""}`} />;
 }
 
 export default function TasksLoading() {
@@ -15,20 +15,20 @@ export default function TasksLoading() {
       <div className="card px-4 py-5 sm:px-6">
         <Bone className="mb-4 h-4 w-24" />
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Bone className="h-10 flex-1 rounded-[--r-md]" />
-          <Bone className="h-10 w-32 rounded-[--r-md]" />
-          <Bone className="h-10 w-24 rounded-[--r-md]" />
+          <Bone className="h-10 flex-1 rounded-[var(--r-md)]" />
+          <Bone className="h-10 w-32 rounded-[var(--r-md)]" />
+          <Bone className="h-10 w-24 rounded-[var(--r-md)]" />
         </div>
       </div>
 
       {/* Task list card */}
       <div className="card overflow-hidden">
-        <div className="flex items-center gap-2 border-b border-[--line-1] px-4 py-3 sm:px-5">
+        <div className="flex items-center gap-2 border-b border-[var(--line-1)] px-4 py-3 sm:px-5">
           <Bone className="h-2 w-2 rounded-full" />
           <Bone className="h-3 w-20" />
           <Bone className="ml-auto h-3 w-6" />
         </div>
-        <div className="divide-y divide-[--line-1] px-4 sm:px-5">
+        <div className="divide-y divide-[var(--line-1)] px-4 sm:px-5">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="flex min-h-[44px] items-center gap-3 py-2">
               <Bone className="h-5 w-5 shrink-0 rounded-full" />

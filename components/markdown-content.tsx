@@ -20,13 +20,13 @@ function parseInline(text: string, keyBase: string): React.ReactNode[] {
     const k = `${keyBase}-${i++}`;
     if (match[2] != null) {
       result.push(
-        <strong key={k} className="font-semibold text-[--ink-1]">
+        <strong key={k} className="font-semibold text-[var(--ink-1)]">
           {match[2]}
         </strong>
       );
     } else if (match[3] != null) {
       result.push(
-        <em key={k} className="italic text-[--ink-2]">
+        <em key={k} className="italic text-[var(--ink-2)]">
           {match[3]}
         </em>
       );
@@ -34,7 +34,7 @@ function parseInline(text: string, keyBase: string): React.ReactNode[] {
       result.push(
         <code
           key={k}
-          className="rounded bg-[--surface-2] px-1 py-0.5 font-mono text-xs text-[--ink-2]"
+          className="rounded bg-[var(--surface-2)] px-1 py-0.5 font-mono text-xs text-[var(--ink-2)]"
         >
           {match[4]}
         </code>
@@ -46,7 +46,7 @@ function parseInline(text: string, keyBase: string): React.ReactNode[] {
           href={match[6]}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-[--accent] underline hover:text-[--accent-hover]"
+          className="text-[var(--accent)] underline hover:text-[var(--accent-hover)]"
         >
           {match[5]}
         </a>
@@ -145,10 +145,10 @@ export default function MarkdownContent({ content }: { content: string }) {
         if (block.type === "heading") {
           const cls =
             block.level === 1
-              ? "text-sm font-semibold text-[--ink-1]"
+              ? "text-sm font-semibold text-[var(--ink-1)]"
               : block.level === 2
-                ? "text-sm font-medium text-[--ink-1]"
-                : "text-xs font-medium text-[--ink-2] uppercase tracking-wide";
+                ? "text-sm font-medium text-[var(--ink-1)]"
+                : "text-xs font-medium text-[var(--ink-2)] uppercase tracking-wide";
           return (
             <p key={bk} className={cls}>
               {parseInline(block.text, bk)}
@@ -162,7 +162,7 @@ export default function MarkdownContent({ content }: { content: string }) {
               {block.items.map((item, ii) => (
                 <li
                   key={`${bk}-${ii}`}
-                  className="text-sm text-[--ink-1] leading-relaxed"
+                  className="text-sm text-[var(--ink-1)] leading-relaxed"
                 >
                   {parseInline(item, `${bk}-li${ii}`)}
                 </li>
@@ -177,7 +177,7 @@ export default function MarkdownContent({ content }: { content: string }) {
               {block.items.map((item, ii) => (
                 <li
                   key={`${bk}-${ii}`}
-                  className="text-sm text-[--ink-1] leading-relaxed"
+                  className="text-sm text-[var(--ink-1)] leading-relaxed"
                 >
                   {parseInline(item, `${bk}-li${ii}`)}
                 </li>
@@ -187,7 +187,7 @@ export default function MarkdownContent({ content }: { content: string }) {
         }
 
         return (
-          <p key={bk} className="text-sm text-[--ink-1] leading-relaxed">
+          <p key={bk} className="text-sm text-[var(--ink-1)] leading-relaxed">
             {block.lines.flatMap((line, li) => {
               const nodes = parseInline(line, `${bk}-l${li}`);
               return li < block.lines.length - 1

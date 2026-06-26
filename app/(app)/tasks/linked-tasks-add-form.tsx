@@ -12,8 +12,8 @@ interface Props {
 const INIT: AddTaskState = {};
 
 const inputCls =
-  "w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] placeholder:text-[--ink-3] focus:border-[--accent] focus:outline-none";
-const labelCls = "mb-1 block text-xs font-medium text-[--ink-2]";
+  "w-full rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--ink-1)] placeholder:text-[var(--ink-3)] focus:border-[var(--accent)] focus:outline-none";
+const labelCls = "mb-1 block text-xs font-medium text-[var(--ink-2)]";
 
 export default function LinkedTaskAddForm({ contactId, dealId }: Props) {
   const [state, formAction, pending] = useActionState(addLinkedTask, INIT);
@@ -38,7 +38,7 @@ export default function LinkedTaskAddForm({ contactId, dealId }: Props) {
 
       <div className="flex-1">
         <label htmlFor={`ltf-subject-${uid}`} className={labelCls}>
-          New task <span className="text-[--bad]">*</span>
+          New task <span className="text-[var(--bad)]">*</span>
         </label>
         <input
           id={`ltf-subject-${uid}`}
@@ -49,13 +49,13 @@ export default function LinkedTaskAddForm({ contactId, dealId }: Props) {
           className={inputCls}
         />
         {state.fieldErrors?.subject && (
-          <p className="mt-1 text-xs text-[--bad]">{state.fieldErrors.subject[0]}</p>
+          <p className="mt-1 text-xs text-[var(--bad)]">{state.fieldErrors.subject[0]}</p>
         )}
       </div>
 
       <div>
         <label htmlFor={`ltf-due-${uid}`} className={labelCls}>
-          Due date <span className="text-[--bad]">*</span>
+          Due date <span className="text-[var(--bad)]">*</span>
         </label>
         <input
           id={`ltf-due-${uid}`}
@@ -65,14 +65,14 @@ export default function LinkedTaskAddForm({ contactId, dealId }: Props) {
           className={`${inputCls} [color-scheme:dark] sm:w-36`}
         />
         {state.fieldErrors?.dueAt && (
-          <p className="mt-1 text-xs text-[--bad]">{state.fieldErrors.dueAt[0]}</p>
+          <p className="mt-1 text-xs text-[var(--bad)]">{state.fieldErrors.dueAt[0]}</p>
         )}
       </div>
 
       <button
         type="submit"
         disabled={pending}
-        className="shrink-0 rounded-lg bg-[--accent] px-4 py-2 text-sm font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] disabled:opacity-50"
+        className="shrink-0 rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-ink)] transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-50"
       >
         {pending ? "Adding…" : "Add"}
       </button>

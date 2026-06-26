@@ -154,11 +154,11 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
         role="dialog"
         aria-modal="true"
         aria-label="Global search"
-        className="[color-scheme:dark] flex w-full flex-col max-h-[85dvh] overflow-hidden rounded-t-[--r-2xl] border border-[--line-1] bg-[--surface-1] shadow-[--shadow-3] sm:mx-4 sm:max-w-lg sm:rounded-[--r-xl]"
+        className="[color-scheme:dark] flex w-full flex-col max-h-[85dvh] overflow-hidden rounded-t-[var(--r-2xl)] border border-[var(--line-1)] bg-[var(--surface-1)] shadow-[var(--shadow-3)] sm:mx-4 sm:max-w-lg sm:rounded-[var(--r-xl)]"
       >
         {/* Input row — 44px touch target */}
-        <div className="tap flex items-center gap-3 border-b border-[--line-1] px-4">
-          <SearchIcon size={16} className="shrink-0 text-[--ink-3]" aria-hidden="true" />
+        <div className="tap flex items-center gap-3 border-b border-[var(--line-1)] px-4">
+          <SearchIcon size={16} className="shrink-0 text-[var(--ink-3)]" aria-hidden="true" />
           <input
             ref={inputRef}
             type="text"
@@ -166,13 +166,13 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleInputKeyDown}
             placeholder="Search contacts, deals and activities…"
-            className="flex-1 bg-transparent text-body text-[--ink-1] placeholder:text-[--ink-3] outline-none"
+            className="flex-1 bg-transparent text-body text-[var(--ink-1)] placeholder:text-[var(--ink-3)] outline-none"
             aria-label="Global search"
           />
           {isPending && (
-            <div className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-[--accent] border-t-transparent" aria-hidden="true" />
+            <div className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-[var(--accent)] border-t-transparent" aria-hidden="true" />
           )}
-          <kbd className="shrink-0 rounded border border-[--line-1] px-1.5 py-0.5 font-mono text-caption text-[--ink-3]">
+          <kbd className="shrink-0 rounded border border-[var(--line-1)] px-1.5 py-0.5 font-mono text-caption text-[var(--ink-3)]">
             Esc
           </kbd>
         </div>
@@ -180,13 +180,13 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
         {/* Results list — scrollable */}
         <div ref={listRef} className="flex-1 min-h-0 overflow-y-auto" role="listbox" aria-label="Search results">
           {!results && (
-            <p className="py-8 text-center text-body text-[--ink-3]">
+            <p className="py-8 text-center text-body text-[var(--ink-3)]">
               Type to search contacts, deals and activities
             </p>
           )}
 
           {results && allItems.length === 0 && (
-            <p className="py-8 text-center text-body text-[--ink-3]">
+            <p className="py-8 text-center text-body text-[var(--ink-3)]">
               No results for &ldquo;{query}&rdquo;
             </p>
           )}
@@ -194,7 +194,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
           {/* Contacts section */}
           {results && results.contacts.length > 0 && (
             <div className="p-2">
-              <p className="mb-1 px-2 text-caption font-semibold uppercase tracking-wider text-[--ink-3]">
+              <p className="mb-1 px-2 text-caption font-semibold uppercase tracking-wider text-[var(--ink-3)]">
                 Contacts
               </p>
               {results.contacts.map((contact) => {
@@ -209,19 +209,19 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                     role="option"
                     aria-selected={active}
                     className={[
-                      "tap flex w-full items-center gap-3 rounded-[--r-md] px-3 text-left text-body transition-colors",
+                      "tap flex w-full items-center gap-3 rounded-[var(--r-md)] px-3 text-left text-body transition-colors",
                       active
-                        ? "bg-[--accent] text-[--accent-ink]"
-                        : "text-[--ink-1] hover:bg-[--surface-2]",
+                        ? "bg-[var(--accent)] text-[var(--accent-ink)]"
+                        : "text-[var(--ink-1)] hover:bg-[var(--surface-2)]",
                     ].join(" ")}
                   >
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[--surface-2] text-footnote font-medium">
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--surface-2)] text-footnote font-medium">
                       {contact.name[0]?.toUpperCase() ?? "?"}
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate font-medium">{contact.name}</span>
                       {(contact.company || contact.email) && (
-                        <span className={["block truncate text-footnote", active ? "opacity-70" : "text-[--ink-3]"].join(" ")}>
+                        <span className={["block truncate text-footnote", active ? "opacity-70" : "text-[var(--ink-3)]"].join(" ")}>
                           {contact.company || contact.email}
                         </span>
                       )}
@@ -240,8 +240,8 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                     role="option"
                     aria-selected={active}
                     className={[
-                      "tap flex w-full items-center gap-2 rounded-[--r-md] px-3 text-left text-footnote transition-colors",
-                      active ? "bg-[--accent] text-[--accent-ink]" : "text-[--accent] hover:bg-[--surface-2]",
+                      "tap flex w-full items-center gap-2 rounded-[var(--r-md)] px-3 text-left text-footnote transition-colors",
+                      active ? "bg-[var(--accent)] text-[var(--accent-ink)]" : "text-[var(--accent)] hover:bg-[var(--surface-2)]",
                     ].join(" ")}
                   >
                     <SearchIcon size={12} className="shrink-0" aria-hidden="true" />
@@ -255,7 +255,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
           {/* Deals section */}
           {results && results.deals.length > 0 && (
             <div className="p-2">
-              <p className="mb-1 px-2 text-caption font-semibold uppercase tracking-wider text-[--ink-3]">
+              <p className="mb-1 px-2 text-caption font-semibold uppercase tracking-wider text-[var(--ink-3)]">
                 Deals
               </p>
               {results.deals.map((deal) => {
@@ -270,21 +270,21 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                     role="option"
                     aria-selected={active}
                     className={[
-                      "tap flex w-full items-center gap-3 rounded-[--r-md] px-3 text-left text-body transition-colors",
-                      active ? "bg-[--accent] text-[--accent-ink]" : "text-[--ink-1] hover:bg-[--surface-2]",
+                      "tap flex w-full items-center gap-3 rounded-[var(--r-md)] px-3 text-left text-body transition-colors",
+                      active ? "bg-[var(--accent)] text-[var(--accent-ink)]" : "text-[var(--ink-1)] hover:bg-[var(--surface-2)]",
                     ].join(" ")}
                   >
-                    <span className={["flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[--ink-2]", active ? "bg-[--accent-hover]" : "bg-[--surface-2]"].join(" ")}>
+                    <span className={["flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[var(--ink-2)]", active ? "bg-[var(--accent-hover)]" : "bg-[var(--surface-2)]"].join(" ")}>
                       <DollarSignIcon size={12} aria-hidden="true" />
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate font-medium">{deal.title}</span>
-                      <span className={["block truncate text-footnote capitalize", active ? "opacity-70" : "text-[--ink-3]"].join(" ")}>
+                      <span className={["block truncate text-footnote capitalize", active ? "opacity-70" : "text-[var(--ink-3)]"].join(" ")}>
                         {deal.stage}
                       </span>
                     </span>
                     {deal.value && (
-                      <span className={["shrink-0 text-footnote", active ? "opacity-80" : "text-[--ink-2]"].join(" ")}>
+                      <span className={["shrink-0 text-footnote", active ? "opacity-80" : "text-[var(--ink-2)]"].join(" ")}>
                         ${Number(deal.value).toLocaleString()}
                       </span>
                     )}
@@ -302,8 +302,8 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                     role="option"
                     aria-selected={active}
                     className={[
-                      "tap flex w-full items-center gap-2 rounded-[--r-md] px-3 text-left text-footnote transition-colors",
-                      active ? "bg-[--accent] text-[--accent-ink]" : "text-[--accent] hover:bg-[--surface-2]",
+                      "tap flex w-full items-center gap-2 rounded-[var(--r-md)] px-3 text-left text-footnote transition-colors",
+                      active ? "bg-[var(--accent)] text-[var(--accent-ink)]" : "text-[var(--accent)] hover:bg-[var(--surface-2)]",
                     ].join(" ")}
                   >
                     <SearchIcon size={12} className="shrink-0" aria-hidden="true" />
@@ -317,7 +317,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
           {/* Activities section */}
           {results && results.activities.length > 0 && (
             <div className="p-2">
-              <p className="mb-1 px-2 text-caption font-semibold uppercase tracking-wider text-[--ink-3]">
+              <p className="mb-1 px-2 text-caption font-semibold uppercase tracking-wider text-[var(--ink-3)]">
                 Activities
               </p>
               {results.activities.map((activity) => {
@@ -332,22 +332,22 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                     role="option"
                     aria-selected={active}
                     className={[
-                      "tap flex w-full items-center gap-3 rounded-[--r-md] px-3 text-left text-body transition-colors",
-                      active ? "bg-[--accent] text-[--accent-ink]" : "text-[--ink-1] hover:bg-[--surface-2]",
+                      "tap flex w-full items-center gap-3 rounded-[var(--r-md)] px-3 text-left text-body transition-colors",
+                      active ? "bg-[var(--accent)] text-[var(--accent-ink)]" : "text-[var(--ink-1)] hover:bg-[var(--surface-2)]",
                     ].join(" ")}
                   >
-                    <span className={["flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[--ink-2]", active ? "bg-[--accent-hover]" : "bg-[--surface-2]"].join(" ")}>
+                    <span className={["flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[var(--ink-2)]", active ? "bg-[var(--accent-hover)]" : "bg-[var(--surface-2)]"].join(" ")}>
                       <ClockIcon size={12} aria-hidden="true" />
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate font-medium">{activity.subject}</span>
                       {activity.body && (
-                        <span className={["block truncate text-footnote", active ? "opacity-70" : "text-[--ink-3]"].join(" ")}>
+                        <span className={["block truncate text-footnote", active ? "opacity-70" : "text-[var(--ink-3)]"].join(" ")}>
                           {activity.body}
                         </span>
                       )}
                     </span>
-                    <span className={["shrink-0 rounded-[--r-sm] px-1.5 py-0.5 text-caption font-medium capitalize", active ? "bg-[--accent-hover] text-[--accent-ink]" : "bg-[--surface-3] text-[--ink-2]"].join(" ")}>
+                    <span className={["shrink-0 rounded-[var(--r-sm)] px-1.5 py-0.5 text-caption font-medium capitalize", active ? "bg-[var(--accent-hover)] text-[var(--accent-ink)]" : "bg-[var(--surface-3)] text-[var(--ink-2)]"].join(" ")}>
                       {activity.type}
                     </span>
                   </button>
@@ -364,8 +364,8 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                     role="option"
                     aria-selected={active}
                     className={[
-                      "tap flex w-full items-center gap-2 rounded-[--r-md] px-3 text-left text-footnote transition-colors",
-                      active ? "bg-[--accent] text-[--accent-ink]" : "text-[--accent] hover:bg-[--surface-2]",
+                      "tap flex w-full items-center gap-2 rounded-[var(--r-md)] px-3 text-left text-footnote transition-colors",
+                      active ? "bg-[var(--accent)] text-[var(--accent-ink)]" : "text-[var(--accent)] hover:bg-[var(--surface-2)]",
                     ].join(" ")}
                   >
                     <SearchIcon size={12} className="shrink-0" aria-hidden="true" />
@@ -379,15 +379,15 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
 
         {/* Footer hints */}
         <div
-          className="flex items-center justify-end gap-4 border-t border-[--line-1] px-4 py-2"
+          className="flex items-center justify-end gap-4 border-t border-[var(--line-1)] px-4 py-2"
           style={{ paddingBottom: "max(8px, env(safe-area-inset-bottom))" }}
         >
-          <span className="text-caption text-[--ink-3]">
-            <kbd className="mr-1 rounded border border-[--line-1] px-1 font-mono text-caption">↑↓</kbd>
+          <span className="text-caption text-[var(--ink-3)]">
+            <kbd className="mr-1 rounded border border-[var(--line-1)] px-1 font-mono text-caption">↑↓</kbd>
             navigate
           </span>
-          <span className="text-caption text-[--ink-3]">
-            <kbd className="mr-1 rounded border border-[--line-1] px-1 font-mono text-caption">↵</kbd>
+          <span className="text-caption text-[var(--ink-3)]">
+            <kbd className="mr-1 rounded border border-[var(--line-1)] px-1 font-mono text-caption">↵</kbd>
             select
           </span>
         </div>

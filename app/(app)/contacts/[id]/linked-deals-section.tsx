@@ -10,12 +10,12 @@ interface Props {
 }
 
 const STAGE_STYLES: Record<string, string> = {
-  lead: "bg-[--surface-2] text-[--ink-2]",
-  qualified: "bg-[--info-tint] text-[--info]",
-  proposal: "bg-[--accent-tint] text-[--accent]",
-  negotiation: "bg-[--warn-tint] text-[--warn]",
-  won: "bg-[--ok-tint] text-[--ok]",
-  lost: "bg-[--bad-tint] text-[--bad]",
+  lead: "bg-[var(--surface-2)] text-[var(--ink-2)]",
+  qualified: "bg-[var(--info-tint)] text-[var(--info)]",
+  proposal: "bg-[var(--accent-tint)] text-[var(--accent)]",
+  negotiation: "bg-[var(--warn-tint)] text-[var(--warn)]",
+  won: "bg-[var(--ok-tint)] text-[var(--ok)]",
+  lost: "bg-[var(--bad-tint)] text-[var(--bad)]",
 };
 
 function fmtValue(value: string | null, currency: string) {
@@ -89,9 +89,9 @@ export default async function LinkedDealsSection({
       </div>
 
       {!db ? (
-        <p className="text-sm text-[--ink-3]">Connect a database to view deals.</p>
+        <p className="text-sm text-[var(--ink-3)]">Connect a database to view deals.</p>
       ) : deals.length === 0 ? (
-        <p className="text-sm text-[--ink-3]">No deals linked to this contact yet.</p>
+        <p className="text-sm text-[var(--ink-3)]">No deals linked to this contact yet.</p>
       ) : (
         <ul className="space-y-2">
           {deals.map((deal) => {

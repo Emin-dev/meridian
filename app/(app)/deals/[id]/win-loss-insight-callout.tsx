@@ -15,12 +15,12 @@ export default function WinLossInsightCallout({ insight, stage, dealId }: Props)
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const borderColor = isWon ? "border-[--ok]/40" : "border-[--bad]/40";
-  const bgColor = isWon ? "bg-[--ok-tint]" : "bg-[--bad-tint]";
-  const iconColor = isWon ? "text-[--ok]" : "text-[--bad]";
-  const labelColor = isWon ? "text-[--ok]" : "text-[--bad]";
-  const textColor = "text-[--ink-1]";
-  const badgeBg = isWon ? "bg-[--ok-tint] text-[--ok]" : "bg-[--bad-tint] text-[--bad]";
+  const borderColor = isWon ? "border-[var(--ok)]/40" : "border-[var(--bad)]/40";
+  const bgColor = isWon ? "bg-[var(--ok-tint)]" : "bg-[var(--bad-tint)]";
+  const iconColor = isWon ? "text-[var(--ok)]" : "text-[var(--bad)]";
+  const labelColor = isWon ? "text-[var(--ok)]" : "text-[var(--bad)]";
+  const textColor = "text-[var(--ink-1)]";
+  const badgeBg = isWon ? "bg-[var(--ok-tint)] text-[var(--ok)]" : "bg-[var(--bad-tint)] text-[var(--bad)]";
 
   function handleRefresh() {
     setError(null);
@@ -54,14 +54,14 @@ export default function WinLossInsightCallout({ insight, stage, dealId }: Props)
           onClick={handleRefresh}
           disabled={isPending}
           title="Regenerate analysis"
-          className="shrink-0 rounded-lg px-2.5 py-1.5 text-xs text-[--ink-2] hover:text-[--ink-1] hover:bg-[--surface-3] transition-colors disabled:opacity-40"
+          className="shrink-0 rounded-lg px-2.5 py-1.5 text-xs text-[var(--ink-2)] hover:text-[var(--ink-1)] hover:bg-[var(--surface-3)] transition-colors disabled:opacity-40"
         >
           {isPending ? "Analysing…" : "↻ Refresh"}
         </button>
       </div>
 
       {error ? (
-        <p className="mt-3 text-xs text-[--bad]">{error}</p>
+        <p className="mt-3 text-xs text-[var(--bad)]">{error}</p>
       ) : (
         <p className={`mt-3 text-sm leading-relaxed ${textColor}`}>
           {currentInsight}

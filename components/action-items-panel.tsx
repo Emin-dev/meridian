@@ -15,10 +15,10 @@ interface Props {
 }
 
 const TYPE_CHIP: Record<ActionItem["type"], string> = {
-  call:    "bg-[--info-tint] text-[--info]",
-  email:   "bg-[--accent-tint] text-[--accent]",
-  meeting: "bg-[--ok-tint] text-[--ok]",
-  task:    "bg-[--surface-3] text-[--ink-2]",
+  call:    "bg-[var(--info-tint)] text-[var(--info)]",
+  email:   "bg-[var(--accent-tint)] text-[var(--accent)]",
+  meeting: "bg-[var(--ok-tint)] text-[var(--ok)]",
+  task:    "bg-[var(--surface-3)] text-[var(--ink-2)]",
 };
 
 export default function ActionItemsPanel({ contactId, dealId }: Props) {
@@ -67,27 +67,27 @@ export default function ActionItemsPanel({ contactId, dealId }: Props) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3">
-        <h3 className="text-sm font-medium text-[--ink-2]">Action items</h3>
+        <h3 className="text-sm font-medium text-[var(--ink-2)]">Action items</h3>
         <button
           type="button"
           onClick={handleExtract}
           disabled={isPending}
-          className="tap rounded-lg bg-[--accent] px-3 py-1.5 text-xs font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover] active:scale-[0.98] disabled:opacity-50"
+          className="tap rounded-lg bg-[var(--accent)] px-3 py-1.5 text-xs font-medium text-[var(--accent-ink)] transition-colors hover:bg-[var(--accent-hover)] active:scale-[0.98] disabled:opacity-50"
         >
           {isPending ? "Analyzing…" : hasItems ? "Re-extract" : "Extract"}
         </button>
       </div>
 
       {state.noDb && (
-        <p className="text-xs text-[--ink-2]">
+        <p className="text-xs text-[var(--ink-2)]">
           Database not connected — cannot load data.
         </p>
       )}
 
       {state.noKey && (
-        <p className="text-xs text-[--warn]">
+        <p className="text-xs text-[var(--warn)]">
           Set{" "}
-          <code className="rounded bg-[--surface-2] px-1 py-0.5">
+          <code className="rounded bg-[var(--surface-2)] px-1 py-0.5">
             DEEPSEEK_API_KEY
           </code>{" "}
           in your environment to enable AI extraction.
@@ -95,12 +95,12 @@ export default function ActionItemsPanel({ contactId, dealId }: Props) {
       )}
 
       {state.error && (
-        <p className="text-xs text-[--bad]">{state.error}</p>
+        <p className="text-xs text-[var(--bad)]">{state.error}</p>
       )}
 
       {hasItems ? (
         state.items!.length === 0 ? (
-          <p className="text-xs text-[--ink-3]">
+          <p className="text-xs text-[var(--ink-3)]">
             No concrete action items found in the current notes and activity.
           </p>
         ) : (
@@ -108,7 +108,7 @@ export default function ActionItemsPanel({ contactId, dealId }: Props) {
             {state.items!.map((item, i) => (
               <li
                 key={i}
-                className="rounded-lg border border-[--line-1] bg-[--surface-2] p-3 space-y-1.5"
+                className="rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] p-3 space-y-1.5"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0 space-y-1">
@@ -118,19 +118,19 @@ export default function ActionItemsPanel({ contactId, dealId }: Props) {
                       >
                         {item.type}
                       </span>
-                      <p className="text-sm text-[--ink-1] leading-snug">
+                      <p className="text-sm text-[var(--ink-1)] leading-snug">
                         {item.title}
                       </p>
                     </div>
                     {item.rationale && (
-                      <p className="text-xs text-[--ink-3] leading-relaxed">
+                      <p className="text-xs text-[var(--ink-3)] leading-relaxed">
                         {item.rationale}
                       </p>
                     )}
                   </div>
 
                   {saved.has(i) ? (
-                    <span className="shrink-0 text-xs text-[--ok] font-medium py-1">
+                    <span className="shrink-0 text-xs text-[var(--ok)] font-medium py-1">
                       ✓ Added
                     </span>
                   ) : (
@@ -138,7 +138,7 @@ export default function ActionItemsPanel({ contactId, dealId }: Props) {
                       type="button"
                       onClick={() => handleCreateTask(item, i)}
                       disabled={saving.has(i)}
-                      className="tap shrink-0 rounded-md border border-[--line-1] bg-[--surface-1] px-2.5 py-1 text-xs font-medium text-[--ink-2] hover:border-[--line-2] hover:text-[--ink-1] transition-colors disabled:opacity-50"
+                      className="tap shrink-0 rounded-md border border-[var(--line-1)] bg-[var(--surface-1)] px-2.5 py-1 text-xs font-medium text-[var(--ink-2)] hover:border-[var(--line-2)] hover:text-[var(--ink-1)] transition-colors disabled:opacity-50"
                     >
                       {saving.has(i) ? "…" : "Create task"}
                     </button>
@@ -153,7 +153,7 @@ export default function ActionItemsPanel({ contactId, dealId }: Props) {
         !state.noKey &&
         !state.error &&
         !isPending && (
-          <p className="text-xs text-[--ink-3]">
+          <p className="text-xs text-[var(--ink-3)]">
             Click &ldquo;Extract&rdquo; to scan notes and recent activity for
             concrete follow-up items.
           </p>
