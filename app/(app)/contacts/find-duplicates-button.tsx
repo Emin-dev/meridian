@@ -6,9 +6,9 @@ import type { DuplicatePair } from "./actions";
 import { useOverlayDismiss } from "@/hooks/use-overlay-dismiss";
 
 const CONFIDENCE_STYLES: Record<"high" | "medium" | "low", string> = {
-  high: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
-  medium: "bg-amber-500/10 text-amber-400 border border-amber-500/20",
-  low: "bg-neutral-700 text-neutral-400 border border-neutral-600",
+  high: "bg-[var(--ok-tint)] text-[var(--ok)] border border-[var(--ok-tint)]",
+  medium: "bg-[var(--warn-tint)] text-[var(--warn)] border border-[var(--warn-tint)]",
+  low: "bg-[var(--surface-2)] text-[var(--ink-2)] border border-[var(--line-1)]",
 };
 
 export default function FindDuplicatesButton({ hasDb }: { hasDb: boolean }) {
@@ -112,21 +112,21 @@ export default function FindDuplicatesButton({ hasDb }: { hasDb: boolean }) {
             role="dialog"
             aria-modal="true"
             aria-label="Find duplicate contacts"
-            className="w-full max-w-2xl rounded-xl border border-neutral-800 bg-neutral-950 shadow-2xl"
+            className="w-full max-w-2xl rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)] shadow-2xl"
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-neutral-800 px-5 py-4">
+            <div className="flex items-center justify-between border-b border-[var(--line-1)] px-5 py-4">
               <div>
-                <h2 className="text-sm font-semibold text-neutral-100">
+                <h2 className="text-sm font-semibold text-[var(--ink-1)]">
                   Find duplicate contacts
                 </h2>
-                <p className="mt-0.5 text-xs text-neutral-500">
+                <p className="mt-0.5 text-xs text-[var(--ink-3)]">
                   AI scans all contacts for likely duplicates by name, email, and company.
                 </p>
               </div>
               <button
                 onClick={() => setOpen(false)}
-                className="rounded p-1 text-neutral-500 hover:bg-neutral-800 hover:text-neutral-300"
+                className="rounded p-1 text-[var(--ink-3)] hover:bg-[var(--surface-2)] hover:text-[var(--ink-2)]"
                 aria-label="Close"
               >
                 <svg
@@ -161,7 +161,7 @@ export default function FindDuplicatesButton({ hasDb }: { hasDb: boolean }) {
               {isPending && (
                 <div className="flex flex-col items-center gap-2 py-10">
                   <span className="h-6 w-6 animate-spin rounded-full border-2 border-[--accent] border-t-transparent" />
-                  <p className="text-xs text-neutral-500">AI is scanning contacts…</p>
+                  <p className="text-xs text-[var(--ink-3)]">AI is scanning contacts…</p>
                 </div>
               )}
 
@@ -173,8 +173,8 @@ export default function FindDuplicatesButton({ hasDb }: { hasDb: boolean }) {
 
               {searched && !isPending && !errorMsg && pairs.length === 0 && (
                 <div className="py-10 text-center">
-                  <p className="text-sm text-neutral-300">No duplicates found</p>
-                  <p className="mt-1 text-xs text-neutral-600">
+                  <p className="text-sm text-[var(--ink-2)]">No duplicates found</p>
+                  <p className="mt-1 text-xs text-[var(--ink-3)]">
                     Your contacts list looks clean.
                   </p>
                   <button
@@ -190,7 +190,7 @@ export default function FindDuplicatesButton({ hasDb }: { hasDb: boolean }) {
               {pairs.length > 0 && (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs text-neutral-500">
+                    <p className="text-xs text-[var(--ink-3)]">
                       {pairs.length} potential duplicate
                       {pairs.length !== 1 ? "s" : ""} found
                     </p>
@@ -212,25 +212,25 @@ export default function FindDuplicatesButton({ hasDb }: { hasDb: boolean }) {
                     return (
                       <div
                         key={key}
-                        className="space-y-3 rounded-lg border border-neutral-800 bg-neutral-900 p-4"
+                        className="space-y-3 rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] p-4"
                       >
                         <div className="flex items-start gap-3">
                           <div className="grid flex-1 grid-cols-2 gap-4">
                             {/* Primary */}
                             <div className="space-y-0.5">
-                              <p className="text-[10px] font-medium uppercase tracking-wide text-emerald-600">
+                              <p className="text-[10px] font-medium uppercase tracking-wide text-[var(--ok)]">
                                 Keep (primary)
                               </p>
-                              <p className="text-sm font-medium text-neutral-100">
+                              <p className="text-sm font-medium text-[var(--ink-1)]">
                                 {pair.primaryName}
                               </p>
                               {pair.primaryEmail && (
-                                <p className="text-xs text-neutral-400">
+                                <p className="text-xs text-[var(--ink-2)]">
                                   {pair.primaryEmail}
                                 </p>
                               )}
                               {pair.primaryCompany && (
-                                <p className="text-xs text-neutral-500">
+                                <p className="text-xs text-[var(--ink-3)]">
                                   {pair.primaryCompany}
                                 </p>
                               )}
@@ -241,16 +241,16 @@ export default function FindDuplicatesButton({ hasDb }: { hasDb: boolean }) {
                               <p className="text-[10px] font-medium uppercase tracking-wide text-red-600">
                                 Merge away
                               </p>
-                              <p className="text-sm font-medium text-neutral-300">
+                              <p className="text-sm font-medium text-[var(--ink-2)]">
                                 {pair.secondaryName}
                               </p>
                               {pair.secondaryEmail && (
-                                <p className="text-xs text-neutral-400">
+                                <p className="text-xs text-[var(--ink-2)]">
                                   {pair.secondaryEmail}
                                 </p>
                               )}
                               {pair.secondaryCompany && (
-                                <p className="text-xs text-neutral-500">
+                                <p className="text-xs text-[var(--ink-3)]">
                                   {pair.secondaryCompany}
                                 </p>
                               )}
@@ -264,7 +264,7 @@ export default function FindDuplicatesButton({ hasDb }: { hasDb: boolean }) {
                           </span>
                         </div>
 
-                        <p className="text-xs italic text-neutral-500">
+                        <p className="text-xs italic text-[var(--ink-3)]">
                           {pair.reason}
                         </p>
 
@@ -281,7 +281,7 @@ export default function FindDuplicatesButton({ hasDb }: { hasDb: boolean }) {
                             </button>
                           ) : (
                             <div className="flex flex-wrap items-center gap-2">
-                              <span className="text-xs text-neutral-400">
+                              <span className="text-xs text-[var(--ink-2)]">
                                 Merge &ldquo;{pair.secondaryName}&rdquo; into &ldquo;
                                 {pair.primaryName}&rdquo;? Activities, deals, and
                                 enrollments move over, tags merge, and empty fields
@@ -297,7 +297,7 @@ export default function FindDuplicatesButton({ hasDb }: { hasDb: boolean }) {
                               <button
                                 onClick={() => setConfirmingKey(null)}
                                 disabled={isMerging}
-                                className="text-xs text-neutral-500 hover:text-neutral-300 disabled:opacity-50"
+                                className="text-xs text-[var(--ink-3)] hover:text-[var(--ink-2)] disabled:opacity-50"
                               >
                                 Cancel
                               </button>

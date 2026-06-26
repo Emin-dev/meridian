@@ -62,7 +62,7 @@ export default function EnrollSequenceModal({
       <button
         type="button"
         onClick={openModal}
-        className="rounded-lg border border-neutral-700 px-4 py-2 text-sm font-medium text-neutral-300 transition-colors hover:bg-neutral-800 hover:text-neutral-100"
+        className="rounded-lg border border-[var(--line-1)] px-4 py-2 text-sm font-medium text-[var(--ink-2)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)]"
       >
         Enroll in sequence
       </button>
@@ -77,18 +77,18 @@ export default function EnrollSequenceModal({
           m-0 inset-x-0 bottom-0 top-auto
           w-full max-w-none rounded-t-[var(--r-2xl)]
           max-h-[90dvh] overflow-hidden flex flex-col
-          border border-neutral-800 bg-neutral-900 p-0 text-neutral-100 shadow-2xl
+          border border-[var(--line-1)] bg-[var(--surface-1)] p-0 text-[var(--ink-1)] shadow-2xl
           backdrop:bg-black/60
           sm:m-auto sm:inset-0 sm:max-w-md sm:w-full sm:rounded-xl
         "
       >
         {/* Header */}
-        <div className="shrink-0 flex items-center justify-between border-b border-neutral-800 px-6 py-4">
+        <div className="shrink-0 flex items-center justify-between border-b border-[var(--line-1)] px-6 py-4">
           <h2 className="text-base font-semibold">Enroll in Sequence</h2>
           <button
             type="button"
             onClick={() => dialogRef.current?.close()}
-            className="rounded-md p-1 text-neutral-400 hover:bg-neutral-800 hover:text-neutral-100"
+            className="rounded-md p-1 text-[var(--ink-2)] hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)]"
             aria-label="Close"
           >
             <svg
@@ -110,10 +110,10 @@ export default function EnrollSequenceModal({
         <div className="flex-1 overflow-y-auto px-6 py-5">
           {sequences.length === 0 ? (
             <div className="py-8 text-center">
-              <p className="text-sm text-neutral-400">
+              <p className="text-sm text-[var(--ink-2)]">
                 No active sequences found.
               </p>
-              <p className="mt-1 text-xs text-neutral-600">
+              <p className="mt-1 text-xs text-[var(--ink-3)]">
                 Create a sequence first, then enroll this contact.
               </p>
             </div>
@@ -125,9 +125,9 @@ export default function EnrollSequenceModal({
                 return (
                   <li
                     key={seq.id}
-                    className="flex items-center justify-between gap-3 rounded-lg border border-neutral-800 bg-neutral-800/50 px-4 py-3"
+                    className="flex items-center justify-between gap-3 rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-4 py-3"
                   >
-                    <span className="text-sm text-neutral-200">{seq.name}</span>
+                    <span className="text-sm text-[var(--ink-1)]">{seq.name}</span>
                     <div className="flex shrink-0 items-center gap-2">
                       {errors[seq.id] && (
                         <span className="text-xs text-red-400">
@@ -135,7 +135,7 @@ export default function EnrollSequenceModal({
                         </span>
                       )}
                       {enrolled ? (
-                        <span className="rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-400">
+                        <span className="rounded-full bg-[var(--ok-tint)] px-2.5 py-0.5 text-xs font-medium text-[var(--ok)]">
                           Enrolled
                         </span>
                       ) : (
@@ -156,11 +156,11 @@ export default function EnrollSequenceModal({
           )}
         </div>
 
-        <div className="shrink-0 flex justify-end border-t border-neutral-800 px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+        <div className="shrink-0 flex justify-end border-t border-[var(--line-1)] px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
           <button
             type="button"
             onClick={() => dialogRef.current?.close()}
-            className="rounded-lg px-4 py-2 text-sm text-neutral-400 hover:bg-neutral-800 hover:text-neutral-100"
+            className="rounded-lg px-4 py-2 text-sm text-[var(--ink-2)] hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)]"
           >
             Done
           </button>
@@ -190,7 +190,7 @@ export function CancelEnrollmentButton({
       type="button"
       onClick={handleCancel}
       disabled={isPending}
-      className="rounded-lg px-3 py-1.5 text-xs font-medium text-neutral-400 transition-colors hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50"
+      className="rounded-lg px-3 py-1.5 text-xs font-medium text-[var(--ink-2)] transition-colors hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50"
     >
       {isPending ? "Cancelling…" : "Cancel"}
     </button>
