@@ -72,19 +72,35 @@ export function PreferencesForm({ current }: { current: CrmSettings }) {
           Default currency
         </label>
         {/* Desktop: native select. Hidden on mobile but still submits `defaultCurrency`. */}
-        <select
-          id="pf-currency"
-          name="defaultCurrency"
-          value={currency}
-          onChange={(e) => setCurrency(e.target.value)}
-          className={`${inputCls} hidden sm:block`}
-        >
-          {CURRENCIES.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
+        <div className="relative hidden sm:block">
+          <select
+            id="pf-currency"
+            name="defaultCurrency"
+            value={currency}
+            onChange={(e) => setCurrency(e.target.value)}
+            className={`${inputCls} appearance-none pr-10`}
+          >
+            {CURRENCIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[var(--ink-3)]"
+            aria-hidden="true"
+          >
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
         {/* Mobile: 44px button opening an action sheet instead of a dropdown. */}
         <button
           type="button"
@@ -121,19 +137,35 @@ export function PreferencesForm({ current }: { current: CrmSettings }) {
           Default deal stage
         </label>
         {/* Desktop: native select. Hidden on mobile but still submits `defaultDealStage`. */}
-        <select
-          id="pf-stage"
-          name="defaultDealStage"
-          value={stage}
-          onChange={(e) => setStage(e.target.value)}
-          className={`${inputCls} hidden sm:block`}
-        >
-          {STAGES.map((s) => (
-            <option key={s.value} value={s.value}>
-              {s.label}
-            </option>
-          ))}
-        </select>
+        <div className="relative hidden sm:block">
+          <select
+            id="pf-stage"
+            name="defaultDealStage"
+            value={stage}
+            onChange={(e) => setStage(e.target.value)}
+            className={`${inputCls} appearance-none pr-10`}
+          >
+            {STAGES.map((s) => (
+              <option key={s.value} value={s.value}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[var(--ink-3)]"
+            aria-hidden="true"
+          >
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
         {/* Mobile: 44px button opening an action sheet instead of a dropdown. */}
         <button
           type="button"

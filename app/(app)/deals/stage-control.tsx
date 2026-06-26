@@ -95,7 +95,7 @@ export default function StageControl({
             type="button"
             disabled={!canPrev || pending}
             onClick={() => requestMove(STAGE_KEYS[idx - 1])}
-            className="flex min-h-[44px] items-center gap-1 rounded px-3 py-2 text-sm text-[var(--ink-2)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)] disabled:pointer-events-none disabled:opacity-30 lg:min-h-0 lg:px-1.5 lg:py-0.5 lg:text-xs"
+            className="flex min-h-[44px] items-center gap-1 rounded px-3 py-2 text-sm text-[var(--ink-2)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)] disabled:pointer-events-none disabled:opacity-30 lg:min-h-[28px] lg:px-1.5 lg:py-1 lg:text-xs"
             aria-label="Move to previous stage"
           >
             <svg
@@ -125,7 +125,7 @@ export default function StageControl({
             type="button"
             disabled={!canNext || pending}
             onClick={() => requestMove(STAGE_KEYS[idx + 1])}
-            className="flex min-h-[44px] items-center gap-1 rounded px-3 py-2 text-sm text-[var(--ink-2)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)] disabled:pointer-events-none disabled:opacity-30 lg:min-h-0 lg:px-1.5 lg:py-0.5 lg:text-xs"
+            className="flex min-h-[44px] items-center gap-1 rounded px-3 py-2 text-sm text-[var(--ink-2)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)] disabled:pointer-events-none disabled:opacity-30 lg:min-h-[28px] lg:px-1.5 lg:py-1 lg:text-xs"
             aria-label="Move to next stage"
           >
             {canNext
@@ -154,7 +154,7 @@ export default function StageControl({
               type="button"
               disabled={pending}
               onClick={() => requestMove("won")}
-              className="flex min-h-[44px] flex-1 items-center justify-center rounded px-2 py-2 text-sm font-medium text-[var(--ok)] transition-colors hover:bg-[var(--ok-tint)] disabled:pointer-events-none disabled:opacity-40 lg:min-h-0 lg:py-1 lg:text-[11px]"
+              className="flex min-h-[44px] flex-1 items-center justify-center rounded px-2 py-2 text-sm font-medium text-[var(--ok)] transition-colors hover:bg-[var(--ok-tint)] disabled:pointer-events-none disabled:opacity-40 lg:min-h-[28px] lg:py-1 lg:text-[11px]"
             >
               Won
             </button>
@@ -162,7 +162,7 @@ export default function StageControl({
               type="button"
               disabled={pending}
               onClick={() => requestMove("lost")}
-              className="flex min-h-[44px] flex-1 items-center justify-center rounded px-2 py-2 text-sm font-medium text-[var(--bad)] transition-colors hover:bg-[var(--bad-tint)] disabled:pointer-events-none disabled:opacity-40 lg:min-h-0 lg:py-1 lg:text-[11px]"
+              className="flex min-h-[44px] flex-1 items-center justify-center rounded px-2 py-2 text-sm font-medium text-[var(--bad)] transition-colors hover:bg-[var(--bad-tint)] disabled:pointer-events-none disabled:opacity-40 lg:min-h-[28px] lg:py-1 lg:text-[11px]"
             >
               Lost
             </button>
@@ -196,7 +196,7 @@ export default function StageControl({
               type="button"
               disabled={pending}
               onClick={confirmMove}
-              className={`flex-1 rounded px-2 py-1 text-[11px] font-medium transition-colors disabled:pointer-events-none disabled:opacity-40 ${confirmBtnClass}`}
+              className={`flex min-h-[28px] flex-1 items-center justify-center rounded px-2 py-1.5 text-[11px] font-medium transition-colors disabled:pointer-events-none disabled:opacity-40 ${confirmBtnClass}`}
             >
               Confirm {reasonLabel}
             </button>
@@ -204,7 +204,7 @@ export default function StageControl({
               type="button"
               disabled={pending}
               onClick={cancelMove}
-              className="rounded px-2 py-1 text-[11px] text-[var(--ink-2)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)] disabled:pointer-events-none disabled:opacity-40"
+              className="flex min-h-[28px] items-center justify-center rounded px-2 py-1.5 text-[11px] text-[var(--ink-2)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)] disabled:pointer-events-none disabled:opacity-40"
             >
               Cancel
             </button>
