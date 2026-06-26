@@ -1,6 +1,5 @@
 ﻿import { and, eq, ilike, gte, isNull, inArray, sql, asc, desc, notExists } from "drizzle-orm";
 import type { SQL } from "drizzle-orm";
-import Link from "next/link";
 import { getDb, schema } from "@/db";
 import type { Sequence } from "@/db/schema";
 import type { LastContactedMap, ContactListItem } from "./types";
@@ -14,7 +13,7 @@ import ScoreAllUnscoredButton from "./score-all-unscored-button";
 import FindDuplicatesButton from "./find-duplicates-button";
 import ContactsOverflowMenu from "./contacts-overflow-menu";
 import { EmptyState } from "@/components/empty-state";
-import { DemoDataButton } from "@/components/demo-data-button";
+import EmptyStateActions from "@/components/empty-state-actions";
 
 const UsersIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -261,14 +260,7 @@ export default async function ContactsPage({
               icon={<FilterIcon />}
               title="No contacts match your filters"
               description="Try adjusting or clearing the active filters."
-              action={
-                <Link
-                  href="/contacts"
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-1.5 text-xs font-medium text-[--ink-2] transition-colors hover:bg-[--surface-3] hover:text-[--ink-1]"
-                >
-                  Clear filters
-                </Link>
-              }
+              action={<EmptyStateActions clearFiltersHref="/contacts" />}
             />
           ) : (
             <EmptyState
@@ -276,13 +268,9 @@ export default async function ContactsPage({
               title="No contacts yet"
               description="Start building your CRM by adding your first contact."
               action={
-                <div className="flex flex-wrap items-center justify-center gap-3">
-                  <NewContactModal hasDb={!!db} />
-                  <DemoDataButton
-                    label="Load demo data"
-                    className="inline-flex items-center gap-2 rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-1.5 text-xs font-medium text-[--ink-2] transition-colors hover:bg-[--surface-3] hover:text-[--ink-1] disabled:opacity-50"
-                  />
-                </div>
+                <EmptyStateActions
+                  primaryAction={<NewContactModal hasDb={!!db} />}
+                />
               }
             />
           )}

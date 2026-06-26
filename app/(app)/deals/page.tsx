@@ -11,7 +11,7 @@ import OwnerFilter from "./owner-filter";
 import { DealsViewSwitcher } from "./deals-view-switcher";
 import { getCrmSettings } from "@/lib/settings";
 import { EmptyState } from "@/components/empty-state";
-import { DemoDataButton } from "@/components/demo-data-button";
+import EmptyStateActions from "@/components/empty-state-actions";
 
 const PipelineIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -215,27 +215,17 @@ export default async function DealsPage({
                   : "Add your first deal to start tracking your pipeline."
               }
               action={
-                (ownerFilter || stageMatch) ? (
-                  <Link
-                    href="?view=kanban"
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-1.5 text-xs font-medium text-[--ink-2] transition-colors hover:bg-[--surface-3] hover:text-[--ink-1]"
-                  >
-                    Clear filters
-                  </Link>
-                ) : (
-                  <div className="flex flex-wrap items-center justify-center gap-3">
+                <EmptyStateActions
+                  clearFiltersHref={(ownerFilter || stageMatch) ? "?view=kanban" : undefined}
+                  primaryAction={
                     <DealModal
                       hasDb={!!db}
                       contacts={allContacts}
                       defaultCurrency={settings.defaultCurrency}
                       defaultStage={settings.defaultDealStage}
                     />
-                    <DemoDataButton
-                      label="Load demo data"
-                      className="inline-flex items-center gap-2 rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-1.5 text-xs font-medium text-[--ink-2] transition-colors hover:bg-[--surface-3] hover:text-[--ink-1] disabled:opacity-50"
-                    />
-                  </div>
-                )
+                  }
+                />
               }
             />
           </div>
@@ -269,27 +259,17 @@ export default async function DealsPage({
                   : "Add your first deal to start tracking your pipeline."
               }
               action={
-                (ownerFilter || stageMatch) ? (
-                  <Link
-                    href="?view=table"
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-1.5 text-xs font-medium text-[--ink-2] transition-colors hover:bg-[--surface-3] hover:text-[--ink-1]"
-                  >
-                    Clear filters
-                  </Link>
-                ) : (
-                  <div className="flex flex-wrap items-center justify-center gap-3">
+                <EmptyStateActions
+                  clearFiltersHref={(ownerFilter || stageMatch) ? "?view=table" : undefined}
+                  primaryAction={
                     <DealModal
                       hasDb={!!db}
                       contacts={allContacts}
                       defaultCurrency={settings.defaultCurrency}
                       defaultStage={settings.defaultDealStage}
                     />
-                    <DemoDataButton
-                      label="Load demo data"
-                      className="inline-flex items-center gap-2 rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-1.5 text-xs font-medium text-[--ink-2] transition-colors hover:bg-[--surface-3] hover:text-[--ink-1] disabled:opacity-50"
-                    />
-                  </div>
-                )
+                  }
+                />
               }
             />
           </div>
