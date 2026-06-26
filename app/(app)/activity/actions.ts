@@ -71,7 +71,6 @@ export async function addActivity(
     });
   } catch (err) {
     console.error("addActivity: failed to insert activity", err);
-    revalidatePath("/activity");
     return { error: "Couldn't log the activity. Please try again." };
   }
 
@@ -101,6 +100,13 @@ export async function logAiTaskSuggestion(
     .safeParse(subject ?? "");
   if (!parsedSubject.success) return { error: "Subject is required" };
 
+  const fkSchema = z.number().int().positive().nullable();
+  const parsedContactId = fkSchema.safeParse(contactId ?? null);
+  const parsedDealId = fkSchema.safeParse(dealId ?? null);
+  if (!parsedContactId.success || !parsedDealId.success) {
+    return { error: "Invalid linked record." };
+  }
+
   const db = getDb();
   if (!db) return { noDb: true };
 
@@ -109,8 +115,8 @@ export async function logAiTaskSuggestion(
       type: type ?? "task",
       subject: parsedSubject.data,
       body: body?.trim().slice(0, 2000) || null,
-      contactId: contactId ?? null,
-      dealId: dealId ?? null,
+      contactId: parsedContactId.data,
+      dealId: parsedDealId.data,
       dueAt: new Date(),
     });
   } catch {
