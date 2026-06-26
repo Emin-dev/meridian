@@ -68,7 +68,7 @@ export default function TaskRow({ task }: { task: TaskRowData }) {
           dealId={task.dealId}
         />
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <p className={`text-body text-[var(--ink-1)] ${completed ? "line-through" : ""}`}>
+          <p className={`text-body ${completed ? "text-[var(--ink-3)] line-through" : "text-[var(--ink-1)]"}`}>
             {task.subject}
           </p>
           {(task.contactName || task.dealTitle) && (
