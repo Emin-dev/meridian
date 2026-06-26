@@ -88,6 +88,22 @@ export async function addActivity(
   return { success: true };
 }
 
+const LogAiTaskSuggestionSchema = z.object({
+  subject: z.string().trim().min(1, "Subject is required").max(200),
+  body: z
+    .string()
+    .nullish()
+    .transform((v) => {
+      const trimmed = v?.trim().slice(0, 2000);
+      return trimmed ? trimmed : null;
+    }),
+  contactId: z.number().int().positive().nullish().transform((v) => v ?? null),
+  dealId: z.number().int().positive().nullish().transform((v) => v ?? null),
+  type: z
+    .enum(["call", "email", "meeting", "note", "task"])
+    .default("task"),
+});
+
 export async function logAiTaskSuggestion(
   subject: string,
   contactId: number | null,
@@ -97,19 +113,16 @@ export async function logAiTaskSuggestion(
 ): Promise<{ success?: boolean; error?: string; noDb?: boolean }> {
   await requireSession();
 
-  const parsedSubject = z
-    .string()
-    .trim()
-    .min(1)
-    .max(200)
-    .safeParse(subject ?? "");
-  if (!parsedSubject.success) return { error: "Subject is required" };
-
-  const fkSchema = z.number().int().positive().nullable();
-  const parsedContactId = fkSchema.safeParse(contactId ?? null);
-  const parsedDealId = fkSchema.safeParse(dealId ?? null);
-  if (!parsedContactId.success || !parsedDealId.success) {
-    return { error: "Invalid linked record." };
+  const parsed = LogAiTaskSuggestionSchema.safeParse({
+    subject,
+    body,
+    contactId,
+    dealId,
+    type,
+  });
+  if (!parsed.success) {
+    const subjectError = parsed.error.flatten().fieldErrors.subject;
+    return { error: subjectError?.[0] ?? "Invalid task suggestion." };
   }
 
   const db = getDb();
@@ -117,11 +130,11 @@ export async function logAiTaskSuggestion(
 
   try {
     await db.insert(schema.activities).values({
-      type: type ?? "task",
-      subject: parsedSubject.data,
-      body: body?.trim().slice(0, 2000) || null,
-      contactId: parsedContactId.data,
-      dealId: parsedDealId.data,
+      type: parsed.data.type,
+      subject: parsed.data.subject,
+      body: parsed.data.body,
+      contactId: parsed.data.contactId,
+      dealId: parsed.data.dealId,
       dueAt: new Date(),
     });
   } catch {
@@ -130,8 +143,8 @@ export async function logAiTaskSuggestion(
 
   revalidatePath("/tasks");
   revalidatePath("/activity");
-  if (contactId) revalidatePath(`/contacts/${contactId}`);
-  if (dealId) revalidatePath(`/deals/${dealId}`);
+  if (parsed.data.contactId) revalidatePath(`/contacts/${parsed.data.contactId}`);
+  if (parsed.data.dealId) revalidatePath(`/deals/${parsed.data.dealId}`);
 
   return { success: true };
 }

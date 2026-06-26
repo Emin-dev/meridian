@@ -492,7 +492,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
                   </button>
                   <button
                     onClick={exitSelectMode}
-                    className="tap flex items-center justify-center text-xs text-[var(--ink-2)] hover:text-[var(--ink-1)]"
+                    className="tap flex min-h-[44px] items-center justify-center text-xs text-[var(--ink-2)] hover:text-[var(--ink-1)]"
                   >
                     Cancel
                   </button>
@@ -501,7 +501,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
             ) : (
               <button
                 onClick={() => setSelectMode(true)}
-                className="tap ml-auto flex items-center justify-center text-xs font-medium text-[var(--ink-3)] hover:text-[var(--ink-1)]"
+                className="tap ml-auto flex min-h-[44px] items-center justify-center text-xs font-medium text-[var(--ink-3)] hover:text-[var(--ink-1)]"
               >
                 Select
               </button>
