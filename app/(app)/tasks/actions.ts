@@ -58,15 +58,15 @@ export async function addTask(
       subject: parsed.data.subject,
       dueAt: parsed.data.dueAt,
     });
+
+    revalidatePath("/tasks");
+    revalidatePath("/activity");
+
+    return { success: true };
   } catch (err) {
     console.error("addTask failed:", err);
     return { error: "Could not add task — please try again." };
   }
-
-  revalidatePath("/tasks");
-  revalidatePath("/activity");
-
-  return { success: true };
 }
 
 export async function addLinkedTask(
@@ -100,17 +100,17 @@ export async function addLinkedTask(
       contactId: parsed.data.contactId,
       dealId: parsed.data.dealId,
     });
+
+    revalidatePath("/tasks");
+    revalidatePath("/activity");
+    if (parsed.data.contactId) revalidatePath(`/contacts/${parsed.data.contactId}`);
+    if (parsed.data.dealId) revalidatePath(`/deals/${parsed.data.dealId}`);
+
+    return { success: true };
   } catch (err) {
     console.error("addLinkedTask failed:", err);
     return { error: "Could not add task — please try again." };
   }
-
-  revalidatePath("/tasks");
-  revalidatePath("/activity");
-  if (parsed.data.contactId) revalidatePath(`/contacts/${parsed.data.contactId}`);
-  if (parsed.data.dealId) revalidatePath(`/deals/${parsed.data.dealId}`);
-
-  return { success: true };
 }
 
 export async function toggleTaskComplete(
