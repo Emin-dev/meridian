@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { createDeal, updateDeal, type DealFormState } from "./actions";
 import { useToast } from "@/components/toaster";
 import type { DealWithContact } from "./types";
 import StageControl from "./stage-control";
 import { extractUserNotes } from "./[id]/notes-utils";
+import MobileActionSheet from "@/components/mobile-action-sheet";
 
 const STAGES = [
   { value: "lead", label: "Lead" },
@@ -79,13 +80,26 @@ export default function DealModal({
   const formRef = useRef<HTMLFormElement>(null);
   const { toast } = useToast();
 
+  // Controlled values so the desktop <select> and the mobile action-sheet
+  // picker share a single source of truth (both submit via name="stage"/"currency").
+  const [stage, setStage] = useState<string>(deal?.stage ?? defaultStage);
+  const [currency, setCurrency] = useState<string>(deal?.currency ?? defaultCurrency);
+  const [stageSheetOpen, setStageSheetOpen] = useState(false);
+  const [currencySheetOpen, setCurrencySheetOpen] = useState(false);
+
   useEffect(() => {
     if (state.success) {
       dialogRef.current?.close();
       formRef.current?.reset();
+      // form.reset() can't reach controlled state; mirror its reset for the
+      // create modal so reopening starts fresh (edit keeps the saved values).
+      if (!isEdit) {
+        setStage(defaultStage);
+        setCurrency(defaultCurrency);
+      }
       toast(isEdit ? "Deal saved" : "Deal created");
     }
-  }, [state.success, isEdit, toast]);
+  }, [state.success, isEdit, defaultStage, defaultCurrency, toast]);
 
   const openModal = () => {
     // Never let two modals stack/overlap: close any other open dialog first.
@@ -292,11 +306,13 @@ export default function DealModal({
                 >
                   Stage
                 </label>
+                {/* Desktop: native select. Hidden on mobile but still submits `stage`. */}
                 <select
                   id="dm-stage"
                   name="stage"
-                  defaultValue={deal?.stage ?? defaultStage}
-                  className="w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] focus:border-[--accent] focus:outline-none"
+                  value={stage}
+                  onChange={(e) => setStage(e.target.value)}
+                  className="hidden w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] focus:border-[--accent] focus:outline-none sm:block"
                 >
                   {STAGES.map((s) => (
                     <option key={s.value} value={s.value}>
@@ -304,6 +320,30 @@ export default function DealModal({
                     </option>
                   ))}
                 </select>
+                {/* Mobile: 44px button opening an action sheet instead of a dropdown. */}
+                <button
+                  type="button"
+                  onClick={() => setStageSheetOpen(true)}
+                  className="tap flex w-full items-center justify-between gap-2 rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-left text-sm text-[--ink-1] focus:border-[--accent] focus:outline-none sm:hidden"
+                >
+                  <span>
+                    {STAGES.find((s) => s.value === stage)?.label ?? "Lead"}
+                  </span>
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="shrink-0 text-[--ink-3]"
+                    aria-hidden="true"
+                  >
+                    <path d="M6 9l6 6 6-6" />
+                  </svg>
+                </button>
               </div>
 
               {/* Value + Currency */}
@@ -333,11 +373,13 @@ export default function DealModal({
                   >
                     Currency
                   </label>
+                  {/* Desktop: native select. Hidden on mobile but still submits `currency`. */}
                   <select
                     id="dm-currency"
                     name="currency"
-                    defaultValue={deal?.currency ?? defaultCurrency}
-                    className="w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] focus:border-[--accent] focus:outline-none"
+                    value={currency}
+                    onChange={(e) => setCurrency(e.target.value)}
+                    className="hidden w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-sm text-[--ink-1] focus:border-[--accent] focus:outline-none sm:block"
                   >
                     {CURRENCIES.map((c) => (
                       <option key={c} value={c}>
@@ -345,6 +387,28 @@ export default function DealModal({
                       </option>
                     ))}
                   </select>
+                  {/* Mobile: 44px button opening an action sheet instead of a dropdown. */}
+                  <button
+                    type="button"
+                    onClick={() => setCurrencySheetOpen(true)}
+                    className="tap flex w-full items-center justify-between gap-2 rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-2 text-left text-sm text-[--ink-1] focus:border-[--accent] focus:outline-none sm:hidden"
+                  >
+                    <span>{currency}</span>
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="shrink-0 text-[--ink-3]"
+                      aria-hidden="true"
+                    >
+                      <path d="M6 9l6 6 6-6" />
+                    </svg>
+                  </button>
                 </div>
               </div>
 
@@ -449,6 +513,95 @@ export default function DealModal({
               >
                 {pending ? "Saving…" : isEdit ? "Save changes" : "Create deal"}
               </button>
+            </div>
+
+            {/* Mobile: stage + currency pickers (desktop uses the native selects). */}
+            <div className="sm:hidden">
+              <MobileActionSheet
+                open={stageSheetOpen}
+                onClose={() => setStageSheetOpen(false)}
+                title="Stage"
+              >
+                <div className="flex flex-col gap-2">
+                  {STAGES.map((s) => (
+                    <button
+                      key={s.value}
+                      type="button"
+                      onClick={() => {
+                        setStage(s.value);
+                        setStageSheetOpen(false);
+                      }}
+                      aria-pressed={stage === s.value}
+                      className={`tap flex items-center justify-between rounded-lg px-3 text-left text-body transition-colors ${
+                        stage === s.value
+                          ? "bg-[--surface-3] text-[--ink-1]"
+                          : "text-[--ink-2] hover:bg-[--surface-3]"
+                      }`}
+                    >
+                      <span>{s.label}</span>
+                      {stage === s.value && (
+                        <svg
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="shrink-0 text-[--accent]"
+                          aria-hidden="true"
+                        >
+                          <path d="M20 6L9 17l-5-5" />
+                        </svg>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </MobileActionSheet>
+
+              <MobileActionSheet
+                open={currencySheetOpen}
+                onClose={() => setCurrencySheetOpen(false)}
+                title="Currency"
+              >
+                <div className="flex flex-col gap-2">
+                  {CURRENCIES.map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => {
+                        setCurrency(c);
+                        setCurrencySheetOpen(false);
+                      }}
+                      aria-pressed={currency === c}
+                      className={`tap flex items-center justify-between rounded-lg px-3 text-left text-body transition-colors ${
+                        currency === c
+                          ? "bg-[--surface-3] text-[--ink-1]"
+                          : "text-[--ink-2] hover:bg-[--surface-3]"
+                      }`}
+                    >
+                      <span>{c}</span>
+                      {currency === c && (
+                        <svg
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="shrink-0 text-[--accent]"
+                          aria-hidden="true"
+                        >
+                          <path d="M20 6L9 17l-5-5" />
+                        </svg>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </MobileActionSheet>
             </div>
           </form>
         )}
