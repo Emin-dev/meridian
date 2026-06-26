@@ -33,6 +33,16 @@ export async function enrollInSequence(
     return { error: "Already enrolled in this sequence." };
   }
 
+  const sequence = await db
+    .select({ id: schema.sequences.id })
+    .from(schema.sequences)
+    .where(eq(schema.sequences.id, sequenceId))
+    .limit(1);
+
+  if (sequence.length === 0) {
+    return { error: "Sequence not found." };
+  }
+
   await db
     .insert(schema.contactSequenceEnrollments)
     .values({ contactId, sequenceId });
