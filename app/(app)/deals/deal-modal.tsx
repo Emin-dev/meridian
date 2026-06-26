@@ -522,16 +522,21 @@ export default function DealModal({
                 onClose={() => setStageSheetOpen(false)}
                 title="Stage"
               >
-                <div className="flex flex-col gap-2">
+                <div
+                  role="radiogroup"
+                  aria-label="Stage"
+                  className="flex flex-col gap-2"
+                >
                   {STAGES.map((s) => (
                     <button
                       key={s.value}
                       type="button"
+                      role="radio"
                       onClick={() => {
                         setStage(s.value);
                         setStageSheetOpen(false);
                       }}
-                      aria-pressed={stage === s.value}
+                      aria-checked={stage === s.value}
                       className={`tap flex items-center justify-between rounded-lg px-3 text-left text-body transition-colors ${
                         stage === s.value
                           ? "bg-[var(--surface-3)] text-[var(--ink-1)]"
@@ -565,16 +570,21 @@ export default function DealModal({
                 onClose={() => setCurrencySheetOpen(false)}
                 title="Currency"
               >
-                <div className="flex flex-col gap-2">
+                <div
+                  role="radiogroup"
+                  aria-label="Currency"
+                  className="flex flex-col gap-2"
+                >
                   {CURRENCIES.map((c) => (
                     <button
                       key={c}
                       type="button"
+                      role="radio"
                       onClick={() => {
                         setCurrency(c);
                         setCurrencySheetOpen(false);
                       }}
-                      aria-pressed={currency === c}
+                      aria-checked={currency === c}
                       className={`tap flex items-center justify-between rounded-lg px-3 text-left text-body transition-colors ${
                         currency === c
                           ? "bg-[var(--surface-3)] text-[var(--ink-1)]"
