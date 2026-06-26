@@ -116,25 +116,25 @@ export default async function DealsPage({
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-neutral-100">Deals</h2>
-          <p className="mt-1 text-sm text-neutral-400">
+          <h2 className="text-xl font-semibold text-[--ink-1]">Deals</h2>
+          <p className="mt-1 text-sm text-[--ink-2]">
             Track your pipeline and close more revenue.
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:items-end">
           {/* Pipeline / Weighted stats — stack above controls on mobile */}
           {totalDealCount > 0 && (
-            <div className="flex flex-wrap items-center gap-4 text-sm text-neutral-400">
+            <div className="flex flex-wrap items-center gap-4 text-sm text-[--ink-2]">
               <span>
                 Pipeline:{" "}
-                <span className="font-semibold text-neutral-100">
+                <span className="font-semibold text-[--ink-1]">
                   {fmtCurrency.format(totalValue)}
                 </span>
               </span>
-              <span aria-hidden className="text-neutral-700">|</span>
+              <span aria-hidden className="text-[--ink-3]">|</span>
               <span>
                 Weighted:{" "}
-                <span className="font-semibold text-indigo-300">
+                <span className="font-semibold text-[--accent]">
                   {fmtCurrency.format(weightedValue)}
                 </span>
               </span>
@@ -147,12 +147,12 @@ export default async function DealsPage({
 
             {/* Stage filter chip — shown when arriving from analytics funnel */}
             {stageMatch && (
-              <div className="flex items-center gap-1.5 rounded-lg border border-neutral-700 bg-neutral-800 px-2.5 text-xs text-neutral-300">
+              <div className="flex items-center gap-1.5 rounded-lg border border-[--line-1] bg-[--surface-2] px-2.5 text-xs text-[--ink-2]">
                 <span className={`h-2 w-2 shrink-0 rounded-full ${stageMatch.dot}`} />
                 <span>{stageMatch.label}</span>
                 <Link
                   href={`?view=${view}${ownerFilter ? `&owner=${encodeURIComponent(ownerFilter)}` : ""}`}
-                  className="tap ml-0.5 inline-flex items-center justify-center px-1 text-neutral-500 hover:text-neutral-200"
+                  className="tap ml-0.5 inline-flex items-center justify-center px-1 text-[--ink-3] hover:text-[--ink-1]"
                   aria-label="Clear stage filter"
                 >
                   ×
@@ -187,7 +187,7 @@ export default async function DealsPage({
 
       {/* No DB state */}
       {!db && (
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900">
+        <div className="rounded-xl border border-[--line-1] bg-[--surface-1]">
           <EmptyState
             icon={<PipelineIcon />}
             title="Database not connected"
@@ -199,7 +199,7 @@ export default async function DealsPage({
       {/* Kanban board */}
       {db && !isTable && (
         visibleDeals.length === 0 ? (
-          <div className="rounded-xl border border-neutral-800 bg-neutral-900">
+          <div className="rounded-xl border border-[--line-1] bg-[--surface-1]">
             <EmptyState
               icon={(ownerFilter || stageMatch) ? <FilterIcon /> : <PipelineIcon />}
               title={
@@ -218,7 +218,7 @@ export default async function DealsPage({
                 (ownerFilter || stageMatch) ? (
                   <Link
                     href="?view=kanban"
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-xs font-medium text-neutral-300 transition-colors hover:bg-neutral-700 hover:text-neutral-100"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-1.5 text-xs font-medium text-[--ink-2] transition-colors hover:bg-[--surface-3] hover:text-[--ink-1]"
                   >
                     Clear filters
                   </Link>
@@ -232,7 +232,7 @@ export default async function DealsPage({
                     />
                     <DemoDataButton
                       label="Load demo data"
-                      className="inline-flex items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-xs font-medium text-neutral-400 transition-colors hover:bg-neutral-700 hover:text-neutral-200 disabled:opacity-50"
+                      className="inline-flex items-center gap-2 rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-1.5 text-xs font-medium text-[--ink-2] transition-colors hover:bg-[--surface-3] hover:text-[--ink-1] disabled:opacity-50"
                     />
                   </div>
                 )
@@ -253,7 +253,7 @@ export default async function DealsPage({
       {/* Table view */}
       {db && isTable && (
         visibleDeals.length === 0 ? (
-          <div className="rounded-xl border border-neutral-800 bg-neutral-900">
+          <div className="rounded-xl border border-[--line-1] bg-[--surface-1]">
             <EmptyState
               icon={(ownerFilter || stageMatch) ? <FilterIcon /> : <PipelineIcon />}
               title={
@@ -272,7 +272,7 @@ export default async function DealsPage({
                 (ownerFilter || stageMatch) ? (
                   <Link
                     href="?view=table"
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-xs font-medium text-neutral-300 transition-colors hover:bg-neutral-700 hover:text-neutral-100"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-1.5 text-xs font-medium text-[--ink-2] transition-colors hover:bg-[--surface-3] hover:text-[--ink-1]"
                   >
                     Clear filters
                   </Link>
@@ -286,7 +286,7 @@ export default async function DealsPage({
                     />
                     <DemoDataButton
                       label="Load demo data"
-                      className="inline-flex items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-xs font-medium text-neutral-400 transition-colors hover:bg-neutral-700 hover:text-neutral-200 disabled:opacity-50"
+                      className="inline-flex items-center gap-2 rounded-lg border border-[--line-1] bg-[--surface-2] px-3 py-1.5 text-xs font-medium text-[--ink-2] transition-colors hover:bg-[--surface-3] hover:text-[--ink-1] disabled:opacity-50"
                     />
                   </div>
                 )
