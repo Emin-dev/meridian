@@ -65,7 +65,7 @@ export default function LeadScorePanel({ contactId, initialScore, initialRationa
       />
 
       {hasScore && result.rationale && (
-        <p className="text-sm text-[var(--ink-1)] leading-relaxed">{result.rationale}</p>
+        <p className="text-sm text-[var(--ink-1)] leading-relaxed break-words">{result.rationale}</p>
       )}
     </div>
   );

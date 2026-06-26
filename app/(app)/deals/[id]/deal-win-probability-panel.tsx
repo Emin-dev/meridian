@@ -36,8 +36,8 @@ export default function DealWinProbabilityPanel({ dealId, initialScore }: Props)
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-2">
           <h3 className="text-sm font-medium text-[var(--ink-2)]">AI score</h3>
           {hasScore && (
             <span
@@ -52,7 +52,7 @@ export default function DealWinProbabilityPanel({ dealId, initialScore }: Props)
           type="button"
           onClick={handleScore}
           disabled={isPending}
-          className="tap inline-flex items-center justify-center rounded-lg bg-[var(--accent)] px-3 text-xs font-medium text-[var(--accent-ink)] transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-50"
+          className="tap inline-flex shrink-0 items-center justify-center rounded-lg bg-[var(--accent)] px-3 text-xs font-medium text-[var(--accent-ink)] transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-50"
         >
           {isPending ? "Scoring…" : hasScore ? "Re-score" : "Score deal"}
         </button>
@@ -75,7 +75,7 @@ export default function DealWinProbabilityPanel({ dealId, initialScore }: Props)
       {result.error && <p className="text-xs text-[var(--bad)]">{result.error}</p>}
 
       {hasScore && result.reasoning ? (
-        <p className="text-sm text-[var(--ink-2)] leading-relaxed">{result.reasoning}</p>
+        <p className="text-sm text-[var(--ink-2)] leading-relaxed break-words">{result.reasoning}</p>
       ) : (
         !result.noDb &&
         !result.noKey &&

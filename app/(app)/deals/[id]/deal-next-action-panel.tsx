@@ -112,13 +112,13 @@ export default function DealNextActionPanel({
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-[var(--ink-2)]">Next best action</h3>
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="min-w-0 text-sm font-medium text-[var(--ink-2)]">Next best action</h3>
         <button
           type="button"
           onClick={handleSuggest}
           disabled={isPending}
-          className="tap inline-flex items-center justify-center rounded-lg bg-[var(--accent)] px-3 text-xs font-medium text-[var(--accent-ink)] transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-50"
+          className="tap inline-flex shrink-0 items-center justify-center rounded-lg bg-[var(--accent)] px-3 text-xs font-medium text-[var(--accent-ink)] transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-50"
         >
           {isPending ? "Thinking…" : hasResult ? "Re-suggest" : "Suggest action"}
         </button>
@@ -146,8 +146,8 @@ export default function DealNextActionPanel({
         <div className="space-y-3">
           <div className="flex items-start gap-3 rounded-lg border border-[var(--accent)]/30 bg-[var(--accent-tint)] px-4 py-3">
             <span className="mt-0.5 text-[var(--accent)]">→</span>
-            <div className="flex-1 space-y-1">
-              <p className="text-sm font-medium text-[var(--accent)]">{result.action}</p>
+            <div className="min-w-0 flex-1 space-y-1">
+              <p className="text-sm font-medium text-[var(--accent)] break-words">{result.action}</p>
               {result.priority && (
                 <span
                   className={`inline-block rounded-full px-2 py-0.5 text-caption font-semibold uppercase tracking-wide ${PRIORITY_STYLES[result.priority]}`}
@@ -169,7 +169,7 @@ export default function DealNextActionPanel({
           </button>
 
           {result.rationale && (
-            <p className="text-xs text-[var(--ink-2)] leading-relaxed">{result.rationale}</p>
+            <p className="text-xs text-[var(--ink-2)] leading-relaxed break-words">{result.rationale}</p>
           )}
 
           {result.suggestedAt && (
@@ -195,7 +195,7 @@ export default function DealNextActionPanel({
                   {copied ? "Copied!" : "Copy"}
                 </button>
               </div>
-              <pre className="whitespace-pre-wrap rounded-lg border border-[var(--line-1)] bg-[var(--bg)] px-4 py-3 text-xs text-[var(--ink-2)] leading-relaxed font-sans">
+              <pre className="whitespace-pre-wrap break-words rounded-lg border border-[var(--line-1)] bg-[var(--bg)] px-4 py-3 text-xs text-[var(--ink-2)] leading-relaxed font-sans">
                 {result.suggestedMessage}
               </pre>
             </div>

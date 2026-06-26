@@ -145,8 +145,8 @@ export default function NextActionPanel({
           {/* Recommended action */}
           <div className="flex items-start gap-3 rounded-lg border border-[var(--accent)]/30 bg-[var(--accent-tint)] px-4 py-3">
             <span className="mt-0.5 text-[var(--accent)]">→</span>
-            <div className="flex-1 space-y-1">
-              <p className="text-sm font-medium text-[var(--ink-1)]">{result.action}</p>
+            <div className="min-w-0 flex-1 space-y-1">
+              <p className="text-sm font-medium text-[var(--ink-1)] break-words">{result.action}</p>
               {result.priority && (
                 <span
                   className={`inline-block rounded-full px-2 py-0.5 text-caption font-semibold uppercase tracking-wide ${PRIORITY_STYLES[result.priority]}`}
@@ -169,7 +169,7 @@ export default function NextActionPanel({
 
           {/* Rationale */}
           {result.rationale && (
-            <p className="text-xs text-[var(--ink-2)] leading-relaxed">{result.rationale}</p>
+            <p className="text-xs text-[var(--ink-2)] leading-relaxed break-words">{result.rationale}</p>
           )}
 
           {result.suggestedAt && (
@@ -196,7 +196,7 @@ export default function NextActionPanel({
                   {copied ? "Copied!" : "Copy"}
                 </button>
               </div>
-              <pre className="whitespace-pre-wrap rounded-lg border border-[var(--line-1)] bg-[var(--bg)] px-4 py-3 text-xs text-[var(--ink-1)] leading-relaxed font-sans">
+              <pre className="whitespace-pre-wrap break-words rounded-lg border border-[var(--line-1)] bg-[var(--bg)] px-4 py-3 text-xs text-[var(--ink-1)] leading-relaxed font-sans">
                 {result.suggestedMessage}
               </pre>
             </div>

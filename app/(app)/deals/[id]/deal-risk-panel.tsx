@@ -93,7 +93,7 @@ export default function DealRiskPanel({ dealId }: Props) {
           )}
 
           {result.reason && (
-            <p className="text-sm leading-relaxed text-[var(--ink-2)]">
+            <p className="text-sm leading-relaxed text-[var(--ink-2)] break-words">
               {result.reason}
             </p>
           )}
@@ -105,7 +105,7 @@ export default function DealRiskPanel({ dealId }: Props) {
                 <p className="text-caption font-semibold uppercase tracking-wide text-[var(--ink-3)]">
                   Next step
                 </p>
-                <p className="text-sm font-medium text-[var(--accent)]">
+                <p className="text-sm font-medium text-[var(--accent)] break-words">
                   {result.nextStep}
                 </p>
               </div>

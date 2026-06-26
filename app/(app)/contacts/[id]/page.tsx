@@ -22,6 +22,20 @@ interface Props {
   params: Promise<{ id: string }>;
 }
 
+// Badge per enrollment status, matching the sequence detail page so a
+// completed enrollment reads "Completed" here too — not mislabeled "Cancelled".
+const ENROLLMENT_STATUS_BADGE = {
+  active: { label: "Active", className: "bg-[var(--ok-tint)] text-[var(--ok)]" },
+  completed: {
+    label: "Completed",
+    className: "bg-[var(--info-tint)] text-[var(--info)]",
+  },
+  cancelled: {
+    label: "Cancelled",
+    className: "bg-[var(--surface-2)] text-[var(--ink-2)]",
+  },
+} as const;
+
 // Small fallback for an independently-streamed async section so a slow or
 // throwing query (timeline, linked deals/tasks) can't blank the whole page.
 function SectionFallback() {
@@ -199,13 +213,9 @@ export default async function ContactDetailPage({ params }: Props) {
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   <span
-                    className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                      enrollment.status === "active"
-                        ? "bg-[var(--ok-tint)] text-[var(--ok)]"
-                        : "bg-[var(--surface-2)] text-[var(--ink-2)]"
-                    }`}
+                    className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${ENROLLMENT_STATUS_BADGE[enrollment.status].className}`}
                   >
-                    {enrollment.status === "active" ? "Active" : "Cancelled"}
+                    {ENROLLMENT_STATUS_BADGE[enrollment.status].label}
                   </span>
                   {enrollment.status === "active" && (
                     <CancelEnrollmentButton

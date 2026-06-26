@@ -59,7 +59,7 @@ export default function SummarizePanel({ contactId, initialSummary, initialSumma
 
       {result.summary && (
         <div className="space-y-1.5">
-          <p className="text-sm text-[var(--ink-1)] leading-relaxed whitespace-pre-wrap">
+          <p className="text-sm text-[var(--ink-1)] leading-relaxed whitespace-pre-wrap break-words">
             {result.summary}
           </p>
           {result.summaryAt && (

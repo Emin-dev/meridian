@@ -118,12 +118,12 @@ export default function ActionItemsPanel({ contactId, dealId }: Props) {
                       >
                         {item.type}
                       </span>
-                      <p className="text-sm text-[var(--ink-1)] leading-snug">
+                      <p className="min-w-0 break-words text-sm text-[var(--ink-1)] leading-snug">
                         {item.title}
                       </p>
                     </div>
                     {item.rationale && (
-                      <p className="text-xs text-[var(--ink-3)] leading-relaxed">
+                      <p className="text-xs text-[var(--ink-3)] leading-relaxed break-words">
                         {item.rationale}
                       </p>
                     )}
