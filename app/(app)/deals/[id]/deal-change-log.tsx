@@ -47,13 +47,13 @@ export default async function DealChangeLog({ dealId }: Props) {
       <h3 className="text-sm font-medium text-neutral-300">Change log</h3>
 
       {!db && (
-        <p className="text-xs text-neutral-500">
+        <p className="text-xs text-[--ink-3]">
           Connect a database to view change history.
         </p>
       )}
 
       {db && events.length === 0 && (
-        <p className="py-3 text-center text-sm text-neutral-500">
+        <p className="py-3 text-center text-sm text-[--ink-3]">
           No field changes recorded yet.
         </p>
       )}

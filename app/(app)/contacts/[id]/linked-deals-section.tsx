@@ -89,9 +89,9 @@ export default async function LinkedDealsSection({
       </div>
 
       {!db ? (
-        <p className="text-sm text-neutral-500">Connect a database to view deals.</p>
+        <p className="text-sm text-[--ink-3]">Connect a database to view deals.</p>
       ) : deals.length === 0 ? (
-        <p className="text-sm text-neutral-500">No deals linked to this contact yet.</p>
+        <p className="text-sm text-[--ink-3]">No deals linked to this contact yet.</p>
       ) : (
         <ul className="space-y-2">
           {deals.map((deal) => {

@@ -63,13 +63,13 @@ export default async function LinkedTasksSection({ contactId, dealId }: Props) {
 
       <div className="mt-4 space-y-4">
         {!db ? (
-          <p className="text-xs text-neutral-500">Connect a database to manage tasks.</p>
+          <p className="text-xs text-[--ink-3]">Connect a database to manage tasks.</p>
         ) : (
           <>
             <LinkedTaskAddForm contactId={contactId ?? null} dealId={dealId ?? null} />
 
             {count === 0 ? (
-              <p className="text-sm text-neutral-500">No tasks yet.</p>
+              <p className="text-sm text-[--ink-3]">No tasks yet.</p>
             ) : (
               <ul className="divide-y divide-neutral-800">
                 {tasks.map((task) => {
