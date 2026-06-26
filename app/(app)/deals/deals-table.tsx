@@ -448,13 +448,7 @@ export default function DealsTable({
               const value = deal.value
                 ? formatCurrency(parseFloat(deal.value), deal.currency)
                 : "—";
-              const closeDate = deal.expectedCloseDate
-                ? new Date(deal.expectedCloseDate).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })
-                : "—";
+              const closeDate = formatShortDate(deal.expectedCloseDate);
 
               return (
                 <tr

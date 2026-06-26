@@ -551,8 +551,11 @@ export default async function DashboardBody() {
           </Suspense>
 
           {/* Pipeline chart + AI digest */}
+          {/* Chart is desktop-only: on phones the same stage breakdown lives in
+              the "Pipeline by Stage" KPI tile sheet, so we never cram the wide
+              recharts chart onto mobile (it would duplicate the tile). */}
           <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-5">
-            <div className="h-full lg:col-span-3">
+            <div className="hidden h-full lg:col-span-3 lg:block">
               <PipelineChart data={dealsByStage} />
             </div>
             <div className="h-full lg:col-span-2">

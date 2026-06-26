@@ -675,9 +675,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
                         );
                       })()}
                       <td className="px-4 py-3 whitespace-nowrap text-xs text-[var(--ink-3)]">
-                        {c.createdAt
-                          ? new Date(c.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-                          : "—"}
+                        {formatShortDate(c.createdAt)}
                       </td>
                     </tr>
                   );
