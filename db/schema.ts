@@ -85,6 +85,9 @@ export const contacts = pgTable("contacts", {
   index("contacts_owner_idx").on(table.owner),
   index("contacts_created_at_idx").on(table.createdAt),
   index("contacts_email_idx").on(table.email),
+  // Composite index for the filtered list page that narrows by status + owner
+  // together, served by a single index scan instead of intersecting two.
+  index("contacts_status_owner_idx").on(table.status, table.owner),
 ]);
 
 export const contactsRelations = relations(contacts, ({ many }) => ({
@@ -121,6 +124,9 @@ export const deals = pgTable("deals", {
   index("deals_contact_id_idx").on(table.contactId),
   index("deals_owner_idx").on(table.owner),
   index("deals_created_at_idx").on(table.createdAt),
+  // Composite index for the filtered list page that narrows by stage + owner
+  // together, served by a single index scan instead of intersecting two.
+  index("deals_stage_owner_idx").on(table.stage, table.owner),
 ]);
 
 export const dealsRelations = relations(deals, ({ one, many }) => ({
