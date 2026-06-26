@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { and, eq, ilike, gte, isNull, inArray, sql } from "drizzle-orm";
+import { and, eq, ilike, gte, isNull, notExists, sql } from "drizzle-orm";
 import type { SQL } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 
 const VALID_SOURCES = ["website", "referral", "linkedin", "cold-outreach", "other"] as const;
 const VALID_STATUSES = ["lead", "active", "inactive", "churned"] as const;
+
+// Hard cap so a workspace with tens of thousands of contacts can't make this
+// GET route materialize the whole table (and CSV string) in memory and blow the
+// Vercel 10s budget. Rows are streamed out in chunks rather than concatenated
+// into one giant string. Mirrors the contacts page's deliberate pagination.
+const EXPORT_MAX_ROWS = 10000;
+const CSV_CHUNK_ROWS = 500;
 
 function escapeCsv(value: string | null | undefined): string {
   if (value == null) return "";
@@ -46,6 +53,14 @@ export async function GET(request: NextRequest) {
   const noActivityDays =
     noActivity && !isNaN(parseInt(noActivity)) ? parseInt(noActivity) : undefined;
 
+  // "No activity in N days" → keep contacts that have NO activity dated on or
+  // after the cutoff. Done as a correlated NOT EXISTS so the DB filters rows
+  // instead of transferring every activity into JS (mirrors the contacts page).
+  const noActivityCutoff =
+    noActivityDays !== undefined
+      ? new Date(Date.now() - noActivityDays * 24 * 60 * 60 * 1000)
+      : undefined;
+
   const conditions: (SQL | undefined)[] = [
     statusFilter !== undefined ? eq(schema.contacts.status, statusFilter) : undefined,
     sourceFilter !== undefined ? eq(schema.contacts.source, sourceFilter) : undefined,
@@ -59,38 +74,39 @@ export async function GET(request: NextRequest) {
       ? sql`${schema.contacts.tags} @> ARRAY[${tagFilter}]::text[]`
       : undefined,
     unscoredFilter ? isNull(schema.contacts.leadScore) : undefined,
+    noActivityCutoff !== undefined
+      ? notExists(
+          db
+            .select({ one: sql`1` })
+            .from(schema.activities)
+            .where(
+              and(
+                eq(schema.activities.contactId, schema.contacts.id),
+                gte(schema.activities.createdAt, noActivityCutoff),
+              ),
+            ),
+        )
+      : undefined,
   ];
 
-  let contacts = await db
-    .select()
+  // Select only the columns the CSV emits, and hard-cap the row count so the
+  // request stays within the Vercel 10s/memory budget on huge workspaces.
+  const contacts = await db
+    .select({
+      name: schema.contacts.name,
+      email: schema.contacts.email,
+      phone: schema.contacts.phone,
+      company: schema.contacts.company,
+      status: schema.contacts.status,
+      source: schema.contacts.source,
+      tags: schema.contacts.tags,
+      leadScore: schema.contacts.leadScore,
+      createdAt: schema.contacts.createdAt,
+    })
     .from(schema.contacts)
     .where(and(...conditions))
-    .orderBy(schema.contacts.createdAt);
-
-  if (noActivityDays !== undefined && contacts.length > 0) {
-    const contactIds = contacts.map((c) => c.id);
-    const activityRows = await db
-      .select({
-        contactId: schema.activities.contactId,
-        lastAt: sql<string | null>`max(${schema.activities.createdAt})`,
-      })
-      .from(schema.activities)
-      .where(inArray(schema.activities.contactId, contactIds))
-      .groupBy(schema.activities.contactId);
-
-    const lastContactedMap: Record<number, string | null> = {};
-    for (const row of activityRows) {
-      if (row.contactId != null) {
-        lastContactedMap[row.contactId] = row.lastAt;
-      }
-    }
-
-    const cutoff = new Date(Date.now() - noActivityDays * 24 * 60 * 60 * 1000);
-    contacts = contacts.filter((c) => {
-      const lastAt = lastContactedMap[c.id];
-      return !lastAt || new Date(lastAt) < cutoff;
-    });
-  }
+    .orderBy(schema.contacts.createdAt)
+    .limit(EXPORT_MAX_ROWS);
 
   const header = [
     "Name",
@@ -104,23 +120,37 @@ export async function GET(request: NextRequest) {
     "Created Date",
   ].join(",");
 
-  const rows = contacts.map((c) =>
-    [
-      escapeCsv(c.name),
-      escapeCsv(c.email),
-      escapeCsv(c.phone),
-      escapeCsv(c.company),
-      escapeCsv(c.status),
-      escapeCsv(c.source),
-      escapeCsv(c.tags.join("; ")),
-      escapeCsv(c.leadScore?.toString()),
-      escapeCsv(c.createdAt?.toISOString()),
-    ].join(",")
-  );
+  // Stream the CSV in chunks of rows so we never hold one giant string in
+  // memory. The bounded result above keeps the total work small either way.
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream<Uint8Array>({
+    start(controller) {
+      controller.enqueue(encoder.encode(header));
+      for (let i = 0; i < contacts.length; i += CSV_CHUNK_ROWS) {
+        const chunk = contacts
+          .slice(i, i + CSV_CHUNK_ROWS)
+          .map((c) =>
+            "\n" +
+            [
+              escapeCsv(c.name),
+              escapeCsv(c.email),
+              escapeCsv(c.phone),
+              escapeCsv(c.company),
+              escapeCsv(c.status),
+              escapeCsv(c.source),
+              escapeCsv(c.tags.join("; ")),
+              escapeCsv(c.leadScore?.toString()),
+              escapeCsv(c.createdAt?.toISOString()),
+            ].join(","),
+          )
+          .join("");
+        controller.enqueue(encoder.encode(chunk));
+      }
+      controller.close();
+    },
+  });
 
-  const csv = [header, ...rows].join("\n");
-
-  return new NextResponse(csv, {
+  return new NextResponse(stream, {
     status: 200,
     headers: {
       "Content-Type": "text/csv; charset=utf-8",

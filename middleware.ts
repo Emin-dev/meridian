@@ -1,20 +1,18 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
+import { isAuthEnabled } from "@/lib/auth-config";
 
 const COOKIE = "session";
 
 export async function middleware(req: NextRequest) {
-  const authSecret = process.env.AUTH_SECRET;
-  // Auth is OPT-IN. It only gates routes when AUTH_ENABLED=true (and a secret +
-  // database exist). By default the app stays fully open and usable — connecting
-  // a database must never re-lock everyone out when there is no account yet.
-  if (
-    process.env.AUTH_ENABLED !== "true" ||
-    !authSecret ||
-    !process.env.DATABASE_URL
-  )
-    return NextResponse.next();
+  // Default-secure: auth gates every matched route whenever a database and a
+  // signing secret are configured (see lib/auth-config.ts). A connected DB with
+  // real PII must never be served to unauthenticated requests. The only opt-out
+  // is an explicit AUTH_ENABLED=false for an un-seeded demo.
+  if (!isAuthEnabled()) return NextResponse.next();
+
+  const authSecret = process.env.AUTH_SECRET!;
 
   const token = req.cookies.get(COOKIE)?.value;
   if (!token) {
