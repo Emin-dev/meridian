@@ -34,15 +34,15 @@ export default async function ContactDetailPage({ params }: Props) {
       <div className="space-y-5">
         <Link
           href="/contacts"
-          className="text-sm text-neutral-400 hover:text-neutral-100 transition-colors"
+          className="text-sm text-[var(--ink-2)] hover:text-[var(--ink-1)] transition-colors"
         >
           ← Contacts
         </Link>
         <div className="card p-4 sm:p-5 text-center py-16">
-          <p className="text-sm text-neutral-400">Database not connected.</p>
-          <p className="mt-1 text-xs text-neutral-600">
+          <p className="text-sm text-[var(--ink-2)]">Database not connected.</p>
+          <p className="mt-1 text-xs text-[var(--ink-3)]">
             Set{" "}
-            <code className="rounded bg-neutral-800 px-1 py-0.5">DATABASE_URL</code>{" "}
+            <code className="rounded bg-[var(--surface-2)] px-1 py-0.5">DATABASE_URL</code>{" "}
             to connect your Neon database.
           </p>
         </div>
@@ -91,7 +91,7 @@ export default async function ContactDetailPage({ params }: Props) {
   // Server-rendered slots passed to the client wrapper
   const notesSlot = (
     <div className="card p-4 sm:p-5">
-      <h3 className="mb-4 text-sm font-medium text-neutral-300">Notes</h3>
+      <h3 className="mb-4 text-sm font-medium text-[var(--ink-1)]">Notes</h3>
       <ContactNotesSection
         contactId={contact.id}
         initialNotes={contact.notes}
@@ -150,7 +150,7 @@ export default async function ContactDetailPage({ params }: Props) {
     <>
       <div className="card p-4 sm:p-5">
         <div className="mb-4 flex items-center justify-between gap-3">
-          <h3 className="text-sm font-medium text-neutral-300">Sequences</h3>
+          <h3 className="text-sm font-medium text-[var(--ink-1)]">Sequences</h3>
           <EnrollSequenceModal
             contactId={contact.id}
             sequences={activeSequences}
@@ -158,7 +158,7 @@ export default async function ContactDetailPage({ params }: Props) {
           />
         </div>
         {enrollments.length === 0 ? (
-          <p className="text-sm text-neutral-500">
+          <p className="text-sm text-[var(--ink-3)]">
             Not enrolled in any sequences.
           </p>
         ) : (
@@ -166,13 +166,13 @@ export default async function ContactDetailPage({ params }: Props) {
             {enrollments.map((enrollment) => (
               <li
                 key={enrollment.id}
-                className="flex items-center justify-between gap-3 rounded-lg border border-neutral-800 bg-neutral-800/50 px-4 py-3"
+                className="flex items-center justify-between gap-3 rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-4 py-3"
               >
                 <div className="min-w-0">
-                  <p className="truncate text-sm text-neutral-200">
+                  <p className="truncate text-sm text-[var(--ink-1)]">
                     {enrollment.sequenceName}
                   </p>
-                  <p className="mt-0.5 text-xs text-neutral-500">
+                  <p className="mt-0.5 text-xs text-[var(--ink-3)]">
                     Enrolled{" "}
                     {enrollment.enrolledAt.toLocaleDateString("en-US", {
                       month: "short",
@@ -185,8 +185,8 @@ export default async function ContactDetailPage({ params }: Props) {
                   <span
                     className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
                       enrollment.status === "active"
-                        ? "bg-emerald-500/10 text-emerald-400"
-                        : "bg-neutral-700 text-neutral-400"
+                        ? "bg-[var(--ok-tint)] text-[var(--ok)]"
+                        : "bg-[var(--surface-2)] text-[var(--ink-2)]"
                     }`}
                   >
                     {enrollment.status === "active" ? "Active" : "Cancelled"}
@@ -213,7 +213,7 @@ export default async function ContactDetailPage({ params }: Props) {
     <div className="space-y-5">
       <Link
         href="/contacts"
-        className="text-sm text-neutral-400 hover:text-neutral-100 transition-colors"
+        className="text-sm text-[var(--ink-2)] hover:text-[var(--ink-1)] transition-colors"
       >
         ← Contacts
       </Link>

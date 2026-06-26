@@ -51,7 +51,7 @@ export default function TagInput({ name, defaultValue = [] }: Props) {
     <div>
       <input type="hidden" name={name} value={JSON.stringify(tags)} />
       <div
-        className="flex min-h-[38px] flex-wrap gap-1.5 rounded-lg border border-neutral-700 bg-neutral-800 px-2 py-1.5 cursor-text"
+        className="flex min-h-[38px] flex-wrap gap-1.5 rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-2 py-1.5 cursor-text"
         onClick={() => inputRef.current?.focus()}
       >
         {tags.map((tag) => (
@@ -80,10 +80,10 @@ export default function TagInput({ name, defaultValue = [] }: Props) {
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           placeholder={tags.length === 0 ? "Add tags…" : ""}
-          className="min-w-[80px] flex-1 bg-transparent text-sm text-neutral-100 placeholder-neutral-500 outline-none"
+          className="min-w-[80px] flex-1 bg-transparent text-sm text-[var(--ink-1)] placeholder-[var(--ink-3)] outline-none"
         />
       </div>
-      <p className="mt-1 text-xs text-neutral-600">Press Enter or , to add a tag</p>
+      <p className="mt-1 text-xs text-[var(--ink-3)]">Press Enter or , to add a tag</p>
     </div>
   );
 }

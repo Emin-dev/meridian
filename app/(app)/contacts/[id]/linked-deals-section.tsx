@@ -70,10 +70,10 @@ export default async function LinkedDealsSection({
   return (
     <>
       <div className="mb-4 flex items-center justify-between gap-3">
-        <h3 className="text-sm font-medium text-neutral-300">
+        <h3 className="text-sm font-medium text-[var(--ink-1)]">
           Deals
           {deals.length > 0 && (
-            <span className="ml-2 rounded-full bg-neutral-800 px-1.5 py-0.5 text-xs font-normal text-neutral-500">
+            <span className="ml-2 rounded-full bg-[var(--surface-2)] px-1.5 py-0.5 text-xs font-normal text-[var(--ink-3)]">
               {deals.length}
             </span>
           )}
@@ -106,25 +106,25 @@ export default async function LinkedDealsSection({
             return (
               <li
                 key={deal.id}
-                className="flex items-center gap-3 rounded-lg border border-neutral-800 bg-neutral-800/50 px-4 py-3"
+                className="flex items-center gap-3 rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-4 py-3"
               >
                 <span
                   className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium capitalize ${
-                    STAGE_STYLES[deal.stage] ?? "bg-neutral-700 text-neutral-400"
+                    STAGE_STYLES[deal.stage] ?? "bg-[var(--surface-2)] text-[var(--ink-2)]"
                   }`}
                 >
                   {deal.stage}
                 </span>
                 <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <span className="truncate text-sm text-neutral-200">{deal.title}</span>
-                  <div className="flex gap-3 text-xs text-neutral-500">
+                  <span className="truncate text-sm text-[var(--ink-1)]">{deal.title}</span>
+                  <div className="flex gap-3 text-xs text-[var(--ink-3)]">
                     {formatted && <span>{formatted}</span>}
                     {closeStr && <span>Close: {closeStr}</span>}
                   </div>
                 </div>
                 <Link
                   href={`/deals/${deal.id}`}
-                  className="shrink-0 text-xs text-neutral-600 transition-colors hover:text-indigo-400"
+                  className="shrink-0 text-xs text-[var(--ink-3)] transition-colors hover:text-[var(--accent)]"
                 >
                   View →
                 </Link>

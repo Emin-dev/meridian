@@ -25,13 +25,13 @@ export default function InlineActivityForm({
   }
 
   return (
-    <div className="rounded-lg border border-neutral-700 bg-neutral-800/40 p-4">
+    <div className="rounded-lg border border-[var(--line-1)] bg-[var(--surface-1)] p-4">
       <div className="mb-3 flex items-center justify-between">
-        <span className="text-sm font-medium text-neutral-300">Log activity</span>
+        <span className="text-sm font-medium text-[var(--ink-1)]">Log activity</span>
         <button
           onClick={() => setOpen(false)}
           aria-label="Close form"
-          className="text-neutral-500 transition-colors hover:text-neutral-300"
+          className="text-[var(--ink-3)] transition-colors hover:text-[var(--ink-1)]"
         >
           ✕
         </button>
