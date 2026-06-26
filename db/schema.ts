@@ -83,6 +83,8 @@ export const contacts = pgTable("contacts", {
 }, (table) => [
   index("contacts_status_idx").on(table.status),
   index("contacts_owner_idx").on(table.owner),
+  index("contacts_created_at_idx").on(table.createdAt),
+  index("contacts_email_idx").on(table.email),
 ]);
 
 export const contactsRelations = relations(contacts, ({ many }) => ({
@@ -118,6 +120,7 @@ export const deals = pgTable("deals", {
   index("deals_stage_idx").on(table.stage),
   index("deals_contact_id_idx").on(table.contactId),
   index("deals_owner_idx").on(table.owner),
+  index("deals_created_at_idx").on(table.createdAt),
 ]);
 
 export const dealsRelations = relations(deals, ({ one, many }) => ({
@@ -217,7 +220,9 @@ export const sequenceSteps = pgTable("sequence_steps", {
   subjectTemplate: text("subject_template").notNull(),
   bodyTemplate: text("body_template").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (table) => [
+  index("sequence_steps_sequence_id_idx").on(table.sequenceId),
+]);
 
 export const sequenceStepsRelations = relations(sequenceSteps, ({ one }) => ({
   sequence: one(sequences, { fields: [sequenceSteps.sequenceId], references: [sequences.id] }),
