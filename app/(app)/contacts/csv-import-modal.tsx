@@ -143,7 +143,7 @@ export default function CsvImportModal({ hasDb }: Props) {
                   <p className="mb-2 text-xs font-medium text-[var(--ink-2)]">Skipped rows</p>
                   <div className="max-h-56 overflow-x-auto overflow-y-auto rounded-lg border border-[var(--line-1)]">
                     <table className="w-full text-xs">
-                      <thead className="sticky top-0 bg-[var(--surface-1)]">
+                      <thead className="sticky top-0 z-10 bg-[var(--surface-1)]">
                         <tr className="border-b border-[var(--line-1)] bg-[var(--surface-2)]">
                           <th className="w-16 px-3 py-2 text-left font-medium uppercase tracking-wide text-[var(--ink-3)]">Row</th>
                           <th className="px-3 py-2 text-left font-medium uppercase tracking-wide text-[var(--ink-3)]">Name</th>
