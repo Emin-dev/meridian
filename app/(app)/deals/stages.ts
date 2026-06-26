@@ -26,12 +26,12 @@ export type StageMeta = {
 };
 
 export const STAGES: readonly StageMeta[] = [
-  { key: "lead", label: "Lead", dot: "bg-blue-500", textColor: "text-[--ink-2]", probability: 10 },
-  { key: "qualified", label: "Qualified", dot: "bg-violet-500", textColor: "text-[--ink-2]", probability: 20 },
-  { key: "proposal", label: "Proposal", dot: "bg-yellow-500", textColor: "text-[--accent]", probability: 50 },
-  { key: "negotiation", label: "Negotiation", dot: "bg-orange-500", textColor: "text-[--accent]", probability: 75 },
-  { key: "won", label: "Won", dot: "bg-green-500", textColor: "text-[--ok]", probability: 100 },
-  { key: "lost", label: "Lost", dot: "bg-red-500", textColor: "text-[--bad]", probability: 0 },
+  { key: "lead", label: "Lead", dot: "bg-[var(--accent)]/40", textColor: "text-[--ink-2]", probability: 10 },
+  { key: "qualified", label: "Qualified", dot: "bg-[var(--accent)]/60", textColor: "text-[--ink-2]", probability: 20 },
+  { key: "proposal", label: "Proposal", dot: "bg-[var(--accent)]/80", textColor: "text-[--accent]", probability: 50 },
+  { key: "negotiation", label: "Negotiation", dot: "bg-[var(--accent)]", textColor: "text-[--accent]", probability: 75 },
+  { key: "won", label: "Won", dot: "bg-[var(--ok)]", textColor: "text-[--ok]", probability: 100 },
+  { key: "lost", label: "Lost", dot: "bg-[var(--bad)]", textColor: "text-[--bad]", probability: 0 },
 ];
 
 /** Stage → win probability. Indexable by a raw string (DB values) for lookups. */

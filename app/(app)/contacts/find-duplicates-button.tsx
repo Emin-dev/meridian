@@ -79,7 +79,7 @@ export default function FindDuplicatesButton({ hasDb }: { hasDb: boolean }) {
         onClick={handleOpen}
         disabled={!hasDb}
         title={!hasDb ? "Database not connected" : "Find duplicate contacts with AI"}
-        className="flex items-center gap-1.5 rounded-lg border border-[var(--warn)]/30 bg-[var(--warn-tint)] px-3 py-1.5 text-xs font-medium text-[var(--warn)] transition-colors hover:bg-[var(--warn)]/20 disabled:cursor-not-allowed disabled:opacity-40"
+        className="flex items-center gap-1.5 rounded-lg border border-[var(--line-1)] bg-[var(--surface-1)] px-3 py-1.5 text-xs font-medium text-[var(--ink-2)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--ink-1)] disabled:cursor-not-allowed disabled:opacity-40"
       >
         <svg
           width="12"
