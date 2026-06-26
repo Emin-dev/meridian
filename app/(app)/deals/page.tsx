@@ -240,7 +240,13 @@ export default async function DealsPage({
             />
           </div>
         ) : (
-          <KanbanBoard initialDeals={visibleDeals} />
+          // Key by the active filter so a soft owner/stage navigation remounts
+          // the board with the freshly-filtered deals. The key is invariant
+          // across the post-move revalidatePath, so optimistic state survives.
+          <KanbanBoard
+            key={`${ownerFilter}::${stageMatch?.key ?? ""}`}
+            initialDeals={visibleDeals}
+          />
         )
       )}
 
