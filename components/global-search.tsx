@@ -105,14 +105,21 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
         break;
       case "ArrowDown":
         e.preventDefault();
-        setSelectedIndex((i) => Math.min(i + 1, allItems.length - 1));
+        setSelectedIndex((i) => Math.max(0, Math.min(i + 1, allItems.length - 1)));
         break;
       case "ArrowUp":
         e.preventDefault();
         setSelectedIndex((i) => Math.max(i - 1, 0));
         break;
       case "Enter":
-        if (allItems[selectedIndex]) navigate(allItems[selectedIndex].href);
+        e.preventDefault();
+        if (allItems[selectedIndex]) {
+          navigate(allItems[selectedIndex].href);
+        } else if (query.trim()) {
+          // No row selected yet (results still loading, or zero matches): fall
+          // through to the full search page instead of dead-ending on Enter.
+          navigate(`/search?q=${encodedQ}`);
+        }
         break;
     }
   }
