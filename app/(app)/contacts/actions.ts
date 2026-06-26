@@ -1083,7 +1083,7 @@ export async function findDuplicateContacts(): Promise<FindDuplicatesState> {
       phone: schema.contacts.phone,
     })
     .from(schema.contacts)
-    .orderBy(schema.contacts.createdAt)
+    .orderBy(desc(schema.contacts.updatedAt))
     .limit(MAX_DUP_SCAN);
 
   if (allContacts.length < 2) return { pairs: [] };
