@@ -1,9 +1,13 @@
 import { and, count, isNull, lt, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
+import { getSession } from "@/lib/auth";
 import AppShell from "@/components/app-shell";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const db = getDb();
+  // Same session source the Settings Account card uses, so the chrome's
+  // "Sign out" affordance and the card never disagree about auth state.
+  const session = await getSession();
   let overdueCount = 0;
   let overdueTaskCount = 0;
   if (db) {
@@ -30,5 +34,5 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     overdueCount = Number(row.overdue);
     overdueTaskCount = Number(row.overdueTask);
   }
-  return <AppShell overdueCount={overdueCount} overdueTaskCount={overdueTaskCount}>{children}</AppShell>;
+  return <AppShell signedIn={session !== null} overdueCount={overdueCount} overdueTaskCount={overdueTaskCount}>{children}</AppShell>;
 }

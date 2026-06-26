@@ -24,7 +24,7 @@ export function TimeRangeFilter({ current }: { current: string }) {
           onClick={() => select(r.value)}
           className={`tap flex items-center justify-center rounded border px-3 py-1 text-callout font-medium transition-colors ${
             current === r.value
-              ? "border-[--line-1] bg-[--surface-3] text-[--ink-1]"
+              ? "border-[--accent]/30 bg-[--accent-tint] text-[--accent]"
               : "border-transparent text-[--ink-2] hover:text-[--ink-1]"
           }`}
         >

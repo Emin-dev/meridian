@@ -32,7 +32,7 @@ const NAV = [
   { href: "/settings", label: "Settings", icon: <SettingsIcon size={18} aria-hidden="true" /> },
 ];
 
-export default function AppShell({ children, overdueCount = 0, overdueTaskCount = 0 }: { children: React.ReactNode; overdueCount?: number; overdueTaskCount?: number }) {
+export default function AppShell({ children, signedIn = false, overdueCount = 0, overdueTaskCount = 0 }: { children: React.ReactNode; signedIn?: boolean; overdueCount?: number; overdueTaskCount?: number }) {
   const [navOpen, setNavOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [isMac, setIsMac] = useState(true);
@@ -114,14 +114,16 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
         {/* Sidebar footer */}
         <div className="shrink-0 border-t border-[--line-1] px-4 py-3 flex items-center justify-between">
           <p className="text-xs text-[--ink-3]">v0.1.0</p>
-          <form action={logout}>
-            <button
-              type="submit"
-              className="text-xs text-[--ink-3] transition-colors hover:text-[--ink-1]"
-            >
-              Sign out
-            </button>
-          </form>
+          {signedIn && (
+            <form action={logout}>
+              <button
+                type="submit"
+                className="text-xs text-[--ink-3] transition-colors hover:text-[--ink-1]"
+              >
+                Sign out
+              </button>
+            </form>
+          )}
         </div>
       </aside>
 
@@ -168,6 +170,7 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
         open={navOpen}
         onClose={() => setNavOpen(false)}
         pathname={pathname}
+        signedIn={signedIn}
         overdueCount={overdueCount}
         overdueTaskCount={overdueTaskCount}
       />
@@ -181,12 +184,14 @@ function MobileNavDrawer({
   open,
   onClose,
   pathname,
+  signedIn,
   overdueCount,
   overdueTaskCount,
 }: {
   open: boolean;
   onClose: () => void;
   pathname: string;
+  signedIn: boolean;
   overdueCount: number;
   overdueTaskCount: number;
 }) {
@@ -259,17 +264,19 @@ function MobileNavDrawer({
           })}
         </nav>
 
-        {/* Footer — Sign out */}
-        <div className="shrink-0 border-t border-[--line-1] px-2 py-2">
-          <form action={logout}>
-            <button
-              type="submit"
-              className="press flex min-h-[44px] w-full items-center gap-3 rounded-lg px-3 text-sm font-medium text-[--ink-2] hover:bg-[--surface-2] hover:text-[--ink-1]"
-            >
-              Sign out
-            </button>
-          </form>
-        </div>
+        {/* Footer — Sign out (only when actually signed in) */}
+        {signedIn && (
+          <div className="shrink-0 border-t border-[--line-1] px-2 py-2">
+            <form action={logout}>
+              <button
+                type="submit"
+                className="press flex min-h-[44px] w-full items-center gap-3 rounded-lg px-3 text-sm font-medium text-[--ink-2] hover:bg-[--surface-2] hover:text-[--ink-1]"
+              >
+                Sign out
+              </button>
+            </form>
+          </div>
+        )}
       </div>
     </div>
   );
