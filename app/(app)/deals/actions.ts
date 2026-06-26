@@ -36,8 +36,15 @@ const DealSchema = z.object({
     .regex(/^\d+(\.\d{1,2})?$/, "Enter a valid amount")
     .nullable(),
   currency: z.string().min(1, "Currency required").max(10),
-  expectedCloseDate: z.string().nullable(),
-  contactId: z.number().int().nullable(),
+  expectedCloseDate: z
+    .string()
+    .refine((v) => !Number.isNaN(Date.parse(v)), "Enter a valid date")
+    .nullable(),
+  contactId: z
+    .number()
+    .int("Enter a valid contact")
+    .positive("Enter a valid contact")
+    .nullable(),
   notes: z.string().nullable(),
   owner: z.string().transform((v) => (v === "" ? null : v)),
 });

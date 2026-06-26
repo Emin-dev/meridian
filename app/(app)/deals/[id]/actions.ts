@@ -34,8 +34,16 @@ const DealDetailsSchema = z.object({
     .string()
     .regex(/^\d+(\.\d{1,2})?$/, "Enter a valid amount")
     .nullable(),
-  expectedCloseDate: z.string().nullable(),
-  probability: z.number().int().min(0).max(100),
+  expectedCloseDate: z
+    .string()
+    .refine((v) => !Number.isNaN(Date.parse(v)), "Enter a valid date")
+    .nullable(),
+  // Reject non-numeric input with a friendly message, then clamp to 0–100 so an
+  // out-of-range probability is corrected rather than failing the whole save.
+  probability: z
+    .number()
+    .refine((n) => Number.isFinite(n), "Enter a valid probability")
+    .transform((n) => Math.min(100, Math.max(0, Math.round(n)))),
 });
 
 export type DealDetailsState = {
