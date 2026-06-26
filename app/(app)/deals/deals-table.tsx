@@ -269,7 +269,7 @@ export default function DealsTable({
 
           <div className="ml-auto flex items-center gap-3">
             {feedback && (
-              <span className={`text-xs ${feedback.ok ? "text-emerald-400" : "text-red-400"}`}>
+              <span className={`text-xs ${feedback.ok ? "text-[--ok]" : "text-[--bad]"}`}>
                 {feedback.msg}
               </span>
             )}
@@ -331,7 +331,7 @@ export default function DealsTable({
         {feedback && (
           <div
             className={`border-b border-[--line-1] px-4 py-2 text-xs ${
-              feedback.ok ? "text-emerald-400" : "text-red-400"
+              feedback.ok ? "text-[--ok]" : "text-[--bad]"
             }`}
           >
             {feedback.msg}
