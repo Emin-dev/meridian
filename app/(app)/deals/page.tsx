@@ -155,6 +155,13 @@ export default async function DealsPage({
   const totalValue = parseFloat(totalsRows[0]?.pipeline ?? "0");
   const weightedValue = parseFloat(totalsRows[0]?.weighted ?? "0");
 
+  // Aggregate totals (pipeline/weighted/stage) should be labelled in the same
+  // currency as the per-deal cards rather than a hardcoded USD. Deals carry
+  // their own currency; in practice the set is single-currency, so display the
+  // currency of the loaded deals, falling back to the configured default when
+  // there are none (the stats block is hidden in that case anyway).
+  const displayCurrency = visibleDeals[0]?.currency ?? settings.defaultCurrency;
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -172,14 +179,14 @@ export default async function DealsPage({
               <span>
                 Pipeline:{" "}
                 <span className="font-semibold text-[var(--ink-1)]">
-                  {formatCurrency(totalValue)}
+                  {formatCurrency(totalValue, displayCurrency)}
                 </span>
               </span>
               <span aria-hidden className="text-[var(--ink-3)]">|</span>
               <span>
                 Weighted:{" "}
                 <span className="font-semibold text-[var(--accent)]">
-                  {formatCurrency(weightedValue)}
+                  {formatCurrency(weightedValue, displayCurrency)}
                 </span>
               </span>
             </div>
@@ -280,6 +287,7 @@ export default async function DealsPage({
           <KanbanBoard
             key={`${ownerFilter}::${stageMatch?.key ?? ""}`}
             initialDeals={visibleDeals}
+            currency={displayCurrency}
           />
         )
       )}
