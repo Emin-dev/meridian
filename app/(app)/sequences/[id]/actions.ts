@@ -95,6 +95,11 @@ export async function deleteStep(
   stepId: number,
   sequenceId: number
 ): Promise<{ error?: string }> {
+  const idSchema = z.coerce.number().int().positive();
+  if (!idSchema.safeParse(stepId).success || !idSchema.safeParse(sequenceId).success) {
+    return { error: "Invalid request." };
+  }
+
   const db = getDb();
   if (!db) return { error: "Database not connected." };
 

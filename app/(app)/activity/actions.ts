@@ -166,6 +166,10 @@ export async function toggleActivityComplete(
   contactId: number | null,
   dealId: number | null,
 ): Promise<{ error?: string }> {
+  if (!z.coerce.number().int().positive().safeParse(activityId).success) {
+    return { error: "Invalid activity id" };
+  }
+
   const db = getDb();
   if (!db) return { error: "No database" };
 

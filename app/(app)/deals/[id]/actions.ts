@@ -13,6 +13,9 @@ import {
   extractWinLossInsight,
 } from "./notes-utils";
 
+// Validates an id-only argument coming from a client action call.
+const idSchema = z.coerce.number().int().positive();
+
 // ─── Update deal details (title, stage, value, close date) ───────────────────
 
 const DEAL_STAGES = [
@@ -326,6 +329,8 @@ export async function triggerWinLossAnalysis(
 }
 
 export async function deleteDeal(id: number): Promise<void> {
+  if (!idSchema.safeParse(id).success) redirect("/deals");
+
   const db = getDb();
   if (db) {
     await db.delete(schema.deals).where(eq(schema.deals.id, id));
@@ -345,6 +350,8 @@ export type DealScoreState = {
 };
 
 export async function scoreDeal(dealId: number): Promise<DealScoreState> {
+  if (!idSchema.safeParse(dealId).success) return { error: "Invalid deal id." };
+
   const db = getDb();
   if (!db) return { noDb: true };
 
@@ -454,6 +461,8 @@ export type DealSummarizeState = {
 };
 
 export async function summarizeDeal(dealId: number): Promise<DealSummarizeState> {
+  if (!idSchema.safeParse(dealId).success) return { error: "Invalid deal id." };
+
   const db = getDb();
   if (!db) return { noDb: true };
 
@@ -552,6 +561,8 @@ export type DealRiskState = {
 };
 
 export async function assessDealRisk(dealId: number): Promise<DealRiskState> {
+  if (!idSchema.safeParse(dealId).success) return { error: "Invalid deal id." };
+
   const db = getDb();
   if (!db) return { noDb: true };
 
@@ -683,6 +694,8 @@ export type DealNextActionState = {
 };
 
 export async function suggestDealNextAction(dealId: number): Promise<DealNextActionState> {
+  if (!idSchema.safeParse(dealId).success) return { error: "Invalid deal id." };
+
   const db = getDb();
   if (!db) return { noDb: true };
 
