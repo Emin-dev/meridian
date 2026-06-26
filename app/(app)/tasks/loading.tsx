@@ -31,7 +31,7 @@ export default function TasksLoading() {
         <div className="divide-y divide-[var(--line-1)] px-4 sm:px-5">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="flex min-h-[44px] items-center gap-3 py-2">
-              <Bone className="h-5 w-5 shrink-0 rounded-full" />
+              <Bone className="h-4 w-4 shrink-0 rounded" />
               <div className="flex min-w-0 flex-1 flex-col gap-1.5">
                 <Bone className="h-4 w-2/3 max-w-full" />
                 <Bone className="h-3 w-1/3 max-w-full" />

@@ -14,12 +14,10 @@ export default function AskLoading() {
         <Bone className="mt-2 h-4 w-full max-w-md" />
       </div>
 
-      {/* Ask form: textarea + button */}
-      <div className="card p-4 sm:p-5 space-y-4">
-        <Bone className="h-28 w-full rounded-[var(--r-md)]" />
-        <div className="flex justify-end">
-          <Bone className="h-10 w-28 rounded-[var(--r-md)]" />
-        </div>
+      {/* Ask form: single-line input + button */}
+      <div className="flex gap-2">
+        <Bone className="h-11 flex-1 rounded-[var(--r-md)]" />
+        <Bone className="h-11 w-16 shrink-0 rounded-[var(--r-md)]" />
       </div>
 
       {/* Suggested questions */}

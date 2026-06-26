@@ -8,20 +8,26 @@ export default function DealsLoading() {
   return (
     <div className="space-y-6 animate-pulse">
       {/* Header — wraps on mobile */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <Bone className="h-6 w-20" />
           <Bone className="mt-2 h-4 w-56" />
         </div>
-        <div className="flex gap-2">
-          <Bone className="h-10 w-24 rounded-[var(--r-md)]" />
-          <Bone className="h-10 w-24 rounded-[var(--r-md)]" />
+        <div className="flex flex-col gap-2 sm:items-end">
+          {/* Pipeline / Weighted stats line */}
+          <Bone className="h-4 w-48" />
+          {/* Controls */}
+          <div className="flex flex-wrap gap-2">
+            <Bone className="h-10 w-24 rounded-[var(--r-md)]" />
+            <Bone className="h-10 w-24 rounded-[var(--r-md)]" />
+            <Bone className="h-10 w-24 rounded-[var(--r-md)]" />
+          </div>
         </div>
       </div>
 
       {/* Kanban — overflow scroll, NO fixed min-width */}
       <div className="overflow-x-auto pb-4">
-        <div className="flex gap-3">
+        <div className="flex gap-4">
           {Array.from({ length: STAGE_COUNT }).map((_, i) => (
             <div
               key={i}

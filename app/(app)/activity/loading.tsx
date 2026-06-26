@@ -27,14 +27,22 @@ export default function ActivityLoading() {
       </div>
 
       {/* Events list */}
-      <div className="card">
-        <div className="border-b border-[var(--line-1)] px-5 py-3">
-          <Bone className="h-3 w-24" />
+      <div className="card overflow-hidden">
+        {/* Filter bar — type chips + date range */}
+        <div className="flex flex-wrap items-center gap-2 border-b border-[var(--line-1)] px-4 py-2">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Bone key={i} className="h-7 w-14 rounded-[var(--r-pill)]" />
+          ))}
+          <Bone className="h-7 w-28 rounded-[var(--r-md)] sm:ml-auto" />
         </div>
-        <ul className="divide-y divide-[var(--line-1)]">
+        {/* Stacked card bones */}
+        <ul className="flex flex-col gap-2 p-3">
           {Array.from({ length: 5 }).map((_, i) => (
-            <li key={i} className="flex gap-4 px-5 py-4">
-              <Bone className="mt-0.5 h-5 w-14 shrink-0 rounded-full" />
+            <li
+              key={i}
+              className="flex items-start gap-3 rounded-[var(--r-lg)] border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-3"
+            >
+              <Bone className="h-10 w-10 shrink-0 rounded-[var(--r-md)]" />
               <div className="flex-1 space-y-2">
                 <Bone className="h-4 w-3/4" />
                 <Bone className="h-3 w-1/3" />
