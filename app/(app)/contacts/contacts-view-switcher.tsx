@@ -17,7 +17,11 @@ export function ContactsViewSwitcher({
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY) as ContactsView | null;
-    const isMobile = window.innerWidth < 768;
+    // Coerce below the `lg` breakpoint — the same point at which the table view
+    // (and this toggle) is CSS-hidden and the page renders stacked cards. Using
+    // the layout breakpoint here keeps the persisted view coherent with what
+    // actually renders on phones and tablets (no orphaned "table" state).
+    const isMobile = window.innerWidth < 1024;
 
     let preferred: ContactsView | null = null;
     if (saved) {
