@@ -107,17 +107,22 @@ export async function createDeal(
   const { title, stage, value, currency, expectedCloseDate, contactId, notes, owner } =
     parsed.data;
 
-  await db.insert(schema.deals).values({
-    title,
-    stage,
-    value: value ?? undefined,
-    currency,
-    probability: STAGE_PROBABILITY[stage] ?? 10,
-    expectedCloseDate: expectedCloseDate ? new Date(expectedCloseDate) : undefined,
-    contactId: contactId ?? undefined,
-    notes: notes ?? undefined,
-    owner: owner ?? undefined,
-  });
+  try {
+    await db.insert(schema.deals).values({
+      title,
+      stage,
+      value: value ?? undefined,
+      currency,
+      probability: STAGE_PROBABILITY[stage] ?? 10,
+      expectedCloseDate: expectedCloseDate ? new Date(expectedCloseDate) : undefined,
+      contactId: contactId ?? undefined,
+      notes: notes ?? undefined,
+      owner: owner ?? undefined,
+    });
+  } catch (err) {
+    console.error("createDeal: failed to insert deal", err);
+    return { error: "Couldn't create the deal. Please try again." };
+  }
 
   revalidatePath("/deals");
   return { success: true };

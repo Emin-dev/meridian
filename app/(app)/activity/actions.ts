@@ -68,7 +68,9 @@ export async function addActivity(
       dueAt: parsed.data.dueAt,
       completedAt: parsed.data.completedAt,
     });
-  } catch {
+  } catch (err) {
+    console.error("addActivity: failed to insert activity", err);
+    revalidatePath("/activity");
     return { error: "Couldn't log the activity. Please try again." };
   }
 
