@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useToast } from "@/components/toaster";
 import { enrollInSequence, cancelEnrollment } from "./enrollment-actions";
 
@@ -22,9 +22,16 @@ export default function EnrollSequenceModal({
 }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const { toast } = useToast();
-  const [enrolledIds, setEnrolledIds] = useState<Set<number>>(
-    () => new Set(activeEnrollmentIds)
-  );
+  // `activeEnrollmentIds` is the server source of truth. We keep a local
+  // optimistic set only for instant feedback between clicking Enroll and the
+  // revalidatePath round-trip. It resets whenever the prop changes so that an
+  // enroll/cancel performed elsewhere (e.g. the page's Cancel button) is
+  // reflected the next time the modal is opened.
+  const enrolledKey = activeEnrollmentIds.join(",");
+  const [optimisticIds, setOptimisticIds] = useState<Set<number>>(new Set());
+  useEffect(() => {
+    setOptimisticIds(new Set());
+  }, [enrolledKey]);
   const [enrollingId, setEnrollingId] = useState<number | null>(null);
   const [errors, setErrors] = useState<Record<number, string>>({});
   const [isPending, startTransition] = useTransition();
@@ -44,7 +51,7 @@ export default function EnrollSequenceModal({
       const result = await enrollInSequence(contactId, sequenceId);
       setEnrollingId(null);
       if (result.success) {
-        setEnrolledIds((prev) => new Set([...prev, sequenceId]));
+        setOptimisticIds((prev) => new Set([...prev, sequenceId]));
         toast("Enrolled in sequence");
       } else if (result.noDb) {
         setErrors((prev) => ({
@@ -120,7 +127,9 @@ export default function EnrollSequenceModal({
           ) : (
             <ul className="space-y-2">
               {sequences.map((seq) => {
-                const enrolled = enrolledIds.has(seq.id);
+                const enrolled =
+                  activeEnrollmentIds.includes(seq.id) ||
+                  optimisticIds.has(seq.id);
                 const isEnrolling = enrollingId === seq.id && isPending;
                 return (
                   <li
