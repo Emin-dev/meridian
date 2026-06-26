@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { count, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { revalidatePath } from "next/cache";
 
@@ -37,7 +37,7 @@ export async function markStepSent(
   if (!db) return { error: "No database" };
 
   try {
-    const [[sequence], [enrollment]] = await Promise.all([
+    const [[sequence], [enrollment], [stepCountRow]] = await Promise.all([
       db
         .select({ status: schema.sequences.status })
         .from(schema.sequences)
@@ -52,6 +52,13 @@ export async function markStepSent(
         .from(schema.contactSequenceEnrollments)
         .where(eq(schema.contactSequenceEnrollments.id, enrollmentId))
         .limit(1),
+      // Authoritative step count — the completion decision must not trust the
+      // client-supplied totalSteps, which can be stale if steps were added or
+      // removed after the page rendered (premature or missed "completed").
+      db
+        .select({ value: count() })
+        .from(schema.sequenceSteps)
+        .where(eq(schema.sequenceSteps.sequenceId, sequenceId)),
     ]);
 
     if (!sequence || sequence.status !== "active") {
@@ -67,7 +74,8 @@ export async function markStepSent(
     }
     if (newStepPosition !== enrollment.currentStepPosition + 1) return {};
 
-    const isCompleted = newStepPosition >= totalSteps;
+    const actualTotalSteps = stepCountRow?.value ?? totalSteps;
+    const isCompleted = newStepPosition >= actualTotalSteps;
 
     // Log the email and advance the step atomically so a partial failure can't
     // leave a logged activity without an advanced position (which a retry would
