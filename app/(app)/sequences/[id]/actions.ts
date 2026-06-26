@@ -16,7 +16,7 @@ const reorderSchema = z.object({
 
 // A step delay is a whole number of days within a sane bound; the client input
 // is capped to the same range so this is the server-side enforcement of it.
-export const MAX_DELAY_DAYS = 365;
+const MAX_DELAY_DAYS = 365;
 const delaySchema = z.coerce.number().int().min(0).max(MAX_DELAY_DAYS);
 
 export type StepFormState = {
