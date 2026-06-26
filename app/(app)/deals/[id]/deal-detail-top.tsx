@@ -6,12 +6,12 @@ import EditDealForm from "./edit-deal-form";
 import StageControl from "../stage-control";
 
 const STAGE_META = {
-  lead:        { label: "Lead",        color: "text-blue-400",   bg: "bg-blue-900/20"   },
-  qualified:   { label: "Qualified",   color: "text-purple-400", bg: "bg-purple-900/20" },
-  proposal:    { label: "Proposal",    color: "text-yellow-400", bg: "bg-yellow-900/20" },
-  negotiation: { label: "Negotiation", color: "text-orange-400", bg: "bg-orange-900/20" },
-  won:         { label: "Won",         color: "text-green-400",  bg: "bg-green-900/20"  },
-  lost:        { label: "Lost",        color: "text-red-400",    bg: "bg-red-900/20"    },
+  lead:        { label: "Lead",        color: "text-[--ink-2]", bg: "bg-[--surface-2]"   },
+  qualified:   { label: "Qualified",   color: "text-[--info]",  bg: "bg-[--info-tint]"   },
+  proposal:    { label: "Proposal",    color: "text-[--accent]", bg: "bg-[--accent-tint]" },
+  negotiation: { label: "Negotiation", color: "text-[--warn]",  bg: "bg-[--warn-tint]"   },
+  won:         { label: "Won",         color: "text-[--ok]",    bg: "bg-[--ok-tint]"     },
+  lost:        { label: "Lost",        color: "text-[--bad]",   bg: "bg-[--bad-tint]"    },
 } as const;
 
 function formatValue(value: string | null, currency: string) {

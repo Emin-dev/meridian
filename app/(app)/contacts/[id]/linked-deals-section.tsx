@@ -10,12 +10,12 @@ interface Props {
 }
 
 const STAGE_STYLES: Record<string, string> = {
-  lead: "bg-blue-500/15 text-blue-400",
-  qualified: "bg-violet-500/15 text-violet-400",
-  proposal: "bg-yellow-500/15 text-yellow-400",
-  negotiation: "bg-orange-500/15 text-orange-400",
-  won: "bg-green-500/15 text-green-400",
-  lost: "bg-red-500/15 text-red-400",
+  lead: "bg-[--surface-2] text-[--ink-2]",
+  qualified: "bg-[--info-tint] text-[--info]",
+  proposal: "bg-[--accent-tint] text-[--accent]",
+  negotiation: "bg-[--warn-tint] text-[--warn]",
+  won: "bg-[--ok-tint] text-[--ok]",
+  lost: "bg-[--bad-tint] text-[--bad]",
 };
 
 function fmtValue(value: string | null, currency: string) {

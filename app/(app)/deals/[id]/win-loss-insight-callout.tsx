@@ -15,12 +15,12 @@ export default function WinLossInsightCallout({ insight, stage, dealId }: Props)
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const borderColor = isWon ? "border-green-700/60" : "border-red-700/60";
-  const bgColor = isWon ? "bg-green-950/40" : "bg-red-950/40";
-  const iconColor = isWon ? "text-green-400" : "text-red-400";
-  const labelColor = isWon ? "text-green-300" : "text-red-300";
-  const textColor = isWon ? "text-green-100" : "text-red-100";
-  const badgeBg = isWon ? "bg-green-900/50 text-green-300" : "bg-red-900/50 text-red-300";
+  const borderColor = isWon ? "border-[--ok]/40" : "border-[--bad]/40";
+  const bgColor = isWon ? "bg-[--ok-tint]" : "bg-[--bad-tint]";
+  const iconColor = isWon ? "text-[--ok]" : "text-[--bad]";
+  const labelColor = isWon ? "text-[--ok]" : "text-[--bad]";
+  const textColor = "text-[--ink-1]";
+  const badgeBg = isWon ? "bg-[--ok-tint] text-[--ok]" : "bg-[--bad-tint] text-[--bad]";
 
   function handleRefresh() {
     setError(null);
@@ -61,7 +61,7 @@ export default function WinLossInsightCallout({ insight, stage, dealId }: Props)
       </div>
 
       {error ? (
-        <p className="mt-3 text-xs text-red-400">{error}</p>
+        <p className="mt-3 text-xs text-[--bad]">{error}</p>
       ) : (
         <p className={`mt-3 text-sm leading-relaxed ${textColor}`}>
           {currentInsight}

@@ -130,7 +130,7 @@ export default function EnrollSequenceModal({
                     <span className="text-sm text-[var(--ink-1)]">{seq.name}</span>
                     <div className="flex shrink-0 items-center gap-2">
                       {errors[seq.id] && (
-                        <span className="text-xs text-red-400">
+                        <span className="text-xs text-[--bad]">
                           {errors[seq.id]}
                         </span>
                       )}
@@ -190,7 +190,7 @@ export function CancelEnrollmentButton({
       type="button"
       onClick={handleCancel}
       disabled={isPending}
-      className="rounded-lg px-3 py-1.5 text-xs font-medium text-[var(--ink-2)] transition-colors hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50"
+      className="rounded-lg px-3 py-1.5 text-xs font-medium text-[var(--ink-2)] transition-colors hover:bg-[--bad-tint] hover:text-[--bad] disabled:opacity-50"
     >
       {isPending ? "Cancelling…" : "Cancel"}
     </button>
