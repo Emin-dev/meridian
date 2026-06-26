@@ -157,6 +157,7 @@ export default async function AnalyticsBody({ days }: { days: string }) {
           year: sql<number>`extract(year from ${schema.deals.expectedCloseDate})::int`,
           month: sql<number>`extract(month from ${schema.deals.expectedCloseDate})::int - 1`,
           currency: schema.deals.currency,
+          count: sql<number>`count(*)::int`,
           raw: sql<number>`coalesce(sum(${schema.deals.value}), 0)::float8`,
           weighted: sql<number>`coalesce(sum(${schema.deals.value} * ${schema.deals.probability} / 100.0), 0)::float8`,
         })
@@ -311,6 +312,30 @@ export default async function AnalyticsBody({ days }: { days: string }) {
   }
   const maxForecastVal = Math.max(...forecastMonths.map((b) => b.raw), 1);
   const hasForecastData = forecastMonths.some((b) => b.raw > 0);
+
+  // Forecast bars are scoped to the dominant currency (see loop above), which
+  // silently drops open deals priced in other currencies. Count those dropped
+  // deals — but only ones whose close date lands in the displayed 6-month window
+  // — so the note reflects exactly what's missing from the chart, not all deals.
+  let forecastExcludedDeals = 0;
+  const forecastExcludedCurrencies = new Set<string>();
+  for (const row of forecastAgg) {
+    if (row.currency === dominantCurrency) continue;
+    const inWindow = forecastMonths.some(
+      (b) => b.year === row.year && b.month === row.month
+    );
+    if (!inWindow) continue;
+    forecastExcludedDeals += row.count;
+    if (row.currency) forecastExcludedCurrencies.add(row.currency);
+  }
+  const forecastCurrencyNote =
+    forecastExcludedDeals > 0
+      ? `+${forecastExcludedDeals} deal${
+          forecastExcludedDeals !== 1 ? "s" : ""
+        } in ${forecastExcludedCurrencies.size} other currenc${
+          forecastExcludedCurrencies.size === 1 ? "y" : "ies"
+        } excluded from this forecast.`
+      : null;
 
   // ── Won deals per month ───────────────────────────────────────────────────────
   const closedChartMonths = since
@@ -586,6 +611,11 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                   </div>
                 ))}
               </div>
+            )}
+            {forecastCurrencyNote && (
+              <p className="mt-2 text-footnote text-[var(--ink-3)]">
+                {forecastCurrencyNote}
+              </p>
             )}
           </div>
           <div>
@@ -1012,6 +1042,14 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                   </div>
                 </div>
               </>
+            )}
+
+            {forecastCurrencyNote && (
+              <div className="border-t border-[var(--line-1)] px-6 py-3">
+                <p className="text-footnote text-[var(--ink-3)]">
+                  {forecastCurrencyNote}
+                </p>
+              </div>
             )}
           </div>
 
