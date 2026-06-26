@@ -507,7 +507,7 @@ async function scoreContactFromData(
     );
 
     const parsed = JSON.parse(raw) as { score: unknown; rationale: unknown };
-    if (!parsed || typeof parsed !== "object") {
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
       return { error: "AI returned an unexpected format. Please try again." };
     }
     const score = Math.round(Number(parsed.score));
@@ -724,7 +724,7 @@ export async function suggestNextAction(
       rationale: unknown;
       suggestedMessage: unknown;
     };
-    if (!parsed || typeof parsed !== "object") {
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
       return { error: "AI returned an unexpected format. Please try again." };
     }
 
