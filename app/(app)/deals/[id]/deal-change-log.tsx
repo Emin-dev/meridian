@@ -33,13 +33,18 @@ interface Props {
 export default async function DealChangeLog({ dealId }: Props) {
   const db = getDb();
 
+  const LIMIT = 50;
   let events: DealEvent[] = [];
+  let hasMore = false;
   if (db) {
-    events = await db
+    const rows = await db
       .select()
       .from(schema.dealEvents)
       .where(eq(schema.dealEvents.dealId, dealId))
-      .orderBy(desc(schema.dealEvents.changedAt));
+      .orderBy(desc(schema.dealEvents.changedAt))
+      .limit(LIMIT + 1);
+    hasMore = rows.length > LIMIT;
+    events = hasMore ? rows.slice(0, LIMIT) : rows;
   }
 
   return (
@@ -83,6 +88,12 @@ export default async function DealChangeLog({ dealId }: Props) {
             </li>
           ))}
         </ul>
+      )}
+
+      {hasMore && (
+        <p className="pt-1 text-center text-xs text-[var(--ink-3)]">
+          Showing latest {LIMIT} changes.
+        </p>
       )}
     </div>
   );
