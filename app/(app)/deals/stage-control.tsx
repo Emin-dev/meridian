@@ -72,11 +72,11 @@ export default function StageControl({
 
   const reasonLabel = pendingStage === "won" ? "Won" : "Lost";
   const reasonAccentClass =
-    pendingStage === "won" ? "text-green-400" : "text-red-400";
+    pendingStage === "won" ? "text-[--ok]" : "text-[--bad]";
   const confirmBtnClass =
     pendingStage === "won"
-      ? "bg-green-700/70 hover:bg-green-600/80 text-green-100"
-      : "bg-red-700/70 hover:bg-red-600/80 text-red-100";
+      ? "bg-[--ok-tint] hover:opacity-80 text-[--ok]"
+      : "bg-[--bad-tint] hover:opacity-80 text-[--bad]";
   const reasonPlaceholder =
     pendingStage === "lost"
       ? "e.g. Price, timeline, competitor…"
@@ -86,7 +86,7 @@ export default function StageControl({
     <>
       {/* ── Stepper + Won/Lost. Hidden on desktop while the inline reason panel is open. ── */}
       <div
-        className={`mt-2 space-y-1.5 border-t border-neutral-700/50 pt-2 ${
+        className={`mt-2 space-y-1.5 border-t border-[--line-1] pt-2 ${
           pendingStage ? "lg:hidden" : ""
         }`}
       >
@@ -95,7 +95,7 @@ export default function StageControl({
             type="button"
             disabled={!canPrev || pending}
             onClick={() => requestMove(STAGE_KEYS[idx - 1])}
-            className="flex min-h-[44px] items-center gap-1 rounded px-3 py-2 text-sm text-neutral-500 transition-colors hover:bg-neutral-700 hover:text-neutral-300 disabled:pointer-events-none disabled:opacity-30 lg:min-h-0 lg:px-1.5 lg:py-0.5 lg:text-xs"
+            className="flex min-h-[44px] items-center gap-1 rounded px-3 py-2 text-sm text-[--ink-2] transition-colors hover:bg-[--surface-2] hover:text-[--ink-1] disabled:pointer-events-none disabled:opacity-30 lg:min-h-0 lg:px-1.5 lg:py-0.5 lg:text-xs"
             aria-label="Move to previous stage"
           >
             <svg
@@ -117,7 +117,7 @@ export default function StageControl({
               : ""}
           </button>
 
-          <span className="text-[10px] text-neutral-600">
+          <span className="text-[10px] text-[--ink-3]">
             {idx + 1}/{STAGE_KEYS.length}
           </span>
 
@@ -125,7 +125,7 @@ export default function StageControl({
             type="button"
             disabled={!canNext || pending}
             onClick={() => requestMove(STAGE_KEYS[idx + 1])}
-            className="flex min-h-[44px] items-center gap-1 rounded px-3 py-2 text-sm text-neutral-500 transition-colors hover:bg-neutral-700 hover:text-neutral-300 disabled:pointer-events-none disabled:opacity-30 lg:min-h-0 lg:px-1.5 lg:py-0.5 lg:text-xs"
+            className="flex min-h-[44px] items-center gap-1 rounded px-3 py-2 text-sm text-[--ink-2] transition-colors hover:bg-[--surface-2] hover:text-[--ink-1] disabled:pointer-events-none disabled:opacity-30 lg:min-h-0 lg:px-1.5 lg:py-0.5 lg:text-xs"
             aria-label="Move to next stage"
           >
             {canNext
@@ -154,7 +154,7 @@ export default function StageControl({
               type="button"
               disabled={pending}
               onClick={() => requestMove("won")}
-              className="flex min-h-[44px] flex-1 items-center justify-center rounded px-2 py-2 text-sm font-medium text-green-400 transition-colors hover:bg-green-500/15 disabled:pointer-events-none disabled:opacity-40 lg:min-h-0 lg:py-1 lg:text-[11px]"
+              className="flex min-h-[44px] flex-1 items-center justify-center rounded px-2 py-2 text-sm font-medium text-[--ok] transition-colors hover:bg-[--ok-tint] disabled:pointer-events-none disabled:opacity-40 lg:min-h-0 lg:py-1 lg:text-[11px]"
             >
               Won
             </button>
@@ -162,7 +162,7 @@ export default function StageControl({
               type="button"
               disabled={pending}
               onClick={() => requestMove("lost")}
-              className="flex min-h-[44px] flex-1 items-center justify-center rounded px-2 py-2 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/15 disabled:pointer-events-none disabled:opacity-40 lg:min-h-0 lg:py-1 lg:text-[11px]"
+              className="flex min-h-[44px] flex-1 items-center justify-center rounded px-2 py-2 text-sm font-medium text-[--bad] transition-colors hover:bg-[--bad-tint] disabled:pointer-events-none disabled:opacity-40 lg:min-h-0 lg:py-1 lg:text-[11px]"
             >
               Lost
             </button>
@@ -172,19 +172,19 @@ export default function StageControl({
 
       {/* ── Desktop: inline reason panel (replaces the stepper above). ── */}
       {pendingStage && (
-        <div className="mt-2 hidden space-y-2 border-t border-neutral-700/50 pt-2 lg:block">
+        <div className="mt-2 hidden space-y-2 border-t border-[--line-1] pt-2 lg:block">
           <p className="text-xs">
             <span className={`font-medium ${reasonAccentClass}`}>
               Mark as {reasonLabel}
             </span>
-            <span className="text-neutral-500"> — reason (optional)</span>
+            <span className="text-[--ink-2]"> — reason (optional)</span>
           </p>
           <input
             type="text"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             placeholder={reasonPlaceholder}
-            className="w-full rounded border border-neutral-700 bg-neutral-800 px-2 py-1 text-xs text-neutral-200 placeholder-neutral-600 focus:border-neutral-500 focus:outline-none"
+            className="w-full rounded border border-[--line-1] bg-[--surface-2] px-2 py-1 text-xs text-[--ink-1] placeholder:text-[--ink-3] focus:border-[--line-2] focus:outline-none"
             autoFocus
             onKeyDown={(e) => {
               if (e.key === "Enter") confirmMove();
@@ -204,7 +204,7 @@ export default function StageControl({
               type="button"
               disabled={pending}
               onClick={cancelMove}
-              className="rounded px-2 py-1 text-[11px] text-neutral-400 transition-colors hover:bg-neutral-700 hover:text-neutral-200 disabled:pointer-events-none disabled:opacity-40"
+              className="rounded px-2 py-1 text-[11px] text-[--ink-2] transition-colors hover:bg-[--surface-2] hover:text-[--ink-1] disabled:pointer-events-none disabled:opacity-40"
             >
               Cancel
             </button>
@@ -220,7 +220,7 @@ export default function StageControl({
           title={`Mark as ${reasonLabel}`}
         >
           <div className="space-y-3">
-            <p className="text-sm text-neutral-400">
+            <p className="text-sm text-[--ink-2]">
               Add an optional reason for moving this deal to{" "}
               <span className={`font-medium ${reasonAccentClass}`}>
                 {reasonLabel}
@@ -232,7 +232,7 @@ export default function StageControl({
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder={reasonPlaceholder}
-              className="min-h-[44px] w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 text-sm text-neutral-200 placeholder-neutral-600 focus:border-neutral-500 focus:outline-none"
+              className="min-h-[44px] w-full rounded-lg border border-[--line-1] bg-[--surface-2] px-3 text-sm text-[--ink-1] placeholder:text-[--ink-3] focus:border-[--line-2] focus:outline-none"
               onKeyDown={(e) => {
                 if (e.key === "Enter") confirmMove();
               }}
@@ -250,7 +250,7 @@ export default function StageControl({
                 type="button"
                 disabled={pending}
                 onClick={cancelMove}
-                className="tap flex items-center justify-center rounded-lg px-3 text-sm text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-neutral-200 disabled:pointer-events-none disabled:opacity-40"
+                className="tap flex items-center justify-center rounded-lg px-3 text-sm text-[--ink-2] transition-colors hover:bg-[--surface-2] hover:text-[--ink-1] disabled:pointer-events-none disabled:opacity-40"
               >
                 Cancel
               </button>
