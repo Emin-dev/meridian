@@ -43,7 +43,7 @@ export default function DealsExportCsvButton({
       <span title="Connect a database to export deals">
         <button
           disabled
-          className="inline-flex items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm font-medium text-neutral-500 cursor-not-allowed opacity-60"
+          className="inline-flex items-center gap-2 rounded-lg border border-[--line-2] bg-[--surface-2] px-3 py-2 text-sm font-medium text-[--ink-3] cursor-not-allowed opacity-60"
         >
           Export CSV
         </button>
@@ -55,7 +55,7 @@ export default function DealsExportCsvButton({
     <button
       onClick={handleExport}
       disabled={loading}
-      className="inline-flex items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm font-medium text-neutral-300 transition-colors hover:bg-neutral-700 hover:text-neutral-100 disabled:cursor-not-allowed disabled:opacity-60"
+      className="inline-flex items-center gap-2 rounded-lg border border-[--line-2] bg-[--surface-2] px-3 py-2 text-sm font-medium text-[--ink-2] transition-colors hover:bg-[--surface-3] hover:text-[--ink-1] disabled:cursor-not-allowed disabled:opacity-60"
     >
       {loading ? "Exporting…" : "Export CSV"}
     </button>

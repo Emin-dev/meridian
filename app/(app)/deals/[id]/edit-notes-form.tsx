@@ -47,7 +47,7 @@ export default function EditNotesForm({
   return (
     <form action={formAction} className="space-y-3">
       {state.noDb && (
-        <p className="text-xs text-amber-400">
+        <p className="text-xs text-[--warn]">
           Database not connected — notes cannot be saved.
         </p>
       )}

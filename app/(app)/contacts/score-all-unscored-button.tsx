@@ -40,11 +40,11 @@ export default function ScoreAllUnscoredButton({ hasUnscored }: { hasUnscored: b
     <button
       onClick={handleClick}
       disabled={isPending}
-      className="flex items-center gap-1.5 rounded-lg border border-violet-500/30 bg-violet-500/10 px-3 py-1.5 text-xs font-medium text-violet-300 transition-colors hover:bg-violet-500/20 disabled:opacity-50"
+      className="flex items-center gap-1.5 rounded-lg border border-[--accent]/30 bg-[--accent-tint] px-3 py-1.5 text-xs font-medium text-[--accent] transition-colors hover:bg-[--accent]/20 disabled:opacity-50"
     >
       {isPending ? (
         <>
-          <span className="h-3 w-3 animate-spin rounded-full border border-violet-400 border-t-transparent" />
+          <span className="h-3 w-3 animate-spin rounded-full border border-[--accent] border-t-transparent" />
           Scoring…
         </>
       ) : (
