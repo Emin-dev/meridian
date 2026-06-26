@@ -2,6 +2,7 @@
 
 import { useOptimistic, useTransition } from "react";
 import { toggleActivityComplete } from "./actions";
+import { useToast } from "@/components/toaster";
 
 interface Props {
   activityId: number;
@@ -16,6 +17,7 @@ export default function ActivityToggle({
   contactId,
   dealId,
 }: Props) {
+  const { toast } = useToast();
   const [pending, startTransition] = useTransition();
   // Optimistic mirror of `isCompleted`: flips instantly on toggle, then
   // reconciles to the revalidated prop on success or reverts on failure.
@@ -32,7 +34,16 @@ export default function ActivityToggle({
         onChange={() => {
           startTransition(async () => {
             setOptimisticCompleted(!isCompleted);
-            await toggleActivityComplete(activityId, isCompleted, contactId, dealId);
+            // On failure the optimistic value auto-reverts to `isCompleted`
+            // when the transition ends; surface a toast so the dropped write
+            // is visible instead of the checkbox silently snapping back.
+            const result = await toggleActivityComplete(
+              activityId,
+              isCompleted,
+              contactId,
+              dealId,
+            );
+            if (result?.error) toast(result.error, "error");
           });
         }}
         className="h-4 w-4 cursor-pointer rounded border-[--line-2] bg-[--surface-2] accent-[--accent] disabled:opacity-50"
