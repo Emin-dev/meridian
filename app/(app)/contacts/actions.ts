@@ -363,27 +363,15 @@ export type ScoreState = {
   noKey?: boolean;
 };
 
-export async function scoreContact(contactId: number): Promise<ScoreState> {
-  const db = getDb();
-  if (!db) return { noDb: true };
-
-  const [contact] = await db
-    .select()
-    .from(schema.contacts)
-    .where(eq(schema.contacts.id, contactId))
-    .limit(1);
-
-  if (!contact) return { error: "Contact not found." };
-
-  if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
-
-  const recentActivities = await db
-    .select()
-    .from(schema.activities)
-    .where(eq(schema.activities.contactId, contactId))
-    .orderBy(desc(schema.activities.createdAt))
-    .limit(20);
-
+// Score a single contact from data that has already been fetched. Shared by
+// scoreContact (one contact) and bulkScoreContacts (pre-fetched batch) so the
+// AI prompt and caching logic stay identical and the bulk path avoids re-
+// querying the DB per contact.
+async function scoreContactFromData(
+  db: NonNullable<ReturnType<typeof getDb>>,
+  contact: typeof schema.contacts.$inferSelect,
+  recentActivities: (typeof schema.activities.$inferSelect)[]
+): Promise<ScoreState> {
   const lines: string[] = [
     `Name: ${contact.name}`,
     contact.title ? `Title: ${contact.title}` : null,
@@ -435,8 +423,8 @@ export async function scoreContact(contactId: number): Promise<ScoreState> {
       await db
         .update(schema.contacts)
         .set({ leadScore: score, leadScoreRationale: rationale, leadScoredAt: new Date(), updatedAt: new Date() })
-        .where(eq(schema.contacts.id, contactId));
-      revalidatePath(`/contacts/${contactId}`);
+        .where(eq(schema.contacts.id, contact.id));
+      revalidatePath(`/contacts/${contact.id}`);
       revalidatePath("/contacts");
     } catch {
       // Ignore — DB columns may not yet be migrated
@@ -448,6 +436,30 @@ export async function scoreContact(contactId: number): Promise<ScoreState> {
     if (message.includes("DEEPSEEK_API_KEY")) return { noKey: true };
     return { error: message };
   }
+}
+
+export async function scoreContact(contactId: number): Promise<ScoreState> {
+  const db = getDb();
+  if (!db) return { noDb: true };
+
+  const [contact] = await db
+    .select()
+    .from(schema.contacts)
+    .where(eq(schema.contacts.id, contactId))
+    .limit(1);
+
+  if (!contact) return { error: "Contact not found." };
+
+  if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
+
+  const recentActivities = await db
+    .select()
+    .from(schema.activities)
+    .where(eq(schema.activities.contactId, contactId))
+    .orderBy(desc(schema.activities.createdAt))
+    .limit(20);
+
+  return scoreContactFromData(db, contact, recentActivities);
 }
 
 // ─── AI: Bulk lead scoring ────────────────────────────────────────────────────
@@ -464,16 +476,43 @@ export async function bulkScoreContacts(): Promise<BulkScoreState> {
   if (!db) return { noDb: true };
   if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
 
-  const rows = await db
-    .select({ id: schema.contacts.id })
+  // Pre-fetch every unscored contact in a single query rather than re-querying
+  // each contact inside scoreContact (which previously meant 101 queries for
+  // 100 contacts).
+  const contactsToScore = await db
+    .select()
     .from(schema.contacts)
     .where(isNull(schema.contacts.leadScore));
 
-  if (rows.length === 0) return { count: 0 };
+  if (contactsToScore.length === 0) return { count: 0 };
+
+  // Fetch the activities for all those contacts in one query, then group them
+  // per contact (newest-first, capped at 20 to match scoreContact's behaviour).
+  const contactIds = contactsToScore.map((c) => c.id);
+  const activityRows = await db
+    .select()
+    .from(schema.activities)
+    .where(inArray(schema.activities.contactId, contactIds))
+    .orderBy(desc(schema.activities.createdAt));
+
+  const activitiesByContact = new Map<number, typeof activityRows>();
+  for (const a of activityRows) {
+    if (a.contactId == null) continue;
+    const list = activitiesByContact.get(a.contactId);
+    if (list) {
+      if (list.length < 20) list.push(a);
+    } else {
+      activitiesByContact.set(a.contactId, [a]);
+    }
+  }
 
   let count = 0;
-  for (const { id } of rows) {
-    const result = await scoreContact(id);
+  for (const contact of contactsToScore) {
+    const result = await scoreContactFromData(
+      db,
+      contact,
+      activitiesByContact.get(contact.id) ?? []
+    );
     if (result.score !== undefined) count++;
   }
 
