@@ -1,5 +1,9 @@
 import React from "react";
 
+function isSafeHref(url: string): boolean {
+  return /^(https?:\/\/|mailto:)/i.test(url.trim());
+}
+
 type Block =
   | { type: "paragraph"; lines: string[] }
   | { type: "ul"; items: string[] }
@@ -40,17 +44,21 @@ function parseInline(text: string, keyBase: string): React.ReactNode[] {
         </code>
       );
     } else if (match[5] != null && match[6] != null) {
-      result.push(
-        <a
-          key={k}
-          href={match[6]}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-[var(--accent)] underline hover:text-[var(--accent-hover)]"
-        >
-          {match[5]}
-        </a>
-      );
+      if (isSafeHref(match[6])) {
+        result.push(
+          <a
+            key={k}
+            href={match[6]}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[var(--accent)] underline hover:text-[var(--accent-hover)]"
+          >
+            {match[5]}
+          </a>
+        );
+      } else {
+        result.push(match[0]);
+      }
     }
     lastIndex = match.index + match[0].length;
   }
