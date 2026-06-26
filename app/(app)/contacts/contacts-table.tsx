@@ -55,6 +55,24 @@ const STATUSES = [
 
 type ContactStatus = (typeof STATUSES)[number]["value"];
 
+function formatContactDate(d: string | Date | null): string {
+  if (!d) return "—";
+  return new Date(d).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function DetailField({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0">
+      <dt className="text-caption uppercase tracking-wider text-[--ink-3]">{label}</dt>
+      <dd className="mt-0.5 truncate text-body text-[--ink-1]">{value}</dd>
+    </div>
+  );
+}
+
 function SortableHeader({
   col,
   label,
@@ -113,11 +131,14 @@ function ContactCards({
   selectMode = false,
   selectedIds,
   onToggle,
+  onCardTap,
 }: {
   contacts: ContactListItem[];
   selectMode?: boolean;
   selectedIds?: Set<number>;
   onToggle?: (id: number) => void;
+  /** When provided, tapping a row opens it in-place (mobile sheet) instead of navigating. */
+  onCardTap?: (c: ContactListItem) => void;
 }) {
   return (
     <div className="divide-y divide-[--line-1]">
@@ -188,6 +209,20 @@ function ContactCards({
           );
         }
 
+        if (onCardTap) {
+          return (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => onCardTap(c)}
+              aria-label={`View ${c.name} details`}
+              className="flex min-h-[44px] w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[--surface-2]/40 active:bg-[--surface-2]/60"
+            >
+              {body}
+            </button>
+          );
+        }
+
         return (
           <Link
             key={c.id}
@@ -218,6 +253,8 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [selectMode, setSelectMode] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
+  // Mobile-only: which contact's quick-view detail is open in the bottom sheet.
+  const [detailContact, setDetailContact] = useState<ContactListItem | null>(null);
   const [tagInput, setTagInput] = useState("");
   const [statusSelect, setStatusSelect] = useState<ContactStatus>("lead");
   const [sequenceSelect, setSequenceSelect] = useState("");
@@ -500,6 +537,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
             selectMode={selectMode}
             selectedIds={selectedIds}
             onToggle={toggle}
+            onCardTap={setDetailContact}
           />
         </div>
 
@@ -758,6 +796,79 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
             </div>
           )}
         </div>
+      </MobileActionSheet>
+
+      {/* Mobile contact quick-view sheet — tap a row to open */}
+      <MobileActionSheet
+        open={detailContact !== null}
+        onClose={() => setDetailContact(null)}
+        title="Contact"
+      >
+        {detailContact && (() => {
+          const statusMeta = detailContact.status ? STATUS_LABELS[detailContact.status] : null;
+          const lastContacted = getLastContactedMeta(lastContactedMap[detailContact.id] ?? null);
+          const tags = detailContact.tags ?? [];
+          return (
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-title3 font-semibold text-[--ink-1]">
+                  {detailContact.name}
+                </h3>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  {statusMeta && (
+                    <span
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${statusMeta.className}`}
+                    >
+                      {statusMeta.label}
+                    </span>
+                  )}
+                  {detailContact.leadScore != null && (
+                    <LeadScoreBadge score={detailContact.leadScore} />
+                  )}
+                </div>
+              </div>
+
+              <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
+                <DetailField label="Company" value={detailContact.company ?? "—"} />
+                <DetailField label="Title" value={detailContact.title ?? "—"} />
+                <DetailField label="Email" value={detailContact.email ?? "—"} />
+                <DetailField label="Phone" value={detailContact.phone ?? "—"} />
+                <DetailField
+                  label="Source"
+                  value={detailContact.source ? SOURCE_LABELS[detailContact.source] ?? detailContact.source : "—"}
+                />
+                <DetailField label="Owner" value={detailContact.owner ?? "—"} />
+                {hasDb && (
+                  <DetailField label="Last contact" value={lastContacted?.text ?? "Never"} />
+                )}
+                <DetailField label="Added" value={formatContactDate(detailContact.createdAt)} />
+              </dl>
+
+              {tags.length > 0 && (
+                <div>
+                  <dt className="text-caption uppercase tracking-wider text-[--ink-3]">Tags</dt>
+                  <dd className="mt-1.5 flex flex-wrap gap-1">
+                    {tags.map((t) => (
+                      <span
+                        key={t}
+                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${tagColor(t)}`}
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </dd>
+                </div>
+              )}
+
+              <Link
+                href={`/contacts/${detailContact.id}`}
+                className="tap flex min-h-[44px] items-center justify-center rounded-lg bg-[--accent] px-4 text-sm font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover]"
+              >
+                Open full contact
+              </Link>
+            </div>
+          );
+        })()}
       </MobileActionSheet>
     </div>
   );
