@@ -19,7 +19,7 @@ const STAGES = [
 const initialState: PreferencesFormState = {};
 
 const inputCls =
-  "tap w-full rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-1)] px-3 py-2.5 text-body text-[var(--ink-1)] placeholder:text-[var(--ink-3)] [color-scheme:dark] outline-none focus:border-[var(--accent)] transition-colors";
+  "tap w-full rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-1)] px-3 py-2.5 text-body text-[var(--ink-1)] placeholder:text-[var(--ink-3)] [color-scheme:dark] focus:border-[var(--accent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)] focus-visible:outline-offset-2 transition-colors";
 
 export function PreferencesForm({ current }: { current: CrmSettings }) {
   const [state, formAction, pending] = useActionState(

@@ -167,7 +167,7 @@ export default function KanbanCard({
                   setReason("");
                 }
               }}
-              className="w-full rounded border border-[var(--line-1)] bg-[var(--surface-2)] px-2 py-1 text-xs text-[var(--ink-1)] placeholder:text-[var(--ink-3)] focus:border-[var(--accent)] focus:outline-none"
+              className="w-full rounded border border-[var(--line-1)] bg-[var(--surface-2)] px-2 py-1 text-xs text-[var(--ink-1)] placeholder:text-[var(--ink-3)] focus:border-[var(--accent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)] focus-visible:outline-offset-2"
             />
             <div className="flex gap-1.5">
               <button
@@ -197,7 +197,7 @@ export default function KanbanCard({
           <select
             value={deal.stage}
             onChange={handleStageChange}
-            className="min-h-[44px] w-full rounded border border-[var(--line-1)] bg-[var(--surface-2)] px-2 py-1 text-xs text-[var(--ink-2)] focus:border-[var(--accent)] focus:outline-none cursor-pointer"
+            className="min-h-[44px] w-full rounded border border-[var(--line-1)] bg-[var(--surface-2)] px-2 py-1 text-xs text-[var(--ink-2)] focus:border-[var(--accent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)] focus-visible:outline-offset-2 cursor-pointer"
             aria-label="Move to stage"
           >
             {STAGES.map((s) => (

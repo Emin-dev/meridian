@@ -184,7 +184,7 @@ export default function StageControl({
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             placeholder={reasonPlaceholder}
-            className="w-full rounded border border-[var(--line-1)] bg-[var(--surface-2)] px-2 py-1 text-xs text-[var(--ink-1)] placeholder:text-[var(--ink-3)] focus:border-[var(--line-2)] focus:outline-none"
+            className="w-full rounded border border-[var(--line-1)] bg-[var(--surface-2)] px-2 py-1 text-xs text-[var(--ink-1)] placeholder:text-[var(--ink-3)] focus:border-[var(--line-2)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)] focus-visible:outline-offset-2"
             autoFocus
             onKeyDown={(e) => {
               if (e.key === "Enter") confirmMove();
@@ -232,7 +232,7 @@ export default function StageControl({
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder={reasonPlaceholder}
-              className="min-h-[44px] w-full rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 text-sm text-[var(--ink-1)] placeholder:text-[var(--ink-3)] focus:border-[var(--line-2)] focus:outline-none"
+              className="min-h-[44px] w-full rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 text-sm text-[var(--ink-1)] placeholder:text-[var(--ink-3)] focus:border-[var(--line-2)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)] focus-visible:outline-offset-2"
               onKeyDown={(e) => {
                 if (e.key === "Enter") confirmMove();
               }}

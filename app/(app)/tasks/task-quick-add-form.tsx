@@ -7,7 +7,7 @@ import { useToast } from "@/components/toaster";
 const INIT: AddTaskState = {};
 
 const inputCls =
-  "w-full min-h-[44px] rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 text-body text-[var(--ink-1)] placeholder:text-[var(--ink-3)] focus:border-[var(--accent)] focus:outline-none [color-scheme:dark]";
+  "w-full min-h-[44px] rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 text-body text-[var(--ink-1)] placeholder:text-[var(--ink-3)] focus:border-[var(--accent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)] focus-visible:outline-offset-2 [color-scheme:dark]";
 const labelCls = "mb-1 block text-caption font-medium text-[var(--ink-2)]";
 
 export default function TaskQuickAddForm() {
