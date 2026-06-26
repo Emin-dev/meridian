@@ -27,7 +27,9 @@ export function DealsViewSwitcher({
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY) as View | null;
-    const isMobile = window.innerWidth < 768;
+    // Match the lg breakpoint where the toggle hides and cards take over, so
+    // every < lg viewport lands on the cards (table) view.
+    const isMobile = window.innerWidth < 1024;
 
     let preferred: View | null = null;
     if (saved) {
@@ -51,7 +53,7 @@ export function DealsViewSwitcher({
   const isTable = currentView === "table";
 
   return (
-    <div className="flex items-center rounded-lg border border-neutral-700 bg-neutral-900 p-0.5">
+    <div className="hidden items-center rounded-lg border border-neutral-700 bg-neutral-900 p-0.5 lg:flex">
       <button
         onClick={() => setView("kanban")}
         className={`flex min-h-[44px] items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${

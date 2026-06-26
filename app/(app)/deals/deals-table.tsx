@@ -41,6 +41,34 @@ function dealAgeInDays(createdAt: Date): number {
   return Math.floor(diffMs / 86_400_000);
 }
 
+function formatDealValue(deal: DealWithContact): string {
+  return deal.value
+    ? new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: deal.currency,
+        maximumFractionDigits: 0,
+      }).format(parseFloat(deal.value))
+    : "—";
+}
+
+function formatDealDate(d: Date | null): string {
+  if (!d) return "—";
+  return new Date(d).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function DetailField({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0">
+      <dt className="text-caption uppercase tracking-wider text-[--ink-3]">{label}</dt>
+      <dd className="mt-0.5 truncate text-body text-[--ink-1]">{value}</dd>
+    </div>
+  );
+}
+
 function ageBadgeClass(days: number): string {
   if (days <= 14) return "bg-[--surface-2] text-[--ink-2]";
   if (days <= 30) return "bg-[--warn-tint] text-[--warn]";
@@ -80,6 +108,8 @@ export default function DealsTable({
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [selectMode, setSelectMode] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
+  // Mobile-only: which deal's full detail is open in the bottom sheet.
+  const [detailDeal, setDetailDeal] = useState<DealWithContact | null>(null);
   const [stageSelect, setStageSelect] = useState("lead");
   const [ownerInput, setOwnerInput] = useState("");
   const [feedback, setFeedback] = useState<{ msg: string; ok: boolean } | null>(null);
@@ -342,13 +372,7 @@ export default function DealsTable({
           {sorted.map((deal) => {
             const age = dealAgeInDays(deal.createdAt);
             const isSelected = selectedIds.has(deal.id);
-            const value = deal.value
-              ? new Intl.NumberFormat("en-US", {
-                  style: "currency",
-                  currency: deal.currency,
-                  maximumFractionDigits: 0,
-                }).format(parseFloat(deal.value))
-              : "—";
+            const value = formatDealValue(deal);
 
             const body = (
               <>
@@ -418,13 +442,15 @@ export default function DealsTable({
             }
 
             return (
-              <Link
+              <button
                 key={deal.id}
-                href={`/deals/${deal.id}`}
-                className="flex min-h-[44px] items-center gap-3 px-4 py-3 transition-colors hover:bg-[--surface-2]/40 active:bg-[--surface-2]/60"
+                type="button"
+                onClick={() => setDetailDeal(deal)}
+                aria-label={`View ${deal.title} details`}
+                className="flex min-h-[44px] w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[--surface-2]/40 active:bg-[--surface-2]/60"
               >
                 {body}
-              </Link>
+              </button>
             );
           })}
         </div>
@@ -616,6 +642,69 @@ export default function DealsTable({
             Delete {selectedIds.size} deal(s)
           </button>
         </div>
+      </MobileActionSheet>
+
+      {/* Mobile deal-detail sheet — full record, tap a card to open */}
+      <MobileActionSheet
+        open={detailDeal !== null}
+        onClose={() => setDetailDeal(null)}
+        title="Deal"
+      >
+        {detailDeal && (
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-title3 font-semibold text-[--ink-1]">
+                {detailDeal.title}
+              </h3>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <span
+                  className={`inline-flex items-center rounded-full bg-[--surface-1] px-2.5 py-0.5 text-xs font-medium ${
+                    STAGE_COLORS[detailDeal.stage] ?? "text-[--ink-2]"
+                  }`}
+                >
+                  {STAGE_LABELS[detailDeal.stage] ?? detailDeal.stage}
+                </span>
+                <span
+                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium tabular-nums ${ageBadgeClass(
+                    dealAgeInDays(detailDeal.createdAt),
+                  )}`}
+                >
+                  {dealAgeInDays(detailDeal.createdAt)}d open
+                </span>
+              </div>
+            </div>
+
+            <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
+              <DetailField label="Value" value={formatDealValue(detailDeal)} />
+              <DetailField label="Probability" value={`${detailDeal.probability}%`} />
+              <DetailField label="Contact" value={detailDeal.contact?.name ?? "—"} />
+              <DetailField label="Owner" value={detailDeal.owner ?? "—"} />
+              <DetailField
+                label="Expected close"
+                value={formatDealDate(detailDeal.expectedCloseDate)}
+              />
+              <DetailField label="Created" value={formatDealDate(detailDeal.createdAt)} />
+            </dl>
+
+            {detailDeal.notes && (
+              <div>
+                <dt className="text-caption uppercase tracking-wider text-[--ink-3]">
+                  Notes
+                </dt>
+                <dd className="mt-1 whitespace-pre-wrap text-body text-[--ink-2]">
+                  {detailDeal.notes}
+                </dd>
+              </div>
+            )}
+
+            <Link
+              href={`/deals/${detailDeal.id}`}
+              className="tap flex min-h-[44px] items-center justify-center rounded-lg bg-[--accent] px-4 text-sm font-medium text-[--accent-ink] transition-colors hover:bg-[--accent-hover]"
+            >
+              Open full deal
+            </Link>
+          </div>
+        )}
       </MobileActionSheet>
     </div>
   );
