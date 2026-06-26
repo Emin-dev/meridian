@@ -1,9 +1,12 @@
 "use server";
 
 import { and, eq } from "drizzle-orm";
+import { z } from "zod";
 import { getDb, schema } from "@/db";
 import { revalidatePath } from "next/cache";
 import { requireSession } from "@/lib/require-session";
+
+const idSchema = z.coerce.number().int().positive();
 
 export type EnrollmentState = {
   error?: string;
@@ -16,6 +19,13 @@ export async function enrollInSequence(
   sequenceId: number
 ): Promise<EnrollmentState> {
   await requireSession();
+
+  if (
+    !idSchema.safeParse(contactId).success ||
+    !idSchema.safeParse(sequenceId).success
+  ) {
+    return { error: "Invalid request." };
+  }
 
   const db = getDb();
   if (!db) return { noDb: true };
@@ -65,6 +75,13 @@ export async function cancelEnrollment(
   contactId: number
 ): Promise<{ error?: string }> {
   await requireSession();
+
+  if (
+    !idSchema.safeParse(enrollmentId).success ||
+    !idSchema.safeParse(contactId).success
+  ) {
+    return { error: "Invalid request." };
+  }
 
   const db = getDb();
   if (!db) return { error: "No database connected." };
