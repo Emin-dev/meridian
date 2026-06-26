@@ -171,22 +171,22 @@ export default function KanbanBoard({
                 onDrop={(id) => void handleMove(id, stage.key)}
               >
                 {/* Column header */}
-                <div className="flex items-center justify-between border-b border-neutral-800 px-4 py-3">
+                <div className="flex items-center justify-between border-b border-[--line-1] px-4 py-3">
                   <div className="flex items-center gap-2">
                     <span className={`h-2 w-2 rounded-full ${stage.dot}`} />
-                    <span className="text-xs font-medium uppercase tracking-wide text-neutral-400">
+                    <span className="text-xs font-medium uppercase tracking-wide text-[--ink-2]">
                       {stage.label}
                     </span>
                   </div>
-                  <span className="rounded-full bg-neutral-800 px-2 py-0.5 text-xs text-neutral-400">
+                  <span className="rounded-full bg-[--surface-2] px-2 py-0.5 text-xs text-[--ink-2]">
                     {cards.length}
                   </span>
                 </div>
 
                 {/* Stage value */}
                 {stageTotal > 0 && (
-                  <div className="border-b border-neutral-800 px-4 py-2">
-                    <p className="text-xs text-neutral-500">
+                  <div className="border-b border-[--line-1] px-4 py-2">
+                    <p className="text-xs text-[--ink-3]">
                       {fmtUSD.format(stageTotal)}
                     </p>
                   </div>
@@ -195,7 +195,7 @@ export default function KanbanBoard({
                 {/* Cards */}
                 <div className="flex flex-1 flex-col gap-3 p-3">
                   {cards.length === 0 ? (
-                    <p className="py-6 text-center text-xs text-neutral-700">
+                    <p className="py-6 text-center text-xs text-[--ink-3]">
                       No deals
                     </p>
                   ) : (
