@@ -107,6 +107,51 @@ function SortableHeader({
   );
 }
 
+function ContactCards({ contacts }: { contacts: Contact[] }) {
+  return (
+    <div className="divide-y divide-[--line-1]">
+      {contacts.map((c) => {
+        const statusMeta = c.status ? STATUS_LABELS[c.status] : null;
+        const secondary = [
+          c.company,
+          statusMeta?.label,
+          c.leadScore != null ? String(c.leadScore) : null,
+        ]
+          .filter(Boolean)
+          .join(" • ");
+        return (
+          <Link
+            key={c.id}
+            href={`/contacts/${c.id}`}
+            className="flex min-h-[44px] items-center gap-3 px-4 py-3 transition-colors hover:bg-neutral-800/40 active:bg-neutral-800/60"
+          >
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-neutral-100">{c.name}</p>
+              {secondary && (
+                <p className="truncate text-xs text-neutral-400">{secondary}</p>
+              )}
+            </div>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="flex-shrink-0 text-neutral-600"
+              aria-hidden
+            >
+              <path d="M9 18l6-6-6-6" />
+            </svg>
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
+
 type Props = {
   contacts: Contact[];
   sequences: Sequence[];
@@ -323,56 +368,27 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
               </span>
             )}
           </p>
-          <ContactsViewSwitcher currentView={view} allSearchParams={allSearchParams} />
+          {/* View switcher — desktop only; mobile is always stacked cards */}
+          <div className="hidden lg:block">
+            <ContactsViewSwitcher currentView={view} allSearchParams={allSearchParams} />
+          </div>
         </div>
 
-        {/* Card view */}
+        {/* Mobile: always stacked cards (the wide table would horizontal-scroll) */}
+        <div className="lg:hidden">
+          <ContactCards contacts={contacts} />
+        </div>
+
+        {/* Desktop card view */}
         {view === "cards" && (
-          <div className="divide-y divide-[--line-1]">
-            {contacts.map((c) => {
-              const statusMeta = c.status ? STATUS_LABELS[c.status] : null;
-              const secondary = [
-                c.company,
-                statusMeta?.label,
-                c.leadScore != null ? String(c.leadScore) : null,
-              ]
-                .filter(Boolean)
-                .join(" • ");
-              return (
-                <Link
-                  key={c.id}
-                  href={`/contacts/${c.id}`}
-                  className="flex min-h-[44px] items-center gap-3 px-4 py-3 transition-colors hover:bg-neutral-800/40 active:bg-neutral-800/60"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-neutral-100">{c.name}</p>
-                    {secondary && (
-                      <p className="truncate text-xs text-neutral-400">{secondary}</p>
-                    )}
-                  </div>
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="flex-shrink-0 text-neutral-600"
-                    aria-hidden
-                  >
-                    <path d="M9 18l6-6-6-6" />
-                  </svg>
-                </Link>
-              );
-            })}
+          <div className="hidden lg:block">
+            <ContactCards contacts={contacts} />
           </div>
         )}
 
-        {/* Table view */}
+        {/* Desktop table view */}
         {view === "table" && (
-          <div className="overflow-x-auto">
+          <div className="hidden overflow-x-auto lg:block">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-neutral-800 text-left">
