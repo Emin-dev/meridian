@@ -34,8 +34,22 @@ afterEach(() => {
 });
 
 describe("requireSession", () => {
-  it("is a no-op when AUTH_ENABLED is not 'true' (default-open)", async () => {
+  it("enforces a session by default once a DB and secret are set (default-secure)", async () => {
+    // The dangerous old behavior was a no-op here, leaving a connected DB with
+    // real PII publicly mutable. Default-secure: with both configured and no
+    // explicit opt-out, the guard must enforce.
     delete process.env.AUTH_ENABLED;
+    process.env.AUTH_SECRET = "secret";
+    process.env.DATABASE_URL = "postgres://x";
+    getSession.mockResolvedValue(null);
+
+    await expect(requireSession()).rejects.toThrow("NEXT_REDIRECT");
+    expect(getSession).toHaveBeenCalled();
+    expect(redirect).toHaveBeenCalledWith("/login");
+  });
+
+  it("is a no-op when AUTH_ENABLED=false explicitly opts an un-seeded demo out", async () => {
+    process.env.AUTH_ENABLED = "false";
     process.env.AUTH_SECRET = "secret";
     process.env.DATABASE_URL = "postgres://x";
 
@@ -44,8 +58,8 @@ describe("requireSession", () => {
     expect(redirect).not.toHaveBeenCalled();
   });
 
-  it("is a no-op when AUTH_SECRET is missing even with AUTH_ENABLED=true", async () => {
-    process.env.AUTH_ENABLED = "true";
+  it("is a no-op when AUTH_SECRET is missing (app stays publicly demoable)", async () => {
+    delete process.env.AUTH_ENABLED;
     delete process.env.AUTH_SECRET;
     process.env.DATABASE_URL = "postgres://x";
 
@@ -53,8 +67,8 @@ describe("requireSession", () => {
     expect(redirect).not.toHaveBeenCalled();
   });
 
-  it("is a no-op when DATABASE_URL is missing even with AUTH_ENABLED=true", async () => {
-    process.env.AUTH_ENABLED = "true";
+  it("is a no-op when DATABASE_URL is missing (no data to protect)", async () => {
+    delete process.env.AUTH_ENABLED;
     process.env.AUTH_SECRET = "secret";
     delete process.env.DATABASE_URL;
 
@@ -62,7 +76,7 @@ describe("requireSession", () => {
     expect(redirect).not.toHaveBeenCalled();
   });
 
-  it("redirects to /login when fully enabled and there is no session", async () => {
+  it("redirects to /login when enabled and there is no session", async () => {
     process.env.AUTH_ENABLED = "true";
     process.env.AUTH_SECRET = "secret";
     process.env.DATABASE_URL = "postgres://x";
@@ -72,7 +86,7 @@ describe("requireSession", () => {
     expect(redirect).toHaveBeenCalledWith("/login");
   });
 
-  it("allows the action through when fully enabled and a session exists", async () => {
+  it("allows the action through when enabled and a session exists", async () => {
     process.env.AUTH_ENABLED = "true";
     process.env.AUTH_SECRET = "secret";
     process.env.DATABASE_URL = "postgres://x";

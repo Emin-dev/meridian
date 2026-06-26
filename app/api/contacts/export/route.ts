@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { and, eq, ilike, gte, isNull, notExists, sql } from "drizzle-orm";
 import type { SQL } from "drizzle-orm";
 import { getDb, schema } from "@/db";
+import { isAuthEnabled } from "@/lib/auth-config";
+import { getSession } from "@/lib/auth";
 
 const VALID_SOURCES = ["website", "referral", "linkedin", "cold-outreach", "other"] as const;
 const VALID_STATUSES = ["lead", "active", "inactive", "churned"] as const;
@@ -23,6 +25,13 @@ function escapeCsv(value: string | null | undefined): string {
 }
 
 export async function GET(request: NextRequest) {
+  // Defense-in-depth: this route streams the entire contact database as CSV with
+  // full PII. The middleware already gates it when auth is enabled, but never
+  // rely on a single layer for a bulk-export endpoint — re-check the session here.
+  if (isAuthEnabled() && !(await getSession())) {
+    return new NextResponse("Unauthorized", { status: 401 });
+  }
+
   const db = getDb();
   if (!db) {
     return new NextResponse("Database not connected", { status: 503 });
