@@ -1,7 +1,8 @@
 "use client";
 
-import { useId, useState, useTransition } from "react";
+import { useCallback, useId, useState, useTransition } from "react";
 import { smartCompose } from "@/app/(app)/activity/actions";
+import { useOverlayDismiss } from "@/hooks/use-overlay-dismiss";
 
 interface Props {
   /** Optional activity type ("email", "call", …) to tune tone. */
@@ -35,12 +36,20 @@ export default function SmartCompose({
   const intentId = useId();
   const draftId = useId();
 
-  function reset() {
+  const reset = useCallback(() => {
     setIntent("");
     setDraft("");
     setError(null);
     setNoKey(false);
-  }
+  }, []);
+
+  const close = useCallback(() => {
+    setOpen(false);
+    reset();
+  }, [reset]);
+
+  // Escape / focus-trap parity for this inline overlay (reuse shared convention).
+  const panelRef = useOverlayDismiss<HTMLDivElement>(open, close);
 
   function handleGenerate() {
     setError(null);
@@ -77,7 +86,11 @@ export default function SmartCompose({
   }
 
   return (
-    <div className="space-y-3 rounded-[--r-md] border border-[--line-1] bg-[--surface-2] p-3">
+    <div
+      ref={panelRef}
+      tabIndex={-1}
+      className="space-y-3 rounded-[--r-md] border border-[--line-1] bg-[--surface-2] p-3 outline-none"
+    >
       <div className="flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-1.5 text-footnote font-medium text-[--ink-1]">
           <SparkleIcon />
@@ -85,10 +98,7 @@ export default function SmartCompose({
         </div>
         <button
           type="button"
-          onClick={() => {
-            setOpen(false);
-            reset();
-          }}
+          onClick={close}
           aria-label="Close smart compose"
           className="tap -mr-2 -mt-2 -mb-2 inline-flex items-center justify-center text-[--ink-3] hover:text-[--ink-1]"
         >
