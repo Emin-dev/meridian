@@ -414,6 +414,9 @@ export async function scoreDeal(dealId: number): Promise<DealScoreState> {
     );
 
     const parsed = JSON.parse(raw) as { score: unknown; reasoning: unknown };
+    if (!parsed || typeof parsed !== "object") {
+      return { error: "AI returned an unexpected format. Please try again." };
+    }
     const score = Math.round(Number(parsed.score));
     const reasoning = String(parsed.reasoning ?? "").trim();
 
@@ -627,6 +630,9 @@ export async function assessDealRisk(dealId: number): Promise<DealRiskState> {
       reason: unknown;
       nextStep: unknown;
     };
+    if (!parsed || typeof parsed !== "object") {
+      return { error: "AI returned an unexpected format. Please try again." };
+    }
 
     const risk = (["low", "medium", "high"] as const).includes(
       parsed.risk as "low" | "medium" | "high"
@@ -737,6 +743,9 @@ export async function suggestDealNextAction(dealId: number): Promise<DealNextAct
       rationale: unknown;
       suggestedMessage: unknown;
     };
+    if (!parsed || typeof parsed !== "object") {
+      return { error: "AI returned an unexpected format. Please try again." };
+    }
 
     const action = String(parsed.action ?? "").trim();
     const priority = (["high", "medium", "low"] as const).includes(
