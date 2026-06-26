@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { and, eq, gte, isNotNull, notInArray, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
+import { formatCurrency } from "@/lib/format";
+import { getCrmSettings } from "@/lib/settings";
 import MobileAnalyticsTiles, {
   type AnalyticsTile,
 } from "./mobile-analytics-tiles";
@@ -36,14 +38,6 @@ const PIPELINE_STAGES = [
   "negotiation",
   "won",
 ] as const;
-
-function fmtUSD(value: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
 
 function StatCard({
   label,
@@ -119,6 +113,10 @@ export default async function AnalyticsBody({ days }: { days: string }) {
     : null;
 
   const db = getDb();
+  // Format every money aggregate in the CRM's configured default currency
+  // (getCrmSettings falls back to defaults — and the empty DB case — gracefully).
+  const { defaultCurrency } = await getCrmSettings();
+  const fmtMoney = (value: number) => formatCurrency(value, defaultCurrency);
   const dealWhere = since ? gte(schema.deals.createdAt, since) : undefined;
   const contactWhere = since ? gte(schema.contacts.createdAt, since) : undefined;
 
@@ -379,9 +377,9 @@ export default async function AnalyticsBody({ days }: { days: string }) {
             />
             <MiniStat
               label="Avg Won Deal"
-              value={avgWonValue !== null ? fmtUSD(avgWonValue) : "—"}
+              value={avgWonValue !== null ? fmtMoney(avgWonValue) : "—"}
             />
-            <MiniStat label="Pipeline Value" value={fmtUSD(totalPipeline)} />
+            <MiniStat label="Pipeline Value" value={fmtMoney(totalPipeline)} />
             <MiniStat
               label="Avg Days to Close"
               value={
@@ -402,7 +400,7 @@ export default async function AnalyticsBody({ days }: { days: string }) {
     {
       key: "funnel",
       label: "Pipeline",
-      value: fmtUSD(totalPipeline),
+      value: fmtMoney(totalPipeline),
       subtext: `${activeDealsCount} active deal${activeDealsCount !== 1 ? "s" : ""}`,
       sheetTitle: "Stage Funnel",
       content:
@@ -448,7 +446,7 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                   </div>
                   <div className="mt-1 flex items-center justify-between text-footnote">
                     <span className="text-[var(--ink-2)]">
-                      {stage.value > 0 ? fmtUSD(stage.value) : "—"}
+                      {stage.value > 0 ? fmtMoney(stage.value) : "—"}
                     </span>
                     {conv != null && (
                       <span className={convColor}>{conv.toFixed(0)}% conv.</span>
@@ -511,7 +509,7 @@ export default async function AnalyticsBody({ days }: { days: string }) {
     {
       key: "forecast",
       label: "Forecast",
-      value: fmtUSD(forecastTotalRaw),
+      value: fmtMoney(forecastTotalRaw),
       subtext: "Next 6 months",
       sheetTitle: "Revenue Forecast",
       content: (
@@ -531,7 +529,7 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                         {b.label}
                       </span>
                       <span className="text-callout font-semibold text-[var(--ink-1)]">
-                        {b.raw > 0 ? fmtUSD(b.raw) : "—"}
+                        {b.raw > 0 ? fmtMoney(b.raw) : "—"}
                       </span>
                     </div>
                     <div className="mt-1.5 h-1.5 rounded-full bg-[var(--surface-3)]">
@@ -547,7 +545,7 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                     </div>
                     {b.weighted > 0 && (
                       <p className="mt-1 text-footnote text-[var(--ink-3)]">
-                        Weighted {fmtUSD(b.weighted)}
+                        Weighted {fmtMoney(b.weighted)}
                       </p>
                     )}
                   </div>
@@ -649,7 +647,7 @@ export default async function AnalyticsBody({ days }: { days: string }) {
               />
               <StatCard
                 label="Avg Won Deal Value"
-                value={avgWonValue !== null ? fmtUSD(avgWonValue) : "—"}
+                value={avgWonValue !== null ? fmtMoney(avgWonValue) : "—"}
                 subtext={
                   wonWithValueCount > 0
                     ? `across ${wonWithValueCount} won deal${wonWithValueCount !== 1 ? "s" : ""}`
@@ -660,7 +658,7 @@ export default async function AnalyticsBody({ days }: { days: string }) {
               />
               <StatCard
                 label="Total Pipeline Value"
-                value={fmtUSD(totalPipeline)}
+                value={fmtMoney(totalPipeline)}
                 subtext={`${activeDealsCount} active deal${activeDealsCount !== 1 ? "s" : ""}`}
               />
               <StatCard
@@ -749,7 +747,7 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                             </span>
                             {stage.value > 0 && (
                               <span className="text-footnote text-[var(--ink-2)]">
-                                {fmtUSD(stage.value)}
+                                {fmtMoney(stage.value)}
                               </span>
                             )}
                             {conv != null && (
@@ -781,7 +779,7 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                           {stage.count}
                         </div>
                         <div className="hidden @[30rem]:block w-28 shrink-0 text-right text-callout text-[var(--ink-2)]">
-                          {stage.value > 0 ? fmtUSD(stage.value) : "—"}
+                          {stage.value > 0 ? fmtMoney(stage.value) : "—"}
                         </div>
                         <div className="hidden @[30rem]:block w-24 shrink-0 text-right text-callout">
                           {conv != null ? (
@@ -954,10 +952,10 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                           {bucket.raw > 0 ? (
                             <>
                               <p className="text-footnote truncate font-medium text-[var(--ink-2)]">
-                                {fmtUSD(bucket.raw)}
+                                {fmtMoney(bucket.raw)}
                               </p>
                               <p className="text-footnote truncate text-[var(--ink-3)]">
-                                {fmtUSD(bucket.weighted)}
+                                {fmtMoney(bucket.weighted)}
                               </p>
                             </>
                           ) : (
