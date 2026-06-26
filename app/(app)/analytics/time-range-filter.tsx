@@ -17,15 +17,15 @@ export function TimeRangeFilter({ current }: { current: string }) {
   }
 
   return (
-    <div className="flex shrink-0 gap-1 rounded-lg border border-neutral-800 bg-neutral-900 p-1">
+    <div className="flex shrink-0 gap-1 rounded-lg border border-[--line-1] bg-[--surface-1] p-1">
       {RANGES.map((r) => (
         <button
           key={r.value || "all"}
           onClick={() => select(r.value)}
-          className={`tap flex items-center justify-center rounded px-3 py-1 text-sm font-medium transition-colors ${
+          className={`tap flex items-center justify-center rounded border px-3 py-1 text-callout font-medium transition-colors ${
             current === r.value
-              ? "bg-neutral-700 text-neutral-100"
-              : "text-neutral-400 hover:text-neutral-200"
+              ? "border-[--line-1] bg-[--surface-3] text-[--ink-1]"
+              : "border-transparent text-[--ink-2] hover:text-[--ink-1]"
           }`}
         >
           {r.label}

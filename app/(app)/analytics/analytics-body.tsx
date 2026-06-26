@@ -3,27 +3,27 @@ import { gte } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 
 const CONTACT_STATUSES = [
-  { key: "lead" as const, label: "Lead", dot: "bg-blue-500" },
-  { key: "active" as const, label: "Active", dot: "bg-green-500" },
-  { key: "inactive" as const, label: "Inactive", dot: "bg-neutral-500" },
-  { key: "churned" as const, label: "Churned", dot: "bg-red-500" },
+  { key: "lead" as const, label: "Lead", dot: "bg-[--info]" },
+  { key: "active" as const, label: "Active", dot: "bg-[--ok]" },
+  { key: "inactive" as const, label: "Inactive", dot: "bg-[--ink-3]" },
+  { key: "churned" as const, label: "Churned", dot: "bg-[--bad]" },
 ];
 
 const CONTACT_SOURCES = [
-  { key: "website" as const, label: "Website", dot: "bg-cyan-500" },
-  { key: "referral" as const, label: "Referral", dot: "bg-violet-500" },
-  { key: "linkedin" as const, label: "LinkedIn", dot: "bg-blue-400" },
-  { key: "cold-outreach" as const, label: "Cold Outreach", dot: "bg-orange-500" },
-  { key: "other" as const, label: "Other", dot: "bg-neutral-500" },
+  { key: "website" as const, label: "Website", dot: "bg-[--info]" },
+  { key: "referral" as const, label: "Referral", dot: "bg-[--ok]" },
+  { key: "linkedin" as const, label: "LinkedIn", dot: "bg-[--accent]" },
+  { key: "cold-outreach" as const, label: "Cold Outreach", dot: "bg-[--warn]" },
+  { key: "other" as const, label: "Other", dot: "bg-[--ink-3]" },
 ];
 
 const STAGES = [
-  { key: "lead" as const, label: "Lead", dot: "bg-blue-500" },
-  { key: "qualified" as const, label: "Qualified", dot: "bg-violet-500" },
-  { key: "proposal" as const, label: "Proposal", dot: "bg-yellow-500" },
-  { key: "negotiation" as const, label: "Negotiation", dot: "bg-orange-500" },
-  { key: "won" as const, label: "Won", dot: "bg-green-500" },
-  { key: "lost" as const, label: "Lost", dot: "bg-red-500" },
+  { key: "lead" as const, label: "Lead", dot: "bg-[--info]" },
+  { key: "qualified" as const, label: "Qualified", dot: "bg-[--info]" },
+  { key: "proposal" as const, label: "Proposal", dot: "bg-[--warn]" },
+  { key: "negotiation" as const, label: "Negotiation", dot: "bg-[--accent]" },
+  { key: "won" as const, label: "Won", dot: "bg-[--ok]" },
+  { key: "lost" as const, label: "Lost", dot: "bg-[--bad]" },
 ];
 
 const PIPELINE_STAGES = [
@@ -52,12 +52,12 @@ function StatCard({
   subtext: string;
 }) {
   return (
-    <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-5 py-4">
-      <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">
+    <div className="card px-5 py-4">
+      <p className="text-footnote font-medium uppercase tracking-wide text-[--ink-3]">
         {label}
       </p>
-      <p className="mt-2 text-2xl font-bold text-neutral-100">{value}</p>
-      <p className="mt-1 text-xs text-neutral-500">{subtext}</p>
+      <p className="mt-2 text-title3 font-bold text-[--ink-1]">{value}</p>
+      <p className="mt-1 text-footnote text-[--ink-3]">{subtext}</p>
     </div>
   );
 }
@@ -227,7 +227,7 @@ export default async function AnalyticsBody({ days }: { days: string }) {
     <>
       {/* No DB state */}
       {!db && (
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-neutral-800 bg-neutral-900 px-5 py-16 text-center">
+        <div className="flex flex-col items-center gap-3 card px-5 py-16 text-center">
           <svg
             width="32"
             height="32"
@@ -237,14 +237,14 @@ export default async function AnalyticsBody({ days }: { days: string }) {
             strokeWidth="1.5"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="text-neutral-700"
+            className="text-[--ink-3]"
           >
             <line x1="18" x2="18" y1="20" y2="10" />
             <line x1="12" x2="12" y1="20" y2="4" />
             <line x1="6" x2="6" y1="20" y2="14" />
           </svg>
-          <p className="text-sm text-neutral-400">Database not connected.</p>
-          <p className="text-xs text-neutral-600">
+          <p className="text-callout text-[--ink-2]">Database not connected.</p>
+          <p className="text-footnote text-[--ink-3]">
             Set DATABASE_URL to connect your Neon database.
           </p>
         </div>
@@ -299,18 +299,18 @@ export default async function AnalyticsBody({ days }: { days: string }) {
           </div>
 
           {/* Stage funnel — @container for responsive rows */}
-          <div className="@container rounded-xl border border-neutral-800 bg-neutral-900">
-            <div className="border-b border-neutral-800 px-6 py-4">
-              <h3 className="text-sm font-semibold text-neutral-100">
+          <div className="@container card">
+            <div className="border-b border-[--line-1] px-6 py-4">
+              <h3 className="text-callout font-semibold text-[--ink-1]">
                 Stage Funnel
               </h3>
-              <p className="mt-0.5 text-xs text-neutral-500">
+              <p className="mt-0.5 text-footnote text-[--ink-3]">
                 Deal count, total value, and forward conversion rate per stage
               </p>
             </div>
 
             {deals.length === 0 ? (
-              <div className="px-6 py-12 text-center text-sm text-neutral-600">
+              <div className="px-6 py-12 text-center text-callout text-[--ink-3]">
                 {days
                   ? "No deals in this time range."
                   : "No deals found. Add some deals to see analytics."}
@@ -318,59 +318,59 @@ export default async function AnalyticsBody({ days }: { days: string }) {
             ) : (
               <>
                 {/* Column headers: only on wide containers */}
-                <div className="hidden @[30rem]:flex items-center gap-4 border-b border-neutral-800 px-6 py-2">
-                  <div className="w-28 shrink-0 text-xs font-medium uppercase tracking-wide text-neutral-600">
+                <div className="hidden @[30rem]:flex items-center gap-4 border-b border-[--line-1] px-6 py-2">
+                  <div className="w-28 shrink-0 text-footnote font-medium uppercase tracking-wide text-[--ink-3]">
                     Stage
                   </div>
                   <div className="flex-1" />
-                  <div className="w-10 shrink-0 text-right text-xs font-medium uppercase tracking-wide text-neutral-600">
+                  <div className="w-10 shrink-0 text-right text-footnote font-medium uppercase tracking-wide text-[--ink-3]">
                     Deals
                   </div>
-                  <div className="w-28 shrink-0 text-right text-xs font-medium uppercase tracking-wide text-neutral-600">
+                  <div className="w-28 shrink-0 text-right text-footnote font-medium uppercase tracking-wide text-[--ink-3]">
                     Value
                   </div>
-                  <div className="w-24 shrink-0 text-right text-xs font-medium uppercase tracking-wide text-neutral-600">
+                  <div className="w-24 shrink-0 text-right text-footnote font-medium uppercase tracking-wide text-[--ink-3]">
                     Conv. Rate
                   </div>
                 </div>
 
-                <div className="divide-y divide-neutral-800">
+                <div className="divide-y divide-[--line-1]">
                   {stageRows.map((stage) => {
                     const conv = conversionRate[stage.key];
                     const convColor =
                       conv == null
                         ? ""
                         : conv >= 50
-                          ? "text-green-400"
+                          ? "text-[--ok]"
                           : conv >= 25
-                            ? "text-yellow-400"
-                            : "text-red-400";
+                            ? "text-[--warn]"
+                            : "text-[--bad]";
                     return (
                       <Link
                         key={stage.key}
                         href={`/deals?stage=${stage.key}`}
-                        className="block px-4 py-3 transition-colors hover:bg-neutral-800/60 @[30rem]:flex @[30rem]:items-center @[30rem]:gap-4 @[30rem]:px-6"
+                        className="block px-4 py-3 transition-colors hover:bg-[--surface-2] @[30rem]:flex @[30rem]:items-center @[30rem]:gap-4 @[30rem]:px-6"
                       >
                         {/* Label + mobile trailing stats */}
                         <div className="flex items-center gap-2 @[30rem]:w-28 @[30rem]:shrink-0">
                           <span
                             className={`h-2 w-2 shrink-0 rounded-full ${stage.dot}`}
                           />
-                          <span className="text-sm text-neutral-300">
+                          <span className="text-callout text-[--ink-2]">
                             {stage.label}
                           </span>
                           {/* Mobile-only: show count, value, conv inline */}
                           <div className="ml-auto flex items-center gap-2 @[30rem]:hidden">
-                            <span className="text-sm font-semibold text-neutral-200">
+                            <span className="text-callout font-semibold text-[--ink-1]">
                               {stage.count}
                             </span>
                             {stage.value > 0 && (
-                              <span className="text-xs text-neutral-400">
+                              <span className="text-footnote text-[--ink-2]">
                                 {fmtUSD(stage.value)}
                               </span>
                             )}
                             {conv != null && (
-                              <span className={`text-xs ${convColor}`}>
+                              <span className={`text-footnote ${convColor}`}>
                                 {conv.toFixed(0)}%
                               </span>
                             )}
@@ -379,7 +379,7 @@ export default async function AnalyticsBody({ days }: { days: string }) {
 
                         {/* Progress bar: full-width on mobile, flex-1 on desktop */}
                         <div className="mt-1.5 @[30rem]:mt-0 @[30rem]:flex-1">
-                          <div className="h-1.5 rounded-full bg-neutral-800">
+                          <div className="h-1.5 rounded-full bg-[--surface-3]">
                             <div
                               className={`h-1.5 rounded-full ${stage.dot} opacity-60 transition-all duration-300`}
                               style={{
@@ -393,19 +393,19 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                         </div>
 
                         {/* Desktop-only trailing stats */}
-                        <div className="hidden @[30rem]:block w-10 shrink-0 text-right text-sm font-semibold text-neutral-200">
+                        <div className="hidden @[30rem]:block w-10 shrink-0 text-right text-callout font-semibold text-[--ink-1]">
                           {stage.count}
                         </div>
-                        <div className="hidden @[30rem]:block w-28 shrink-0 text-right text-sm text-neutral-400">
+                        <div className="hidden @[30rem]:block w-28 shrink-0 text-right text-callout text-[--ink-2]">
                           {stage.value > 0 ? fmtUSD(stage.value) : "—"}
                         </div>
-                        <div className="hidden @[30rem]:block w-24 shrink-0 text-right text-sm">
+                        <div className="hidden @[30rem]:block w-24 shrink-0 text-right text-callout">
                           {conv != null ? (
                             <span className={convColor}>
                               {conv.toFixed(0)}%
                             </span>
                           ) : (
-                            <span className="text-neutral-700">—</span>
+                            <span className="text-[--ink-3]">—</span>
                           )}
                         </div>
                       </Link>
@@ -414,8 +414,8 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                 </div>
 
                 {/* Legend */}
-                <div className="border-t border-neutral-800 px-6 py-3">
-                  <p className="text-xs text-neutral-600">
+                <div className="border-t border-[--line-1] px-6 py-3">
+                  <p className="text-footnote text-[--ink-3]">
                     Conv. Rate = deals in this stage ÷ deals in the previous
                     stage. Lead and Lost stages have no forward conversion.
                   </p>
@@ -425,12 +425,12 @@ export default async function AnalyticsBody({ days }: { days: string }) {
           </div>
 
           {/* Won deals per month */}
-          <div className="rounded-xl border border-neutral-800 bg-neutral-900">
-            <div className="border-b border-neutral-800 px-6 py-4">
-              <h3 className="text-sm font-semibold text-neutral-100">
+          <div className="card">
+            <div className="border-b border-[--line-1] px-6 py-4">
+              <h3 className="text-callout font-semibold text-[--ink-1]">
                 Deals Closed Per Month
               </h3>
-              <p className="mt-0.5 text-xs text-neutral-500">
+              <p className="mt-0.5 text-footnote text-[--ink-3]">
                 {days
                   ? `Won deals in the last ${days} days`
                   : "Won deals over the last 6 months"}
@@ -438,25 +438,25 @@ export default async function AnalyticsBody({ days }: { days: string }) {
             </div>
 
             {!hasMonthData ? (
-              <div className="px-6 py-12 text-center text-sm text-neutral-600">
+              <div className="px-6 py-12 text-center text-callout text-[--ink-3]">
                 {days
                   ? "No won deals in this time range."
                   : "No won deals yet."}
               </div>
             ) : (
-              <div className="divide-y divide-neutral-800">
+              <div className="divide-y divide-[--line-1]">
                 {monthBuckets.map((bucket) => (
                   <div
                     key={`${bucket.year}-${bucket.month}`}
                     className="flex items-center gap-4 px-6 py-3"
                   >
-                    <div className="w-24 shrink-0 text-sm text-neutral-400">
+                    <div className="w-24 shrink-0 text-callout text-[--ink-2]">
                       {bucket.label}
                     </div>
                     <div className="flex-1">
-                      <div className="h-1.5 rounded-full bg-neutral-800">
+                      <div className="h-1.5 rounded-full bg-[--surface-3]">
                         <div
-                          className="h-1.5 rounded-full bg-green-500 opacity-60 transition-all duration-300"
+                          className="h-1.5 rounded-full bg-[--ok] opacity-60 transition-all duration-300"
                           style={{
                             width:
                               bucket.count > 0
@@ -466,7 +466,7 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                         />
                       </div>
                     </div>
-                    <div className="w-8 shrink-0 text-right text-sm font-semibold text-neutral-200">
+                    <div className="w-8 shrink-0 text-right text-callout font-semibold text-[--ink-1]">
                       {bucket.count}
                     </div>
                   </div>
@@ -477,27 +477,27 @@ export default async function AnalyticsBody({ days }: { days: string }) {
 
           {/* ── Expected Revenue Forecast ──────────────────────────────────── */}
           <div>
-            <h2 className="text-xl font-semibold text-neutral-100">
+            <h2 className="text-title3 font-semibold text-[--ink-1]">
               Expected Revenue
             </h2>
-            <p className="mt-1 text-sm text-neutral-400">
+            <p className="mt-1 text-callout text-[--ink-2]">
               Open-deal value grouped by expected close month for the next 6
               months.
             </p>
           </div>
 
-          <div className="rounded-xl border border-neutral-800 bg-neutral-900">
-            <div className="border-b border-neutral-800 px-6 py-4">
-              <h3 className="text-sm font-semibold text-neutral-100">
+          <div className="card">
+            <div className="border-b border-[--line-1] px-6 py-4">
+              <h3 className="text-callout font-semibold text-[--ink-1]">
                 Pipeline Forecast
               </h3>
-              <p className="mt-0.5 text-xs text-neutral-500">
+              <p className="mt-0.5 text-footnote text-[--ink-3]">
                 Raw and probability-weighted deal value by expected close month
               </p>
             </div>
 
             {!hasForecastData ? (
-              <div className="px-6 py-12 text-center text-sm text-neutral-600">
+              <div className="px-6 py-12 text-center text-callout text-[--ink-3]">
                 {days
                   ? `No open deals from the last ${days} days have expected close dates in the next 6 months.`
                   : "No open deals with expected close dates in the next 6 months."}
@@ -507,12 +507,12 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                 {/* Legend */}
                 <div className="flex items-center gap-6 px-6 pt-4">
                   <div className="flex items-center gap-2">
-                    <span className="inline-block h-2.5 w-4 rounded-sm bg-violet-500 opacity-80" />
-                    <span className="text-xs text-neutral-400">Raw value</span>
+                    <span className="inline-block h-2.5 w-4 rounded-sm bg-[--accent] opacity-80" />
+                    <span className="text-footnote text-[--ink-2]">Raw value</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="inline-block h-2.5 w-4 rounded-sm bg-blue-500 opacity-80" />
-                    <span className="text-xs text-neutral-400">
+                    <span className="inline-block h-2.5 w-4 rounded-sm bg-[--info] opacity-80" />
+                    <span className="text-footnote text-[--ink-2]">
                       Weighted (× probability)
                     </span>
                   </div>
@@ -530,7 +530,7 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                         <div className="flex h-32 w-full items-end justify-center gap-1">
                           <div className="relative flex h-full flex-1 items-end">
                             <div
-                              className="w-full rounded-t bg-violet-500 opacity-80 transition-all duration-300"
+                              className="w-full rounded-t bg-[--accent] opacity-80 transition-all duration-300"
                               style={{
                                 height:
                                   bucket.raw > 0
@@ -541,7 +541,7 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                           </div>
                           <div className="relative flex h-full flex-1 items-end">
                             <div
-                              className="w-full rounded-t bg-blue-500 opacity-80 transition-all duration-300"
+                              className="w-full rounded-t bg-[--info] opacity-80 transition-all duration-300"
                               style={{
                                 height:
                                   bucket.weighted > 0
@@ -556,20 +556,20 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                         <div className="w-full text-center">
                           {bucket.raw > 0 ? (
                             <>
-                              <p className="text-footnote truncate font-medium text-neutral-300">
+                              <p className="text-footnote truncate font-medium text-[--ink-2]">
                                 {fmtUSD(bucket.raw)}
                               </p>
-                              <p className="text-footnote truncate text-neutral-500">
+                              <p className="text-footnote truncate text-[--ink-3]">
                                 {fmtUSD(bucket.weighted)}
                               </p>
                             </>
                           ) : (
-                            <p className="text-footnote text-neutral-700">—</p>
+                            <p className="text-footnote text-[--ink-3]">—</p>
                           )}
                         </div>
 
                         {/* Month label */}
-                        <p className="text-footnote text-neutral-500">
+                        <p className="text-footnote text-[--ink-3]">
                           {bucket.label}
                         </p>
                       </div>
@@ -582,32 +582,32 @@ export default async function AnalyticsBody({ days }: { days: string }) {
 
           {/* ── Contacts analytics ─────────────────────────────────────────── */}
           <div>
-            <h2 className="text-xl font-semibold text-neutral-100">Contacts</h2>
-            <p className="mt-1 text-sm text-neutral-400">
+            <h2 className="text-title3 font-semibold text-[--ink-1]">Contacts</h2>
+            <p className="mt-1 text-callout text-[--ink-2]">
               Status distribution and acquisition source breakdown.
             </p>
           </div>
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {/* Status distribution — @container for responsive rows */}
-            <div className="@container rounded-xl border border-neutral-800 bg-neutral-900">
-              <div className="border-b border-neutral-800 px-6 py-4">
-                <h3 className="text-sm font-semibold text-neutral-100">
+            <div className="@container card">
+              <div className="border-b border-[--line-1] px-6 py-4">
+                <h3 className="text-callout font-semibold text-[--ink-1]">
                   Status Distribution
                 </h3>
-                <p className="mt-0.5 text-xs text-neutral-500">
+                <p className="mt-0.5 text-footnote text-[--ink-3]">
                   Contact count by lifecycle status
                 </p>
               </div>
 
               {contacts.length === 0 ? (
-                <div className="px-6 py-12 text-center text-sm text-neutral-600">
+                <div className="px-6 py-12 text-center text-callout text-[--ink-3]">
                   {days
                     ? "No contacts in this time range."
                     : "No contacts found. Add some contacts to see analytics."}
                 </div>
               ) : (
-                <div className="divide-y divide-neutral-800">
+                <div className="divide-y divide-[--line-1]">
                   {statusRows.map((row) => (
                     <div
                       key={row.key}
@@ -618,16 +618,16 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                         <span
                           className={`h-2 w-2 shrink-0 rounded-full ${row.dot}`}
                         />
-                        <span className="text-sm text-neutral-300">
+                        <span className="text-callout text-[--ink-2]">
                           {row.label}
                         </span>
-                        <span className="ml-auto text-sm font-semibold text-neutral-200 @[30rem]:hidden">
+                        <span className="ml-auto text-callout font-semibold text-[--ink-1] @[30rem]:hidden">
                           {row.count}
                         </span>
                       </div>
                       {/* Progress bar */}
                       <div className="mt-1.5 @[30rem]:mt-0 @[30rem]:flex-1">
-                        <div className="h-1.5 rounded-full bg-neutral-800">
+                        <div className="h-1.5 rounded-full bg-[--surface-3]">
                           <div
                             className={`h-1.5 rounded-full ${row.dot} opacity-60 transition-all duration-300`}
                             style={{
@@ -640,7 +640,7 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                         </div>
                       </div>
                       {/* Desktop count */}
-                      <div className="hidden @[30rem]:block w-8 shrink-0 text-right text-sm font-semibold text-neutral-200">
+                      <div className="hidden @[30rem]:block w-8 shrink-0 text-right text-callout font-semibold text-[--ink-1]">
                         {row.count}
                       </div>
                     </div>
@@ -650,24 +650,24 @@ export default async function AnalyticsBody({ days }: { days: string }) {
             </div>
 
             {/* Source breakdown — @container for responsive rows */}
-            <div className="@container rounded-xl border border-neutral-800 bg-neutral-900">
-              <div className="border-b border-neutral-800 px-6 py-4">
-                <h3 className="text-sm font-semibold text-neutral-100">
+            <div className="@container card">
+              <div className="border-b border-[--line-1] px-6 py-4">
+                <h3 className="text-callout font-semibold text-[--ink-1]">
                   Source Breakdown
                 </h3>
-                <p className="mt-0.5 text-xs text-neutral-500">
+                <p className="mt-0.5 text-footnote text-[--ink-3]">
                   Contact count by acquisition source
                 </p>
               </div>
 
               {contacts.length === 0 ? (
-                <div className="px-6 py-12 text-center text-sm text-neutral-600">
+                <div className="px-6 py-12 text-center text-callout text-[--ink-3]">
                   {days
                     ? "No contacts in this time range."
                     : "No contacts found. Add some contacts to see analytics."}
                 </div>
               ) : (
-                <div className="divide-y divide-neutral-800">
+                <div className="divide-y divide-[--line-1]">
                   {sourceRows.map((row) => (
                     <div
                       key={row.key}
@@ -678,16 +678,16 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                         <span
                           className={`h-2 w-2 shrink-0 rounded-full ${row.dot}`}
                         />
-                        <span className="text-sm text-neutral-300">
+                        <span className="text-callout text-[--ink-2]">
                           {row.label}
                         </span>
-                        <span className="ml-auto text-sm font-semibold text-neutral-200 @[30rem]:hidden">
+                        <span className="ml-auto text-callout font-semibold text-[--ink-1] @[30rem]:hidden">
                           {row.count}
                         </span>
                       </div>
                       {/* Progress bar */}
                       <div className="mt-1.5 @[30rem]:mt-0 @[30rem]:flex-1">
-                        <div className="h-1.5 rounded-full bg-neutral-800">
+                        <div className="h-1.5 rounded-full bg-[--surface-3]">
                           <div
                             className={`h-1.5 rounded-full ${row.dot} opacity-60 transition-all duration-300`}
                             style={{
@@ -700,7 +700,7 @@ export default async function AnalyticsBody({ days }: { days: string }) {
                         </div>
                       </div>
                       {/* Desktop count */}
-                      <div className="hidden @[30rem]:block w-8 shrink-0 text-right text-sm font-semibold text-neutral-200">
+                      <div className="hidden @[30rem]:block w-8 shrink-0 text-right text-callout font-semibold text-[--ink-1]">
                         {row.count}
                       </div>
                     </div>
