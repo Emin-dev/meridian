@@ -4,15 +4,19 @@ import { completeAgendaItem } from "./actions";
 
 const TYPE_META: Record<string, { label: string; color: string; bg: string }> =
   {
-    call: { label: "Call", color: "text-blue-400", bg: "bg-blue-900/30" },
-    email: { label: "Email", color: "text-purple-400", bg: "bg-purple-900/30" },
+    call: { label: "Call", color: "text-[--info]", bg: "bg-[--info-tint]" },
+    email: {
+      label: "Email",
+      color: "text-[--accent]",
+      bg: "bg-[--accent-tint]",
+    },
     meeting: {
       label: "Meeting",
-      color: "text-green-400",
-      bg: "bg-green-900/30",
+      color: "text-[--ok]",
+      bg: "bg-[--ok-tint]",
     },
-    note: { label: "Note", color: "text-amber-400", bg: "bg-amber-900/30" },
-    task: { label: "Task", color: "text-indigo-400", bg: "bg-indigo-900/30" },
+    note: { label: "Note", color: "text-[--warn]", bg: "bg-[--warn-tint]" },
+    task: { label: "Task", color: "text-[--info]", bg: "bg-[--info-tint]" },
   };
 
 function formatCurrency(value: string | null) {
@@ -31,7 +35,7 @@ function CompleteButton({ id }: { id: number }) {
       <button
         type="submit"
         title="Mark complete"
-        className="tap flex shrink-0 items-center justify-center text-neutral-600 transition-colors hover:text-green-500"
+        className="tap flex shrink-0 items-center justify-center text-[--ink-3] transition-colors hover:text-[--ok]"
       >
         <span className="flex h-5 w-5 items-center justify-center rounded-full border border-current">
           <svg
@@ -141,16 +145,16 @@ export default async function TodayAgenda() {
   const totalItems = dueToday.length + overdue.length + closingToday.length;
 
   return (
-    <div className="rounded-xl border border-neutral-800 bg-neutral-900">
-      <div className="border-b border-neutral-800 px-5 py-3">
-        <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">
+    <div className="card">
+      <div className="border-b border-[--line-1] px-5 py-3">
+        <p className="text-xs font-medium uppercase tracking-wide text-[--ink-3]">
           Today&apos;s Agenda
         </p>
       </div>
 
       {totalItems === 0 ? (
         <div className="flex flex-col items-center gap-2 py-10 text-center">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-900/30 text-green-400">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[--ok-tint] text-[--ok]">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
@@ -164,8 +168,8 @@ export default async function TodayAgenda() {
               />
             </svg>
           </div>
-          <p className="text-sm font-medium text-neutral-300">All clear for today</p>
-          <p className="text-xs text-neutral-500">
+          <p className="text-sm font-medium text-[--ink-1]">All clear for today</p>
+          <p className="text-xs text-[--ink-3]">
             No activities due, nothing overdue, no deals closing today.
           </p>
         </div>
@@ -174,17 +178,17 @@ export default async function TodayAgenda() {
           {/* Overdue */}
           {overdue.length > 0 && (
             <div>
-              <div className="border-b border-red-900/30 bg-red-950/20 px-5 py-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-red-400">
+              <div className="border-b border-[--bad]/30 bg-[--bad-tint] px-5 py-2">
+                <p className="text-xs font-semibold uppercase tracking-wide text-[--bad]">
                   Overdue &middot; {overdue.length}
                 </p>
               </div>
-              <ul className="divide-y divide-neutral-800/60">
+              <ul className="divide-y divide-[--line-1]">
                 {overdue.map((item) => {
                   const meta = TYPE_META[item.type] ?? {
                     label: item.type,
-                    color: "text-neutral-400",
-                    bg: "bg-neutral-800",
+                    color: "text-[--ink-2]",
+                    bg: "bg-[--surface-2]",
                   };
                   const daysOverdue = Math.floor(
                     (now.getTime() - item.dueAt.getTime()) / (1000 * 60 * 60 * 24)
@@ -197,20 +201,20 @@ export default async function TodayAgenda() {
                       >
                         {meta.label}
                       </span>
-                      <span className="shrink-0 inline-block rounded-full bg-red-900/30 px-2 py-0.5 text-xs font-medium text-red-400">
+                      <span className="shrink-0 inline-block rounded-full bg-[--bad-tint] px-2 py-0.5 text-xs font-medium text-[--bad]">
                         Overdue
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm text-neutral-200">
+                        <p className="truncate text-sm text-[--ink-1]">
                           {item.subject}
                         </p>
                         {item.contactName && (
-                          <p className="truncate text-xs text-neutral-500">
+                          <p className="truncate text-xs text-[--ink-3]">
                             {item.contactName}
                           </p>
                         )}
                       </div>
-                      <span className="shrink-0 text-xs font-medium text-red-400">
+                      <span className="shrink-0 text-xs font-medium text-[--bad]">
                         {daysOverdue <= 1
                           ? "1 day ago"
                           : `${daysOverdue}d ago`}
@@ -224,18 +228,18 @@ export default async function TodayAgenda() {
 
           {/* Due today */}
           {dueToday.length > 0 && (
-            <div className={overdue.length > 0 ? "border-t border-neutral-800" : ""}>
-              <div className="border-b border-neutral-800/60 px-5 py-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-neutral-400">
+            <div className={overdue.length > 0 ? "border-t border-[--line-1]" : ""}>
+              <div className="border-b border-[--line-1] px-5 py-2">
+                <p className="text-xs font-semibold uppercase tracking-wide text-[--ink-2]">
                   Due Today &middot; {dueToday.length}
                 </p>
               </div>
-              <ul className="divide-y divide-neutral-800/60">
+              <ul className="divide-y divide-[--line-1]">
                 {dueToday.map((item) => {
                   const meta = TYPE_META[item.type] ?? {
                     label: item.type,
-                    color: "text-neutral-400",
-                    bg: "bg-neutral-800",
+                    color: "text-[--ink-2]",
+                    bg: "bg-[--surface-2]",
                   };
                   const time = item.dueAt.toLocaleTimeString("en-US", {
                     hour: "numeric",
@@ -250,16 +254,16 @@ export default async function TodayAgenda() {
                         {meta.label}
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm text-neutral-200">
+                        <p className="truncate text-sm text-[--ink-1]">
                           {item.subject}
                         </p>
                         {item.contactName && (
-                          <p className="truncate text-xs text-neutral-500">
+                          <p className="truncate text-xs text-[--ink-3]">
                             {item.contactName}
                           </p>
                         )}
                       </div>
-                      <span className="shrink-0 text-xs text-neutral-500">
+                      <span className="shrink-0 text-xs text-[--ink-3]">
                         {time}
                       </span>
                     </li>
@@ -274,19 +278,19 @@ export default async function TodayAgenda() {
             <div
               className={
                 overdue.length > 0 || dueToday.length > 0
-                  ? "border-t border-neutral-800"
+                  ? "border-t border-[--line-1]"
                   : ""
               }
             >
-              <div className="border-b border-neutral-800/60 px-5 py-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-amber-500">
+              <div className="border-b border-[--line-1] px-5 py-2">
+                <p className="text-xs font-semibold uppercase tracking-wide text-[--warn]">
                   Deals Closing Today &middot; {closingToday.length}
                 </p>
               </div>
-              <ul className="divide-y divide-neutral-800/60">
+              <ul className="divide-y divide-[--line-1]">
                 {closingToday.map((deal) => (
                   <li key={deal.id} className="flex min-h-11 items-center gap-3 px-5 py-2">
-                    <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-amber-700/50 text-amber-500">
+                    <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-[--warn]/50 text-[--warn]">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 16 16"
@@ -300,21 +304,21 @@ export default async function TodayAgenda() {
                         />
                       </svg>
                     </div>
-                    <span className="shrink-0 inline-block rounded-full bg-amber-900/30 px-2 py-0.5 text-xs font-medium text-amber-400">
+                    <span className="shrink-0 inline-block rounded-full bg-[--warn-tint] px-2 py-0.5 text-xs font-medium text-[--warn]">
                       Deal
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm text-neutral-200">
+                      <p className="truncate text-sm text-[--ink-1]">
                         {deal.title}
                       </p>
                       {deal.contactName && (
-                        <p className="truncate text-xs text-neutral-500">
+                        <p className="truncate text-xs text-[--ink-3]">
                           {deal.contactName}
                         </p>
                       )}
                     </div>
                     {deal.value && (
-                      <span className="shrink-0 text-xs font-medium text-neutral-300">
+                      <span className="shrink-0 text-xs font-medium text-[--ink-1]">
                         {formatCurrency(deal.value)}
                       </span>
                     )}
