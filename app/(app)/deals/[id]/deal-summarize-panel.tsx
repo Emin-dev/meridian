@@ -26,7 +26,7 @@ export default function DealSummarizePanel({ dealId, initialSummary, initialSumm
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-neutral-300">AI deal brief</h3>
+        <h3 className="text-sm font-medium text-[--ink-1]">AI deal brief</h3>
         <button
           type="button"
           onClick={handleSummarize}
@@ -38,15 +38,15 @@ export default function DealSummarizePanel({ dealId, initialSummary, initialSumm
       </div>
 
       {result.noDb && (
-        <p className="text-xs text-neutral-400">
+        <p className="text-xs text-[--ink-2]">
           Database not connected — cannot load deal data.
         </p>
       )}
 
       {result.noKey && (
-        <p className="text-xs text-amber-400">
+        <p className="text-xs text-[--warn]">
           Set{" "}
-          <code className="rounded bg-neutral-800 px-1 py-0.5">
+          <code className="rounded bg-[--surface-2] px-1 py-0.5">
             DEEPSEEK_API_KEY
           </code>{" "}
           in your environment to enable AI summaries.
@@ -54,16 +54,16 @@ export default function DealSummarizePanel({ dealId, initialSummary, initialSumm
       )}
 
       {result.error && (
-        <p className="text-xs text-red-400">{result.error}</p>
+        <p className="text-xs text-[--bad]">{result.error}</p>
       )}
 
       {result.summary ? (
         <div className="space-y-1.5">
-          <p className="text-sm text-neutral-300 leading-relaxed whitespace-pre-wrap">
+          <p className="text-sm text-[--ink-1] leading-relaxed whitespace-pre-wrap">
             {result.summary}
           </p>
           {result.summaryAt && (
-            <p className="text-[11px] text-neutral-500">
+            <p className="text-[11px] text-[--ink-3]">
               Cached brief from{" "}
               {new Date(result.summaryAt).toLocaleString(undefined, {
                 dateStyle: "medium",
@@ -78,7 +78,7 @@ export default function DealSummarizePanel({ dealId, initialSummary, initialSumm
         !result.noKey &&
         !result.error &&
         !isPending && (
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-[--ink-3]">
             Click &ldquo;Summarise&rdquo; to generate an AI brief of this deal&apos;s status and recent activity.
           </p>
         )
