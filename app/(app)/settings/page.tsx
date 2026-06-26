@@ -1,3 +1,4 @@
+import { count } from "drizzle-orm";
 import { DemoDataButton } from "@/components/demo-data-button";
 import { getDb, schema } from "@/db";
 import { getSession } from "@/lib/auth";
@@ -22,10 +23,9 @@ export default async function SettingsPage() {
   let contactCount = 0;
   if (db) {
     const rows = await db
-      .select({ id: schema.contacts.id })
-      .from(schema.contacts)
-      .limit(1);
-    contactCount = rows.length;
+      .select({ value: count() })
+      .from(schema.contacts);
+    contactCount = rows[0]?.value ?? 0;
   }
 
   const dbConnected = db !== null;
