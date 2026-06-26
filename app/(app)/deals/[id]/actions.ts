@@ -210,36 +210,39 @@ async function _generateWinLossInsight(
 
   if (!deal) return null;
 
-  let contactInfo: string | null = null;
-  if (deal.contactId) {
-    const [c] = await db
-      .select({
-        name: schema.contacts.name,
-        title: schema.contacts.title,
-        company: schema.contacts.company,
-        status: schema.contacts.status,
-        leadScore: schema.contacts.leadScore,
-      })
-      .from(schema.contacts)
-      .where(eq(schema.contacts.id, deal.contactId))
-      .limit(1);
-    if (c) {
-      const parts = [
-        c.name,
-        c.title && c.company ? `${c.title} at ${c.company}` : c.company ?? c.title,
-        c.status ? `status: ${c.status}` : null,
-        c.leadScore != null ? `lead score: ${c.leadScore}` : null,
-      ].filter(Boolean);
-      contactInfo = parts.join(", ");
-    }
-  }
-
-  const activities = await db
-    .select()
-    .from(schema.activities)
-    .where(eq(schema.activities.dealId, dealId))
-    .orderBy(desc(schema.activities.createdAt))
-    .limit(15);
+  // The contact lookup and the activity history are independent of each other,
+  // so fetch them together to keep the action well under the 10s limit.
+  const [contactInfo, activities] = await Promise.all([
+    deal.contactId
+      ? db
+          .select({
+            name: schema.contacts.name,
+            title: schema.contacts.title,
+            company: schema.contacts.company,
+            status: schema.contacts.status,
+            leadScore: schema.contacts.leadScore,
+          })
+          .from(schema.contacts)
+          .where(eq(schema.contacts.id, deal.contactId))
+          .limit(1)
+          .then(([c]): string | null => {
+            if (!c) return null;
+            const parts = [
+              c.name,
+              c.title && c.company ? `${c.title} at ${c.company}` : c.company ?? c.title,
+              c.status ? `status: ${c.status}` : null,
+              c.leadScore != null ? `lead score: ${c.leadScore}` : null,
+            ].filter(Boolean);
+            return parts.join(", ");
+          })
+      : Promise.resolve<string | null>(null),
+    db
+      .select()
+      .from(schema.activities)
+      .where(eq(schema.activities.dealId, dealId))
+      .orderBy(desc(schema.activities.createdAt))
+      .limit(15),
+  ]);
 
   const userNotes = extractUserNotes(deal.notes ?? null);
 
