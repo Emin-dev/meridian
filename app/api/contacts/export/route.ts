@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { and, eq, ilike, gte, isNull, sql } from "drizzle-orm";
+import { and, eq, ilike, gte, isNull, inArray, sql } from "drizzle-orm";
 import type { SQL } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 
@@ -67,13 +67,15 @@ export async function GET(request: NextRequest) {
     .where(and(...conditions))
     .orderBy(schema.contacts.createdAt);
 
-  if (noActivityDays !== undefined) {
+  if (noActivityDays !== undefined && contacts.length > 0) {
+    const contactIds = contacts.map((c) => c.id);
     const activityRows = await db
       .select({
         contactId: schema.activities.contactId,
         lastAt: sql<string | null>`max(${schema.activities.createdAt})`,
       })
       .from(schema.activities)
+      .where(inArray(schema.activities.contactId, contactIds))
       .groupBy(schema.activities.contactId);
 
     const lastContactedMap: Record<number, string | null> = {};
