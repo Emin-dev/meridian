@@ -139,7 +139,12 @@ Rules: max 5 steps, use {{firstName}} and {{company}} as merge fields, keep emai
       { json: true }
     );
 
-    const parsed = JSON.parse(raw) as { name?: unknown; steps?: unknown };
+    let parsed: { name?: unknown; steps?: unknown };
+    try {
+      parsed = JSON.parse(raw) as { name?: unknown; steps?: unknown };
+    } catch {
+      return { error: "AI returned an unexpected format. Please try again." };
+    }
 
     if (
       typeof parsed.name !== "string" ||

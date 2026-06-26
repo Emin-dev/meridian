@@ -506,7 +506,12 @@ async function scoreContactFromData(
       { json: true }
     );
 
-    const parsed = JSON.parse(raw) as { score: unknown; rationale: unknown };
+    let parsed: { score: unknown; rationale: unknown };
+    try {
+      parsed = JSON.parse(raw) as { score: unknown; rationale: unknown };
+    } catch {
+      return { error: "AI returned an unexpected format. Please try again." };
+    }
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
       return { error: "AI returned an unexpected format. Please try again." };
     }
@@ -718,12 +723,22 @@ export async function suggestNextAction(
       { json: true }
     );
 
-    const parsed = JSON.parse(raw) as {
+    let parsed: {
       action: unknown;
       priority: unknown;
       rationale: unknown;
       suggestedMessage: unknown;
     };
+    try {
+      parsed = JSON.parse(raw) as {
+        action: unknown;
+        priority: unknown;
+        rationale: unknown;
+        suggestedMessage: unknown;
+      };
+    } catch {
+      return { error: "AI returned an unexpected format. Please try again." };
+    }
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
       return { error: "AI returned an unexpected format. Please try again." };
     }
@@ -834,11 +849,20 @@ export async function enrichContact(contactId: number): Promise<EnrichState> {
       { json: true }
     );
 
-    const parsed = JSON.parse(raw) as {
+    let parsed: {
       title: unknown;
       company: unknown;
       notes: unknown;
     };
+    try {
+      parsed = JSON.parse(raw) as {
+        title: unknown;
+        company: unknown;
+        notes: unknown;
+      };
+    } catch {
+      return { error: "AI returned an unexpected format. Please try again." };
+    }
     if (!parsed || typeof parsed !== "object") {
       return { error: "AI returned an unexpected format. Please try again." };
     }
@@ -1080,7 +1104,7 @@ export async function findDuplicateContacts(): Promise<FindDuplicatesState> {
       { json: true }
     );
 
-    const parsed = JSON.parse(raw) as {
+    let parsed: {
       pairs: Array<{
         primaryId: unknown;
         secondaryId: unknown;
@@ -1088,6 +1112,18 @@ export async function findDuplicateContacts(): Promise<FindDuplicatesState> {
         confidence: unknown;
       }>;
     };
+    try {
+      parsed = JSON.parse(raw) as {
+        pairs: Array<{
+          primaryId: unknown;
+          secondaryId: unknown;
+          reason: unknown;
+          confidence: unknown;
+        }>;
+      };
+    } catch {
+      return { error: "AI returned an unexpected format. Please try again." };
+    }
     if (!parsed || typeof parsed !== "object") {
       return { error: "AI returned an unexpected format. Please try again." };
     }
