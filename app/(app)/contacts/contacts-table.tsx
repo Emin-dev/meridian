@@ -10,6 +10,12 @@ import { tagColor } from "./tag-color";
 import { bulkChangeStatus, bulkAddTag, bulkEnrollInSequence, bulkChangeOwner } from "./actions";
 import { ContactsViewSwitcher, type ContactsView } from "./contacts-view-switcher";
 import MobileActionSheet from "@/components/mobile-action-sheet";
+import {
+  SOURCE_LABELS,
+  STATUS_LABELS,
+  CONTACT_STATUSES,
+  type ContactStatus,
+} from "./constants";
 
 function getLastContactedMeta(dateStr: string | null): { text: string; dotClass: string } | null {
   if (!dateStr) return null;
@@ -30,30 +36,6 @@ function getLastContactedMeta(dateStr: string | null): { text: string; dotClass:
   });
   return { text, dotClass };
 }
-
-const SOURCE_LABELS: Record<string, string> = {
-  website: "Website",
-  referral: "Referral",
-  linkedin: "LinkedIn",
-  "cold-outreach": "Cold Outreach",
-  other: "Other",
-};
-
-const STATUS_LABELS: Record<string, { label: string; className: string }> = {
-  lead: { label: "Lead", className: "bg-[--accent-tint] text-[--accent]" },
-  active: { label: "Active", className: "bg-[--ok-tint] text-[--ok]" },
-  inactive: { label: "Inactive", className: "bg-[--surface-2] text-[--ink-2]" },
-  churned: { label: "Churned", className: "bg-[--bad-tint] text-[--bad]" },
-};
-
-const STATUSES = [
-  { value: "lead", label: "Lead" },
-  { value: "active", label: "Active" },
-  { value: "inactive", label: "Inactive" },
-  { value: "churned", label: "Churned" },
-] as const;
-
-type ContactStatus = (typeof STATUSES)[number]["value"];
 
 function formatContactDate(d: string | Date | null): string {
   if (!d) return "—";
@@ -363,7 +345,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
               onChange={(e) => setStatusSelect(e.target.value as ContactStatus)}
               className="tap rounded border border-[--line-1] bg-[--surface-1] px-2 text-xs text-[--ink-1]"
             >
-              {STATUSES.map((s) => (
+              {CONTACT_STATUSES.map((s) => (
                 <option key={s.value} value={s.value}>
                   {s.label}
                 </option>
@@ -717,7 +699,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
               onChange={(e) => setStatusSelect(e.target.value as ContactStatus)}
               className="min-h-[44px] min-w-0 flex-1 rounded-lg border border-[--line-1] bg-[--surface-1] px-3 text-sm text-[--ink-1]"
             >
-              {STATUSES.map((s) => (
+              {CONTACT_STATUSES.map((s) => (
                 <option key={s.value} value={s.value}>
                   {s.label}
                 </option>

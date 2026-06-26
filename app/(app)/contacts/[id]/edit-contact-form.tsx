@@ -5,6 +5,7 @@ import { updateContact, deleteContact } from "../actions";
 import type { Contact } from "@/db/schema";
 import { useToast } from "@/components/toaster";
 import TagInput from "../tag-input";
+import { SOURCE_LABELS } from "../constants";
 import type { ContactHeaderUpdate } from "./contact-detail-client";
 
 interface Props {
@@ -177,11 +178,11 @@ export default function EditContactForm({ contact, onSaved, onRollback }: Props)
             className={inputCls}
           >
             <option value="">— Select —</option>
-            <option value="website">Website</option>
-            <option value="referral">Referral</option>
-            <option value="linkedin">LinkedIn</option>
-            <option value="cold-outreach">Cold Outreach</option>
-            <option value="other">Other</option>
+            {Object.entries(SOURCE_LABELS).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
           </select>
         </div>
         <div>
