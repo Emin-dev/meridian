@@ -144,7 +144,7 @@ export async function moveDealStage(
 
   const isTerminal = parsed.data === "won" || parsed.data === "lost";
 
-  await db
+  const updateStmt = db
     .update(schema.deals)
     .set({
       stage: parsed.data,
@@ -154,13 +154,22 @@ export async function moveDealStage(
     })
     .where(eq(schema.deals.id, id));
 
-  if (current && current.stage !== parsed.data) {
-    await db.insert(schema.dealEvents).values({
-      dealId: id,
-      field: "stage",
-      oldValue: current.stage,
-      newValue: parsed.data,
-    });
+  // Commit the stage change and its change-log entry together so a stage move
+  // and its dealEvents record never drift apart.
+  try {
+    if (current.stage !== parsed.data) {
+      const eventStmt = db.insert(schema.dealEvents).values({
+        dealId: id,
+        field: "stage",
+        oldValue: current.stage,
+        newValue: parsed.data,
+      });
+      await db.batch([updateStmt, eventStmt]);
+    } else {
+      await db.batch([updateStmt]);
+    }
+  } catch {
+    return { error: "Could not update the deal stage. Please try again." };
   }
 
   revalidatePath("/deals");
