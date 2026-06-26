@@ -100,7 +100,7 @@ export default function AskForm({
                 setQuestion(ex);
                 submit(ex);
               }}
-              className="tap rounded-[--r-pill] border border-[--line-1] bg-[--surface-1] px-3 text-footnote text-[--ink-2] transition hover:border-[--line-2] hover:text-[--ink-1]"
+              className="tap inline-flex items-center rounded-[--r-pill] border border-[--line-1] bg-[--surface-1] px-4 py-2 text-footnote text-[--ink-2] transition hover:border-[--line-2] hover:text-[--ink-1]"
             >
               {ex}
             </button>
