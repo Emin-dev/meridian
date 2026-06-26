@@ -70,11 +70,13 @@ function KpiCard({
   value: string;
 }) {
   return (
-    <div className="card p-4 sm:p-5">
+    <div className="card p-3 sm:p-4">
       <p className="text-caption font-medium uppercase tracking-wide text-[--ink-3]">
         {label}
       </p>
-      <p className="text-title2 mt-2 font-semibold text-[--ink-1]">{value}</p>
+      <p className="text-title3 sm:text-title2 mt-1 font-semibold text-[--ink-1]">
+        {value}
+      </p>
     </div>
   );
 }
@@ -450,7 +452,7 @@ export default async function DashboardBody() {
         <>
           {/* KPI cards */}
           <div className="@container">
-            <div className="grid grid-cols-1 gap-4 @sm:grid-cols-2 @lg:grid-cols-3">
+            <div className="grid grid-cols-2 gap-3 @sm:grid-cols-2 @sm:gap-4 @lg:grid-cols-3">
               <KpiCard
                 label="Total Contacts"
                 value={totalContacts.toString()}
