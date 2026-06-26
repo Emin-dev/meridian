@@ -445,8 +445,8 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
         </div>
       )}
 
-      {/* Table / Card container */}
-      <div className="rounded-xl border border-[--line-1] bg-[--surface-1]">
+      {/* Table / Card container — edge-to-edge grouped-list on phones, boxed table from sm up */}
+      <div className="border-y border-[--line-1] bg-[--surface-1] sm:rounded-xl sm:border">
         {/* Header row */}
         <div className="flex items-center justify-between border-b border-[--line-1] px-4 py-3">
           <p className="text-xs font-medium uppercase tracking-wide text-[--ink-3]">

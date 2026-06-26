@@ -2,6 +2,7 @@
 
 import { getDb, schema } from "@/db";
 import { insertDemoData } from "@/db/demo-data";
+import { sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -53,14 +54,16 @@ export async function savePreferences(
     { key: "defaultDealStage", value: defaultDealStage },
   ];
 
-  for (const { key, value } of updates) {
+  try {
     await db
       .insert(schema.appSettings)
-      .values({ key, value })
+      .values(updates)
       .onConflictDoUpdate({
         target: schema.appSettings.key,
-        set: { value, updatedAt: new Date() },
+        set: { value: sql`excluded.value`, updatedAt: new Date() },
       });
+  } catch {
+    return { error: "Couldn't save preferences. Please try again." };
   }
 
   revalidatePath("/settings");
