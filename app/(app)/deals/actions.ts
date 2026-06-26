@@ -301,6 +301,7 @@ export async function updateDeal(
     .from(schema.deals)
     .where(eq(schema.deals.id, id))
     .limit(1);
+  if (!current) return { error: "Deal not found." };
 
   const { title, stage, value, currency, expectedCloseDate, contactId, notes, owner } =
     parsed.data;
@@ -320,26 +321,26 @@ export async function updateDeal(
       ? WIN_LOSS_MARKER.trimStart() + existingInsight
       : null;
 
-  await db
-    .update(schema.deals)
-    .set({
-      title,
-      stage,
-      value: value,
-      currency,
-      probability: newProbability,
-      // Clear the close reason when the deal leaves a terminal stage; the edit
-      // form never submits one, so leave it untouched while still won/lost.
-      ...(isTerminal ? {} : { closeReason: null }),
-      expectedCloseDate: expectedCloseDate ? new Date(expectedCloseDate) : null,
-      contactId: contactId,
-      notes: finalNotes,
-      owner: owner,
-      updatedAt: new Date(),
-    })
-    .where(eq(schema.deals.id, id));
+  try {
+    await db
+      .update(schema.deals)
+      .set({
+        title,
+        stage,
+        value: value,
+        currency,
+        probability: newProbability,
+        // Clear the close reason when the deal leaves a terminal stage; the edit
+        // form never submits one, so leave it untouched while still won/lost.
+        ...(isTerminal ? {} : { closeReason: null }),
+        expectedCloseDate: expectedCloseDate ? new Date(expectedCloseDate) : null,
+        contactId: contactId,
+        notes: finalNotes,
+        owner: owner,
+        updatedAt: new Date(),
+      })
+      .where(eq(schema.deals.id, id));
 
-  if (current) {
     const events: Array<{ dealId: number; field: string; oldValue: string | null; newValue: string | null }> = [];
     if (current.stage !== stage) {
       events.push({ dealId: id, field: "stage", oldValue: current.stage, newValue: stage });
@@ -358,6 +359,8 @@ export async function updateDeal(
     if (events.length > 0) {
       await db.insert(schema.dealEvents).values(events);
     }
+  } catch {
+    return { error: "Couldn't save the deal. Please try again." };
   }
 
   revalidatePath("/deals");
