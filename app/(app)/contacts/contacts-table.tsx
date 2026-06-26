@@ -537,7 +537,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
         {/* Desktop table view */}
         {view === "table" && (
           <div className="hidden overflow-x-auto lg:block">
-            <table className="w-full text-sm">
+            <table className="w-full min-w-[1100px] text-sm">
               <thead>
                 <tr className="border-b border-[var(--line-1)] text-left">
                   <th className="px-3 py-3 w-10">
@@ -609,7 +609,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
                           className="h-4 w-4 cursor-pointer rounded border-[var(--line-2)] accent-[var(--accent)]"
                         />
                       </td>
-                      <td className={`sticky left-0 z-10 px-4 py-3 font-medium text-[var(--ink-1)] ${isSelected ? "bg-[var(--accent-tint)]" : "bg-[var(--surface-1)]"}`}>
+                      <td className={`sticky left-0 z-10 whitespace-nowrap px-4 py-3 font-medium text-[var(--ink-1)] ${isSelected ? "bg-[var(--accent-tint)]" : "bg-[var(--surface-1)]"}`}>
                         <Link
                           href={`/contacts/${c.id}`}
                           className="hover:text-[var(--accent)] transition-colors"
@@ -630,12 +630,12 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
                       </td>
                       <td className="px-4 py-3 text-[var(--ink-2)]">{c.email ?? "—"}</td>
                       <td className="px-4 py-3 text-[var(--ink-2)]">{c.phone ?? "—"}</td>
-                      <td className="px-4 py-3 text-[var(--ink-2)]">{c.company ?? "—"}</td>
-                      <td className="px-4 py-3 text-[var(--ink-2)]">{c.title ?? "—"}</td>
-                      <td className="px-4 py-3 text-[var(--ink-2)]">
+                      <td className="whitespace-nowrap px-4 py-3 text-[var(--ink-2)]">{c.company ?? "—"}</td>
+                      <td className="whitespace-nowrap px-4 py-3 text-[var(--ink-2)]">{c.title ?? "—"}</td>
+                      <td className="whitespace-nowrap px-4 py-3 text-[var(--ink-2)]">
                         {c.source ? SOURCE_LABELS[c.source] ?? c.source : "—"}
                       </td>
-                      <td className="px-4 py-3 text-[var(--ink-2)]">{c.owner ?? "—"}</td>
+                      <td className="whitespace-nowrap px-4 py-3 text-[var(--ink-2)]">{c.owner ?? "—"}</td>
                       <td className="px-4 py-3">
                         {c.leadScore != null ? (
                           <LeadScoreBadge score={c.leadScore} />
