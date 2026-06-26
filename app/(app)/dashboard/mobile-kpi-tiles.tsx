@@ -49,6 +49,7 @@ export default function MobileKpiTiles({
   pipelineValue,
   weightedPipelineValue,
   weekActivityCount,
+  currency,
   recentContacts,
   openDeals,
   stageBreakdown,
@@ -59,6 +60,7 @@ export default function MobileKpiTiles({
   pipelineValue: number;
   weightedPipelineValue: number;
   weekActivityCount: number;
+  currency: string;
   recentContacts: ContactItem[];
   openDeals: DealItem[];
   stageBreakdown: StageBreakdown[];
@@ -69,11 +71,11 @@ export default function MobileKpiTiles({
   const tiles: { key: TileKey; label: string; value: string }[] = [
     { key: "contacts", label: "Total Contacts", value: totalContacts.toString() },
     { key: "openDeals", label: "Open Deals", value: openDealsCount.toString() },
-    { key: "pipeline", label: "Pipeline Value", value: formatCurrency(pipelineValue) },
+    { key: "pipeline", label: "Pipeline Value", value: formatCurrency(pipelineValue, currency) },
     {
       key: "weighted",
       label: "Weighted Pipeline",
-      value: formatCurrency(weightedPipelineValue),
+      value: formatCurrency(weightedPipelineValue, currency),
     },
     {
       key: "activities",
@@ -142,7 +144,7 @@ export default function MobileKpiTiles({
                       </p>
                     </div>
                     <span className="shrink-0 text-sm font-semibold text-[var(--ink-1)]">
-                      {formatCurrency(d.value)}
+                      {formatCurrency(d.value, currency)}
                     </span>
                   </li>
                 ))}
@@ -176,7 +178,7 @@ export default function MobileKpiTiles({
                   </p>
                 </div>
                 <span className="shrink-0 text-sm font-semibold text-[var(--ink-1)]">
-                  {formatCurrency(weighted ? s.weighted : s.value)}
+                  {formatCurrency(weighted ? s.weighted : s.value, currency)}
                 </span>
               </li>
             ))}

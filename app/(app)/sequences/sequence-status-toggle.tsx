@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { updateSequenceStatus } from "./actions";
+import { useToast } from "@/components/toaster";
 
 interface Props {
   id: number;
@@ -9,12 +10,14 @@ interface Props {
 }
 
 export function SequenceStatusToggle({ id, status }: Props) {
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const nextStatus = status === "active" ? "paused" : "active";
 
   function handleToggle() {
     startTransition(async () => {
-      await updateSequenceStatus(id, nextStatus);
+      const result = await updateSequenceStatus(id, nextStatus);
+      if (result?.error) toast(result.error, "error");
     });
   }
 

@@ -185,10 +185,14 @@ export async function updateSequenceStatus(
   if (!db) return { error: "Database not connected." };
 
   const { eq } = await import("drizzle-orm");
-  await db
-    .update(schema.sequences)
-    .set({ status, updatedAt: new Date() })
-    .where(eq(schema.sequences.id, id));
+  try {
+    await db
+      .update(schema.sequences)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(schema.sequences.id, id));
+  } catch {
+    return { error: "Couldn't update the sequence. Please try again." };
+  }
 
   revalidatePath("/sequences");
   revalidatePath(`/sequences/${id}`);

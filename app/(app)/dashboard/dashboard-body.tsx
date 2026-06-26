@@ -10,6 +10,7 @@ import TodayAgenda from "./today-agenda";
 import StaleDeals from "./stale-deals";
 import MobileKpiTiles from "./mobile-kpi-tiles";
 import { formatCurrency } from "@/lib/format";
+import { getCrmSettings } from "@/lib/settings";
 
 const STAGES = [
   "lead",
@@ -85,6 +86,7 @@ function KpiCard({
 
 export default async function DashboardBody() {
   const db = getDb();
+  const { defaultCurrency } = await getCrmSettings();
 
   let totalContacts = 0;
   let openDealsCount = 0;
@@ -524,11 +526,11 @@ export default async function DashboardBody() {
               <KpiCard label="Open Deals" value={openDealsCount.toString()} />
               <KpiCard
                 label="Pipeline Value"
-                value={formatCurrency(pipelineValue)}
+                value={formatCurrency(pipelineValue, defaultCurrency)}
               />
               <KpiCard
                 label="Weighted Pipeline"
-                value={formatCurrency(weightedPipelineValue)}
+                value={formatCurrency(weightedPipelineValue, defaultCurrency)}
               />
               <KpiCard
                 label="Activities This Week"
@@ -545,6 +547,7 @@ export default async function DashboardBody() {
               pipelineValue={pipelineValue}
               weightedPipelineValue={weightedPipelineValue}
               weekActivityCount={weekActivityCount}
+              currency={defaultCurrency}
               recentContacts={recentContacts}
               openDeals={openDeals}
               stageBreakdown={openStageBreakdown}
