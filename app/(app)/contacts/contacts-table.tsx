@@ -466,7 +466,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
         {/* Mobile: always stacked cards (the wide table would horizontal-scroll) */}
         <div className="lg:hidden">
           {/* Mobile select toolbar */}
-          <div className="flex items-center gap-3 border-b border-[--line-1] px-4 py-2">
+          <div className="flex items-center gap-3 px-4 py-2 sm:border-b sm:border-[--line-1]">
             {selectMode ? (
               <>
                 <label className="tap flex cursor-pointer items-center gap-2 text-xs font-medium text-[--ink-1]">
@@ -501,7 +501,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
             ) : (
               <button
                 onClick={() => setSelectMode(true)}
-                className="tap ml-auto flex items-center justify-center text-xs font-medium text-[--ink-2] hover:text-[--ink-1]"
+                className="tap ml-auto flex items-center justify-center text-xs font-medium text-[--ink-3] hover:text-[--ink-1]"
               >
                 Select
               </button>

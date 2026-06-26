@@ -24,32 +24,32 @@ The current `globals.css` is a bare stub. The first foundation ticket replaces i
 @import "tailwindcss";
 
 :root {
-  /* ---- Surfaces (elevation, not hue) ---- */
-  --bg:        #0a0a0a;   /* app background */
-  --surface-1: #121212;   /* cards, list rows */
-  --surface-2: #1a1a1a;   /* raised: popovers, sheet, active row */
-  --surface-3: #232323;   /* highest: menus on sheets */
+  /* ---- Surfaces (premium cool charcoal — elevation, not hue) ---- */
+  --bg:        #0a0b0f;   /* app background */
+  --surface-1: #14161c;   /* cards, list rows */
+  --surface-2: #1c1f27;   /* raised: popovers, sheet, active row */
+  --surface-3: #262a34;   /* highest: menus on sheets */
 
   /* ---- Ink (text) ---- */
-  --ink-1: #ededed;  /* primary text */
-  --ink-2: #a3a3a3;  /* secondary text, labels */
-  --ink-3: #6b6b6b;  /* tertiary, meta, disabled */
+  --ink-1: #f2f4f8;  /* primary text (crisp near-white) */
+  --ink-2: #9ba2b1;  /* secondary text, labels */
+  --ink-3: #646b7a;  /* tertiary, meta, disabled */
 
   /* ---- Hairlines ---- */
-  --line-1: rgba(255,255,255,0.08);  /* default border */
-  --line-2: rgba(255,255,255,0.14);  /* hover/active border */
+  --line-1: rgba(255,255,255,0.06);  /* default border */
+  --line-2: rgba(255,255,255,0.11);  /* hover/active border */
 
-  /* ---- Accent (single iOS blue; one moment per screen) ---- */
-  --accent:        #0a84ff;
-  --accent-hover:  #3a9bff;
+  /* ---- Accent (refined indigo-violet — premium AI signal, one moment per screen) ---- */
+  --accent:        #6d5cf5;
+  --accent-hover:  #8273ff;
   --accent-ink:    #ffffff;
-  --accent-tint:   rgba(10,132,255,0.14);
+  --accent-tint:   rgba(109,92,245,0.16);
 
   /* ---- Status (tint / dot / text only, never large fills) ---- */
-  --ok:    #30d158;  --ok-tint:   rgba(48,209,88,0.14);
-  --warn:  #ff9f0a;  --warn-tint: rgba(255,159,10,0.14);
-  --bad:   #ff453a;  --bad-tint:  rgba(255,69,58,0.14);
-  --info:  #64d2ff;  --info-tint: rgba(100,210,255,0.14);
+  --ok:    #2dd4a7;  --ok-tint:   rgba(45,212,167,0.14);
+  --warn:  #f5b13d;  --warn-tint: rgba(245,177,61,0.14);
+  --bad:   #f4675f;  --bad-tint:  rgba(244,103,95,0.14);
+  --info:  #5b9dff;  --info-tint: rgba(91,157,255,0.14);
 
   /* ---- Radii ---- */
   --r-sm: 6px; --r-md: 10px; --r-lg: 14px; --r-xl: 20px; --r-2xl: 28px;
@@ -229,48 +229,19 @@ The 13-column contacts table and analytics fixed-width rows must not widen the p
 
 ---
 
-## 🎨 PALETTE REFRESH — 2026 "calm + warm" + iOS-27 Liquid Glass (OVERRIDES the colors in §1)
+## 🎨 LIVE PALETTE — premium indigo-violet (the §1 tokens above are the shipped source of truth)
 
-Research-backed (Pantone 2026 "Cloud Dancer" warm calm whites; 2026 "quiet UI" / anti-overstimulation; Apple iOS 26→27 Liquid Glass with **reduced** transparency; Claude's warm terracotta + cream brand). Cold clinical blues are out — go **warm, calm, relaxed**. **Performance beats decoration.** Replace the §1 color tokens in `app/globals.css` with these exact values (everything else — type scale, spacing, radii — stays):
+The §1 token block above is **exactly what `app/globals.css` ships** — a cool premium charcoal system (`--bg #0a0b0f`, crisp near-white ink, hairlines at 6%/11%) with a refined **indigo-violet accent (`--accent #6d5cf5`, hover `#8273ff`, tint `rgba(109,92,245,0.16)`)** as the single AI-signal moment per screen. The indigo-violet reads as a confident, modern "AI" accent. There is **no warm/terracotta palette** — any older docs or tickets referencing terracotta `#c96442` or a warm-charcoal `#181511` base are obsolete; use the §1 values. **Performance beats decoration.**
 
-```css
-:root {
-  /* Warm calm dark (Claude-inspired) — warm charcoal, never pure black */
-  --bg:        #181511;
-  --surface-1: #211d18;
-  --surface-2: #2a251f;
-  --surface-3: #332e26;
-
-  --ink-1: #ece6db;   /* warm off-white */
-  --ink-2: #b4a996;
-  --ink-3: #7e7466;
-
-  --line-1: rgba(236,230,219,0.08);
-  --line-2: rgba(236,230,219,0.14);
-
-  /* Accent: warm terracotta / clay (Claude) — calm, human */
-  --accent:       #c96442;
-  --accent-hover: #d87a5b;
-  --accent-ink:   #ffffff;
-  --accent-tint:  rgba(201,100,66,0.16);
-
-  /* Status — muted/warm, used as tint/dot/text only */
-  --ok:   #4cc38a;  --ok-tint:   rgba(76,195,138,0.15);
-  --warn: #e0a64b;  --warn-tint: rgba(224,166,75,0.15);
-  --bad:  #e5675a;  --bad-tint:  rgba(229,103,90,0.15);
-  --info: #6bb6c9;  --info-tint: rgba(107,182,201,0.15);
-}
-```
-
-### iOS-27 Liquid Glass — subtle + fast (chrome only)
+### iOS Liquid Glass — subtle + fast (chrome only)
 - Apply translucent "glass" ONLY to fixed chrome: top bar, mobile bottom tab bar, sheets / action sheets, dropdown & menu surfaces. **Never** on content cards or lists (keeps it calm AND fast).
-- iOS 27 dialed transparency *down* — keep it subtle: ~82% opaque + moderate warm blur.
+- Keep it subtle — the shipped `.glass` (see §1) is ~72% opaque + a moderate blur:
 
 ```css
 .glass {
-  background: color-mix(in srgb, var(--surface-1) 82%, transparent);
-  backdrop-filter: saturate(150%) blur(16px);
-  -webkit-backdrop-filter: saturate(150%) blur(16px);
+  background: color-mix(in srgb, var(--surface-1) 72%, transparent);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .glass { background: var(--surface-1); }
@@ -278,4 +249,4 @@ Research-backed (Pantone 2026 "Cloud Dancer" warm calm whites; 2026 "quiet UI" /
 @media (prefers-reduced-transparency: reduce) { .glass { background: var(--surface-1); } }
 ```
 
-- **PERFORMANCE IS THE PRIORITY:** glass on a handful of chrome elements only; never animate `blur`; never stack many blurred layers; honor `prefers-reduced-transparency`. If glass costs FPS on mobile, drop the blur but KEEP the warm calm palette. Calm + instant beats flashy.
+- **PERFORMANCE IS THE PRIORITY:** glass on a handful of chrome elements only; never animate `blur`; never stack many blurred layers; honor `prefers-reduced-transparency`. If glass costs FPS on mobile, drop the blur but KEEP the cool premium palette. Calm + instant beats flashy.

@@ -258,7 +258,7 @@ export default async function ContactsPage({
       />
 
       {contacts.length === 0 ? (
-        <div className="rounded-xl border border-[--line-1] bg-[--surface-1]">
+        <div className="border-y border-[--line-1] bg-[--surface-1] sm:rounded-xl sm:border">
           <div className="flex items-center justify-between border-b border-[--line-1] px-5 py-3">
             <p className="text-xs font-medium uppercase tracking-wide text-[--ink-3]">
               {hasActiveFilters ? "Filtered contacts" : "All Contacts"}
