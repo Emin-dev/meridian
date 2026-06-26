@@ -3,6 +3,7 @@ import { and, eq, gte, isNotNull, notInArray, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { formatCurrency, sumByCurrency } from "@/lib/format";
 import { getCrmSettings } from "@/lib/settings";
+import { EmptyState } from "@/components/empty-state";
 import MobileAnalyticsTiles, {
   type AnalyticsTile,
 } from "./mobile-analytics-tiles";
@@ -113,6 +114,36 @@ export default async function AnalyticsBody({ days }: { days: string }) {
     : null;
 
   const db = getDb();
+
+  // No DB: show the same friendly "connect the database" empty state as
+  // activity/tasks/deals, and skip all the (otherwise wasted) aggregation work.
+  if (!db) {
+    return (
+      <div className="card">
+        <EmptyState
+          icon={
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="18" x2="18" y1="20" y2="10" />
+              <line x1="12" x2="12" y1="20" y2="4" />
+              <line x1="6" x2="6" y1="20" y2="14" />
+            </svg>
+          }
+          title="Database not connected"
+          description="Set DATABASE_URL to connect your Neon database."
+        />
+      </div>
+    );
+  }
+
   // Deals can be in mixed currencies, so a single SQL sum() would blend them
   // into a dishonest number. We pick the dominant currency (the one holding the
   // most total deal value) below and label every money aggregate in it, scoping
@@ -662,40 +693,13 @@ export default async function AnalyticsBody({ days }: { days: string }) {
 
   return (
     <>
-      {/* No DB state */}
-      {!db && (
-        <div className="flex flex-col items-center gap-3 card px-5 py-16 text-center">
-          <svg
-            width="32"
-            height="32"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="text-[var(--ink-3)]"
-          >
-            <line x1="18" x2="18" y1="20" y2="10" />
-            <line x1="12" x2="12" y1="20" y2="4" />
-            <line x1="6" x2="6" y1="20" y2="14" />
-          </svg>
-          <p className="text-callout text-[var(--ink-2)]">Database not connected.</p>
-          <p className="text-footnote text-[var(--ink-3)]">
-            Set DATABASE_URL to connect your Neon database.
-          </p>
-        </div>
-      )}
+      {/* Mobile (<lg): calm summary tiles that tap-expand into sheets */}
+      <div className="lg:hidden">
+        <MobileAnalyticsTiles tiles={mobileTiles} />
+      </div>
 
-      {db && (
-        <>
-          {/* Mobile (<lg): calm summary tiles that tap-expand into sheets */}
-          <div className="lg:hidden">
-            <MobileAnalyticsTiles tiles={mobileTiles} />
-          </div>
-
-          {/* Desktop (lg+): full charts and tables — layout unchanged */}
-          <div className="hidden space-y-8 lg:block">
+      {/* Desktop (lg+): full charts and tables — layout unchanged */}
+      <div className="hidden space-y-8 lg:block">
           {/* Summary stat cards — container query: 1→2→4 cols */}
           <div className="@container">
             <div className="grid grid-cols-1 gap-4 @sm:grid-cols-2 @xl:grid-cols-4">
@@ -1182,9 +1186,7 @@ export default async function AnalyticsBody({ days }: { days: string }) {
               )}
             </div>
           </div>
-          </div>
-        </>
-      )}
+      </div>
     </>
   );
 }
