@@ -31,7 +31,10 @@ const STAGE_PROBABILITY: Record<string, number> = {
 const DealSchema = z.object({
   title: z.string().min(1, "Title is required"),
   stage: z.enum(DEAL_STAGES),
-  value: z.string().nullable(),
+  value: z
+    .string()
+    .regex(/^\d+(\.\d{1,2})?$/, "Enter a valid amount")
+    .nullable(),
   currency: z.string().min(1, "Currency required").max(10),
   expectedCloseDate: z.string().nullable(),
   contactId: z.number().int().nullable(),

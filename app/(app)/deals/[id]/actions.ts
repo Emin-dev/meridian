@@ -27,7 +27,10 @@ const DEAL_STAGES = [
 const DealDetailsSchema = z.object({
   title: z.string().min(1, "Title is required"),
   stage: z.enum(DEAL_STAGES),
-  value: z.string().nullable(),
+  value: z
+    .string()
+    .regex(/^\d+(\.\d{1,2})?$/, "Enter a valid amount")
+    .nullable(),
   expectedCloseDate: z.string().nullable(),
   probability: z.number().int().min(0).max(100),
 });
