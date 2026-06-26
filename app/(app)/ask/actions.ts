@@ -1,8 +1,13 @@
 "use server";
 
 import { count, desc, gte } from "drizzle-orm";
+import { z } from "zod";
 import { getDb, schema } from "@/db";
 import { chat } from "@/lib/ai";
+
+// Bound the question length so oversized prompts can't inflate token cost and
+// empty questions can't trigger a needless dataset load + AI call.
+const questionSchema = z.string().trim().min(1).max(500);
 
 type Db = NonNullable<ReturnType<typeof getDb>>;
 
@@ -164,8 +169,9 @@ async function loadDataset(db: Db): Promise<LoadedDataset> {
 }
 
 export async function askCrm(question: string): Promise<AskResult> {
-  const q = question.trim().slice(0, 500);
-  if (!q) return { answer: "", contacts: [], deals: [] };
+  const parsed = questionSchema.safeParse(question);
+  if (!parsed.success) return { answer: "", contacts: [], deals: [] };
+  const q = parsed.data;
 
   const db = getDb();
   if (!db) {

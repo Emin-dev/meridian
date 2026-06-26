@@ -30,6 +30,35 @@ describe("deal value validation", () => {
   });
 });
 
+// Mirrors questionSchema / querySchema in app/(app)/ask/actions.ts and
+// app/(app)/search/actions.ts. Kept pure here (no DB/network) because those
+// schemas live in "use server" modules. If the bound below changes, update it
+// in both action files too.
+const boundedQuery = z.string().trim().min(1).max(500);
+
+describe("ask/search query length bound", () => {
+  it("accepts a normal trimmed query", () => {
+    const parsed = boundedQuery.safeParse("  acme deals  ");
+    expect(parsed.success).toBe(true);
+    if (parsed.success) expect(parsed.data).toBe("acme deals");
+  });
+
+  it("accepts a query exactly at the 500-char limit", () => {
+    expect(boundedQuery.safeParse("a".repeat(500)).success).toBe(true);
+  });
+
+  it.each(["", "   ", "\n\t "])(
+    "rejects an empty / whitespace-only query: %j",
+    (input) => {
+      expect(boundedQuery.safeParse(input).success).toBe(false);
+    },
+  );
+
+  it("rejects an oversized query (> 500 chars after trim)", () => {
+    expect(boundedQuery.safeParse("a".repeat(501)).success).toBe(false);
+  });
+});
+
 describe("contactToVars with missing fields", () => {
   it("falls back to placeholders when company and owner are absent", () => {
     const vars = contactToVars({ name: "Ada Lovelace", company: null, owner: null });

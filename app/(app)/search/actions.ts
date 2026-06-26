@@ -1,7 +1,19 @@
 "use server";
 
 import { or, ilike, count } from "drizzle-orm";
+import { z } from "zod";
 import { getDb, schema } from "@/db";
+
+// Bound the query length so empty/oversized inputs can't trigger needless
+// ilike table scans (every char widens the LIKE pattern).
+const querySchema = z.string().trim().min(1).max(500);
+
+const EMPTY_RESULTS: SearchResults = {
+  contacts: [],
+  deals: [],
+  activities: [],
+  totals: { contacts: 0, deals: 0, activities: 0 },
+};
 
 export type SearchResults = {
   contacts: Array<{
@@ -31,11 +43,12 @@ export type SearchResults = {
 
 export async function searchGlobal(query: string): Promise<SearchResults> {
   const db = getDb();
-  if (!db || !query.trim()) {
-    return { contacts: [], deals: [], activities: [], totals: { contacts: 0, deals: 0, activities: 0 } };
+  const parsed = querySchema.safeParse(query);
+  if (!db || !parsed.success) {
+    return EMPTY_RESULTS;
   }
 
-  const q = `%${query.trim()}%`;
+  const q = `%${parsed.data}%`;
 
   const contactsWhere = or(
     ilike(schema.contacts.name, q),
