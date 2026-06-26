@@ -15,6 +15,8 @@ import { numericEqual } from "@/lib/format";
 import { VALID_CURRENCIES } from "@/lib/currencies";
 import { dealValueSchema } from "./value-schema";
 
+const idSchema = z.coerce.number().int().positive();
+
 const DealSchema = z.object({
   title: z.string().min(1, "Title is required"),
   stage: z.enum(DEAL_STAGES),
@@ -306,6 +308,8 @@ export async function updateDeal(
   formData: FormData
 ): Promise<DealFormState> {
   await requireSession();
+
+  if (!idSchema.safeParse(id).success) return { error: "Invalid deal id." };
 
   const raw = parseFormData(formData);
   const parsed = DealSchema.safeParse(raw);

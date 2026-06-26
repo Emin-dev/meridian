@@ -28,6 +28,9 @@ export async function addStep(
 ): Promise<StepFormState> {
   await requireSession();
 
+  const idSchema = z.coerce.number().int().positive();
+  if (!idSchema.safeParse(sequenceId).success) return { error: "Invalid sequence id." };
+
   const subject = String(formData.get("subjectTemplate") ?? "").trim();
   const body = String(formData.get("bodyTemplate") ?? "").trim();
   const delayRaw = String(formData.get("delayDays") ?? "0");
@@ -71,6 +74,11 @@ export async function updateStep(
   formData: FormData
 ): Promise<StepFormState> {
   await requireSession();
+
+  const idSchema = z.coerce.number().int().positive();
+  if (!idSchema.safeParse(stepId).success || !idSchema.safeParse(sequenceId).success) {
+    return { error: "Invalid request." };
+  }
 
   const subject = String(formData.get("subjectTemplate") ?? "").trim();
   const body = String(formData.get("bodyTemplate") ?? "").trim();

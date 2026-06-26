@@ -97,10 +97,12 @@ export default function KanbanCard({
           </span>
         </div>
 
-        {formatted && (
+        {formatted ? (
           <p className="mt-1 text-sm font-semibold text-[var(--accent-text)]">
             {formatted}
           </p>
+        ) : (
+          <p className="mt-1 text-sm font-semibold text-[var(--ink-3)]">—</p>
         )}
 
         {deal.contact && (

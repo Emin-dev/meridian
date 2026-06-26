@@ -283,6 +283,8 @@ export async function updateContact(
 ): Promise<ContactFormState> {
   await requireSession();
 
+  if (!idSchema.safeParse(id).success) return { error: "Invalid contact id." };
+
   const raw = {
     name: String(formData.get("name") ?? ""),
     email: String(formData.get("email") ?? ""),
@@ -353,6 +355,8 @@ export async function updateContactNotes(
 ): Promise<UpdateContactNotesState> {
   await requireSession();
 
+  if (!idSchema.safeParse(id).success) return { error: "Invalid contact id." };
+
   const db = getDb();
   if (!db) return { noDb: true };
 
@@ -382,6 +386,8 @@ export async function updateContactNotes(
 
 export async function deleteContact(id: number): Promise<void> {
   await requireSession();
+
+  if (!idSchema.safeParse(id).success) return;
 
   const db = getDb();
   if (!db) return;

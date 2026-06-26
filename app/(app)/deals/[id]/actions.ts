@@ -56,6 +56,8 @@ export async function updateDealDetails(
 ): Promise<DealDetailsState> {
   await requireSession();
 
+  if (!idSchema.safeParse(id).success) return { error: "Invalid deal id." };
+
   const valueRaw = String(formData.get("value") ?? "").trim();
   const dateRaw = String(formData.get("expectedCloseDate") ?? "").trim();
   const probabilityRaw = String(formData.get("probability") ?? "10").trim();
@@ -162,6 +164,8 @@ export async function updateDealNotes(
   formData: FormData
 ): Promise<UpdateNotesState> {
   await requireSession();
+
+  if (!idSchema.safeParse(id).success) return { error: "Invalid deal id." };
 
   const userNotes = String(formData.get("notes") ?? "").trim() || null;
 

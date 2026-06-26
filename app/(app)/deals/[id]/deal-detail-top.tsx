@@ -100,7 +100,7 @@ export default function DealDetailTop({ initialDeal, deleteButton }: Props) {
             {formatted ? (
               <span className="text-sm font-semibold text-[var(--accent)]">{formatted}</span>
             ) : (
-              <span className="text-xs text-[var(--ink-3)]">Not set</span>
+              <span className="text-sm text-[var(--ink-3)]">—</span>
             )}
             {deal.expectedCloseDate && (
               <span className="text-xs text-[var(--ink-3)]">
