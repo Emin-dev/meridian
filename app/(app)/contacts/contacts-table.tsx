@@ -647,7 +647,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
                           className="h-4 w-4 cursor-pointer rounded border-[var(--line-2)] accent-[var(--accent)]"
                         />
                       </td>
-                      <td className={`sticky left-0 z-10 whitespace-nowrap px-4 py-3 font-medium text-[var(--ink-1)] ${isSelected ? "bg-[var(--accent-tint)]" : "bg-[var(--surface-1)]"}`}>
+                      <td className={`sticky left-10 z-10 whitespace-nowrap px-4 py-3 font-medium text-[var(--ink-1)] ${isSelected ? "bg-[var(--accent-tint)]" : "bg-[var(--surface-1)]"}`}>
                         <Link
                           href={`/contacts/${c.id}`}
                           className="hover:text-[var(--accent)] transition-colors"
