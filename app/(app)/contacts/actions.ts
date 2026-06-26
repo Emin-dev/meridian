@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { eq, desc, inArray, and, isNull, notInArray, sql, lte, count as countFn, getTableColumns } from "drizzle-orm";
+import { eq, desc, inArray, and, isNull, notInArray, sql, lte, count as countFn } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -481,10 +481,17 @@ export type ScoreState = {
 // scoreContact (one contact) and bulkScoreContacts (pre-fetched batch) so the
 // AI prompt and caching logic stay identical and the bulk path avoids re-
 // querying the DB per contact.
+// Only the activity fields the prompt actually renders, so callers can pass a
+// narrowed select (the bulk path fetches just these columns to cut payload).
+type ScoringActivity = Pick<
+  typeof schema.activities.$inferSelect,
+  "id" | "contactId" | "type" | "subject" | "body" | "createdAt"
+>;
+
 async function scoreContactFromData(
   db: NonNullable<ReturnType<typeof getDb>>,
   contact: typeof schema.contacts.$inferSelect,
-  recentActivities: (typeof schema.activities.$inferSelect)[]
+  recentActivities: ScoringActivity[]
 ): Promise<ScoreState> {
   const lines: string[] = [
     `Name: ${contact.name}`,
@@ -629,7 +636,15 @@ export async function bulkScoreContacts(): Promise<BulkScoreState> {
   const contactIds = contactsToScore.map((c) => c.id);
   const ranked = db
     .select({
-      ...getTableColumns(schema.activities),
+      // Only the columns scoreContactFromData reads — skip the rest (e.g. the
+      // potentially long `body` is needed, but other wide columns are not) to
+      // keep the per-batch payload small on large workspaces.
+      id: schema.activities.id,
+      contactId: schema.activities.contactId,
+      type: schema.activities.type,
+      subject: schema.activities.subject,
+      body: schema.activities.body,
+      createdAt: schema.activities.createdAt,
       rn: sql<number>`row_number() over (partition by ${schema.activities.contactId} order by ${schema.activities.createdAt} desc)`.as(
         "rn"
       ),
