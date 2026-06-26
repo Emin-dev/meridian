@@ -158,9 +158,11 @@ export default function KanbanBoard({
         {/* Stacked card list for the selected stage */}
         <div className="flex flex-col gap-3 py-4">
           {(dealsByStage[selectedStage] ?? []).length === 0 ? (
-            <p className="py-8 text-center text-footnote text-[--ink-3]">
-              No deals in this stage
-            </p>
+            <div className="flex min-h-32 items-center justify-center rounded-[--r-md] border border-dashed border-[--line-1]">
+              <p className="text-center text-footnote text-[--ink-3]">
+                No deals in this stage
+              </p>
+            </div>
           ) : (
             (dealsByStage[selectedStage] ?? []).map((deal) => (
               <KanbanCard
@@ -217,9 +219,11 @@ export default function KanbanBoard({
                 {/* Cards */}
                 <div className="flex flex-1 flex-col gap-3 p-3">
                   {cards.length === 0 ? (
-                    <p className="py-6 text-center text-xs text-[--ink-3]">
-                      No deals
-                    </p>
+                    <div className="flex min-h-24 flex-1 items-center justify-center rounded-[--r-md] border border-dashed border-[--line-1]">
+                      <p className="text-center text-xs text-[--ink-3]">
+                        No deals
+                      </p>
+                    </div>
                   ) : (
                     cards.map((deal) => (
                       <KanbanCard

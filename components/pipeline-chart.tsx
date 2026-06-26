@@ -61,7 +61,7 @@ export default function PipelineChart({ data }: { data: StageData[] }) {
   }));
 
   return (
-    <div className="rounded-xl border border-[--line-1] bg-[--surface-1] p-5">
+    <div className="h-full rounded-xl border border-[--line-1] bg-[--surface-1] p-5">
       <p className="mb-4 text-sm font-medium text-[--ink-2]">
         Pipeline by Stage
       </p>

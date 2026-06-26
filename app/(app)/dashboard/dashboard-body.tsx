@@ -551,11 +551,11 @@ export default async function DashboardBody() {
           </Suspense>
 
           {/* Pipeline chart + AI digest */}
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
-            <div className="lg:col-span-3">
+          <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-5">
+            <div className="h-full lg:col-span-3">
               <PipelineChart data={dealsByStage} />
             </div>
-            <div className="lg:col-span-2">
+            <div className="h-full lg:col-span-2">
               <AiDigest
                 totalContacts={totalContacts}
                 openDealsCount={openDealsCount}

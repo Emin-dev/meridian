@@ -66,7 +66,7 @@ export default function AiDigest({
   const hasDigest = bullets.length > 0;
 
   return (
-    <div className="card p-4 sm:p-5">
+    <div className="card h-full p-4 sm:p-5">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-sm font-medium text-[--ink-1]">
