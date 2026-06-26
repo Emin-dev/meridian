@@ -1406,6 +1406,27 @@ export async function mergeContacts(
         ? `${primary.notes}\n\n${secondary.notes}`
         : primary.notes ?? secondary.notes;
 
+    // Backfill enrichment fields the primary lacks from the secondary so a merge
+    // never discards a lead score, AI summary, or next action that only the
+    // duplicate had. Paired fields (value + rationale + timestamp) move together
+    // so we never pair a score with another contact's rationale.
+    const leadScoreFields =
+      primary.leadScore == null && secondary.leadScore != null
+        ? {
+            leadScore: secondary.leadScore,
+            leadScoreRationale: secondary.leadScoreRationale,
+            leadScoredAt: secondary.leadScoredAt,
+          }
+        : {};
+    const aiSummaryFields =
+      primary.aiSummary == null && secondary.aiSummary != null
+        ? { aiSummary: secondary.aiSummary, aiSummaryAt: secondary.aiSummaryAt }
+        : {};
+    const nextActionFields =
+      primary.nextAction == null && secondary.nextAction != null
+        ? { nextAction: secondary.nextAction, nextActionAt: secondary.nextActionAt }
+        : {};
+
     // Determine which of the secondary's sequence enrollments can move to the
     // primary, skipping sequences the primary is already actively enrolled in
     // (to avoid duplicate active rows). Enrollments left behind cascade-delete
@@ -1448,6 +1469,9 @@ export async function mergeContacts(
           owner: primary.owner ?? secondary.owner,
           notes: mergedNotes,
           tags: mergedTags,
+          ...leadScoreFields,
+          ...aiSummaryFields,
+          ...nextActionFields,
           updatedAt: now,
         })
         .where(eq(schema.contacts.id, primaryId)),
