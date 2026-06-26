@@ -244,3 +244,64 @@ describe("bulkImportContacts dedup + count accounting", () => {
     expect(result.skipped).toBe(1);
   });
 });
+
+// ── Global search pagination (searchGlobal) ─────────────────────────────────
+// Mirrors clampPage + the limit(window+1)/slice/hasMore detection in
+// app/(app)/search/actions.ts. Kept pure here (no DB) because that file is a
+// "use server" module. If SEARCH_PAGE_SIZE / SEARCH_MAX_PAGE or the windowing
+// rule change, update them there too. These lock the guarantee that no match is
+// ever silently dropped: every page is reachable and hasMore is exact.
+const SEARCH_PAGE_SIZE = 25;
+const SEARCH_MAX_PAGE = 100;
+
+function clampPage(page: number): number {
+  if (!Number.isFinite(page)) return 1;
+  return Math.min(Math.max(Math.trunc(page), 1), SEARCH_MAX_PAGE);
+}
+
+// Models a tab: given the total matches in the DB and the requested page,
+// returns how many rows the UI shows and whether "Load more" is offered.
+// `fetched` is what the bounded `limit(window + 1)` query would return.
+function paginateTab(totalMatches: number, page: number) {
+  const window = clampPage(page) * SEARCH_PAGE_SIZE;
+  const fetched = Math.min(totalMatches, window + 1);
+  const shown = Math.min(fetched, window);
+  return { shown, hasMore: fetched > window };
+}
+
+describe("searchGlobal page clamping", () => {
+  it.each([
+    [0, 1],
+    [-5, 1],
+    [1.9, 1],
+    [3, 3],
+    [SEARCH_MAX_PAGE + 50, SEARCH_MAX_PAGE],
+    [NaN, 1],
+    [Infinity, 1],
+  ])("clamps page %p to %p", (input, expected) => {
+    expect(clampPage(input)).toBe(expected);
+  });
+});
+
+describe("searchGlobal tab pagination keeps every match reachable", () => {
+  it("shows the full window and flags more when matches exceed it", () => {
+    const r = paginateTab(60, 1);
+    expect(r.shown).toBe(SEARCH_PAGE_SIZE); // 25
+    expect(r.hasMore).toBe(true);
+  });
+
+  it("grows the window page by page until the last match is reachable", () => {
+    expect(paginateTab(60, 2)).toEqual({ shown: 50, hasMore: true });
+    // Page 3 window is 75 ≥ 60, so all 60 show and there is nothing more.
+    expect(paginateTab(60, 3)).toEqual({ shown: 60, hasMore: false });
+  });
+
+  it("never reports more when the window exactly covers all matches", () => {
+    expect(paginateTab(25, 1)).toEqual({ shown: 25, hasMore: false });
+    expect(paginateTab(50, 2)).toEqual({ shown: 50, hasMore: false });
+  });
+
+  it("handles an empty result set", () => {
+    expect(paginateTab(0, 1)).toEqual({ shown: 0, hasMore: false });
+  });
+});

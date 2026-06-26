@@ -66,6 +66,12 @@ function SendStepModal({
   const subject = interpolate(stepSubjectTemplate, vars);
   const body = interpolate(stepBodyTemplate, vars);
 
+  // Detect merge fields the interpolator didn't replace (e.g. {{unknownField}}),
+  // which would otherwise be sent as literal text. De-duplicate for display.
+  const unreplacedTokens = Array.from(
+    new Set([...subject.matchAll(/\{\{[^}]*\}\}/g), ...body.matchAll(/\{\{[^}]*\}\}/g)].map((m) => m[0])),
+  );
+
   // Reset the "Copied!" label after 2s, with cleanup so the timer can't fire
   // on an unmounted component when the modal closes mid-countdown.
   useEffect(() => {
@@ -140,6 +146,15 @@ function SendStepModal({
 
         {/* Scrollable body */}
         <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
+          {unreplacedTokens.length > 0 && (
+            <div
+              role="alert"
+              className="rounded-[var(--r-md)] border border-[var(--warn)] bg-[var(--warn-tint)] px-3 py-2.5 text-footnote text-[var(--ink-2)]"
+            >
+              <span className="font-medium text-[var(--ink-1)]">Unfilled merge field{unreplacedTokens.length > 1 ? "s" : ""}:</span>{" "}
+              {unreplacedTokens.join(", ")}. This will be sent as literal text — edit the step template to fix it before logging as sent.
+            </div>
+          )}
           <div>
             <div className="mb-1.5 flex items-center justify-between">
               <p className="text-footnote font-medium text-[var(--ink-3)]">Subject</p>

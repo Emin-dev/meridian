@@ -84,19 +84,19 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
     for (const c of results.contacts) {
       allItems.push({ kind: "contact", id: c.id, href: `/contacts/${c.id}` });
     }
-    if (results.totals.contacts > results.contacts.length) {
+    if (results.hasMore.contacts) {
       allItems.push({ kind: "see-all", category: "contacts", href: `/search?q=${encodedQ}&tab=contacts` });
     }
     for (const d of results.deals) {
       allItems.push({ kind: "deal", id: d.id, href: `/deals/${d.id}` });
     }
-    if (results.totals.deals > results.deals.length) {
+    if (results.hasMore.deals) {
       allItems.push({ kind: "see-all", category: "deals", href: `/search?q=${encodedQ}&tab=deals` });
     }
     for (const a of results.activities) {
       allItems.push({ kind: "activity", id: a.id, href: `/activity` });
     }
-    if (results.totals.activities > results.activities.length) {
+    if (results.hasMore.activities) {
       allItems.push({ kind: "see-all", category: "activities", href: `/search?q=${encodedQ}&tab=activities` });
     }
   }
@@ -251,7 +251,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                   </button>
                 );
               })}
-              {results.totals.contacts > results.contacts.length && (() => {
+              {results.hasMore.contacts && (() => {
                 const flatIdx = idxForSeeAll("contacts");
                 const active = flatIdx === selectedIndex;
                 return (
@@ -267,7 +267,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                     ].join(" ")}
                   >
                     <SearchIcon size={12} className="shrink-0" aria-hidden="true" />
-                    See all {results.totals.contacts} contacts
+                    See all contacts
                   </button>
                 );
               })()}
@@ -313,7 +313,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                   </button>
                 );
               })}
-              {results.totals.deals > results.deals.length && (() => {
+              {results.hasMore.deals && (() => {
                 const flatIdx = idxForSeeAll("deals");
                 const active = flatIdx === selectedIndex;
                 return (
@@ -329,7 +329,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                     ].join(" ")}
                   >
                     <SearchIcon size={12} className="shrink-0" aria-hidden="true" />
-                    See all {results.totals.deals} deals
+                    See all deals
                   </button>
                 );
               })()}
@@ -375,7 +375,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                   </button>
                 );
               })}
-              {results.totals.activities > results.activities.length && (() => {
+              {results.hasMore.activities && (() => {
                 const flatIdx = idxForSeeAll("activities");
                 const active = flatIdx === selectedIndex;
                 return (
@@ -391,7 +391,7 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
                     ].join(" ")}
                   >
                     <SearchIcon size={12} className="shrink-0" aria-hidden="true" />
-                    See all {results.totals.activities} activities
+                    See all activities
                   </button>
                 );
               })()}

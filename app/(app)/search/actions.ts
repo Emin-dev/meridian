@@ -4,7 +4,7 @@ import { or, ilike } from "drizzle-orm";
 import { z } from "zod";
 import { getDb, schema } from "@/db";
 import { requireSession } from "@/lib/require-session";
-import { SEARCH_RESULT_LIMIT } from "./constants";
+import { SEARCH_PAGE_SIZE, SEARCH_MAX_PAGE } from "./constants";
 
 // Bound the query length so empty/oversized inputs can't trigger needless
 // ilike table scans (every char widens the LIKE pattern). Require at least
@@ -23,7 +23,13 @@ const EMPTY_RESULTS: SearchResults = {
   contacts: [],
   deals: [],
   activities: [],
-  totals: { contacts: 0, deals: 0, activities: 0 },
+  hasMore: { contacts: false, deals: false, activities: false },
+};
+
+export type SearchPages = {
+  contacts: number;
+  deals: number;
+  activities: number;
 };
 
 export type SearchResults = {
@@ -45,14 +51,26 @@ export type SearchResults = {
     subject: string;
     body: string | null;
   }>;
-  totals: {
-    contacts: number;
-    deals: number;
-    activities: number;
+  // True for a tab when more matches exist beyond the rows returned, so the UI
+  // can offer "Load more" instead of silently dropping the remainder.
+  hasMore: {
+    contacts: boolean;
+    deals: boolean;
+    activities: boolean;
   };
 };
 
-export async function searchGlobal(query: string): Promise<SearchResults> {
+// Clamp a per-tab page number to [1, SEARCH_MAX_PAGE] so a crafted URL param
+// can't request an unbounded window.
+function clampPage(page: number): number {
+  if (!Number.isFinite(page)) return 1;
+  return Math.min(Math.max(Math.trunc(page), 1), SEARCH_MAX_PAGE);
+}
+
+export async function searchGlobal(
+  query: string,
+  pages: SearchPages = { contacts: 1, deals: 1, activities: 1 },
+): Promise<SearchResults> {
   await requireSession();
 
   const db = getDb();
@@ -62,6 +80,11 @@ export async function searchGlobal(query: string): Promise<SearchResults> {
   }
 
   const q = `%${escapeLikePattern(parsed.data)}%`;
+
+  // Each tab fetches one extra row past its window to detect a further page.
+  const contactsWindow = clampPage(pages.contacts) * SEARCH_PAGE_SIZE;
+  const dealsWindow = clampPage(pages.deals) * SEARCH_PAGE_SIZE;
+  const activitiesWindow = clampPage(pages.activities) * SEARCH_PAGE_SIZE;
 
   const contactsWhere = or(
     ilike(schema.contacts.name, q),
@@ -74,7 +97,7 @@ export async function searchGlobal(query: string): Promise<SearchResults> {
     ilike(schema.activities.body, q),
   );
 
-  const [contacts, deals, activities] = await Promise.all([
+  const [contactRows, dealRows, activityRows] = await Promise.all([
     db
       .select({
         id: schema.contacts.id,
@@ -84,7 +107,7 @@ export async function searchGlobal(query: string): Promise<SearchResults> {
       })
       .from(schema.contacts)
       .where(contactsWhere)
-      .limit(SEARCH_RESULT_LIMIT),
+      .limit(contactsWindow + 1),
     db
       .select({
         id: schema.deals.id,
@@ -94,7 +117,7 @@ export async function searchGlobal(query: string): Promise<SearchResults> {
       })
       .from(schema.deals)
       .where(dealsWhere)
-      .limit(SEARCH_RESULT_LIMIT),
+      .limit(dealsWindow + 1),
     db
       .select({
         id: schema.activities.id,
@@ -104,17 +127,17 @@ export async function searchGlobal(query: string): Promise<SearchResults> {
       })
       .from(schema.activities)
       .where(activitiesWhere)
-      .limit(SEARCH_RESULT_LIMIT),
+      .limit(activitiesWindow + 1),
   ]);
 
   return {
-    contacts,
-    deals,
-    activities,
-    totals: {
-      contacts: contacts.length,
-      deals: deals.length,
-      activities: activities.length,
+    contacts: contactRows.slice(0, contactsWindow),
+    deals: dealRows.slice(0, dealsWindow),
+    activities: activityRows.slice(0, activitiesWindow),
+    hasMore: {
+      contacts: contactRows.length > contactsWindow,
+      deals: dealRows.length > dealsWindow,
+      activities: activityRows.length > activitiesWindow,
     },
   };
 }

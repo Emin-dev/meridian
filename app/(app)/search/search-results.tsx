@@ -2,26 +2,49 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import type { SearchResults } from "./actions";
-import { SEARCH_RESULT_LIMIT } from "./constants";
+import type { SearchResults, SearchPages } from "./actions";
 
 type Tab = "contacts" | "deals" | "activities";
 const VALID_TABS: Tab[] = ["contacts", "deals", "activities"];
+
+// Maps each tab to its dedicated page URL-param, so "Load more" can grow one
+// tab's window without disturbing the others.
+const PAGE_PARAM: Record<Tab, "cp" | "dp" | "ap"> = {
+  contacts: "cp",
+  deals: "dp",
+  activities: "ap",
+};
 
 export default function SearchResultsTabs({
   results,
   query,
   initialTab: initialTabProp,
+  pages,
 }: {
   results: SearchResults;
   query: string;
   initialTab?: string;
+  pages: SearchPages;
 }) {
   const counts = {
-    contacts: results.totals.contacts,
-    deals: results.totals.deals,
-    activities: results.totals.activities,
+    contacts: results.contacts.length,
+    deals: results.deals.length,
+    activities: results.activities.length,
   };
+
+  // Build the "Load more" href for a tab: keep the query, pin the active tab so
+  // the page doesn't reset to the default tab after navigation, preserve the
+  // other tabs' already-loaded windows, and bump this tab's page by one.
+  function loadMoreHref(tabKey: Tab): string {
+    const params = new URLSearchParams();
+    params.set("q", query);
+    params.set("tab", tabKey);
+    params.set("cp", String(pages.contacts));
+    params.set("dp", String(pages.deals));
+    params.set("ap", String(pages.activities));
+    params.set(PAGE_PARAM[tabKey], String(pages[tabKey] + 1));
+    return `/search?${params.toString()}`;
+  }
 
   const parsedInitial = VALID_TABS.includes(initialTabProp as Tab)
     ? (initialTabProp as Tab)
@@ -71,8 +94,8 @@ export default function SearchResultsTabs({
                     : "bg-[var(--surface-2)] text-[var(--ink-3)]",
                 ].join(" ")}
               >
-                {counts[t.key] >= SEARCH_RESULT_LIMIT
-                  ? `${SEARCH_RESULT_LIMIT}+`
+                {results.hasMore[t.key]
+                  ? `${counts[t.key]}+`
                   : counts[t.key]}
               </span>
             </button>
@@ -162,6 +185,20 @@ export default function SearchResultsTabs({
             ))
           ))}
       </div>
+
+      {/* Load more — bounded per-tab pagination; only shown when the active tab
+          has further matches beyond the rows already loaded. */}
+      {results.hasMore[tab] && (
+        <div className="flex justify-center border-t border-[var(--line-1)] p-3">
+          <Link
+            href={loadMoreHref(tab)}
+            scroll={false}
+            className="tap flex items-center justify-center rounded-[var(--r-lg)] border border-[var(--line-1)] bg-[var(--surface-1)] px-5 text-body font-medium text-[var(--ink-1)] transition-colors hover:bg-[var(--surface-2)]"
+          >
+            Load more
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

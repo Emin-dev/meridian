@@ -2,22 +2,48 @@ import { getDb } from "@/db";
 import { searchGlobal, type SearchResults } from "./actions";
 import SearchResultsTabs from "./search-results";
 
+function parsePage(value: string | undefined): number {
+  const n = value ? parseInt(value, 10) : 1;
+  return Number.isFinite(n) && n > 0 ? n : 1;
+}
+
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; tab?: string }>;
+  searchParams: Promise<{
+    q?: string;
+    tab?: string;
+    cp?: string;
+    dp?: string;
+    ap?: string;
+  }>;
 }) {
-  const { q, tab } = await searchParams;
+  const { q, tab, cp, dp, ap } = await searchParams;
   const query = q?.trim() ?? "";
   const db = getDb();
 
-  let results: SearchResults = { contacts: [], deals: [], activities: [], totals: { contacts: 0, deals: 0, activities: 0 } };
+  const pages = {
+    contacts: parsePage(cp),
+    deals: parsePage(dp),
+    activities: parsePage(ap),
+  };
+
+  let results: SearchResults = {
+    contacts: [],
+    deals: [],
+    activities: [],
+    hasMore: { contacts: false, deals: false, activities: false },
+  };
   if (db && query) {
-    results = await searchGlobal(query);
+    results = await searchGlobal(query, pages);
   }
 
   const total =
     results.contacts.length + results.deals.length + results.activities.length;
+  const hasMoreAny =
+    results.hasMore.contacts ||
+    results.hasMore.deals ||
+    results.hasMore.activities;
 
   return (
     <div className="space-y-6">
@@ -25,7 +51,7 @@ export default async function SearchPage({
         <h2 className="text-title2 font-semibold text-[var(--ink-1)]">Search</h2>
         <p className="mt-1 text-footnote text-[var(--ink-2)]">
           {query
-            ? `${total} result${total !== 1 ? "s" : ""} for "${query}"`
+            ? `${total}${hasMoreAny ? "+" : ""} result${total !== 1 ? "s" : ""} for "${query}"`
             : "Search across contacts, deals and activities."}
         </p>
       </div>
@@ -45,7 +71,12 @@ export default async function SearchPage({
           </p>
         </div>
       ) : (
-        <SearchResultsTabs results={results} query={query} initialTab={tab} />
+        <SearchResultsTabs
+          results={results}
+          query={query}
+          initialTab={tab}
+          pages={pages}
+        />
       )}
     </div>
   );
