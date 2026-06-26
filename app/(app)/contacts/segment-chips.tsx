@@ -43,7 +43,7 @@ export default function SegmentChips({ currentParams }: Props) {
               "tap inline-flex items-center justify-center rounded-full px-3 text-xs font-medium transition-colors disabled:opacity-50",
               active
                 ? "bg-[--accent] text-[--accent-ink]"
-                : "border border-neutral-700 bg-neutral-800 text-neutral-300 hover:border-[--accent] hover:text-[--accent]",
+                : "border border-[--line-1] bg-[--surface-2] text-[--ink-2] hover:border-[--accent] hover:text-[--accent]",
             ].join(" ")}
           >
             {preset.label}

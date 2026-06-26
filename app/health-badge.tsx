@@ -16,22 +16,22 @@ export function HealthBadge() {
   }, []);
 
   const status = error
-    ? { color: "bg-red-400", label: "API unreachable" }
+    ? { color: "bg-[--bad]", label: "API unreachable" }
     : !health
-      ? { color: "bg-neutral-500 animate-pulse", label: "checking…" }
+      ? { color: "bg-[--ink-3] animate-pulse", label: "checking…" }
       : health.db === "connected"
-        ? { color: "bg-emerald-400", label: "database connected" }
+        ? { color: "bg-[--ok]", label: "database connected" }
         : health.db === "not_configured"
-          ? { color: "bg-amber-400", label: "database not configured yet" }
-          : { color: "bg-red-400", label: "database error" };
+          ? { color: "bg-[--warn]", label: "database not configured yet" }
+          : { color: "bg-[--bad]", label: "database error" };
 
   return (
-    <div className="flex items-center gap-3 rounded-lg border border-neutral-800 bg-neutral-900/40 px-4 py-3 text-sm">
+    <div className="flex items-center gap-3 rounded-lg border border-[--line-1] bg-[--surface-1] px-4 py-3 text-sm">
       <span
         className={`inline-block h-2.5 w-2.5 shrink-0 rounded-full ${status.color}`}
       />
-      <span className="text-neutral-300">
-        <code className="text-neutral-400">/api/health</code> — {status.label}
+      <span className="text-[--ink-2]">
+        <code className="text-[--ink-3]">/api/health</code> — {status.label}
       </span>
     </div>
   );
