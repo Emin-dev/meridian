@@ -125,13 +125,19 @@ body {
 /* Native dialog: always dark color scheme so system date/select pickers render dark */
 dialog { color-scheme: dark; }
 
-/* Cross-document View Transitions (Chrome 115+, Firefox 130+, Safari 18+) */
+/* View Transitions — native-feel cross-fade with a subtle iOS-style lift on the
+   incoming view (opacity + transform only, per DESIGN §7). `navigation: auto`
+   drives full-document navigations (initial load, hard refresh, cross-document
+   back/forward); the same snapshot animation is reused by any soft navigation
+   wrapped in document.startViewTransition. Supported in Chrome 115+, Safari 18+,
+   Firefox 130+; degrades to an instant cut elsewhere. Reduced-motion users opt
+   out entirely (the reduce block below also zeroes these durations). */
 @media (prefers-reduced-motion: no-preference) {
   @view-transition { navigation: auto; }
   ::view-transition-old(root) { animation: _vt-out var(--dur-2) var(--ease) both; }
   ::view-transition-new(root) { animation: _vt-in  var(--dur-2) var(--ease) both; }
-  @keyframes _vt-out { to   { opacity: 0; } }
-  @keyframes _vt-in  { from { opacity: 0; } }
+  @keyframes _vt-out { to   { opacity: 0; transform: translateY(-4px); } }
+  @keyframes _vt-in  { from { opacity: 0; transform: translateY(8px);  } }
 }
 
 @media (prefers-reduced-motion: reduce){
