@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logout } from "@/app/login/actions";
 import { GlobalSearch } from "@/components/global-search";
+import { useOverlayDismiss } from "@/hooks/use-overlay-dismiss";
 import {
   DashboardIcon,
   UsersIcon,
@@ -40,6 +41,7 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
   const [searchOpen, setSearchOpen] = useState(false);
   const [isMac, setIsMac] = useState(true);
   const pathname = usePathname();
+  const drawerRef = useOverlayDismiss<HTMLElement>(mobileOpen, () => setMobileOpen(false));
 
   useEffect(() => {
     setIsMac(/Mac|iPhone|iPad|iPod/.test(navigator.platform));
@@ -55,15 +57,6 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
   }, []);
-
-  useEffect(() => {
-    if (!mobileOpen) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setMobileOpen(false);
-    };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
-  }, [mobileOpen]);
 
   const pageLabel = NAV.find((n) => pathname === n.href || pathname.startsWith(n.href + "/"))?.label ?? "Meridian";
 
@@ -150,6 +143,7 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
 
       {/* Sidebar */}
       <aside
+        ref={drawerRef}
         className={[
           "fixed inset-y-0 left-0 z-50 flex w-60 flex-col bg-[--surface-1] border-r border-[--line-1] transition-transform duration-200 ease-in-out",
           "lg:relative lg:translate-x-0",
