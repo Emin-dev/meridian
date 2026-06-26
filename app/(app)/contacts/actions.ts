@@ -14,6 +14,10 @@ import {
   summarizeBulkScore,
 } from "@/lib/bulk-score";
 
+// Validates an id-only argument coming from a client action call, so a bad id
+// (NaN, 0, negative, non-integer) can't reach a DB query.
+const idSchema = z.coerce.number().int().positive();
+
 const SOURCE_VALUES = ["website", "referral", "linkedin", "cold-outreach", "other"] as const;
 
 const ContactSchema = z.object({
@@ -397,6 +401,8 @@ export type SummarizeState = {
 export async function summarizeContact(
   contactId: number
 ): Promise<SummarizeState> {
+  if (!idSchema.safeParse(contactId).success) return { error: "Invalid contact id." };
+
   const db = getDb();
   if (!db) return { noDb: true };
 
@@ -569,6 +575,8 @@ async function scoreContactFromData(
 }
 
 export async function scoreContact(contactId: number): Promise<ScoreState> {
+  if (!idSchema.safeParse(contactId).success) return { error: "Invalid contact id." };
+
   const db = getDb();
   if (!db) return { noDb: true };
 
@@ -742,6 +750,8 @@ export type NextActionState = {
 export async function suggestNextAction(
   contactId: number
 ): Promise<NextActionState> {
+  if (!idSchema.safeParse(contactId).success) return { error: "Invalid contact id." };
+
   const db = getDb();
   if (!db) return { noDb: true };
 
@@ -870,6 +880,8 @@ const EnrichResponseSchema = z.object({
 });
 
 export async function enrichContact(contactId: number): Promise<EnrichState> {
+  if (!idSchema.safeParse(contactId).success) return { error: "Invalid contact id." };
+
   const db = getDb();
   if (!db) return { noDb: true };
 
@@ -1550,6 +1562,8 @@ export async function mergeContacts(
 export async function draftOutreachEmail(
   contactId: number
 ): Promise<DraftEmailState> {
+  if (!idSchema.safeParse(contactId).success) return { error: "Invalid contact id." };
+
   const db = getDb();
   if (!db) return { noDb: true };
 

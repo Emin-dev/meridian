@@ -31,9 +31,12 @@ const FilterIcon = () => (
 );
 
 // Bound the deals query so a request never triggers an un-paginated full-table
-// scan. We fetch the most recent deals up to this cap; older ones stay reachable
-// via the owner/stage filters, and a "showing N of M" note flags when capped.
-const DEALS_LIMIT = 200;
+// scan. "Load more" grows the visible window one page at a time (mirrors the
+// contacts page), so the full pipeline stays reachable past the first page
+// rather than dead-ending at the cap. We fetch windowSize+1 rows to detect
+// whether another page exists.
+const PAGE_SIZE = 100;
+const MAX_PAGE = 50;
 // Cap the contact-picker options for the new-deal modal; it only needs a usable
 // shortlist, not the entire contacts table.
 const CONTACTS_LIMIT = 500;
@@ -48,10 +51,17 @@ type DealSortCol = (typeof VALID_DEAL_SORT_COLS)[number];
 export default async function DealsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ view?: string; owner?: string; stage?: string; sort?: string; dir?: string }>;
+  searchParams: Promise<{ view?: string; owner?: string; stage?: string; sort?: string; dir?: string; page?: string }>;
 }) {
-  const { view = "kanban", owner: ownerFilter = "", stage: stageFilter = "", sort, dir } = await searchParams;
+  const { view = "kanban", owner: ownerFilter = "", stage: stageFilter = "", sort, dir, page } = await searchParams;
   const isTable = view === "table";
+
+  // Visible window size — "Load more" bumps the page param to grow it.
+  const pageNum = Math.min(
+    Math.max(page && !isNaN(parseInt(page)) ? parseInt(page) : 1, 1),
+    MAX_PAGE,
+  );
+  const windowSize = pageNum * PAGE_SIZE;
 
   // Table sort (default: oldest-open first, i.e. age desc). Kanban ignores this.
   const sortColKey: DealSortCol =
@@ -73,11 +83,12 @@ export default async function DealsPage({
 
   const [visibleDealsRaw, totalsRows, ownerRows, countRows, allContacts, settings] =
     await Promise.all([
-      // Filtered list (uses deals_owner_idx / deals_stage_idx), capped at
-      // DEALS_LIMIT. Table view orders by the chosen column so the cap keeps the
-      // correct top-N across the full filtered set; kanban fetches newest-first
-      // (reversed below to restore ascending display order). An `id` tiebreaker
-      // keeps the capped window deterministic when the sort key has ties.
+      // Filtered list (uses deals_owner_idx / deals_stage_idx), bounded to the
+      // current load-more window. Table view orders by the chosen column so the
+      // window keeps the correct top-N across the full filtered set; kanban
+      // fetches newest-first (reversed below to restore ascending display
+      // order). An `id` tiebreaker keeps the window deterministic when the sort
+      // key has ties.
       db
         ? db.query.deals.findMany({
             where: listFilter,
@@ -121,7 +132,8 @@ export default async function DealsPage({
                   }
                 }
               : (d, { desc }) => [desc(d.createdAt)],
-            limit: DEALS_LIMIT,
+            // Fetch one extra row to detect whether another page exists.
+            limit: windowSize + 1,
           })
         : Promise.resolve([] as DealListItem[]),
       // Pipeline + weighted totals over open (non-lost) deals matching the filter.
@@ -160,9 +172,25 @@ export default async function DealsPage({
       getCrmSettings(),
     ]);
 
+  // Detect whether another page exists, then trim the extra detection row.
+  const hasMore = visibleDealsRaw.length > windowSize;
+  const pageDeals = hasMore ? visibleDealsRaw.slice(0, windowSize) : visibleDealsRaw;
+
   // Table view is already in its final sort order; kanban restores ascending
   // (oldest-first) display order after the newest-first fetch.
-  const visibleDeals = isTable ? visibleDealsRaw : visibleDealsRaw.slice().reverse();
+  const visibleDeals = isTable ? pageDeals : pageDeals.slice().reverse();
+
+  // "Load more" link — preserves view/filters/sort and bumps the page param.
+  const loadMoreParams = new URLSearchParams();
+  loadMoreParams.set("view", isTable ? "table" : "kanban");
+  if (ownerFilter) loadMoreParams.set("owner", ownerFilter);
+  if (stageMatch) loadMoreParams.set("stage", stageMatch.key);
+  if (isTable) {
+    loadMoreParams.set("sort", sortColKey);
+    loadMoreParams.set("dir", sortDir);
+  }
+  loadMoreParams.set("page", String(pageNum + 1));
+  const loadMoreHref = `/deals?${loadMoreParams.toString()}`;
 
   const uniqueOwners = ownerRows
     .map((r) => r.owner)
@@ -298,11 +326,12 @@ export default async function DealsPage({
             />
           </div>
         ) : (
-          // Key by the active filter so a soft owner/stage navigation remounts
-          // the board with the freshly-filtered deals. The key is invariant
-          // across the post-move revalidatePath, so optimistic state survives.
+          // Key by the active filter + page so a soft owner/stage navigation or
+          // a "Load more" remounts the board with the freshly-fetched deals. The
+          // key is invariant across the post-move revalidatePath (same URL/page),
+          // so optimistic state survives a stage change.
           <KanbanBoard
-            key={`${ownerFilter}::${stageMatch?.key ?? ""}`}
+            key={`${ownerFilter}::${stageMatch?.key ?? ""}::${pageNum}`}
             initialDeals={visibleDeals}
             currency={displayCurrency}
           />
@@ -357,12 +386,20 @@ export default async function DealsPage({
         )
       )}
 
-      {/* Capped-list affordance — only when more deals match than are shown */}
-      {db && visibleDeals.length > 0 && matchingDealCount > visibleDeals.length && (
-        <p className="text-center text-xs text-[var(--ink-3)]">
-          Showing {visibleDeals.length} of {matchingDealCount} deals — use the
-          filters above to narrow the list.
-        </p>
+      {/* Load more — bounded pagination; only shown when another page exists */}
+      {db && visibleDeals.length > 0 && hasMore && (
+        <div className="flex flex-col items-center gap-2">
+          <Link
+            href={loadMoreHref}
+            scroll={false}
+            className="tap flex items-center justify-center rounded-lg border border-[var(--line-1)] bg-[var(--surface-1)] px-5 text-sm font-medium text-[var(--ink-1)] transition-colors hover:bg-[var(--surface-2)]"
+          >
+            Load more
+          </Link>
+          <p className="text-center text-xs text-[var(--ink-3)]">
+            Showing {visibleDeals.length} of {matchingDealCount} deals
+          </p>
+        </div>
       )}
     </div>
   );

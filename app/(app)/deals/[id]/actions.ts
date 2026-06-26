@@ -357,6 +357,8 @@ export type WinLossAnalysisState = {
 export async function triggerWinLossAnalysis(
   dealId: number
 ): Promise<WinLossAnalysisState> {
+  if (!idSchema.safeParse(dealId).success) return { error: "Invalid deal id." };
+
   if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
 
   const db = getDb();
