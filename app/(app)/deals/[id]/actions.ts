@@ -1,5 +1,6 @@
 "use server";
 
+import { createHash } from "node:crypto";
 import { z } from "zod";
 import { eq, desc } from "drizzle-orm";
 import { getDb, schema } from "@/db";
@@ -189,6 +190,67 @@ export async function updateDealNotes(
 
 type Db = NonNullable<ReturnType<typeof getDb>>;
 
+// ─── Per-deal AI result cache ─────────────────────────────────────────────────
+// Reuses the appSettings key/value store (the same pattern the dashboard digests
+// use) as a durable cache for per-deal AI results. Each entry stores the result
+// alongside a fingerprint of the exact prompt inputs; an unchanged deal yields
+// the same fingerprint, so the stored result is surfaced without re-calling
+// DeepSeek. This complements the short-lived in-memory LRU in lib/ai.ts with a
+// persistent layer that survives restarts and ignores TTL for unchanged input.
+
+function inputFingerprint(input: string): string {
+  return createHash("sha256").update(input).digest("hex");
+}
+
+async function readAiResultCache<T>(
+  db: Db,
+  key: string,
+  fingerprint: string
+): Promise<T | null> {
+  try {
+    const [row] = await db
+      .select({ value: schema.appSettings.value })
+      .from(schema.appSettings)
+      .where(eq(schema.appSettings.key, key))
+      .limit(1);
+    if (!row) return null;
+    const parsed = JSON.parse(row.value) as { fp?: unknown; data?: unknown };
+    if (
+      parsed &&
+      parsed.fp === fingerprint &&
+      parsed.data &&
+      typeof parsed.data === "object"
+    ) {
+      return parsed.data as T;
+    }
+    return null;
+  } catch {
+    // Corrupt/legacy cache entry or read failure — treat as a miss.
+    return null;
+  }
+}
+
+async function writeAiResultCache(
+  db: Db,
+  key: string,
+  fingerprint: string,
+  data: unknown
+): Promise<void> {
+  try {
+    const now = new Date();
+    const value = JSON.stringify({ fp: fingerprint, data });
+    await db
+      .insert(schema.appSettings)
+      .values({ key, value })
+      .onConflictDoUpdate({
+        target: schema.appSettings.key,
+        set: { value, updatedAt: now },
+      });
+  } catch {
+    // Non-fatal — the AI result is still returned even if caching fails.
+  }
+}
+
 async function _generateWinLossInsight(
   db: Db,
   dealId: number,
@@ -360,8 +422,6 @@ export async function scoreDeal(dealId: number): Promise<DealScoreState> {
 
   if (!deal) return { error: "Deal not found." };
 
-  if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
-
   let contactInfo: string | null = null;
   if (deal.contactId) {
     const [c] = await db
@@ -401,6 +461,21 @@ export async function scoreDeal(dealId: number): Promise<DealScoreState> {
     userNotes ? `\nNotes:\n${userNotes}` : null,
   ].filter(Boolean) as string[];
 
+  // Serve a previously-computed score when the deal's relevant inputs are
+  // unchanged — avoids a redundant DeepSeek call (AI-efficiency mandate).
+  const fingerprint = inputFingerprint(lines.join("\n"));
+  const cacheKey = `aiScore:deal:${dealId}`;
+  const cached = await readAiResultCache<{ score: number; reasoning: string }>(
+    db,
+    cacheKey,
+    fingerprint
+  );
+  if (cached && Number.isFinite(cached.score)) {
+    return { score: cached.score, reasoning: cached.reasoning };
+  }
+
+  if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
+
   try {
     const raw = await chat(
       [
@@ -427,6 +502,10 @@ export async function scoreDeal(dealId: number): Promise<DealScoreState> {
     if (!Number.isFinite(score) || score < 0 || score > 100) {
       return { error: "AI returned an invalid score." };
     }
+
+    // Persist the result keyed on the input fingerprint so an unchanged deal
+    // is served from cache next time instead of re-calling DeepSeek.
+    await writeAiResultCache(db, cacheKey, fingerprint, { score, reasoning });
 
     try {
       await db
@@ -571,8 +650,6 @@ export async function assessDealRisk(dealId: number): Promise<DealRiskState> {
 
   if (!deal) return { error: "Deal not found." };
 
-  if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
-
   let contactInfo: string | null = null;
   if (deal.contactId) {
     const [c] = await db
@@ -632,6 +709,21 @@ export async function assessDealRisk(dealId: number): Promise<DealRiskState> {
     lines.push("\nNo recorded activities.");
   }
 
+  // Serve a previously-computed assessment when the deal's relevant inputs
+  // (incl. recent activity) are unchanged — avoids a redundant DeepSeek call.
+  const fingerprint = inputFingerprint(lines.join("\n"));
+  const cacheKey = `aiRisk:deal:${dealId}`;
+  const cached = await readAiResultCache<{
+    risk: "low" | "medium" | "high";
+    reason: string;
+    nextStep: string;
+  }>(db, cacheKey, fingerprint);
+  if (cached) {
+    return { risk: cached.risk, reason: cached.reason, nextStep: cached.nextStep };
+  }
+
+  if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
+
   try {
     const raw = await chat(
       [
@@ -668,6 +760,10 @@ export async function assessDealRisk(dealId: number): Promise<DealRiskState> {
     if (!reason && !nextStep) {
       return { error: "AI returned an empty assessment." };
     }
+
+    // Persist keyed on the input fingerprint so an unchanged deal is served
+    // from cache next time instead of re-calling DeepSeek.
+    await writeAiResultCache(db, cacheKey, fingerprint, { risk, reason, nextStep });
 
     return { risk, reason, nextStep };
   } catch (err) {
