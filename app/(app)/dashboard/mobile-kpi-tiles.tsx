@@ -214,21 +214,27 @@ export default function MobileKpiTiles({
   return (
     <>
       <div className="grid grid-cols-2 gap-3">
-        {tiles.map((tile) => (
-          <button
-            key={tile.key}
-            type="button"
-            onClick={() => setActive(tile.key)}
-            className="card tap flex flex-col items-start p-3 text-left"
-          >
-            <span className="text-caption font-medium uppercase tracking-wide text-[--ink-3]">
-              {tile.label}
-            </span>
-            <span className="text-title3 mt-1 font-semibold text-[--ink-1]">
-              {tile.value}
-            </span>
-          </button>
-        ))}
+        {tiles.map((tile, index) => {
+          const isOrphan =
+            index === tiles.length - 1 && tiles.length % 2 === 1;
+          return (
+            <button
+              key={tile.key}
+              type="button"
+              onClick={() => setActive(tile.key)}
+              className={`card tap flex flex-col items-start p-3 text-left${
+                isOrphan ? " col-span-2" : ""
+              }`}
+            >
+              <span className="text-caption font-medium uppercase tracking-wide text-[--ink-3]">
+                {tile.label}
+              </span>
+              <span className="text-title3 mt-1 font-semibold text-[--ink-1]">
+                {tile.value}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       <MobileActionSheet
