@@ -158,7 +158,7 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
       >
         {/* Logo */}
         <div className="flex items-center gap-2.5 px-4 py-4 border-b border-[--line-1] shrink-0">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-indigo-600 text-sm font-bold text-white">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[--accent] text-sm font-bold text-[--accent-ink]">
             M
           </div>
           <span className="text-sm font-semibold tracking-tight text-[--ink-1]">Meridian</span>
@@ -182,7 +182,7 @@ export default function AppShell({ children, overdueCount = 0, overdueTaskCount 
                 className={[
                   "press flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium",
                   active
-                    ? "bg-indigo-600 text-white"
+                    ? "bg-[--accent] text-[--accent-ink]"
                     : "text-[--ink-2] hover:bg-[--surface-2] hover:text-[--ink-1]",
                 ].join(" ")}
               >
