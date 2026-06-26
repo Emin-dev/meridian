@@ -447,6 +447,7 @@ export async function scoreDeal(dealId: number): Promise<DealScoreState> {
 
 export type DealSummarizeState = {
   summary?: string;
+  summaryAt?: string;
   error?: string;
   noDb?: boolean;
   noKey?: boolean;
@@ -517,7 +518,21 @@ export async function summarizeDeal(dealId: number): Promise<DealSummarizeState>
         content: `Summarise this deal:\n\n${lines.join("\n")}`,
       },
     ]);
-    return { summary };
+
+    const summaryAt = new Date();
+
+    // Cache result to the deal row (best-effort — columns may not exist yet)
+    try {
+      await db
+        .update(schema.deals)
+        .set({ aiSummary: summary, aiSummaryAt: summaryAt, updatedAt: new Date() })
+        .where(eq(schema.deals.id, dealId));
+      revalidatePath(`/deals/${dealId}`);
+    } catch {
+      // Ignore — DB columns may not yet be migrated
+    }
+
+    return { summary, summaryAt: summaryAt.toISOString() };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown AI error.";
     if (message.includes("DEEPSEEK_API_KEY")) return { noKey: true };

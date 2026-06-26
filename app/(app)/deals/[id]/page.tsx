@@ -154,7 +154,11 @@ export default async function DealDetailPage({ params }: Props) {
 
       {/* AI deal brief */}
       <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-4 sm:p-5">
-        <DealSummarizePanel dealId={deal.id} />
+        <DealSummarizePanel
+          dealId={deal.id}
+          initialSummary={deal.aiSummary}
+          initialSummaryAt={deal.aiSummaryAt}
+        />
       </div>
 
       {/* AI next best action */}

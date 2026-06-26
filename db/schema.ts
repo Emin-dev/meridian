@@ -106,6 +106,8 @@ export const deals = pgTable("deals", {
   notes: text("notes"),
   closeReason: text("close_reason"),
   owner: text("owner"),
+  aiSummary: text("ai_summary"),
+  aiSummaryAt: timestamp("ai_summary_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => [

@@ -5,10 +5,15 @@ import { summarizeDeal, type DealSummarizeState } from "./actions";
 
 interface Props {
   dealId: number;
+  initialSummary?: string | null;
+  initialSummaryAt?: Date | null;
 }
 
-export default function DealSummarizePanel({ dealId }: Props) {
-  const [result, setResult] = useState<DealSummarizeState>({});
+export default function DealSummarizePanel({ dealId, initialSummary, initialSummaryAt }: Props) {
+  const [result, setResult] = useState<DealSummarizeState>({
+    summary: initialSummary ?? undefined,
+    summaryAt: initialSummaryAt ? initialSummaryAt.toISOString() : undefined,
+  });
   const [isPending, startTransition] = useTransition();
 
   function handleSummarize() {
@@ -28,7 +33,7 @@ export default function DealSummarizePanel({ dealId }: Props) {
           disabled={isPending}
           className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
         >
-          {isPending ? "Summarising…" : result.summary ? "Re-summarise" : "Summarise"}
+          {isPending ? "Summarising…" : result.summary ? "Regenerate" : "Summarise"}
         </button>
       </div>
 
@@ -53,9 +58,21 @@ export default function DealSummarizePanel({ dealId }: Props) {
       )}
 
       {result.summary ? (
-        <p className="text-sm text-neutral-300 leading-relaxed whitespace-pre-wrap">
-          {result.summary}
-        </p>
+        <div className="space-y-1.5">
+          <p className="text-sm text-neutral-300 leading-relaxed whitespace-pre-wrap">
+            {result.summary}
+          </p>
+          {result.summaryAt && (
+            <p className="text-[11px] text-neutral-500">
+              Cached brief from{" "}
+              {new Date(result.summaryAt).toLocaleString(undefined, {
+                dateStyle: "medium",
+                timeStyle: "short",
+              })}
+              {" · Regenerate to refresh"}
+            </p>
+          )}
+        </div>
       ) : (
         !result.noDb &&
         !result.noKey &&
