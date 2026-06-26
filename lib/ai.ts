@@ -33,7 +33,9 @@ type DeepSeekResponse = {
 const DEFAULT_MAX_TOKENS = 1024;
 
 // Hard wall-clock budget for a single request before we bail with a clear error.
-const REQUEST_TIMEOUT_MS = 15_000;
+// Kept under Vercel's 10s free-tier function limit so the request fails cleanly
+// with our own error rather than being killed mid-flight by the platform.
+const REQUEST_TIMEOUT_MS = 9_000;
 
 // How long a successful response stays cached. Keeps the in-memory cache from
 // holding stale answers indefinitely in a long-lived server process.
