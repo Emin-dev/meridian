@@ -280,32 +280,25 @@ export async function extractActionItems(
   const db = getDb();
   if (!db) return { noDb: true };
 
-  let notes: string | null = null;
-  let entityLabel = "";
-
-  if (contactId) {
-    const [contact] = await db
-      .select({ name: schema.contacts.name, notes: schema.contacts.notes })
-      .from(schema.contacts)
-      .where(eq(schema.contacts.id, contactId))
-      .limit(1);
-    if (!contact) return { error: "Contact not found." };
-    notes = contact.notes ?? null;
-    entityLabel = `Contact: ${contact.name}`;
-  } else if (dealId) {
-    const [deal] = await db
-      .select({ title: schema.deals.title, notes: schema.deals.notes })
-      .from(schema.deals)
-      .where(eq(schema.deals.id, dealId))
-      .limit(1);
-    if (!deal) return { error: "Deal not found." };
-    notes = deal.notes ?? null;
-    entityLabel = `Deal: ${deal.title}`;
-  } else {
+  if (!contactId && !dealId) {
     return { error: "Must provide contactId or dealId." };
   }
 
-  const activities = await db
+  // The linked record and its activities are independent reads — run them
+  // together to cut a round-trip.
+  const recordPromise = contactId
+    ? db
+        .select({ name: schema.contacts.name, notes: schema.contacts.notes })
+        .from(schema.contacts)
+        .where(eq(schema.contacts.id, contactId))
+        .limit(1)
+    : db
+        .select({ title: schema.deals.title, notes: schema.deals.notes })
+        .from(schema.deals)
+        .where(eq(schema.deals.id, dealId!))
+        .limit(1);
+
+  const activitiesPromise = db
     .select()
     .from(schema.activities)
     .where(
@@ -315,6 +308,24 @@ export async function extractActionItems(
     )
     .orderBy(desc(schema.activities.createdAt))
     .limit(20);
+
+  const [[record], activities] = await Promise.all([
+    recordPromise,
+    activitiesPromise,
+  ]);
+
+  let notes: string | null = null;
+  let entityLabel = "";
+
+  if (contactId) {
+    if (!record || !("name" in record)) return { error: "Contact not found." };
+    notes = record.notes ?? null;
+    entityLabel = `Contact: ${record.name}`;
+  } else {
+    if (!record || !("title" in record)) return { error: "Deal not found." };
+    notes = record.notes ?? null;
+    entityLabel = `Deal: ${record.title}`;
+  }
 
   const lines: string[] = [entityLabel];
 

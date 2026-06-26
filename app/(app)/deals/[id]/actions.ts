@@ -448,35 +448,39 @@ export async function scoreDeal(dealId: number): Promise<DealScoreState> {
   let deal: DealRow | undefined;
   let contactInfo: string | null = null;
   try {
-    [deal] = await db
-      .select()
-      .from(schema.deals)
-      .where(eq(schema.deals.id, dealId))
-      .limit(1);
-
-    if (deal?.contactId) {
-      const [c] = await db
-        .select({
+    // The deal and its contact are read together in a single LEFT JOIN round
+    // trip — the contact lookup depends on deal.contactId, so it cannot be
+    // issued concurrently; folding it into the deal query removes the extra
+    // serial round trip while leaving the AI input identical. The join yields a
+    // null contact when there is no contactId (or the contact was deleted).
+    const [row] = await db
+      .select({
+        deal: schema.deals,
+        contact: {
           name: schema.contacts.name,
           title: schema.contacts.title,
           company: schema.contacts.company,
           status: schema.contacts.status,
           leadScore: schema.contacts.leadScore,
-        })
-        .from(schema.contacts)
-        .where(eq(schema.contacts.id, deal.contactId))
-        .limit(1);
-      if (c) {
-        const parts = [
-          c.name,
-          c.title && c.company
-            ? `${c.title} at ${c.company}`
-            : (c.company ?? c.title),
-          c.status ? `status: ${c.status}` : null,
-          c.leadScore != null ? `lead score: ${c.leadScore}` : null,
-        ].filter(Boolean);
-        contactInfo = parts.join(", ");
-      }
+        },
+      })
+      .from(schema.deals)
+      .leftJoin(schema.contacts, eq(schema.contacts.id, schema.deals.contactId))
+      .where(eq(schema.deals.id, dealId))
+      .limit(1);
+
+    deal = row?.deal;
+    const c = row?.contact;
+    if (c) {
+      const parts = [
+        c.name,
+        c.title && c.company
+          ? `${c.title} at ${c.company}`
+          : (c.company ?? c.title),
+        c.status ? `status: ${c.status}` : null,
+        c.leadScore != null ? `lead score: ${c.leadScore}` : null,
+      ].filter(Boolean);
+      contactInfo = parts.join(", ");
     }
   } catch {
     return { error: LOAD_ERROR };
