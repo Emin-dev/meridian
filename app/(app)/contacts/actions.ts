@@ -435,6 +435,9 @@ async function scoreContactFromData(
     );
 
     const parsed = JSON.parse(raw) as { score: unknown; rationale: unknown };
+    if (!parsed || typeof parsed !== "object") {
+      return { error: "AI returned an unexpected format. Please try again." };
+    }
     const score = Math.round(Number(parsed.score));
     const rationale = String(parsed.rationale ?? "");
 
@@ -627,6 +630,9 @@ export async function suggestNextAction(
       rationale: unknown;
       suggestedMessage: unknown;
     };
+    if (!parsed || typeof parsed !== "object") {
+      return { error: "AI returned an unexpected format. Please try again." };
+    }
 
     const action = String(parsed.action ?? "").trim();
     const priority = (["high", "medium", "low"] as const).includes(
@@ -739,6 +745,9 @@ export async function enrichContact(contactId: number): Promise<EnrichState> {
       company: unknown;
       notes: unknown;
     };
+    if (!parsed || typeof parsed !== "object") {
+      return { error: "AI returned an unexpected format. Please try again." };
+    }
 
     return {
       title: String(parsed.title ?? "").trim(),
@@ -978,12 +987,17 @@ export async function findDuplicateContacts(): Promise<FindDuplicatesState> {
         confidence: unknown;
       }>;
     };
+    if (!parsed || typeof parsed !== "object") {
+      return { error: "AI returned an unexpected format. Please try again." };
+    }
 
     const contactMap = new Map(allContacts.map((c) => [c.id, c]));
     const pairs: DuplicatePair[] = [];
     const seenIds = new Set<number>();
 
-    for (const p of parsed.pairs ?? []) {
+    const rawPairs = Array.isArray(parsed.pairs) ? parsed.pairs : [];
+    for (const p of rawPairs) {
+      if (!p || typeof p !== "object") continue;
       const primaryId = Number(p.primaryId);
       const secondaryId = Number(p.secondaryId);
       if (
