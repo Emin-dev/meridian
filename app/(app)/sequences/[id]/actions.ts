@@ -2,7 +2,7 @@
 
 import { getDb, schema } from "@/db";
 import { revalidatePath } from "next/cache";
-import { eq, asc } from "drizzle-orm";
+import { and, asc, eq, gt, sql } from "drizzle-orm";
 import { chat } from "@/lib/ai";
 
 export type StepFormState = {
@@ -91,23 +91,29 @@ export async function deleteStep(
   const db = getDb();
   if (!db) return { error: "Database not connected." };
 
+  const [target] = await db
+    .select({ position: schema.sequenceSteps.position })
+    .from(schema.sequenceSteps)
+    .where(eq(schema.sequenceSteps.id, stepId))
+    .limit(1);
+
+  if (!target) return {};
+
   await db
     .delete(schema.sequenceSteps)
     .where(eq(schema.sequenceSteps.id, stepId));
 
-  // Re-number remaining steps by position order
-  const remaining = await db
-    .select({ id: schema.sequenceSteps.id })
-    .from(schema.sequenceSteps)
-    .where(eq(schema.sequenceSteps.sequenceId, sequenceId))
-    .orderBy(asc(schema.sequenceSteps.position));
-
-  for (let i = 0; i < remaining.length; i++) {
-    await db
-      .update(schema.sequenceSteps)
-      .set({ position: i + 1 })
-      .where(eq(schema.sequenceSteps.id, remaining[i].id));
-  }
+  // Close the gap: positions are kept contiguous (1..n), so shift every
+  // later step down by one in a single statement instead of N round-trips.
+  await db
+    .update(schema.sequenceSteps)
+    .set({ position: sql`${schema.sequenceSteps.position} - 1` })
+    .where(
+      and(
+        eq(schema.sequenceSteps.sequenceId, sequenceId),
+        gt(schema.sequenceSteps.position, target.position),
+      ),
+    );
 
   revalidatePath(`/sequences/${sequenceId}`);
   return {};

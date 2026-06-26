@@ -31,15 +31,32 @@ export async function markStepSent(
   const db = getDb();
   if (!db) return { error: "No database" };
 
-  const [sequence] = await db
-    .select({ status: schema.sequences.status })
-    .from(schema.sequences)
-    .where(eq(schema.sequences.id, sequenceId))
-    .limit(1);
+  const [[sequence], [enrollment]] = await Promise.all([
+    db
+      .select({ status: schema.sequences.status })
+      .from(schema.sequences)
+      .where(eq(schema.sequences.id, sequenceId))
+      .limit(1),
+    db
+      .select({
+        status: schema.contactSequenceEnrollments.status,
+        currentStepPosition:
+          schema.contactSequenceEnrollments.currentStepPosition,
+      })
+      .from(schema.contactSequenceEnrollments)
+      .where(eq(schema.contactSequenceEnrollments.id, enrollmentId))
+      .limit(1),
+  ]);
 
   if (!sequence || sequence.status !== "active") {
     return { error: "Sequence is paused" };
   }
+
+  // Server-authoritative guard: only advance the step the client actually saw.
+  // Protects against stale pages / double-clicks re-logging a sent step or
+  // moving the position backward.
+  if (!enrollment || enrollment.status !== "active") return {};
+  if (newStepPosition !== enrollment.currentStepPosition + 1) return {};
 
   const isCompleted = newStepPosition >= totalSteps;
 

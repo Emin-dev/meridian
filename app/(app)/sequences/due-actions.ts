@@ -4,6 +4,7 @@ import { and, asc, eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb, schema } from "@/db";
 import { interpolate, contactToVars } from "@/lib/template";
+import { getCrmSettings } from "@/lib/settings";
 
 export async function sendAllDueSteps(
   enrollmentIds: number[],
@@ -12,6 +13,9 @@ export async function sendAllDueSteps(
 
   const db = getDb();
   if (!db) return { error: "No database", sent: 0 };
+
+  const crmSettings = await getCrmSettings();
+  const ownerFallback = crmSettings.displayName || "[Owner Name]";
 
   const enrollments = await db
     .select({
@@ -76,7 +80,7 @@ export async function sendAllDueSteps(
         company: enrollment.contactCompany,
         owner: enrollment.contactOwner,
       }),
-      ownerName: enrollment.contactOwner ?? "[Owner Name]",
+      ownerName: enrollment.contactOwner ?? ownerFallback,
     };
     const subject = interpolate(currentStep.subjectTemplate, vars);
     const body = interpolate(currentStep.bodyTemplate, vars);
