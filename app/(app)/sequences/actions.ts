@@ -1,5 +1,6 @@
 "use server";
 
+import { z } from "zod";
 import { getDb, schema } from "@/db";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -87,7 +88,20 @@ export type AIDraftResult = {
 };
 
 export async function generateSequenceWithAI(goal: string): Promise<AIDraftResult> {
-  if (!goal.trim()) return { error: "Please enter a goal." };
+  const parsedGoal = z
+    .string()
+    .trim()
+    .min(1)
+    .max(500)
+    .safeParse(goal ?? "");
+  if (!parsedGoal.success) {
+    const tooLong = (goal ?? "").trim().length > 500;
+    return {
+      error: tooLong
+        ? "Keep your goal under 500 characters."
+        : "Please enter a goal.",
+    };
+  }
 
   try {
     const raw = await chat(
@@ -109,7 +123,7 @@ Rules: max 5 steps, use {{firstName}} and {{company}} as merge fields, keep emai
         },
         {
           role: "user",
-          content: `Design an email sequence for this goal: ${goal}`,
+          content: `Design an email sequence for this goal: ${parsedGoal.data}`,
         },
       ],
       { json: true }

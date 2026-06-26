@@ -165,6 +165,8 @@ type BulkActionResult = { error?: string; count?: number; noDb?: boolean };
 
 const BulkIdsSchema = z.array(z.number().int().positive()).min(1);
 
+const OwnerSchema = z.string().trim().max(120, "Owner name is too long.");
+
 export async function bulkMoveStage(
   ids: number[],
   stage: string
@@ -197,13 +199,15 @@ export async function bulkChangeOwner(
 ): Promise<BulkActionResult> {
   const parsedIds = BulkIdsSchema.safeParse(ids);
   if (!parsedIds.success) return { error: "Invalid deal IDs." };
+  const parsedOwner = OwnerSchema.safeParse(owner ?? "");
+  if (!parsedOwner.success) return { error: "Owner name is too long." };
 
   const db = getDb();
   if (!db) return { noDb: true };
 
   await db
     .update(schema.deals)
-    .set({ owner: owner.trim() || null, updatedAt: new Date() })
+    .set({ owner: parsedOwner.data || null, updatedAt: new Date() })
     .where(inArray(schema.deals.id, parsedIds.data));
 
   revalidatePath("/deals");

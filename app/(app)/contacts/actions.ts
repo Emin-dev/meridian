@@ -866,13 +866,20 @@ export async function bulkChangeOwner(
   ids: number[],
   owner: string
 ): Promise<BulkActionState> {
+  const parsedOwner = z
+    .string()
+    .trim()
+    .max(120, "Owner name is too long.")
+    .safeParse(owner ?? "");
+  if (!parsedOwner.success) return { error: "Owner name is too long." };
+
   const db = getDb();
   if (!db) return { noDb: true };
   if (ids.length === 0) return { count: 0 };
 
   await db
     .update(schema.contacts)
-    .set({ owner: owner.trim() || null, updatedAt: new Date() })
+    .set({ owner: parsedOwner.data || null, updatedAt: new Date() })
     .where(inArray(schema.contacts.id, ids));
 
   revalidatePath("/contacts");

@@ -180,10 +180,18 @@ export type DraftStepResult = {
   error?: string;
 };
 
+const draftStepSchema = z.object({
+  sequenceName: z.string().trim().min(1).max(120),
+  stepPosition: z.number().int().positive().max(50),
+});
+
 export async function draftStepContent(
   sequenceName: string,
   stepPosition: number
 ): Promise<DraftStepResult> {
+  const parsedInput = draftStepSchema.safeParse({ sequenceName, stepPosition });
+  if (!parsedInput.success) return { error: "Invalid step details." };
+
   try {
     const raw = await chat(
       [
@@ -194,7 +202,7 @@ export async function draftStepContent(
         },
         {
           role: "user",
-          content: `Write step ${stepPosition} of a sales outreach email sequence called "${sequenceName}". Return JSON with subjectTemplate and bodyTemplate.`,
+          content: `Write step ${parsedInput.data.stepPosition} of a sales outreach email sequence called "${parsedInput.data.sequenceName}". Return JSON with subjectTemplate and bodyTemplate.`,
         },
       ],
       { json: true }

@@ -86,15 +86,21 @@ export async function logAiTaskSuggestion(
   body?: string | null,
   type?: "call" | "email" | "meeting" | "note" | "task",
 ): Promise<{ success?: boolean; error?: string; noDb?: boolean }> {
-  if (!subject?.trim()) return { error: "Subject is required" };
+  const parsedSubject = z
+    .string()
+    .trim()
+    .min(1)
+    .max(200)
+    .safeParse(subject ?? "");
+  if (!parsedSubject.success) return { error: "Subject is required" };
 
   const db = getDb();
   if (!db) return { noDb: true };
 
   await db.insert(schema.activities).values({
     type: type ?? "task",
-    subject: subject.trim(),
-    body: body?.trim() || null,
+    subject: parsedSubject.data,
+    body: body?.trim().slice(0, 2000) || null,
     contactId: contactId ?? null,
     dealId: dealId ?? null,
     dueAt: new Date(),
@@ -128,8 +134,21 @@ export async function smartCompose(
   intent: string,
   type?: string,
 ): Promise<SmartComposeState> {
-  const trimmed = intent?.trim() ?? "";
-  if (!trimmed) return { error: "Describe what you want to say first." };
+  const parsedIntent = z
+    .string()
+    .trim()
+    .min(1)
+    .max(1000)
+    .safeParse(intent ?? "");
+  if (!parsedIntent.success) {
+    const tooLong = (intent ?? "").trim().length > 1000;
+    return {
+      error: tooLong
+        ? "Keep your intent under 1000 characters."
+        : "Describe what you want to say first.",
+    };
+  }
+  const trimmed = parsedIntent.data;
   if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
 
   const format =
