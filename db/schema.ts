@@ -109,6 +109,7 @@ export const deals = pgTable("deals", {
 }, (table) => [
   index("deals_stage_idx").on(table.stage),
   index("deals_contact_id_idx").on(table.contactId),
+  index("deals_owner_idx").on(table.owner),
 ]);
 
 export const dealsRelations = relations(deals, ({ one, many }) => ({
