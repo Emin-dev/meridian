@@ -1,20 +1,8 @@
 import { eq, desc } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import type { DealEvent } from "@/db/schema";
-import { formatCurrency } from "@/lib/format";
+import { formatCurrency, formatDateTime } from "@/lib/format";
 import { STAGE_LABELS } from "../stages";
-
-function formatTimestamp(date: Date): string {
-  return (
-    date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    }) +
-    " at " +
-    date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
-  );
-}
 
 const FIELD_LABELS: Record<string, string> = {
   stage: "Stage",
@@ -112,7 +100,7 @@ export default async function DealChangeLog({ dealId, currency = "USD" }: Props)
                 </span>
               </div>
               <span className="mt-1.5 block whitespace-nowrap text-[var(--ink-3)] sm:mt-0 sm:ml-auto sm:shrink-0">
-                {formatTimestamp(e.changedAt)}
+                {formatDateTime(e.changedAt)}
               </span>
             </li>
           ))}

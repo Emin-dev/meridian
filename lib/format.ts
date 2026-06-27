@@ -46,6 +46,24 @@ export function formatDate(
 }
 
 /**
+ * Formats a date (or ISO string) as day-first date + time — e.g.
+ * "27 Jun 2026 at 3:00 PM" — for audit/change-log timestamps. Reuses
+ * {@link formatDate} for the day-first date so order never depends on a locale
+ * string, and appends the localized time. Returns an em dash for missing or
+ * unparseable values.
+ */
+export function formatDateTime(d: string | Date | null | undefined): string {
+  if (d == null) return "—";
+  const date = d instanceof Date ? d : new Date(d);
+  if (Number.isNaN(date.getTime())) return "—";
+  const time = date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+  return `${formatDate(date)} at ${time}`;
+}
+
+/**
  * Formats a date (or ISO string) as "d MMM yyyy" for record detail views,
  * returning an em dash for missing values. Shared by the deals and contacts
  * tables, which previously each defined a byte-identical helper. Thin alias over
