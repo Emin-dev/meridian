@@ -44,12 +44,17 @@ export default function FindDuplicatesButton({ hasDb }: { hasDb: boolean }) {
       setSearched(false);
       setErrorMsg(null);
       setPairErrors({});
-      const result = await findDuplicateContacts();
-      setSearched(true);
-      if (result.noDb) setErrorMsg("Database not connected.");
-      else if (result.noKey) setErrorMsg("DEEPSEEK_API_KEY is not configured.");
-      else if (result.error) setErrorMsg(result.error);
-      else setPairs(result.pairs ?? []);
+      try {
+        const result = await findDuplicateContacts();
+        setSearched(true);
+        if (result.noDb) setErrorMsg("Database not connected.");
+        else if (result.noKey) setErrorMsg("DEEPSEEK_API_KEY is not configured.");
+        else if (result.error) setErrorMsg(result.error);
+        else setPairs(result.pairs ?? []);
+      } catch {
+        setSearched(true);
+        setErrorMsg("Couldn't scan for duplicates. Please try again.");
+      }
     });
   }
 
