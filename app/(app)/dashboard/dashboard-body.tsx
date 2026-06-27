@@ -360,27 +360,18 @@ export default async function DashboardBody() {
     );
     const openStageSet = new Set<string>(openStages);
 
-    // Rows arrive per (stage, currency). Collapse them back to a per-stage map
-    // (summed across currencies) for the chart/counts, while keeping the
-    // open-stage value/weighted amounts tagged with their currency so the KPIs
-    // can report a single primary currency instead of a meaningless mixed sum.
-    const stageMap = new Map<
-      string,
-      { count: number; value: number; weighted: number }
-    >();
+    // Rows arrive per (stage, currency). Collapse them to per-stage *counts*
+    // (a deal is a deal regardless of currency), while keeping the per-currency
+    // value/weighted amounts separable so every money figure can be reported in
+    // a single display currency instead of a meaningless mixed sum.
+    const stageMap = new Map<string, { count: number }>();
     const pipelineRows: { value: number; currency: string }[] = [];
     const weightedRows: { value: number; currency: string }[] = [];
     for (const r of stageAggRows) {
       const value = Number(r.value);
       const weighted = Number(r.weighted);
-      const existing = stageMap.get(r.stage) ?? {
-        count: 0,
-        value: 0,
-        weighted: 0,
-      };
+      const existing = stageMap.get(r.stage) ?? { count: 0 };
       existing.count += Number(r.count);
-      existing.value += value;
-      existing.weighted += weighted;
       stageMap.set(r.stage, existing);
       if (openStageSet.has(r.stage)) {
         pipelineRows.push({ value, currency: r.currency });
@@ -410,6 +401,25 @@ export default async function DashboardBody() {
     pipelineNote = otherCurrencyNote(pipelineByCurrency, pipelineCurrency);
     weightedNote = otherCurrencyNote(weightedByCurrency, pipelineCurrency);
 
+    // Per-stage value/weighted scoped to the single display currency
+    // (pipelineCurrency). Money must never blend currencies, so the pipeline
+    // chart bars (incl. the won-stage value), the AI/weekly digest stage
+    // figures, and the mobile stage-breakdown sheets all report only the
+    // display currency's amount — the rest is surfaced via the KPI tile's
+    // other-currency note. This also makes the breakdown sheet rows sum
+    // exactly to the Pipeline Value / Weighted Pipeline tiles.
+    const stageValueInCurrency = new Map<
+      string,
+      { value: number; weighted: number }
+    >();
+    for (const r of stageAggRows) {
+      if (r.currency !== pipelineCurrency) continue;
+      const ex = stageValueInCurrency.get(r.stage) ?? { value: 0, weighted: 0 };
+      ex.value += Number(r.value);
+      ex.weighted += Number(r.weighted);
+      stageValueInCurrency.set(r.stage, ex);
+    }
+
     weekActivityCount = Number(weekRows[0]?.value ?? 0);
     recentActivities = activityRows;
     overdueCount = Number(overdueRows[0]?.value ?? 0);
@@ -424,17 +434,17 @@ export default async function DashboardBody() {
     dealsByStage = STAGES.map((stage: Stage) => ({
       stage,
       count: stageMap.get(stage)?.count ?? 0,
-      value: stageMap.get(stage)?.value ?? 0,
+      value: stageValueInCurrency.get(stage)?.value ?? 0,
     }));
 
     // Mobile tile-sheet detail data (open-stage breakdown + recent lists).
     openStageBreakdown = openStages.map((stage) => {
-      const m = stageMap.get(stage);
+      const money = stageValueInCurrency.get(stage);
       return {
         stage,
-        count: m?.count ?? 0,
-        value: m?.value ?? 0,
-        weighted: m?.weighted ?? 0,
+        count: stageMap.get(stage)?.count ?? 0,
+        value: money?.value ?? 0,
+        weighted: money?.weighted ?? 0,
       };
     });
     recentContacts = recentContactRows;

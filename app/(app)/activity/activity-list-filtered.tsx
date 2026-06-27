@@ -191,12 +191,18 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
     });
   }
 
-  const hasMore = pages.length < total;
+  const isFiltering = contactQuery.trim() !== "";
+
+  // Unfetched server rows. When unfiltered these are exactly the activities
+  // still to load; when a contact filter is active they are the rows we can
+  // still pull in to search through (matches may live in unfetched pages).
+  const serverRemaining = Math.max(0, total - pages.length);
+  const hasMore = serverRemaining > 0;
 
   const now = new Date();
 
   const filtered = pages.filter(({ contactName }) => {
-    if (contactQuery.trim()) {
+    if (isFiltering) {
       const q = contactQuery.trim().toLowerCase();
       if (!contactName || !contactName.toLowerCase().includes(q)) return false;
     }
@@ -346,12 +352,23 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
             </button>
           )}
           {isClientFilterZero && (
-            <button
-              onClick={() => setContactQuery("")}
-              className="tap mt-1 inline-flex items-center gap-1.5 rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-2)] px-3 text-caption font-medium text-[var(--ink-2)] transition-colors hover:text-[var(--ink-1)]"
-            >
-              Clear search
-            </button>
+            <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
+              <button
+                onClick={() => setContactQuery("")}
+                className="tap inline-flex items-center gap-1.5 rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-2)] px-3 text-caption font-medium text-[var(--ink-2)] transition-colors hover:text-[var(--ink-1)]"
+              >
+                Clear search
+              </button>
+              {hasMore && (
+                <button
+                  onClick={loadMore}
+                  disabled={isPending}
+                  className="tap inline-flex items-center gap-1.5 rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-2)] px-3 text-caption font-medium text-[var(--ink-2)] transition-colors hover:text-[var(--ink-1)] disabled:opacity-50"
+                >
+                  {isPending ? "Loading…" : `Load ${serverRemaining} more to search`}
+                </button>
+              )}
+            </div>
           )}
         </div>
       ) : (
@@ -545,14 +562,18 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
             })}
           </ul>
 
-          {hasMore && !contactQuery.trim() && (
+          {hasMore && (
             <div className="border-t border-[var(--line-1)] px-4 py-3 text-center">
               <button
                 onClick={loadMore}
                 disabled={isPending}
                 className="tap inline-flex items-center gap-2 rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-2)] px-4 text-caption font-medium text-[var(--ink-2)] transition-colors hover:text-[var(--ink-1)] disabled:opacity-50"
               >
-                {isPending ? "Loading…" : `Load more (${total - pages.length} remaining)`}
+                {isPending
+                  ? "Loading…"
+                  : isFiltering
+                  ? `Load ${serverRemaining} more to search`
+                  : `Load more (${serverRemaining} remaining)`}
               </button>
             </div>
           )}
