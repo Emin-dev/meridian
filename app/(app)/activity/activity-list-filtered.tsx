@@ -236,7 +236,7 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
                 key={value || "all"}
                 onClick={() => navigate(value, currentRange)}
                 disabled={isPending}
-                className={`inline-flex min-h-0 shrink-0 items-center rounded-[var(--r-pill)] px-3 py-1.5 text-caption font-medium transition-all disabled:opacity-50 ${
+                className={`inline-flex min-h-[44px] shrink-0 items-center rounded-[var(--r-pill)] px-3 py-1.5 text-caption font-medium transition-all disabled:opacity-50 ${
                   isActive
                     ? "bg-[var(--accent)] text-[var(--accent-ink)]"
                     : "bg-[var(--surface-2)] text-[var(--ink-2)] hover:text-[var(--ink-1)]"

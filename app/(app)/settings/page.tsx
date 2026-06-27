@@ -56,7 +56,12 @@ export default async function SettingsPage() {
             </div>
           </div>
         ) : (
-          <p className="text-body text-[var(--ink-3)]">Not signed in.</p>
+          <div className="min-w-0">
+            <p className="text-body text-[var(--ink-1)]">Demo mode — authentication disabled</p>
+            <p className="mt-1 text-footnote text-[var(--ink-3)]">
+              Set <code className="font-mono">AUTH_SECRET</code> and <code className="font-mono">AUTH_ENABLED=true</code> to require sign-in.
+            </p>
+          </div>
         )}
       </div>
 

@@ -145,7 +145,9 @@ export default function AppShell({ children, signedIn = false, overdueCount = 0,
               <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-[var(--bad)] ring-2 ring-[var(--bg)]" aria-hidden="true" />
             )}
           </button>
-          <h1 className="flex-1 truncate min-w-0 text-sm font-semibold text-[var(--ink-1)]">{pageLabel}</h1>
+          <h1 className="flex-1 truncate min-w-0 text-sm font-semibold text-[var(--ink-1)]">
+            <span className="lg:hidden">{pageLabel}</span>
+          </h1>
           <button
             onClick={() => setSearchOpen(true)}
             className="tap press flex items-center gap-2 rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 text-xs text-[var(--ink-2)] hover:border-[var(--line-2)] hover:text-[var(--ink-1)]"
