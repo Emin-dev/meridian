@@ -134,7 +134,7 @@ export default function FindDuplicatesButton({ hasDb }: { hasDb: boolean }) {
               </div>
               <button
                 onClick={() => setOpen(false)}
-                className="rounded p-1 text-[var(--ink-3)] hover:bg-[var(--surface-2)] hover:text-[var(--ink-2)]"
+                className="tap flex items-center justify-center rounded-lg text-[var(--ink-3)] hover:bg-[var(--surface-2)] hover:text-[var(--ink-2)] transition-colors"
                 aria-label="Close"
               >
                 <svg
@@ -188,7 +188,7 @@ export default function FindDuplicatesButton({ hasDb }: { hasDb: boolean }) {
                   <button
                     onClick={handleScan}
                     disabled={isPending}
-                    className="mt-4 text-xs text-[var(--accent)] hover:text-[var(--accent-hover)] disabled:opacity-50"
+                    className="mt-4 inline-flex min-h-[44px] items-center justify-center text-xs text-[var(--accent)] hover:text-[var(--accent-hover)] disabled:opacity-50"
                   >
                     Re-scan
                   </button>
@@ -205,7 +205,7 @@ export default function FindDuplicatesButton({ hasDb }: { hasDb: boolean }) {
                     <button
                       onClick={handleScan}
                       disabled={isPending}
-                      className="text-xs text-[var(--accent)] hover:text-[var(--accent-hover)] disabled:opacity-50"
+                      className="inline-flex min-h-[44px] items-center text-xs text-[var(--accent)] hover:text-[var(--accent-hover)] disabled:opacity-50"
                     >
                       Re-scan
                     </button>
@@ -283,7 +283,7 @@ export default function FindDuplicatesButton({ hasDb }: { hasDb: boolean }) {
                             <button
                               onClick={() => setConfirmingKey(key)}
                               disabled={isMerging}
-                              className="rounded-md border border-[var(--bad)]/20 bg-[var(--bad-tint)] px-3 py-1.5 text-xs font-medium text-[var(--bad)] transition-colors hover:bg-[var(--bad)]/25 disabled:opacity-50"
+                              className="inline-flex min-h-[44px] items-center rounded-md border border-[var(--bad)]/20 bg-[var(--bad-tint)] px-3 text-xs font-medium text-[var(--bad)] transition-colors hover:bg-[var(--bad)]/25 disabled:opacity-50"
                             >
                               Merge →
                             </button>
@@ -298,14 +298,14 @@ export default function FindDuplicatesButton({ hasDb }: { hasDb: boolean }) {
                               <button
                                 onClick={() => handleMerge(pair)}
                                 disabled={isMerging}
-                                className="rounded-md bg-[var(--bad)] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:opacity-90 disabled:opacity-50"
+                                className="inline-flex min-h-[44px] items-center rounded-md bg-[var(--bad)] px-3 text-xs font-medium text-white transition-colors hover:opacity-90 disabled:opacity-50"
                               >
                                 {isMerging ? "Merging…" : "Confirm merge"}
                               </button>
                               <button
                                 onClick={() => setConfirmingKey(null)}
                                 disabled={isMerging}
-                                className="text-xs text-[var(--ink-3)] hover:text-[var(--ink-2)] disabled:opacity-50"
+                                className="inline-flex min-h-[44px] items-center text-xs text-[var(--ink-3)] hover:text-[var(--ink-2)] disabled:opacity-50"
                               >
                                 Cancel
                               </button>
