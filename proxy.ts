@@ -5,7 +5,10 @@ import { isAuthEnabled } from "@/lib/auth-config";
 
 const COOKIE = "session";
 
-export async function middleware(req: NextRequest) {
+// Next 16 renamed the `middleware` file convention to `proxy`. Behavior is
+// identical to the former middleware.ts — only the file name and the exported
+// function name changed (middleware -> proxy); the matcher config is unchanged.
+export async function proxy(req: NextRequest) {
   // Default-secure: auth gates every matched route whenever a database and a
   // signing secret are configured (see lib/auth-config.ts). A connected DB with
   // real PII must never be served to unauthenticated requests. The only opt-out

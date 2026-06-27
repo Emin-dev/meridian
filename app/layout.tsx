@@ -1,11 +1,30 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ToastProvider } from "@/components/toaster";
+import { getSiteUrl } from "@/lib/site";
+
+const siteUrl = getSiteUrl();
+const title = "Meridian";
+const description =
+  "Meridian — an AI-first sales & automation CRM for managing contacts, deals, and sequences.";
 
 export const metadata: Metadata = {
-  title: { default: "Meridian", template: "%s · Meridian" },
-  description:
-    "Meridian — a production-ready Next.js + Drizzle + Neon foundation, deployed on Vercel.",
+  metadataBase: new URL(siteUrl),
+  title: { default: title, template: "%s · Meridian" },
+  description,
+  applicationName: "Meridian",
+  openGraph: {
+    type: "website",
+    siteName: "Meridian",
+    title,
+    description,
+    url: siteUrl,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+  },
 };
 
 export const viewport: Viewport = {
