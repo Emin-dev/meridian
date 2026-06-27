@@ -48,6 +48,17 @@ export async function completeAgendaItem(id: number): Promise<void> {
   // No DB: surface the failure instead of resolving silently, which would make
   // the form action look like the item was completed when nothing was written.
   if (!db) throw new Error("Database not connected — can't complete this item.");
+
+  // The row may have been deleted elsewhere (e.g. a stale agenda list); confirm
+  // it still exists so we fail loudly instead of silently no-opping, matching
+  // toggleActivityComplete's behaviour.
+  const [existing] = await db
+    .select({ id: schema.activities.id })
+    .from(schema.activities)
+    .where(eq(schema.activities.id, id))
+    .limit(1);
+  if (!existing) throw new Error("This agenda item no longer exists.");
+
   const now = new Date();
   const [updated] = await db
     .update(schema.activities)
