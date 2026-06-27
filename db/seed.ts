@@ -13,7 +13,7 @@ import { insertDemoData } from "./demo-data";
 const usingDefaultUserPw = !process.env.SEED_USER_PASSWORD;
 const usingDefaultAdminPw = !process.env.SEED_ADMIN_PASSWORD;
 const USER_PASSWORD = process.env.SEED_USER_PASSWORD ?? "Baku2026!";
-const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? "Admin2026!";
+const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? "Mrd-Adm-7Qx2v9Kp!";
 
 const DEMO_USERS = [
   { email: "elvin.mammadov@meridian.az", password: USER_PASSWORD },
@@ -40,7 +40,7 @@ async function main() {
   for (const u of DEMO_USERS) {
     const hash = await hashPassword(u.password);
     await db.insert(users).values({ email: u.email, passwordHash: hash });
-    console.log("User:", u.email, " /  password:", u.password);
+    console.log("User:", u.email, "— password set");
   }
 
   if (process.argv.includes("--demo")) {
