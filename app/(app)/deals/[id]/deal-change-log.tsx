@@ -44,10 +44,10 @@ function EventValue({ value }: { value: string | null }) {
 interface Props {
   dealId: number;
   /** Deal currency, used to format monetary `value` transitions in the log. */
-  currency?: string;
+  currency: string;
 }
 
-export default async function DealChangeLog({ dealId, currency = "USD" }: Props) {
+export default async function DealChangeLog({ dealId, currency }: Props) {
   const db = getDb();
 
   const LIMIT = 50;

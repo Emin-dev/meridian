@@ -221,8 +221,9 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
         )}
 
         {/* Type chips — horizontal scroll strip on phones (overscroll-contained,
-            never widens the page), inline wrap on lg+. */}
-        <div className="no-scrollbar -mx-1 flex w-full min-w-0 gap-1.5 overflow-x-auto overscroll-x-contain px-1 lg:mx-0 lg:w-auto lg:flex-wrap lg:overflow-visible lg:px-0">
+            never widens the page), inline wrap on lg+. The right-edge mask fades
+            out chips that scroll off-screen as a "more here" cue. */}
+        <div className="no-scrollbar flex w-full min-w-0 gap-1.5 overflow-x-auto overscroll-x-contain [mask-image:linear-gradient(to_right,black_calc(100%_-_24px),transparent)] [-webkit-mask-image:linear-gradient(to_right,black_calc(100%_-_24px),transparent)] lg:w-auto lg:flex-wrap lg:overflow-visible lg:[mask-image:none] lg:[-webkit-mask-image:none]">
           {TYPE_CHIPS.map(({ value, label }) => {
             const isActive = currentType === value;
             return (
