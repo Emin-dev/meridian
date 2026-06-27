@@ -2,6 +2,7 @@
 
 import { useState, useActionState, useEffect, startTransition } from "react";
 import type { SequenceStep } from "@/db/schema";
+import { useToast } from "@/components/toaster";
 import {
   addStep,
   updateStep,
@@ -24,6 +25,7 @@ export function StepCard({
   isFirst: boolean;
   isLast: boolean;
 }) {
+  const { toast } = useToast();
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [reordering, setReordering] = useState(false);
@@ -37,14 +39,22 @@ export function StepCard({
 
   async function handleDelete() {
     setDeleting(true);
-    await deleteStep(step.id, sequenceId);
-    setDeleting(false);
+    try {
+      const result = await deleteStep(step.id, sequenceId);
+      if (result?.error) toast(result.error, "error");
+    } finally {
+      setDeleting(false);
+    }
   }
 
   async function handleReorder(direction: "up" | "down") {
     setReordering(true);
-    await reorderStep(step.id, sequenceId, direction);
-    setReordering(false);
+    try {
+      const result = await reorderStep(step.id, sequenceId, direction);
+      if (result?.error) toast(result.error, "error");
+    } finally {
+      setReordering(false);
+    }
   }
 
   return (

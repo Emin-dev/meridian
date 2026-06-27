@@ -48,6 +48,7 @@ export type SearchResults = {
     title: string;
     stage: string;
     value: string | null;
+    currency: string;
   }>;
   activities: Array<{
     id: number;
@@ -112,6 +113,7 @@ export async function searchGlobal(
       title: schema.deals.title,
       stage: schema.deals.stage,
       value: schema.deals.value,
+      currency: schema.deals.currency,
     })
     .from(schema.deals)
     .orderBy(desc(schema.deals.id))
@@ -153,6 +155,7 @@ export async function searchGlobal(
         title: dealCandidates.title,
         stage: dealCandidates.stage,
         value: dealCandidates.value,
+        currency: dealCandidates.currency,
       })
       .from(dealCandidates)
       .where(ilike(dealCandidates.title, q))

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import MobileActionSheet from "@/components/mobile-action-sheet";
+import { formatCurrency } from "@/lib/format";
 import type { SearchResults, SearchPages } from "./actions";
 
 type Tab = "contacts" | "deals" | "activities";
@@ -28,9 +29,12 @@ const PAGE_PARAM: Record<Tab, "cp" | "dp" | "ap"> = {
   activities: "ap",
 };
 
-function formatDealValue(value: string | null): string | null {
+function formatDealValue(
+  value: string | null,
+  currency: string | null,
+): string | null {
   if (!value) return null;
-  return `$${Number(value).toLocaleString()}`;
+  return formatCurrency(parseFloat(value), currency ?? undefined);
 }
 
 export default function SearchResultsTabs({
@@ -172,7 +176,7 @@ export default function SearchResultsTabs({
                   </span>
                   {d.value && (
                     <span className="shrink-0 text-body text-[var(--ink-2)]">
-                      {formatDealValue(d.value)}
+                      {formatDealValue(d.value, d.currency)}
                     </span>
                   )}
                 </Link>
@@ -259,7 +263,7 @@ export default function SearchResultsTabs({
                   </span>
                   {d.value && (
                     <span className="shrink-0 text-body font-medium text-[var(--ink-2)]">
-                      {formatDealValue(d.value)}
+                      {formatDealValue(d.value, d.currency)}
                     </span>
                   )}
                 </button>
@@ -352,7 +356,10 @@ export default function SearchResultsTabs({
                 value={selected.item.stage}
                 valueClassName="capitalize"
               />
-              <DetailRow label="Value" value={formatDealValue(selected.item.value)} />
+              <DetailRow
+                label="Value"
+                value={formatDealValue(selected.item.value, selected.item.currency)}
+              />
             </dl>
             <ViewFullLink href={`/deals/${selected.item.id}`} label="View full deal" />
           </div>
