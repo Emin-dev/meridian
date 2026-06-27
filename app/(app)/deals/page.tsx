@@ -7,6 +7,7 @@ import DealModal from "./deal-modal";
 import DealsTable from "./deals-table";
 import KanbanBoard from "./kanban-board";
 import DealsExportCsvButton from "./export-csv-button";
+import DealCsvImportModal from "./deal-csv-import-modal";
 import OwnerFilter from "./owner-filter";
 import { DealsViewSwitcher } from "./deals-view-switcher";
 import { STAGES } from "./stages";
@@ -272,6 +273,8 @@ export default async function DealsPage({
                 stage={stageMatch?.key || undefined}
               />
             )}
+
+            <DealCsvImportModal hasDb={!!db} />
 
             <DealModal
               hasDb={!!db}

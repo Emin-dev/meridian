@@ -245,6 +245,28 @@ describe("bulkImportContacts dedup + count accounting", () => {
   });
 });
 
+// Mirrors the oversized-paste guard in bulkImportContacts: a paste over the cap
+// is rejected outright with a friendly error instead of importing only the
+// first N rows and silently dropping the rest.
+const MAX_IMPORT_ROWS = 1000;
+
+function isOverCap(rowCount: number): boolean {
+  return rowCount > MAX_IMPORT_ROWS;
+}
+
+describe("bulkImportContacts oversized-paste cap", () => {
+  it.each([0, 1, MAX_IMPORT_ROWS])("accepts %p rows (at or under the cap)", (n) => {
+    expect(isOverCap(n)).toBe(false);
+  });
+
+  it.each([MAX_IMPORT_ROWS + 1, MAX_IMPORT_ROWS * 50])(
+    "rejects %p rows (over the cap)",
+    (n) => {
+      expect(isOverCap(n)).toBe(true);
+    },
+  );
+});
+
 // ── Global search pagination (searchGlobal) ─────────────────────────────────
 // Mirrors clampPage + the limit(window+1)/slice/hasMore detection in
 // app/(app)/search/actions.ts. Kept pure here (no DB) because that file is a
