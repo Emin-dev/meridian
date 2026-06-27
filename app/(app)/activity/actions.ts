@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { chat } from "@/lib/ai";
 import { parseAiJson } from "@/lib/ai-json";
 import { requireSession } from "@/lib/require-session";
+import { checkAiRateLimit } from "@/lib/ai-rate-limit";
 
 const AddActivitySchema = z.object({
   type: z.enum(["call", "email", "meeting", "note", "task"]),
@@ -172,6 +173,9 @@ export async function smartCompose(
   type?: string,
 ): Promise<SmartComposeState> {
   await requireSession();
+
+  const limited = await checkAiRateLimit();
+  if (limited) return { error: limited };
 
   const parsedIntent = z
     .string()
