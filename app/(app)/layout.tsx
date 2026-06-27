@@ -2,6 +2,7 @@ import { and, count, isNull, lt, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { getSession } from "@/lib/auth";
 import AppShell from "@/components/app-shell";
+import ViewTransitions from "@/components/view-transitions";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const db = getDb();
@@ -34,5 +35,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     overdueCount = Number(row.overdue);
     overdueTaskCount = Number(row.overdueTask);
   }
-  return <AppShell signedIn={session !== null} overdueCount={overdueCount} overdueTaskCount={overdueTaskCount} dbConnected={db !== null}>{children}</AppShell>;
+  return (
+    <>
+      <ViewTransitions />
+      <AppShell signedIn={session !== null} overdueCount={overdueCount} overdueTaskCount={overdueTaskCount} dbConnected={db !== null}>{children}</AppShell>
+    </>
+  );
 }
