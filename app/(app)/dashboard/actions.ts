@@ -131,7 +131,7 @@ export async function generateDailyDigest(
       {
         role: "system",
         content:
-          "You are a concise sales coach assistant. Respond with exactly 3–5 short bullet points (each starting with •). Be direct and actionable. Reference specific contacts or stages when relevant.",
+          'You are a concise sales coach assistant. Respond with ONLY a JSON object of the shape {"bullets": ["...", "..."]} containing 3–5 short, direct, actionable strings. Each string is one priority — no leading bullet character, no markdown. Reference specific contacts or stages when relevant.',
       },
       {
         role: "user",
@@ -146,7 +146,7 @@ ${activitiesSummary || "No recent activity"}
 
 What are my top priorities today to move deals forward and avoid anything slipping?`,
       },
-    ], { maxTokens: 512 });
+    ], { maxTokens: 512, json: true });
 
     if (!digest.trim())
       return { error: "Couldn't generate the digest right now. Please try again." };
@@ -287,7 +287,7 @@ export async function generateWeeklyDigest(
       {
         role: "system",
         content:
-          "You are a concise sales chief-of-staff. Write a brief weekly review with three labelled sections, each on its own line and prefixed exactly: 'Wins:', 'At risk:', 'Priorities:'. After each label give one tight sentence (no bullets, no markdown). Be specific — name deals, stages, or contacts. If a section has nothing notable, say so plainly.",
+          'You are a concise sales chief-of-staff. Respond with ONLY a JSON object of the shape {"wins": "...", "atRisk": "...", "priorities": "..."}. Each value is one tight sentence (no bullets, no markdown). Be specific — name deals, stages, or contacts. If a section has nothing notable, say so plainly in that field.',
       },
       {
         role: "user",
@@ -303,7 +303,7 @@ ${atRiskSummary}
 
 Summarize the week: what went well (Wins), what's slipping (At risk), and the top priorities for next week (Priorities).`,
       },
-    ], { maxTokens: 384 });
+    ], { maxTokens: 384, json: true });
 
     if (!digest.trim())
       return { error: "Couldn't generate the digest right now. Please try again." };

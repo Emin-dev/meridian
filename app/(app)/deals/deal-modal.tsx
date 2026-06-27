@@ -577,7 +577,7 @@ export default function DealModal({
                         setStageSheetOpen(false);
                       }}
                       aria-checked={stage === s.value}
-                      className={`tap flex items-center justify-between rounded-lg px-3 text-left text-body transition-colors ${
+                      className={`flex min-h-[44px] items-center justify-between rounded-lg px-3 text-left text-body transition-colors ${
                         stage === s.value
                           ? "bg-[var(--surface-3)] text-[var(--ink-1)]"
                           : "text-[var(--ink-2)] hover:bg-[var(--surface-3)]"
@@ -625,7 +625,7 @@ export default function DealModal({
                         setCurrencySheetOpen(false);
                       }}
                       aria-checked={currency === c}
-                      className={`tap flex items-center justify-between rounded-lg px-3 text-left text-body transition-colors ${
+                      className={`flex min-h-[44px] items-center justify-between rounded-lg px-3 text-left text-body transition-colors ${
                         currency === c
                           ? "bg-[var(--surface-3)] text-[var(--ink-1)]"
                           : "text-[var(--ink-2)] hover:bg-[var(--surface-3)]"
@@ -695,7 +695,7 @@ export default function DealModal({
                             setContactQuery("");
                           }}
                           aria-checked={selected}
-                          className={`tap flex items-center justify-between gap-2 rounded-lg px-3 text-left text-body transition-colors ${
+                          className={`flex min-h-[44px] items-center justify-between gap-2 rounded-lg px-3 text-left text-body transition-colors ${
                             selected
                               ? "bg-[var(--surface-3)] text-[var(--ink-1)]"
                               : "text-[var(--ink-2)] hover:bg-[var(--surface-3)]"

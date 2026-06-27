@@ -11,6 +11,7 @@ import StaleDeals from "./stale-deals";
 import MobileKpiTiles from "./mobile-kpi-tiles";
 import { formatCurrency, sumByCurrency } from "@/lib/format";
 import { getCrmSettings } from "@/lib/settings";
+import { parseDailyDigest } from "@/lib/digest";
 
 const STAGES = [
   "lead",
@@ -546,11 +547,14 @@ export default async function DashboardBody() {
       if (cacheMap.digestCache && cacheMap.digestCachedAt) {
         const age = Date.now() - new Date(cacheMap.digestCachedAt).getTime();
         if (age < 4 * 60 * 60 * 1000) {
-          initialDigestBullets = cacheMap.digestCache
-            .split("\n")
-            .map((line) => line.replace(/^[•\-\*]\s*/, "").trim())
-            .filter(Boolean);
-          initialDigestCachedAt = cacheMap.digestCachedAt;
+          const parsed = parseDailyDigest(cacheMap.digestCache);
+          // Only seed the component when the cached JSON parsed cleanly; an
+          // unreadable cache (e.g. a pre-JSON entry) falls back to the empty
+          // state so the user can regenerate rather than seeing garbage.
+          if (parsed.length > 0) {
+            initialDigestBullets = parsed;
+            initialDigestCachedAt = cacheMap.digestCachedAt;
+          }
         }
       }
       if (cacheMap.weeklyDigestCache && cacheMap.weeklyDigestCachedAt) {

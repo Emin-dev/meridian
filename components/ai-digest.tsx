@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { generateDailyDigest } from "@/app/(app)/dashboard/actions";
+import { parseDailyDigest } from "@/lib/digest";
 
 type StageData = { stage: string; count: number; value: number };
 
@@ -50,12 +51,15 @@ export default function AiDigest({
     startTransition(async () => {
       const res = await generateDailyDigest(digestProps, force);
       if ("digest" in res) {
-        const parsed = res.digest
-          .split("\n")
-          .map((line) => line.replace(/^[•\-\*]\s*/, "").trim())
-          .filter(Boolean);
-        setBullets(parsed);
-        setCachedAt(res.cachedAt);
+        const parsed = parseDailyDigest(res.digest);
+        if (parsed.length === 0) {
+          // A malformed/empty model response parsed to nothing — show a
+          // graceful fallback instead of silently reverting to the prompt.
+          setError("Couldn't read the AI response. Please try again.");
+        } else {
+          setBullets(parsed);
+          setCachedAt(res.cachedAt);
+        }
       } else if ("noKey" in res) {
         setNoKey(true);
       } else {

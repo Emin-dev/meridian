@@ -5,21 +5,26 @@ import {
   generateWeeklyDigest,
   type WeeklyDigestInput,
 } from "@/app/(app)/dashboard/actions";
+import {
+  parseWeeklyDigest,
+  type WeeklyDigestSectionKey,
+} from "@/lib/digest";
 
 type Props = WeeklyDigestInput & {
   initialText?: string;
   initialCachedAt?: string;
 };
 
-type Section = { label: string; tone: "ok" | "bad" | "accent"; body: string };
+type Tone = "ok" | "bad" | "accent";
+type Section = { label: string; tone: Tone; body: string };
 
-const SECTION_DEFS: { key: string; label: string; tone: Section["tone"] }[] = [
-  { key: "wins", label: "Wins", tone: "ok" },
-  { key: "at risk", label: "At risk", tone: "bad" },
-  { key: "priorities", label: "Priorities", tone: "accent" },
-];
+const SECTION_META: Record<WeeklyDigestSectionKey, { label: string; tone: Tone }> = {
+  wins: { label: "Wins", tone: "ok" },
+  atRisk: { label: "At risk", tone: "bad" },
+  priorities: { label: "Priorities", tone: "accent" },
+};
 
-const TONE_DOT: Record<Section["tone"], string> = {
+const TONE_DOT: Record<Tone, string> = {
   ok: "var(--ok)",
   bad: "var(--bad)",
   accent: "var(--accent)",
@@ -35,29 +40,13 @@ function formatAge(iso: string): string {
   return `${days}d ago`;
 }
 
-/** Parse the model's "Wins: … / At risk: … / Priorities: …" text into sections. */
-function parseSections(text: string): Section[] {
-  const lines = text
-    .split("\n")
-    .map((l) => l.replace(/^[•\-*]\s*/, "").trim())
-    .filter(Boolean);
-
-  const found: Section[] = [];
-  for (const def of SECTION_DEFS) {
-    const line = lines.find((l) =>
-      l.toLowerCase().startsWith(def.key.toLowerCase())
-    );
-    if (!line) continue;
-    const colon = line.indexOf(":");
-    const body = (colon >= 0 ? line.slice(colon + 1) : line).trim();
-    if (body) found.push({ label: def.label, tone: def.tone, body });
-  }
-
-  // Fallback: if the model didn't follow the labelled format, show raw lines.
-  if (found.length === 0 && lines.length > 0) {
-    return lines.map((body) => ({ label: "", tone: "accent", body }));
-  }
-  return found;
+/** Map the parsed JSON sections onto their display label + tone. */
+function toSections(text: string): Section[] {
+  return parseWeeklyDigest(text).map((s) => ({
+    label: SECTION_META[s.key].label,
+    tone: SECTION_META[s.key].tone,
+    body: s.body,
+  }));
 }
 
 export default function WeeklyDigest({
@@ -79,8 +68,14 @@ export default function WeeklyDigest({
     startTransition(async () => {
       const res = await generateWeeklyDigest(digestProps, force);
       if ("digest" in res) {
-        setText(res.digest);
-        setCachedAt(res.cachedAt);
+        if (toSections(res.digest).length === 0) {
+          // A malformed/empty model response parsed to no sections — show a
+          // graceful fallback instead of an empty panel.
+          setError("Couldn't read the AI response. Please try again.");
+        } else {
+          setText(res.digest);
+          setCachedAt(res.cachedAt);
+        }
       } else if ("noKey" in res) {
         setNoKey(true);
       } else {
@@ -89,7 +84,7 @@ export default function WeeklyDigest({
     });
   }
 
-  const sections = text ? parseSections(text) : [];
+  const sections = text ? toSections(text) : [];
   const hasDigest = sections.length > 0;
 
   return (

@@ -355,7 +355,7 @@ export default function NewContactModal({ hasDb }: Props) {
                   setSourceSheetOpen(false);
                 }}
                 aria-pressed={source === value}
-                className={`tap flex items-center justify-between rounded-lg px-3 text-left text-body transition-colors ${
+                className={`flex min-h-[44px] items-center justify-between rounded-lg px-3 text-left text-body transition-colors ${
                   source === value
                     ? "bg-[var(--surface-3)] text-[var(--ink-1)]"
                     : "text-[var(--ink-2)] hover:bg-[var(--surface-3)]"
