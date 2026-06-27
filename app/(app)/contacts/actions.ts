@@ -366,6 +366,10 @@ export async function updateContactNotes(
 
   const notes = String(formData.get("notes") ?? "").trim() || null;
 
+  if (notes !== null && !z.string().max(10000).safeParse(notes).success) {
+    return { error: "Notes are too long (max 10,000 characters)." };
+  }
+
   const [existing] = await db
     .select({ id: schema.contacts.id })
     .from(schema.contacts)
