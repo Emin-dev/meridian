@@ -616,8 +616,6 @@ export async function summarizeDeal(dealId: number): Promise<DealSummarizeState>
 
   if (!deal) return { error: "Deal not found." };
 
-  if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
-
   let contactName: string | null = null;
   if (deal.contactId) {
     const [c] = await db
@@ -809,6 +807,11 @@ export async function assessDealRisk(dealId: number): Promise<DealRiskState> {
 
   if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
 
+  // Per-user burst cap on the paid AI path — cached results above are served
+  // freely; this guards against a stuck client forcing repeated DeepSeek calls.
+  const limited = await checkAiRateLimit();
+  if (limited) return { error: limited };
+
   try {
     const raw = await chat(
       [
@@ -942,6 +945,11 @@ export async function suggestDealNextAction(dealId: number): Promise<DealNextAct
   } else {
     lines.push("\nNo recorded activities.");
   }
+
+  // Per-user burst cap on the paid AI path — guards against a stuck client or
+  // automated flow forcing repeated DeepSeek calls and blowing the cost cap.
+  const limited = await checkAiRateLimit();
+  if (limited) return { error: limited };
 
   try {
     const raw = await chat(
