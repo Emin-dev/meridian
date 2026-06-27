@@ -1,10 +1,11 @@
 "use server";
 
 import { z } from "zod";
-import { eq, inArray, count } from "drizzle-orm";
+import { eq, inArray, count, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { revalidatePath } from "next/cache";
 import { requireSession } from "@/lib/require-session";
+import type { ImportSkippedRow } from "@/lib/csv";
 import {
   WIN_LOSS_MARKER,
   extractUserNotes,
@@ -125,6 +126,172 @@ export async function createDeal(
 
   revalidatePath("/deals");
   return { success: true };
+}
+
+// ─── Bulk CSV import ──────────────────────────────────────────────────────────
+
+const MAX_DEAL_TITLE_LENGTH = 200;
+
+// Per-row validation for an imported deal. Title is required; value/stage/
+// currency default when blank and are otherwise validated against the same
+// rules as the create form, so a bad cell becomes a precise skip reason rather
+// than a silent bad insert. The contact email is matched to an existing contact
+// server-side; an empty or unrecognised email simply leaves the deal unlinked.
+const DealCsvRowSchema = z.object({
+  title: z.preprocess(
+    (v) => String(v ?? "").trim(),
+    z.string().min(1, "Missing title").max(MAX_DEAL_TITLE_LENGTH, "Title too long")
+  ),
+  value: z.preprocess((v) => {
+    const s = String(v ?? "").trim();
+    return s === "" ? null : s;
+  }, dealValueSchema),
+  stage: z.preprocess((v) => {
+    const s = String(v ?? "").trim().toLowerCase();
+    return s === "" ? "lead" : s;
+  }, z.enum(DEAL_STAGES)),
+  currency: z.preprocess((v) => {
+    const s = String(v ?? "").trim().toUpperCase();
+    return s === "" ? "USD" : s;
+  }, z.enum(VALID_CURRENCIES)),
+  contactEmail: z.preprocess((v) => {
+    const s = String(v ?? "").trim().toLowerCase();
+    if (s === "") return null;
+    // Keep only well-formed emails for matching; a malformed one is dropped so
+    // the deal still imports (just unlinked) rather than being skipped.
+    return z.string().email().safeParse(s).success ? s : null;
+  }, z.string().nullable()),
+});
+
+export type DealImportRow = {
+  rowIndex: number;
+  title: string;
+  value: string;
+  stage: string;
+  currency: string;
+  contactEmail: string;
+};
+
+export type BulkImportResult = {
+  count: number;
+  skipped: ImportSkippedRow[];
+  error?: string;
+};
+
+// Map a row validation failure to a short, user-facing skip reason keyed on the
+// field that failed, so enum/regex internals never leak into the results table.
+function dealSkipReason(error: z.ZodError): string {
+  const issue = error.issues[0];
+  const field = issue?.path[0];
+  if (field === "title") return issue?.message ?? "Invalid title";
+  if (field === "value") return "Invalid value";
+  if (field === "stage") return "Invalid stage";
+  if (field === "currency") return "Invalid currency";
+  return issue?.message ?? "Invalid data";
+}
+
+export async function bulkImportDeals(
+  rows: DealImportRow[]
+): Promise<BulkImportResult> {
+  await requireSession();
+
+  const db = getDb();
+  if (!db) return { count: 0, skipped: [], error: "Database not connected" };
+
+  if (!Array.isArray(rows) || rows.length === 0) {
+    return { count: 0, skipped: [], error: "No rows to import" };
+  }
+
+  const MAX_IMPORT_ROWS = 1000;
+
+  const skipped: ImportSkippedRow[] = [];
+  const valid: Array<{ rowIndex: number; data: z.infer<typeof DealCsvRowSchema> }> = [];
+
+  // Normalize raw client input defensively — a row could arrive null, missing
+  // fields, or with non-string values if this action is invoked outside the
+  // modal — coerce each to a safe shape so nothing below can throw on bad data.
+  const str = (v: unknown) => (typeof v === "string" ? v : "");
+  const normalized = rows.map((r, i) => {
+    const o = (r && typeof r === "object" ? r : {}) as Record<string, unknown>;
+    return {
+      rowIndex: Number.isFinite(o.rowIndex) ? (o.rowIndex as number) : i + 1,
+      title: str(o.title),
+      value: str(o.value),
+      stage: str(o.stage),
+      currency: str(o.currency),
+      contactEmail: str(o.contactEmail),
+    };
+  });
+
+  // Cap the batch so an oversized single insert can't exceed Postgres/Neon
+  // parameter limits and fail the whole import. Rows beyond the cap are skipped.
+  const rowsToProcess = normalized.slice(0, MAX_IMPORT_ROWS);
+  for (const r of normalized.slice(MAX_IMPORT_ROWS)) {
+    skipped.push({
+      row: r.rowIndex,
+      name: r.title || "(empty)",
+      reason: "Exceeds import limit (max 1000 per batch)",
+    });
+  }
+
+  for (const r of rowsToProcess) {
+    const result = DealCsvRowSchema.safeParse(r);
+    if (!result.success) {
+      skipped.push({ row: r.rowIndex, name: r.title || "(empty)", reason: dealSkipReason(result.error) });
+    } else {
+      valid.push({ rowIndex: r.rowIndex, data: result.data });
+    }
+  }
+
+  if (valid.length === 0) {
+    return { count: 0, skipped, error: skipped.length === 0 ? "No rows to import" : undefined };
+  }
+
+  // Resolve every referenced contact email to an id in a single case-insensitive
+  // query (existing rows may be stored with any casing), then link each deal to
+  // its contact in memory — no per-row DB round-trip.
+  const emailsToMatch = Array.from(
+    new Set(valid.map((v) => v.data.contactEmail).filter((e): e is string => e !== null))
+  );
+  const emailToId = new Map<string, number>();
+  if (emailsToMatch.length > 0) {
+    const matched = await db
+      .select({ id: schema.contacts.id, email: schema.contacts.email })
+      .from(schema.contacts)
+      .where(inArray(sql`lower(${schema.contacts.email})`, emailsToMatch));
+    for (const row of matched) {
+      if (!row.email) continue;
+      const lower = row.email.toLowerCase();
+      // First match wins so a single deduped contact id is used per email.
+      if (!emailToId.has(lower)) emailToId.set(lower, row.id);
+    }
+  }
+
+  const toInsert = valid.map(({ data }) => ({
+    title: data.title,
+    value: data.value ?? undefined,
+    stage: data.stage,
+    currency: data.currency,
+    probability: STAGE_PROBABILITY[data.stage] ?? 10,
+    contactId: data.contactEmail ? emailToId.get(data.contactEmail) ?? undefined : undefined,
+  }));
+
+  try {
+    await db.insert(schema.deals).values(toInsert);
+  } catch (e) {
+    console.error("bulkImportDeals insert failed:", e);
+    // Revalidate so the list re-fetches from the DB and any optimistic rows the
+    // client rendered are dropped — nothing was saved.
+    revalidatePath("/deals");
+    return {
+      count: 0,
+      skipped,
+      error: "Could not save deals — the database rejected the import. Please try again.",
+    };
+  }
+
+  revalidatePath("/deals");
+  return { count: toInsert.length, skipped };
 }
 
 export async function moveDealStage(

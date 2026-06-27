@@ -1,6 +1,8 @@
 import { eq, desc } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import type { DealEvent } from "@/db/schema";
+import { formatCurrency } from "@/lib/format";
+import { STAGE_LABELS } from "../stages";
 
 function formatTimestamp(date: Date): string {
   return (
@@ -17,20 +19,47 @@ function formatTimestamp(date: Date): string {
 const FIELD_LABELS: Record<string, string> = {
   stage: "Stage",
   value: "Value",
+  probability: "Win probability",
 };
 
-function EventValue({ v }: { v: string | null }) {
-  if (v === null || v === "") {
+// Turn a raw change-log value (decimal/percent string, stage key, or null) into
+// a legible, human-formatted string so transitions like a null → set value read
+// as "— → ₼1,000" instead of an ambiguous blank. Falls back to the raw value for
+// anything unparseable so a bad row is still shown, never hidden.
+function formatEventValue(
+  field: string,
+  v: string | null,
+  currency: string,
+): string | null {
+  if (v === null || v === "") return null;
+  if (field === "value") {
+    const n = parseFloat(v);
+    return Number.isFinite(n) ? formatCurrency(n, currency) : v;
+  }
+  if (field === "probability") {
+    const n = Number(v);
+    return Number.isFinite(n) ? `${n}%` : v;
+  }
+  if (field === "stage") {
+    return STAGE_LABELS[v] ?? v;
+  }
+  return v;
+}
+
+function EventValue({ value }: { value: string | null }) {
+  if (value === null) {
     return <em className="text-[var(--ink-3)] not-italic">—</em>;
   }
-  return <>{v}</>;
+  return <>{value}</>;
 }
 
 interface Props {
   dealId: number;
+  /** Deal currency, used to format monetary `value` transitions in the log. */
+  currency?: string;
 }
 
-export default async function DealChangeLog({ dealId }: Props) {
+export default async function DealChangeLog({ dealId, currency = "USD" }: Props) {
   const db = getDb();
 
   const LIMIT = 50;
@@ -75,11 +104,11 @@ export default async function DealChangeLog({ dealId }: Props) {
               </span>
               <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 sm:mt-0 sm:contents">
                 <span className="text-[var(--ink-3)]">
-                  <EventValue v={e.oldValue} />
+                  <EventValue value={formatEventValue(e.field, e.oldValue, currency)} />
                 </span>
                 <span className="text-[var(--ink-3)]">→</span>
                 <span className="font-medium text-[var(--ink-1)]">
-                  <EventValue v={e.newValue} />
+                  <EventValue value={formatEventValue(e.field, e.newValue, currency)} />
                 </span>
               </div>
               <span className="mt-1.5 block whitespace-nowrap text-[var(--ink-3)] sm:mt-0 sm:ml-auto sm:shrink-0">

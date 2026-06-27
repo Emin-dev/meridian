@@ -211,7 +211,7 @@ export default async function DealDetailPage({ params }: Props) {
       {/* Change log */}
       <div className="rounded-xl border border-[var(--line-1)] bg-[var(--surface-1)] p-4 sm:p-5">
         <Suspense fallback={<SectionFallback />}>
-          <DealChangeLog dealId={deal.id} />
+          <DealChangeLog dealId={deal.id} currency={deal.currency} />
         </Suspense>
       </div>
     </div>
