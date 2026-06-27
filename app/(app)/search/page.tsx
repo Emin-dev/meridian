@@ -7,6 +7,8 @@ function parsePage(value: string | undefined): number {
   return Number.isFinite(n) && n > 0 ? n : 1;
 }
 
+export const metadata = { title: "Search" };
+
 export default async function SearchPage({
   searchParams,
 }: {

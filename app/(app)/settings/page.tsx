@@ -13,6 +13,8 @@ function StatusDot({ ok }: { ok: boolean }) {
   );
 }
 
+export const metadata = { title: "Settings" };
+
 export default async function SettingsPage() {
   const db = getDb();
   const [session, crmSettings] = await Promise.all([

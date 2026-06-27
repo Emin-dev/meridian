@@ -3,7 +3,7 @@ import "./globals.css";
 import { ToastProvider } from "@/components/toaster";
 
 export const metadata: Metadata = {
-  title: "Meridian",
+  title: { default: "Meridian", template: "%s · Meridian" },
   description:
     "Meridian — a production-ready Next.js + Drizzle + Neon foundation, deployed on Vercel.",
 };

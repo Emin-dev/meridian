@@ -1,6 +1,8 @@
 import { SparklesIcon } from "@/components/icons";
 import AskForm from "./ask-form";
 
+export const metadata = { title: "Ask AI" };
+
 export default function AskPage() {
   const hasDb = !!process.env.DATABASE_URL;
   const hasKey = !!process.env.DEEPSEEK_API_KEY;

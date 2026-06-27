@@ -171,6 +171,8 @@ function AnalyticsBodySkeleton() {
   );
 }
 
+export const metadata = { title: "Analytics" };
+
 export default async function AnalyticsPage({
   searchParams,
 }: {

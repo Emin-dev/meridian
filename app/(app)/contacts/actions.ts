@@ -8,6 +8,7 @@ import { redirect } from "next/navigation";
 import { chat } from "@/lib/ai";
 import { parseAiJson } from "@/lib/ai-json";
 import { requireSession } from "@/lib/require-session";
+import { checkAiRateLimit } from "@/lib/ai-rate-limit";
 import {
   BULK_SCORE_BATCH,
   BULK_SCORE_CONCURRENCY,
@@ -430,6 +431,9 @@ export async function summarizeContact(
 ): Promise<SummarizeState> {
   await requireSession();
 
+  const limited = await checkAiRateLimit();
+  if (limited) return { error: limited };
+
   if (!idSchema.safeParse(contactId).success) return { error: "Invalid contact id." };
 
   const db = getDb();
@@ -617,6 +621,9 @@ async function scoreContactFromData(
 export async function scoreContact(contactId: number): Promise<ScoreState> {
   await requireSession();
 
+  const limited = await checkAiRateLimit();
+  if (limited) return { error: limited };
+
   if (!idSchema.safeParse(contactId).success) return { error: "Invalid contact id." };
 
   const db = getDb();
@@ -658,6 +665,9 @@ export type BulkScoreState = {
 
 export async function bulkScoreContacts(): Promise<BulkScoreState> {
   await requireSession();
+
+  const limited = await checkAiRateLimit();
+  if (limited) return { error: limited };
 
   const db = getDb();
   if (!db) return { noDb: true };
@@ -796,6 +806,9 @@ export async function suggestNextAction(
 ): Promise<NextActionState> {
   await requireSession();
 
+  const limited = await checkAiRateLimit();
+  if (limited) return { error: limited };
+
   if (!idSchema.safeParse(contactId).success) return { error: "Invalid contact id." };
 
   const db = getDb();
@@ -928,6 +941,9 @@ const EnrichResponseSchema = z.object({
 
 export async function enrichContact(contactId: number): Promise<EnrichState> {
   await requireSession();
+
+  const limited = await checkAiRateLimit();
+  if (limited) return { error: limited };
 
   if (!idSchema.safeParse(contactId).success) return { error: "Invalid contact id." };
 
@@ -1398,6 +1414,9 @@ function exactDuplicatePairs(contacts: DupScanContact[]): {
 export async function findDuplicateContacts(): Promise<FindDuplicatesState> {
   await requireSession();
 
+  const limited = await checkAiRateLimit();
+  if (limited) return { error: limited };
+
   const db = getDb();
   if (!db) return { noDb: true };
   if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
@@ -1669,6 +1688,9 @@ export async function draftOutreachEmail(
   contactId: number
 ): Promise<DraftEmailState> {
   await requireSession();
+
+  const limited = await checkAiRateLimit();
+  if (limited) return { error: limited };
 
   if (!idSchema.safeParse(contactId).success) return { error: "Invalid contact id." };
 

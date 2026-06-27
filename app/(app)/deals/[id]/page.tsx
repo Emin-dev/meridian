@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -32,6 +33,19 @@ function SectionFallback() {
       <div className="h-12 w-full rounded-[var(--r-md)] bg-[var(--surface-2)]" />
     </div>
   );
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const numId = Number(id);
+  const db = getDb();
+  if (!db || !Number.isInteger(numId) || numId <= 0) return { title: "Deal" };
+  const rows = await db
+    .select({ title: schema.deals.title })
+    .from(schema.deals)
+    .where(eq(schema.deals.id, numId))
+    .limit(1);
+  return { title: rows[0]?.title ?? "Deal" };
 }
 
 export default async function DealDetailPage({ params }: Props) {

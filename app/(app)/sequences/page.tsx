@@ -26,6 +26,8 @@ const SequenceIcon = () => (
   </svg>
 );
 
+export const metadata = { title: "Sequences" };
+
 export default async function SequencesPage() {
   const db = getDb();
   const crmSettings = await getCrmSettings();

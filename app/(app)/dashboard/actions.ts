@@ -6,6 +6,7 @@ import { eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb, schema } from "@/db";
 import { requireSession } from "@/lib/require-session";
+import { checkAiRateLimit, AI_RATE_LIMIT_MESSAGE } from "@/lib/ai-rate-limit";
 
 const idSchema = z.coerce.number().int().positive();
 
@@ -77,6 +78,10 @@ export async function generateDailyDigest(
       // Fall through to regenerate
     }
   }
+
+  // Rate-limit only the paid generation path — cached digests above are served
+  // freely; this guards against a stuck client forcing repeated AI calls.
+  if (await checkAiRateLimit()) return { error: AI_RATE_LIMIT_MESSAGE };
 
   try {
     const stagesSummary = input.dealsByStage
@@ -210,6 +215,10 @@ export async function generateWeeklyDigest(
       // Fall through to regenerate
     }
   }
+
+  // Rate-limit only the paid generation path — cached digests above are served
+  // freely; this guards against a stuck client forcing repeated AI calls.
+  if (await checkAiRateLimit()) return { error: AI_RATE_LIMIT_MESSAGE };
 
   try {
     const winsSummary =

@@ -44,6 +44,8 @@ type SortColKey = (typeof VALID_SORT_COLS)[number];
 const PAGE_SIZE = 50;
 const MAX_PAGE = 100;
 
+export const metadata = { title: "Contacts" };
+
 export default async function ContactsPage({
   searchParams,
 }: {

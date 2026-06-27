@@ -53,6 +53,8 @@ function TaskGroup({
 const PAGE_SIZE = 50;
 const MAX_PAGE = 100;
 
+export const metadata = { title: "Tasks" };
+
 export default async function TasksPage({
   searchParams,
 }: {

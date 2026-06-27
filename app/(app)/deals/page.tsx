@@ -48,6 +48,8 @@ const CONTACTS_LIMIT = 500;
 const VALID_DEAL_SORT_COLS = ["title", "stage", "value", "closeDate", "owner", "age"] as const;
 type DealSortCol = (typeof VALID_DEAL_SORT_COLS)[number];
 
+export const metadata = { title: "Deals" };
+
 export default async function DealsPage({
   searchParams,
 }: {

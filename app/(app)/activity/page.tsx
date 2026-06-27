@@ -16,6 +16,8 @@ type ActivityType = (typeof VALID_TYPES)[number];
 
 const PAGE_SIZE = 50;
 
+export const metadata = { title: "Activity" };
+
 export default async function ActivityPage({
   searchParams,
 }: {

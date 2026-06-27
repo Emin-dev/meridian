@@ -56,6 +56,8 @@ function DashboardBodySkeleton() {
   );
 }
 
+export const metadata = { title: "Dashboard" };
+
 export default function DashboardPage() {
   return (
     <div className="space-y-6">
