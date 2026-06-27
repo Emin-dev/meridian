@@ -12,6 +12,7 @@ import { requireSession } from "@/lib/require-session";
 import { checkAiRateLimit } from "@/lib/ai-rate-limit";
 import {
   BULK_SCORE_BATCH,
+  BULK_SCORE_CALL_TIMEOUT_MS,
   BULK_SCORE_CONCURRENCY,
   BULK_SCORE_DEADLINE_MS,
   summarizeBulkScore,
@@ -549,7 +550,11 @@ type ScoringActivity = Pick<
 async function scoreContactFromData(
   db: NonNullable<ReturnType<typeof getDb>>,
   contact: typeof schema.contacts.$inferSelect,
-  recentActivities: ScoringActivity[]
+  recentActivities: ScoringActivity[],
+  // Optional per-call AI timeout override. The single-contact path leaves this
+  // unset (full 9s ceiling); the bulk path passes a tighter budget so one slow
+  // call can't blow the action's 10s limit.
+  options?: { timeoutMs?: number }
 ): Promise<ScoreState> {
   const lines: string[] = [
     `Name: ${contact.name}`,
@@ -586,7 +591,7 @@ async function scoreContactFromData(
           content: `Score this lead:\n\n${lines.join("\n")}`,
         },
       ],
-      { json: true }
+      { json: true, timeoutMs: options?.timeoutMs }
     );
 
     const parsed = parseAiJson<{ score: unknown; rationale: unknown }>(raw);
@@ -754,7 +759,8 @@ export async function bulkScoreContacts(): Promise<BulkScoreState> {
         await scoreContactFromData(
           database,
           contact,
-          activitiesByContact.get(contact.id) ?? []
+          activitiesByContact.get(contact.id) ?? [],
+          { timeoutMs: BULK_SCORE_CALL_TIMEOUT_MS }
         );
       } catch {
         // Swallow per-contact failures so one bad call never aborts the batch;

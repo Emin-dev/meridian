@@ -20,6 +20,13 @@ type ChatOptions = {
   hard?: boolean;
   /** Cap on completion tokens. Defaults to a conservative limit. */
   maxTokens?: number;
+  /**
+   * Per-call wall-clock timeout in ms. Clamped to (0, REQUEST_TIMEOUT_MS] —
+   * callers may only *lower* the global ceiling, never raise it. Used by
+   * latency-sensitive batch paths (e.g. bulk lead scoring) that must reserve
+   * headroom under Vercel's 10s request budget for trailing work.
+   */
+  timeoutMs?: number;
 };
 
 type DeepSeekResponse = {
@@ -152,8 +159,14 @@ export async function chat(
     body.response_format = { type: "json_object" };
   }
 
+  // Per-call timeout: callers may lower the global ceiling but never exceed it.
+  const timeoutMs =
+    options.timeoutMs && options.timeoutMs > 0
+      ? Math.min(options.timeoutMs, REQUEST_TIMEOUT_MS)
+      : REQUEST_TIMEOUT_MS;
+
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   let res: Response;
   try {
@@ -171,7 +184,7 @@ export async function chat(
     // message instead of leaking a raw AbortError or fetch stack.
     if (err instanceof Error && err.name === "AbortError") {
       throw new Error(
-        `AI request timed out after ${REQUEST_TIMEOUT_MS / 1000}s. Please try again.`
+        `AI request timed out after ${timeoutMs / 1000}s. Please try again.`
       );
     }
     throw new Error("AI request failed: could not reach the AI service.");
