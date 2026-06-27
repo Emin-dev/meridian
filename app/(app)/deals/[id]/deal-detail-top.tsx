@@ -4,15 +4,7 @@ import { useState } from "react";
 import type { Deal } from "@/db/schema";
 import EditDealForm from "./edit-deal-form";
 import StageControl from "../stage-control";
-
-const STAGE_META = {
-  lead:        { label: "Lead",        color: "text-[var(--ink-2)]", bg: "bg-[var(--surface-2)]"   },
-  qualified:   { label: "Qualified",   color: "text-[var(--info)]",  bg: "bg-[var(--info-tint)]"   },
-  proposal:    { label: "Proposal",    color: "text-[var(--accent)]", bg: "bg-[var(--accent-tint)]" },
-  negotiation: { label: "Negotiation", color: "text-[var(--warn)]",  bg: "bg-[var(--warn-tint)]"   },
-  won:         { label: "Won",         color: "text-[var(--ok)]",    bg: "bg-[var(--ok-tint)]"     },
-  lost:        { label: "Lost",        color: "text-[var(--bad)]",   bg: "bg-[var(--bad-tint)]"    },
-} as const;
+import { STAGE_LABELS, STAGE_COLORS } from "../stages";
 
 function formatValue(value: string | null, currency: string) {
   if (!value) return null;
@@ -50,9 +42,6 @@ export default function DealDetailTop({ initialDeal, deleteButton }: Props) {
   // Increment only on rollback so the form remounts with reverted defaultValues.
   const [formVersion, setFormVersion] = useState(0);
 
-  const stageMeta =
-    STAGE_META[deal.stage as keyof typeof STAGE_META] ??
-    ({ label: deal.stage, color: "text-[var(--ink-2)]", bg: "bg-[var(--surface-2)]" } as const);
   const formatted = formatValue(deal.value, deal.currency);
 
   // ── Form callbacks ──────────────────────────────────────────────────────────
@@ -93,9 +82,11 @@ export default function DealDetailTop({ initialDeal, deleteButton }: Props) {
           <h2 className="text-xl font-semibold text-[var(--ink-1)] break-words">{deal.title}</h2>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <span
-              className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${stageMeta.bg} ${stageMeta.color}`}
+              className={`inline-flex items-center rounded-full bg-[var(--surface-1)] px-2.5 py-0.5 text-xs font-medium ${
+                STAGE_COLORS[deal.stage] ?? "text-[var(--ink-2)]"
+              }`}
             >
-              {stageMeta.label}
+              {STAGE_LABELS[deal.stage] ?? deal.stage}
             </span>
             {formatted ? (
               <span className="text-sm font-semibold text-[var(--accent)]">{formatted}</span>
