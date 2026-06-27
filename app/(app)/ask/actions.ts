@@ -238,7 +238,7 @@ ${context}`;
         { role: "system", content: systemPrompt },
         { role: "user", content: q },
       ],
-      { json: true }
+      { json: true, maxTokens: 512 }
     );
     const parsed = parseAiJson<AiResponse>(raw);
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
