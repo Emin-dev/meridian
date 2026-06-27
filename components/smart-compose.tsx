@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useId, useState, useTransition } from "react";
+import { useCallback, useEffect, useId, useRef, useState, useTransition } from "react";
 import { smartCompose } from "@/app/(app)/activity/actions";
 import { useOverlayDismiss } from "@/hooks/use-overlay-dismiss";
 
@@ -51,6 +51,22 @@ export default function SmartCompose({
   // Escape / focus-trap parity for this inline overlay (reuse shared convention).
   const panelRef = useOverlayDismiss<HTMLDivElement>(open, close);
 
+  // The trigger button unmounts while the panel is open, so the dismiss hook
+  // (which captures the previously-focused element) can't restore focus to it
+  // on close — unlike the other overlays whose triggers persist. Track
+  // open→closed transitions and refocus the re-mounted trigger ourselves for
+  // consistent focus restore.
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const wasOpenRef = useRef(false);
+  useEffect(() => {
+    if (open) {
+      wasOpenRef.current = true;
+    } else if (wasOpenRef.current) {
+      wasOpenRef.current = false;
+      triggerRef.current?.focus();
+    }
+  }, [open]);
+
   function handleGenerate() {
     setError(null);
     setNoKey(false);
@@ -75,6 +91,7 @@ export default function SmartCompose({
   if (!open) {
     return (
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => setOpen(true)}
         className={`tap press inline-flex items-center gap-1.5 rounded-[var(--r-md)] border border-[var(--line-1)] bg-[var(--surface-1)] px-3 text-footnote font-medium text-[var(--ink-2)] transition-colors hover:border-[var(--line-2)] hover:text-[var(--ink-1)] ${className ?? ""}`}
