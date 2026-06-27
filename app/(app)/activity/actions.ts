@@ -261,6 +261,44 @@ export async function toggleActivityComplete(
   return {};
 }
 
+export async function deleteActivity(
+  activityId: number,
+  contactId: number | null,
+  dealId: number | null,
+): Promise<{ error?: string }> {
+  await requireSession();
+
+  if (!z.coerce.number().int().positive().safeParse(activityId).success) {
+    return { error: "Invalid activity id" };
+  }
+
+  const db = getDb();
+  if (!db) return { error: "No database" };
+
+  try {
+    // Confirm the row still exists so a stale list reports an accurate state
+    // instead of a silent no-op. The contact/deal FKs are onDelete:'cascade',
+    // so deleting an activity row never orphans or violates a constraint.
+    const [existing] = await db
+      .select({ id: schema.activities.id })
+      .from(schema.activities)
+      .where(eq(schema.activities.id, activityId))
+      .limit(1);
+    if (!existing) return { error: "This activity no longer exists." };
+
+    await db.delete(schema.activities).where(eq(schema.activities.id, activityId));
+  } catch {
+    return { error: "Couldn't delete the activity. Please try again." };
+  }
+
+  revalidatePath("/activity");
+  revalidatePath("/dashboard");
+  if (contactId) revalidatePath(`/contacts/${contactId}`);
+  if (dealId) revalidatePath(`/deals/${dealId}`);
+
+  return {};
+}
+
 // ─── AI: Extract action items from notes + activity ───────────────────────────
 
 type ActionItemType = "call" | "email" | "meeting" | "task";

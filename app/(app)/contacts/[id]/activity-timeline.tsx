@@ -4,6 +4,7 @@ import type { Activity } from "@/db/schema";
 import InlineActivityForm from "./inline-activity-form";
 import ActivityToggle from "@/app/(app)/activity/activity-toggle";
 import ActivityUndoButton from "@/app/(app)/activity/activity-undo-button";
+import ActivityDeleteButton from "@/app/(app)/activity/activity-delete-button";
 
 function formatCompletedAt(date: Date): string {
   const dateStr = date.toLocaleDateString("en-US", { month: "long", day: "numeric" });
@@ -120,6 +121,12 @@ export default async function ActivityTimeline({ contactId }: Props) {
                         />
                       </>
                     )}
+                    <span aria-hidden>·</span>
+                    <ActivityDeleteButton
+                      activityId={a.id}
+                      contactId={a.contactId}
+                      dealId={a.dealId}
+                    />
                   </div>
                 </div>
               </li>

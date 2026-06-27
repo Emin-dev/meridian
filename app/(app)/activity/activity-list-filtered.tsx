@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import MobileActionSheet from "@/components/mobile-action-sheet";
 import ActivityToggle from "./activity-toggle";
 import ActivityUndoButton from "./activity-undo-button";
+import ActivityDeleteButton from "./activity-delete-button";
 
 function formatCompletedAt(isoString: string): string {
   const d = new Date(isoString);
@@ -448,6 +449,12 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
                           />
                         </>
                       )}
+                      <span aria-hidden>·</span>
+                      <ActivityDeleteButton
+                        activityId={activity.id}
+                        contactId={activity.contactId}
+                        dealId={activity.dealId}
+                      />
                     </div>
                   </div>
                 </li>
@@ -652,6 +659,16 @@ export default function ActivityListFiltered({ rows, offset, currentType, curren
                     />
                   </div>
                 )}
+
+                <div className="border-t border-[var(--line-1)] pt-3">
+                  <ActivityDeleteButton
+                    activityId={activity.id}
+                    contactId={activity.contactId}
+                    dealId={activity.dealId}
+                    onDeleted={() => setDetailRow(null)}
+                    className="tap flex min-h-[44px] w-full items-center justify-center rounded-[var(--r-md)] border border-[var(--bad)]/30 bg-[var(--bad-tint)] px-3 text-body font-medium text-[var(--bad)] transition-colors disabled:opacity-50"
+                  />
+                </div>
               </div>
             );
           })()}
