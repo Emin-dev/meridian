@@ -44,11 +44,22 @@ export async function completeAgendaItem(id: number): Promise<void> {
   // the form action look like the item was completed when nothing was written.
   if (!db) throw new Error("Database not connected — can't complete this item.");
   const now = new Date();
-  await db
+  const [updated] = await db
     .update(schema.activities)
     .set({ completedAt: now, updatedAt: now })
-    .where(eq(schema.activities.id, id));
+    .where(eq(schema.activities.id, id))
+    .returning({
+      contactId: schema.activities.contactId,
+      dealId: schema.activities.dealId,
+    });
+  // Overdue counts/badges are shared across the dashboard, tasks, activity
+  // feed and the app-shell, so revalidate every surface that reads them plus
+  // the affected contact/deal timeline.
   revalidatePath("/dashboard");
+  revalidatePath("/tasks");
+  revalidatePath("/activity");
+  if (updated?.contactId) revalidatePath(`/contacts/${updated.contactId}`);
+  if (updated?.dealId) revalidatePath(`/deals/${updated.dealId}`);
 }
 
 export async function generateDailyDigest(
