@@ -190,15 +190,12 @@ export default async function TodayAgenda() {
                     (now.getTime() - item.dueAt.getTime()) / (1000 * 60 * 60 * 24)
                   );
                   return (
-                    <li key={item.id} className="flex min-h-11 items-center gap-3 px-5 py-2">
+                    <li key={item.id} className="flex min-h-11 items-center gap-3 px-4 py-2">
                       <CompleteButton id={item.id} />
                       <span
                         className={`shrink-0 inline-block rounded-full ${meta.bg} px-2 py-0.5 text-xs font-medium ${meta.color}`}
                       >
                         {meta.label}
-                      </span>
-                      <span className="shrink-0 inline-block rounded-full bg-[var(--bad-tint)] px-2 py-0.5 text-xs font-medium text-[var(--bad)]">
-                        Overdue
                       </span>
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm text-[var(--ink-1)]">
