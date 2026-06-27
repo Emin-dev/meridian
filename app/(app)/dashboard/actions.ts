@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { getDb, schema } from "@/db";
 import { requireSession } from "@/lib/require-session";
 import { checkAiRateLimit, AI_RATE_LIMIT_MESSAGE } from "@/lib/ai-rate-limit";
+import { formatCurrency } from "@/lib/format";
 
 const idSchema = z.coerce.number().int().positive();
 
@@ -19,6 +20,10 @@ type DigestInput = {
   totalContacts: number;
   openDealsCount: number;
   pipelineValue: number;
+  // ISO currency code of the primary pipeline currency (resolved on the
+  // dashboard). Money in the digest prompt is formatted with this so an AZN
+  // workspace never gets dollar-signed coaching text.
+  currency: string;
   recentActivities: {
     subject: string;
     type: string;
@@ -100,7 +105,7 @@ export async function generateDailyDigest(
       .map(
         (s) =>
           `${s.stage}: ${s.count} deal(s)${
-            s.value > 0 ? ` worth $${s.value.toLocaleString()}` : ""
+            s.value > 0 ? ` worth ${formatCurrency(s.value, input.currency)}` : ""
           }`
       )
       .join(", ");
@@ -132,7 +137,7 @@ export async function generateDailyDigest(
         role: "user",
         content: `Today's CRM snapshot:
 - Total contacts: ${input.totalContacts}
-- Open deals: ${input.openDealsCount} (pipeline: $${input.pipelineValue.toLocaleString()})
+- Open deals: ${input.openDealsCount} (pipeline: ${formatCurrency(input.pipelineValue, input.currency)})
 - Pipeline by stage: ${stagesSummary || "No deals yet"}
 - Overdue activities: ${input.overdueCount}
 - Top contacts by lead score: ${topContactsSummary}
@@ -191,6 +196,8 @@ export type WeeklyDigestInput = {
   activitiesThisWeek: number;
   overdueCount: number;
   topContacts: { name: string; leadScore: number }[];
+  // ISO currency code of the primary pipeline currency (see DigestInput).
+  currency: string;
 };
 
 export async function generateWeeklyDigest(
@@ -241,7 +248,7 @@ export async function generateWeeklyDigest(
             .map(
               (w) =>
                 `${w.title}${
-                  w.value > 0 ? ` ($${w.value.toLocaleString()})` : ""
+                  w.value > 0 ? ` (${formatCurrency(w.value, input.currency)})` : ""
                 }`
             )
             .join(", ")
@@ -253,7 +260,7 @@ export async function generateWeeklyDigest(
             .map(
               (d) =>
                 `${d.title} [${d.stage}${
-                  d.value > 0 ? `, $${d.value.toLocaleString()}` : ""
+                  d.value > 0 ? `, ${formatCurrency(d.value, input.currency)}` : ""
                 }] – ${d.reason}`
             )
             .join("\n")
@@ -264,7 +271,7 @@ export async function generateWeeklyDigest(
       .map(
         (s) =>
           `${s.stage}: ${s.count} deal(s)${
-            s.value > 0 ? ` worth $${s.value.toLocaleString()}` : ""
+            s.value > 0 ? ` worth ${formatCurrency(s.value, input.currency)}` : ""
           }`
       )
       .join(", ");
@@ -288,7 +295,7 @@ export async function generateWeeklyDigest(
 - Closed-won this week: ${winsSummary}
 - At-risk open deals:
 ${atRiskSummary}
-- Open deals: ${input.openDealsCount} (pipeline: $${input.pipelineValue.toLocaleString()})
+- Open deals: ${input.openDealsCount} (pipeline: ${formatCurrency(input.pipelineValue, input.currency)})
 - Pipeline by stage: ${stagesSummary || "No deals yet"}
 - Activities logged this week: ${input.activitiesThisWeek}
 - Overdue activities: ${input.overdueCount}

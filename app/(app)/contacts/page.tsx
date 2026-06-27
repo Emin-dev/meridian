@@ -14,6 +14,7 @@ import FindDuplicatesButton from "./find-duplicates-button";
 import ContactsOverflowMenu from "./contacts-overflow-menu";
 import { EmptyState } from "@/components/empty-state";
 import EmptyStateActions from "@/components/empty-state-actions";
+import { resolvePageWindow, slicePageWindow } from "@/lib/pagination";
 
 const UsersIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -75,11 +76,10 @@ export default async function ContactsPage({
       : "createdAt";
   const sortDir = dir === "desc" ? "desc" : "asc";
 
-  const pageNum = Math.min(
-    Math.max(page && !isNaN(parseInt(page)) ? parseInt(page) : 1, 1),
-    MAX_PAGE,
-  );
-  const windowSize = pageNum * PAGE_SIZE;
+  const { pageNum, windowSize, fetchLimit } = resolvePageWindow(page, {
+    pageSize: PAGE_SIZE,
+    maxPage: MAX_PAGE,
+  });
 
   const db = getDb();
 
@@ -168,10 +168,11 @@ export default async function ContactsPage({
       .where(whereClause)
       .orderBy(orderByExpr)
       // Fetch one extra row to detect whether another page exists.
-      .limit(windowSize + 1);
+      .limit(fetchLimit);
 
-    hasMore = contactRows.length > windowSize;
-    contacts = hasMore ? contactRows.slice(0, windowSize) : contactRows;
+    const sliced = slicePageWindow(contactRows, windowSize);
+    contacts = sliced.rows;
+    hasMore = sliced.hasMore;
 
     const visibleContactIds = contacts.map((c) => c.id);
 

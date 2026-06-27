@@ -641,6 +641,7 @@ export default async function DashboardBody() {
                 totalContacts={totalContacts}
                 openDealsCount={openDealsCount}
                 pipelineValue={pipelineValue}
+                currency={pipelineCurrency}
                 recentActivities={recentActivities.map((a) => ({
                   subject: a.subject,
                   type: a.type,
@@ -666,6 +667,7 @@ export default async function DashboardBody() {
             activitiesThisWeek={weekActivityCount}
             overdueCount={overdueCount}
             topContacts={topContacts}
+            currency={pipelineCurrency}
             initialText={initialWeeklyDigest}
             initialCachedAt={initialWeeklyCachedAt}
           />

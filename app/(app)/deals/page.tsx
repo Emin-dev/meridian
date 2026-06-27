@@ -15,6 +15,7 @@ import { getCrmSettings } from "@/lib/settings";
 import { EmptyState } from "@/components/empty-state";
 import EmptyStateActions from "@/components/empty-state-actions";
 import { formatCurrency } from "@/lib/format";
+import { resolvePageWindow, slicePageWindow } from "@/lib/pagination";
 
 const PipelineIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -60,11 +61,10 @@ export default async function DealsPage({
   const isTable = view === "table";
 
   // Visible window size — "Load more" bumps the page param to grow it.
-  const pageNum = Math.min(
-    Math.max(page && !isNaN(parseInt(page)) ? parseInt(page) : 1, 1),
-    MAX_PAGE,
-  );
-  const windowSize = pageNum * PAGE_SIZE;
+  const { pageNum, windowSize, fetchLimit } = resolvePageWindow(page, {
+    pageSize: PAGE_SIZE,
+    maxPage: MAX_PAGE,
+  });
 
   // Table sort (default: oldest-open first, i.e. age desc). Kanban ignores this.
   const sortColKey: DealSortCol =
@@ -136,7 +136,7 @@ export default async function DealsPage({
                 }
               : (d, { desc }) => [desc(d.createdAt)],
             // Fetch one extra row to detect whether another page exists.
-            limit: windowSize + 1,
+            limit: fetchLimit,
           })
         : Promise.resolve([] as DealListItem[]),
       // Pipeline + weighted totals over open (non-lost) deals matching the filter.
@@ -176,8 +176,7 @@ export default async function DealsPage({
     ]);
 
   // Detect whether another page exists, then trim the extra detection row.
-  const hasMore = visibleDealsRaw.length > windowSize;
-  const pageDeals = hasMore ? visibleDealsRaw.slice(0, windowSize) : visibleDealsRaw;
+  const { rows: pageDeals, hasMore } = slicePageWindow(visibleDealsRaw, windowSize);
 
   // Table view is already in its final sort order; kanban restores ascending
   // (oldest-first) display order after the newest-first fetch.

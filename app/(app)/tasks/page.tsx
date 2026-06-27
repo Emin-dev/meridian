@@ -6,6 +6,7 @@ import TaskRow, { type TaskRowData } from "./task-row";
 import { EmptyState } from "@/components/empty-state";
 import { DemoDataButton } from "@/components/demo-data-button";
 import FocusAddTaskButton from "./focus-add-task-button";
+import { resolvePageWindow, slicePageWindow } from "@/lib/pagination";
 
 const TaskIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -61,11 +62,10 @@ export default async function TasksPage({
   searchParams: Promise<{ page?: string }>;
 }) {
   const { page } = await searchParams;
-  const pageNum = Math.min(
-    Math.max(page && !isNaN(parseInt(page)) ? parseInt(page) : 1, 1),
-    MAX_PAGE,
-  );
-  const windowSize = pageNum * PAGE_SIZE;
+  const { pageNum, windowSize, fetchLimit } = resolvePageWindow(page, {
+    pageSize: PAGE_SIZE,
+    maxPage: MAX_PAGE,
+  });
 
   const header = (
     <div>
@@ -131,7 +131,7 @@ export default async function TasksPage({
     taskBase(openWhere)
       .orderBy(asc(schema.activities.dueAt))
       // Fetch one extra row to detect whether another page exists.
-      .limit(windowSize + 1),
+      .limit(fetchLimit),
     taskBase(
       and(
         eq(schema.activities.type, "task"),
@@ -144,8 +144,7 @@ export default async function TasksPage({
     db.select({ value: count() }).from(schema.activities).where(openWhere),
   ]);
 
-  const hasMore = activeRows.length > windowSize;
-  const pageActiveRows = hasMore ? activeRows.slice(0, windowSize) : activeRows;
+  const { rows: pageActiveRows, hasMore } = slicePageWindow(activeRows, windowSize);
   const openCount = openCountRows[0]?.value ?? pageActiveRows.length;
 
   const toTask = ({

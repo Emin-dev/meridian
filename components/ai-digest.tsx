@@ -9,6 +9,7 @@ type Props = {
   totalContacts: number;
   openDealsCount: number;
   pipelineValue: number;
+  currency: string;
   recentActivities: {
     subject: string;
     type: string;
