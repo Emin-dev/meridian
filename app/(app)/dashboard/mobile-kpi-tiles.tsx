@@ -50,7 +50,8 @@ export default function MobileKpiTiles({
   weightedPipelineValue,
   weekActivityCount,
   currency,
-  mixedCurrencies = false,
+  pipelineNote,
+  weightedNote,
   recentContacts,
   openDeals,
   stageBreakdown,
@@ -62,7 +63,8 @@ export default function MobileKpiTiles({
   weightedPipelineValue: number;
   weekActivityCount: number;
   currency: string;
-  mixedCurrencies?: boolean;
+  pipelineNote?: string;
+  weightedNote?: string;
   recentContacts: ContactItem[];
   openDeals: DealItem[];
   stageBreakdown: StageBreakdown[];
@@ -70,7 +72,6 @@ export default function MobileKpiTiles({
 }) {
   const [active, setActive] = useState<TileKey | null>(null);
 
-  const currencyNote = mixedCurrencies ? "Mixed currencies" : undefined;
   const tiles: {
     key: TileKey;
     label: string;
@@ -83,13 +84,13 @@ export default function MobileKpiTiles({
       key: "pipeline",
       label: "Pipeline Value",
       value: formatCurrency(pipelineValue, currency),
-      note: currencyNote,
+      note: pipelineNote,
     },
     {
       key: "weighted",
       label: "Weighted Pipeline",
       value: formatCurrency(weightedPipelineValue, currency),
-      note: currencyNote,
+      note: weightedNote,
     },
     {
       key: "activities",

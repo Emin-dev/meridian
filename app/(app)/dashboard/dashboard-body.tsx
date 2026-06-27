@@ -32,6 +32,24 @@ function parseDealValue(value: string | null): number {
   return Number.isNaN(n) ? 0 : n;
 }
 
+// Build the per-currency breakdown note for a KPI that reports a single
+// primary currency. Lists every *other* currency's total (largest first) so a
+// mixed-currency pipeline shows the real secondary amounts (e.g. "+ $5,000 ·
+// €2,000") instead of a vague "Mixed currencies" label. Returns undefined when
+// only the primary currency is present, so the note is hidden entirely.
+function otherCurrencyNote(
+  totals: Record<string, number>,
+  primary: string
+): string | undefined {
+  const others = Object.entries(totals)
+    .filter(([code, amount]) => code !== primary && amount !== 0)
+    .sort((a, b) => b[1] - a[1]);
+  if (others.length === 0) return undefined;
+  return `+ ${others
+    .map(([code, amount]) => formatCurrency(amount, code))
+    .join(" · ")}`;
+}
+
 const TYPE_META: Record<string, { label: string; color: string; bg: string }> =
   {
     call: { label: "Call", color: "text-[var(--info)]", bg: "bg-[var(--info-tint)]" },
@@ -99,10 +117,11 @@ export default async function DashboardBody() {
   let weightedPipelineValue = 0;
   // Pipeline KPIs are reported in a single primary currency (the open-deal
   // currency with the largest total). When open deals span more than one
-  // currency we surface a "Mixed currencies" note rather than silently summing
-  // them under one symbol.
+  // currency we surface the other currencies' real totals as a note rather than
+  // silently summing them under one symbol.
   let pipelineCurrency = defaultCurrency;
-  let mixedCurrencies = false;
+  let pipelineNote: string | undefined;
+  let weightedNote: string | undefined;
   let weekActivityCount = 0;
   let recentActivities: Array<{
     id: number;
@@ -386,9 +405,10 @@ export default async function DashboardBody() {
         : currencyCodes.reduce((a, b) =>
             pipelineByCurrency[b] > pipelineByCurrency[a] ? b : a
           );
-    mixedCurrencies = currencyCodes.length > 1;
     pipelineValue = pipelineByCurrency[pipelineCurrency] ?? 0;
     weightedPipelineValue = weightedByCurrency[pipelineCurrency] ?? 0;
+    pipelineNote = otherCurrencyNote(pipelineByCurrency, pipelineCurrency);
+    weightedNote = otherCurrencyNote(weightedByCurrency, pipelineCurrency);
 
     weekActivityCount = Number(weekRows[0]?.value ?? 0);
     recentActivities = activityRows;
@@ -566,12 +586,12 @@ export default async function DashboardBody() {
               <KpiCard
                 label="Pipeline Value"
                 value={formatCurrency(pipelineValue, pipelineCurrency)}
-                note={mixedCurrencies ? "Mixed currencies" : undefined}
+                note={pipelineNote}
               />
               <KpiCard
                 label="Weighted Pipeline"
                 value={formatCurrency(weightedPipelineValue, pipelineCurrency)}
-                note={mixedCurrencies ? "Mixed currencies" : undefined}
+                note={weightedNote}
               />
               <KpiCard
                 label="Activities This Week"
@@ -589,7 +609,8 @@ export default async function DashboardBody() {
               weightedPipelineValue={weightedPipelineValue}
               weekActivityCount={weekActivityCount}
               currency={pipelineCurrency}
-              mixedCurrencies={mixedCurrencies}
+              pipelineNote={pipelineNote}
+              weightedNote={weightedNote}
               recentContacts={recentContacts}
               openDeals={openDeals}
               stageBreakdown={openStageBreakdown}
