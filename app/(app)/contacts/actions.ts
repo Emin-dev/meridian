@@ -1,5 +1,6 @@
 "use server";
 
+import { createHash } from "node:crypto";
 import { z } from "zod";
 import { eq, desc, inArray, and, isNull, notInArray, sql, lte, count as countFn } from "drizzle-orm";
 import { getDb, schema } from "@/db";
@@ -1685,6 +1686,68 @@ export async function mergeContacts(
   }
 }
 
+// ─── Per-contact AI result cache ──────────────────────────────────────────────
+// Mirrors the deal-scoring cache: reuses the appSettings key/value store as a
+// durable cache for per-contact AI results. Each entry stores the result
+// alongside a fingerprint of the exact prompt inputs; an unchanged contact
+// yields the same fingerprint, so the stored result is surfaced without
+// re-calling DeepSeek. Survives restarts and ignores the in-memory LRU's TTL.
+
+type AiCacheDb = NonNullable<ReturnType<typeof getDb>>;
+
+function inputFingerprint(input: string): string {
+  return createHash("sha256").update(input).digest("hex");
+}
+
+async function readAiResultCache<T>(
+  db: AiCacheDb,
+  key: string,
+  fingerprint: string
+): Promise<T | null> {
+  try {
+    const [row] = await db
+      .select({ value: schema.appSettings.value })
+      .from(schema.appSettings)
+      .where(eq(schema.appSettings.key, key))
+      .limit(1);
+    if (!row) return null;
+    const parsed = JSON.parse(row.value) as { fp?: unknown; data?: unknown };
+    if (
+      parsed &&
+      parsed.fp === fingerprint &&
+      parsed.data &&
+      typeof parsed.data === "object"
+    ) {
+      return parsed.data as T;
+    }
+    return null;
+  } catch {
+    // Corrupt/legacy cache entry or read failure — treat as a miss.
+    return null;
+  }
+}
+
+async function writeAiResultCache(
+  db: AiCacheDb,
+  key: string,
+  fingerprint: string,
+  data: unknown
+): Promise<void> {
+  try {
+    const now = new Date();
+    const value = JSON.stringify({ fp: fingerprint, data });
+    await db
+      .insert(schema.appSettings)
+      .values({ key, value })
+      .onConflictDoUpdate({
+        target: schema.appSettings.key,
+        set: { value, updatedAt: now },
+      });
+  } catch {
+    // Non-fatal — the AI result is still returned even if caching fails.
+  }
+}
+
 export async function draftOutreachEmail(
   contactId: number
 ): Promise<DraftEmailState> {
@@ -1715,7 +1778,20 @@ export async function draftOutreachEmail(
     contact.company ? `Company: ${contact.company}` : null,
     contact.email ? `Email: ${contact.email}` : null,
     contact.notes ? `Notes: ${contact.notes}` : null,
-  ].filter(Boolean);
+  ].filter(Boolean) as string[];
+
+  // Serve a previously-drafted email when the contact's relevant inputs are
+  // unchanged — avoids a redundant DeepSeek call (AI-efficiency mandate).
+  const fingerprint = inputFingerprint(lines.join("\n"));
+  const cacheKey = `aiDraft:contact:${contactId}`;
+  const cached = await readAiResultCache<{ draft: string }>(
+    db,
+    cacheKey,
+    fingerprint
+  );
+  if (cached && typeof cached.draft === "string" && cached.draft.trim()) {
+    return { draft: cached.draft };
+  }
 
   try {
     const draft = await chat([
@@ -1734,6 +1810,9 @@ export async function draftOutreachEmail(
     if (!draft.trim()) {
       return { error: "AI returned an empty draft. Please try again." };
     }
+    // Persist keyed on the input fingerprint so an unchanged contact is served
+    // from cache next time instead of re-calling DeepSeek.
+    await writeAiResultCache(db, cacheKey, fingerprint, { draft });
     return { draft };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown AI error.";
