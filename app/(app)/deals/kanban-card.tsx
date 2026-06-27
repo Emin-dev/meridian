@@ -95,7 +95,7 @@ export default function KanbanCard({
       {/* Clickable card body → deal detail */}
       <Link href={`/deals/${deal.id}`} className="block p-3" draggable={false}>
         <div className="flex items-start justify-between gap-2">
-          <p className="text-sm font-medium text-[var(--ink-1)] leading-snug">
+          <p className="min-w-0 break-words text-sm font-medium text-[var(--ink-1)] leading-snug">
             {deal.title}
           </p>
           <span
@@ -120,7 +120,7 @@ export default function KanbanCard({
             <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[var(--surface-3)] text-[10px] font-medium text-[var(--ink-2)]">
               {(deal.contact.name[0] ?? "?").toUpperCase()}
             </span>
-            <span className="truncate">{deal.contact.name}</span>
+            <span className="min-w-0 truncate">{deal.contact.name}</span>
           </div>
         )}
 
@@ -132,7 +132,7 @@ export default function KanbanCard({
                 <circle cx="12" cy="7" r="4" />
               </svg>
             </span>
-            <span className="truncate">{deal.owner}</span>
+            <span className="min-w-0 truncate">{deal.owner}</span>
           </div>
         )}
       </Link>

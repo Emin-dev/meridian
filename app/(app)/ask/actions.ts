@@ -5,7 +5,9 @@ import { z } from "zod";
 import { getDb, schema } from "@/db";
 import { chat } from "@/lib/ai";
 import { parseAiJson } from "@/lib/ai-json";
+import { formatCurrency } from "@/lib/format";
 import { requireSession } from "@/lib/require-session";
+import { getCrmSettings } from "@/lib/settings";
 
 // Bound the question length so oversized prompts can't inflate token cost and
 // empty questions can't trigger a needless dataset load + AI call.
@@ -95,6 +97,8 @@ async function loadDataset(db: Db): Promise<LoadedDataset> {
 
   const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
 
+  const { defaultCurrency } = await getCrmSettings();
+
   const [contacts, deals, recentActivities] = await Promise.all([
     db
       .select({
@@ -113,6 +117,7 @@ async function loadDataset(db: Db): Promise<LoadedDataset> {
         title: schema.deals.title,
         stage: schema.deals.stage,
         value: schema.deals.value,
+        currency: schema.deals.currency,
         expectedCloseDate: schema.deals.expectedCloseDate,
         contactId: schema.deals.contactId,
         updatedAt: schema.deals.updatedAt,
@@ -141,7 +146,7 @@ async function loadDataset(db: Db): Promise<LoadedDataset> {
 
   const dealLines = deals.map(
     (d) =>
-      `id=${d.id} | ${d.title} | stage=${d.stage} | value=${d.value ? `$${Number(d.value).toLocaleString()}` : "none"} | close=${d.expectedCloseDate ? d.expectedCloseDate.toISOString().split("T")[0] : "none"} | contactId=${d.contactId ?? "none"} | updated=${d.updatedAt.toISOString().split("T")[0]}`
+      `id=${d.id} | ${d.title} | stage=${d.stage} | value=${d.value ? formatCurrency(Number(d.value), d.currency ?? defaultCurrency) : "none"} | close=${d.expectedCloseDate ? d.expectedCloseDate.toISOString().split("T")[0] : "none"} | contactId=${d.contactId ?? "none"} | updated=${d.updatedAt.toISOString().split("T")[0]}`
   );
 
   const activityLines = recentActivities.map(

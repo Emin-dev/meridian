@@ -217,7 +217,7 @@ export default function KanbanBoard({
         </div>
 
         {/* Stacked card list for the selected stage */}
-        <div className="flex flex-col gap-3 py-4">
+        <div className="flex min-w-0 flex-col gap-3 py-4">
           {/* Stage subtotal — dominant currency leads, others shown as hints */}
           {selectedStageTotalEntries.length > 0 && (
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 px-1">
