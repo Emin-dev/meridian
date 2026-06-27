@@ -81,9 +81,14 @@ export default function NextActionPanel({
 
   function handleCopy() {
     if (!result.suggestedMessage) return;
-    navigator.clipboard.writeText(result.suggestedMessage).then(() => {
-      setCopied(true);
-    });
+    navigator.clipboard
+      .writeText(result.suggestedMessage)
+      .then(() => {
+        setCopied(true);
+      })
+      .catch(() => {
+        toast("Couldn't copy", "error");
+      });
   }
 
   function inferType(action: string): "call" | "email" | "meeting" | "task" {
