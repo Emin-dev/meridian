@@ -882,7 +882,7 @@ export async function suggestNextAction(
           content: `Suggest the next best action for this contact:\n\n${lines.join("\n")}`,
         },
       ],
-      { json: true }
+      { json: true, maxTokens: 512 }
     );
 
     const parsed = parseAiJson<{
@@ -1014,7 +1014,7 @@ export async function enrichContact(contactId: number): Promise<EnrichState> {
           content: `Enrich this contact:\n\n${lines.join("\n")}`,
         },
       ],
-      { json: true }
+      { json: true, maxTokens: 512 }
     );
 
     const parsed = parseAiJson<unknown>(raw);
@@ -1824,7 +1824,7 @@ export async function draftOutreachEmail(
         role: "user",
         content: `Draft a personalized outreach email to this contact:\n\n${lines.join("\n")}`,
       },
-    ]);
+    ], { maxTokens: 512 });
     // A blank completion is a successful call with no usable output — surface a
     // friendly error rather than leaving the panel on its idle hint.
     if (!draft.trim()) {

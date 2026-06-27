@@ -958,7 +958,7 @@ export async function suggestDealNextAction(dealId: number): Promise<DealNextAct
       ? `Expected close: ${deal.expectedCloseDate.toISOString().slice(0, 10)}`
       : null,
     contactName ? `Contact: ${contactName}` : null,
-    deal.notes ? `\nNotes:\n${deal.notes}` : null,
+    deal.notes ? `\nNotes:\n${deal.notes.slice(0, 2000)}` : null,
   ].filter(Boolean) as string[];
 
   if (recentActivities.length > 0) {

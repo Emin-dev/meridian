@@ -210,7 +210,7 @@ export async function smartCompose(
         role: "user",
         content: `Draft a message for this intent:\n\n${trimmed}`,
       },
-    ]);
+    ], { maxTokens: 512 });
 
     const clean = draft.trim();
     if (!clean) return { error: "The assistant returned an empty draft." };
