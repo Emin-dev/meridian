@@ -132,6 +132,9 @@ What are my top priorities today to move deals forward and avoid anything slippi
       },
     ], { maxTokens: 512 });
 
+    if (!digest.trim())
+      return { error: "Couldn't generate the digest right now. Please try again." };
+
     const cachedAt = new Date().toISOString();
 
     // Persist to cache
@@ -283,6 +286,9 @@ ${atRiskSummary}
 Summarize the week: what went well (Wins), what's slipping (At risk), and the top priorities for next week (Priorities).`,
       },
     ], { maxTokens: 384 });
+
+    if (!digest.trim())
+      return { error: "Couldn't generate the digest right now. Please try again." };
 
     const cachedAt = new Date().toISOString();
 
