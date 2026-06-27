@@ -117,7 +117,7 @@ export default function MobileKpiTiles({
             ) : (
               <ul className="divide-y divide-[var(--line-1)]">
                 {recentContacts.map((c, i) => (
-                  <li key={i} className="flex items-center gap-3 py-3">
+                  <li key={i} className="flex min-h-[44px] items-center gap-3 py-3">
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium text-[var(--ink-1)]">
                         {c.name}
@@ -149,7 +149,7 @@ export default function MobileKpiTiles({
             ) : (
               <ul className="divide-y divide-[var(--line-1)]">
                 {openDeals.map((d, i) => (
-                  <li key={i} className="flex items-center gap-3 py-3">
+                  <li key={i} className="flex min-h-[44px] items-center gap-3 py-3">
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium text-[var(--ink-1)]">
                         {d.title}
@@ -183,7 +183,7 @@ export default function MobileKpiTiles({
         ) : (
           <ul className="divide-y divide-[var(--line-1)]">
             {rows.map((s) => (
-              <li key={s.stage} className="flex items-center gap-3 py-3">
+              <li key={s.stage} className="flex min-h-[44px] items-center gap-3 py-3">
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-[var(--ink-1)]">
                     {STAGE_LABEL[s.stage] ?? s.stage}
@@ -206,7 +206,7 @@ export default function MobileKpiTiles({
         ) : (
           <ul className="divide-y divide-[var(--line-1)]">
             {recentActivities.map((a, i) => (
-              <li key={i} className="flex items-center gap-3 py-3">
+              <li key={i} className="flex min-h-[44px] items-center gap-3 py-3">
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-[var(--ink-1)]">
                     {a.subject}
