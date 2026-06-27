@@ -2,6 +2,7 @@
 
 import { getDb, schema } from "@/db";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { and, asc, eq, gt, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import { chat } from "@/lib/ai";
@@ -205,6 +206,63 @@ export async function reorderStep(
 
   revalidatePath(`/sequences/${sequenceId}`);
   return {};
+}
+
+export async function renameSequence(
+  id: number,
+  name: string
+): Promise<{ error?: string }> {
+  await requireSession();
+
+  const idSchema = z.coerce.number().int().positive();
+  if (!idSchema.safeParse(id).success) return { error: "Invalid sequence id." };
+
+  const parsed = z.string().trim().min(1).max(120).safeParse(name);
+  if (!parsed.success) {
+    return { error: "Enter a name between 1 and 120 characters." };
+  }
+
+  const db = getDb();
+  if (!db) return { error: "Database not connected." };
+
+  try {
+    await db
+      .update(schema.sequences)
+      .set({ name: parsed.data, updatedAt: new Date() })
+      .where(eq(schema.sequences.id, id));
+  } catch {
+    return { error: "Couldn't rename the sequence. Please try again." };
+  }
+
+  revalidatePath("/sequences");
+  revalidatePath(`/sequences/${id}`);
+  return {};
+}
+
+export async function deleteSequence(id: number): Promise<void> {
+  await requireSession();
+
+  const idSchema = z.coerce.number().int().positive();
+  if (!idSchema.safeParse(id).success) redirect("/sequences");
+
+  const db = getDb();
+  if (db) {
+    // Confirm the sequence still exists before deleting + revalidating: a
+    // double-tap or stale link can land here after it's already gone, so skip
+    // the write and fall through to the safe list redirect. The schema's
+    // onDelete:'cascade' on sequenceSteps and contactSequenceEnrollments
+    // removes all children automatically.
+    const [existing] = await db
+      .select({ id: schema.sequences.id })
+      .from(schema.sequences)
+      .where(eq(schema.sequences.id, id))
+      .limit(1);
+    if (existing) {
+      await db.delete(schema.sequences).where(eq(schema.sequences.id, id));
+      revalidatePath("/sequences");
+    }
+  }
+  redirect("/sequences");
 }
 
 export type DraftStepResult = {
