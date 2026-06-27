@@ -35,6 +35,7 @@ export default function AddActivityForm({
     if (state.success) {
       setFormKey((k) => k + 1);
       setBody("");
+      setType("note");
       toast("Activity logged");
       onSuccess?.();
     }

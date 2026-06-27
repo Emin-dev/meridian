@@ -1155,9 +1155,16 @@ export async function bulkAddTag(
   const parsedIds = BulkIdsSchema.safeParse(ids);
   if (!parsedIds.success) return { error: "Invalid contact IDs." };
 
+  const parsedTag = z
+    .string()
+    .trim()
+    .max(60, "Tag is too long.")
+    .safeParse(tag ?? "");
+  if (!parsedTag.success) return { error: "Tag is too long." };
+
   const db = getDb();
   if (!db) return { noDb: true };
-  const trimmed = tag.trim();
+  const trimmed = parsedTag.data;
   if (!trimmed) return { error: "Tag cannot be empty." };
 
   const missing = await missingContactsError(db, parsedIds.data);
