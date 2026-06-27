@@ -1072,6 +1072,7 @@ export async function applyContactEnrichment(
 
     revalidatePath(`/contacts/${contactId}`);
     revalidatePath("/contacts");
+    revalidatePath("/dashboard");
     return { success: true };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error.";
