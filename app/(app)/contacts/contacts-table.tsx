@@ -366,7 +366,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
               aria-label="Tag to add"
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleAddTag()}
+              onKeyDown={(e) => e.key === "Enter" && !isPending && handleAddTag()}
               placeholder="Tag name"
               className="tap w-full rounded border border-[var(--line-1)] bg-[var(--surface-1)] px-2 text-xs text-[var(--ink-1)] placeholder-[var(--ink-3)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)] sm:w-32"
             />
@@ -385,7 +385,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
               aria-label="New owner name"
               value={ownerInput}
               onChange={(e) => setOwnerInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleChangeOwner()}
+              onKeyDown={(e) => e.key === "Enter" && !isPending && handleChangeOwner()}
               placeholder="Owner name"
               className="tap w-full rounded border border-[var(--line-1)] bg-[var(--surface-1)] px-2 text-xs text-[var(--ink-1)] placeholder-[var(--ink-3)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)] sm:w-32"
             />
@@ -766,7 +766,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
               aria-label="Tag to add"
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleAddTag()}
+              onKeyDown={(e) => e.key === "Enter" && !isPending && handleAddTag()}
               placeholder="Tag name"
               className="min-h-[44px] min-w-0 flex-1 rounded-lg border border-[var(--line-1)] bg-[var(--surface-1)] px-3 text-sm text-[var(--ink-1)] placeholder-[var(--ink-3)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
             />
@@ -785,7 +785,7 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
               aria-label="New owner name"
               value={ownerInput}
               onChange={(e) => setOwnerInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleChangeOwner()}
+              onKeyDown={(e) => e.key === "Enter" && !isPending && handleChangeOwner()}
               placeholder="Owner name"
               className="min-h-[44px] min-w-0 flex-1 rounded-lg border border-[var(--line-1)] bg-[var(--surface-1)] px-3 text-sm text-[var(--ink-1)] placeholder-[var(--ink-3)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
             />

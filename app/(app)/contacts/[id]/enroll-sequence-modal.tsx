@@ -78,7 +78,13 @@ export default function EnrollSequenceModal({
         ref={dialogRef}
         aria-label="Enroll in sequence"
         onClick={(e) => {
-          if (e.target === dialogRef.current) dialogRef.current?.close();
+          if (e.target === dialogRef.current && !isPending)
+            dialogRef.current?.close();
+        }}
+        onCancel={(e) => {
+          // Escape fires the dialog's cancel event; block it mid-enroll so the
+          // in-flight enrollment isn't abandoned and UI/server state stay in sync.
+          if (isPending) e.preventDefault();
         }}
         className="
           m-0 inset-x-0 bottom-0 top-auto
