@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useToast } from "@/components/toaster";
 
 interface ExportCsvButtonProps {
   hasDb: boolean;
@@ -24,6 +25,7 @@ export default function ExportCsvButton({
   noActivity,
 }: ExportCsvButtonProps) {
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   async function handleExport() {
     if (loading) return;
@@ -50,6 +52,8 @@ export default function ExportCsvButton({
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+    } catch {
+      toast("Export failed. Please try again.", "error");
     } finally {
       setLoading(false);
     }

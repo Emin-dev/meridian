@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useToast } from "@/components/toaster";
 
 export default function DealsExportCsvButton({
   hasDb,
@@ -12,6 +13,7 @@ export default function DealsExportCsvButton({
   stage?: string;
 }) {
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   async function handleExport() {
     if (loading) return;
@@ -33,6 +35,8 @@ export default function DealsExportCsvButton({
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+    } catch {
+      toast("Export failed. Please try again.", "error");
     } finally {
       setLoading(false);
     }

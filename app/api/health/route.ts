@@ -33,13 +33,15 @@ export async function GET() {
       time: new Date().toISOString(),
     });
   } catch (err) {
+    // Log the real reason server-side only; never leak DB/driver internals to
+    // the public health body.
+    console.error("health check db query failed", err);
     return NextResponse.json(
       {
         ok: false,
         service: "meridian",
         db: "error",
         commit,
-        error: err instanceof Error ? err.message : String(err),
         time: new Date().toISOString(),
       },
       { status: 503 },

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { and, eq, ilike, gte, isNull, notExists, sql } from "drizzle-orm";
 import type { SQL } from "drizzle-orm";
 import { getDb, schema } from "@/db";
+import { escapeCsv } from "@/lib/csv";
 import { isAuthEnabled } from "@/lib/auth-config";
 import { getSession } from "@/lib/auth";
 
@@ -14,15 +15,6 @@ const VALID_STATUSES = ["lead", "active", "inactive", "churned"] as const;
 // into one giant string. Mirrors the contacts page's deliberate pagination.
 const EXPORT_MAX_ROWS = 10000;
 const CSV_CHUNK_ROWS = 500;
-
-function escapeCsv(value: string | null | undefined): string {
-  if (value == null) return "";
-  const str = String(value);
-  if (str.includes(",") || str.includes('"') || str.includes("\n") || str.includes("\r")) {
-    return `"${str.replace(/"/g, '""')}"`;
-  }
-  return str;
-}
 
 export async function GET(request: NextRequest) {
   // Defense-in-depth: this route streams the entire contact database as CSV with
@@ -100,22 +92,28 @@ export async function GET(request: NextRequest) {
 
   // Select only the columns the CSV emits, and hard-cap the row count so the
   // request stays within the Vercel 10s/memory budget on huge workspaces.
-  const contacts = await db
-    .select({
-      name: schema.contacts.name,
-      email: schema.contacts.email,
-      phone: schema.contacts.phone,
-      company: schema.contacts.company,
-      status: schema.contacts.status,
-      source: schema.contacts.source,
-      tags: schema.contacts.tags,
-      leadScore: schema.contacts.leadScore,
-      createdAt: schema.contacts.createdAt,
-    })
-    .from(schema.contacts)
-    .where(and(...conditions))
-    .orderBy(schema.contacts.createdAt)
-    .limit(EXPORT_MAX_ROWS);
+  let contacts;
+  try {
+    contacts = await db
+      .select({
+        name: schema.contacts.name,
+        email: schema.contacts.email,
+        phone: schema.contacts.phone,
+        company: schema.contacts.company,
+        status: schema.contacts.status,
+        source: schema.contacts.source,
+        tags: schema.contacts.tags,
+        leadScore: schema.contacts.leadScore,
+        createdAt: schema.contacts.createdAt,
+      })
+      .from(schema.contacts)
+      .where(and(...conditions))
+      .orderBy(schema.contacts.createdAt)
+      .limit(EXPORT_MAX_ROWS);
+  } catch (err) {
+    console.error("contacts export query failed", err);
+    return new NextResponse("Could not export right now. Please try again.", { status: 503 });
+  }
 
   const header = [
     "Name",

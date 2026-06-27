@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { and, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
+import { escapeCsv } from "@/lib/csv";
 import { isAuthEnabled } from "@/lib/auth-config";
 import { getSession } from "@/lib/auth";
 
@@ -10,15 +11,6 @@ import { getSession } from "@/lib/auth";
 // into one giant string. Mirrors the contacts export.
 const EXPORT_MAX_ROWS = 10000;
 const CSV_CHUNK_ROWS = 500;
-
-function escapeCsv(value: string | null | undefined): string {
-  if (value == null) return "";
-  const str = String(value);
-  if (str.includes(",") || str.includes('"') || str.includes("\n") || str.includes("\r")) {
-    return `"${str.replace(/"/g, '""')}"`;
-  }
-  return str;
-}
 
 export async function GET(request: Request) {
   // Defense-in-depth: this route exports the full deals pipeline (values, owners,
@@ -46,23 +38,29 @@ export async function GET(request: Request) {
   // just its name (only field used), and hard-cap the row count so the request
   // stays within the Vercel 10s/memory budget on huge workspaces. The deals list
   // page does exactly this contact narrowing for its own query.
-  const deals = await db.query.deals.findMany({
-    columns: {
-      title: true,
-      stage: true,
-      value: true,
-      currency: true,
-      probability: true,
-      owner: true,
-      expectedCloseDate: true,
-      closeReason: true,
-      createdAt: true,
-    },
-    with: { contact: { columns: { name: true } } },
-    where: conditions.length ? and(...conditions) : undefined,
-    orderBy: (deals, { asc }) => [asc(deals.createdAt)],
-    limit: EXPORT_MAX_ROWS,
-  });
+  let deals;
+  try {
+    deals = await db.query.deals.findMany({
+      columns: {
+        title: true,
+        stage: true,
+        value: true,
+        currency: true,
+        probability: true,
+        owner: true,
+        expectedCloseDate: true,
+        closeReason: true,
+        createdAt: true,
+      },
+      with: { contact: { columns: { name: true } } },
+      where: conditions.length ? and(...conditions) : undefined,
+      orderBy: (deals, { asc }) => [asc(deals.createdAt)],
+      limit: EXPORT_MAX_ROWS,
+    });
+  } catch (err) {
+    console.error("deals export query failed", err);
+    return new NextResponse("Could not export right now. Please try again.", { status: 503 });
+  }
 
   const header = [
     "Title",

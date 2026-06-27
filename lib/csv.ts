@@ -2,6 +2,25 @@ import type { ImportSkippedRow } from "@/app/(app)/contacts/actions";
 
 export type { ImportSkippedRow };
 
+/**
+ * Escape a single value for inclusion in a CSV cell. Quotes fields that contain
+ * the delimiter, quotes, or newlines (doubling embedded quotes), and neutralizes
+ * spreadsheet formula injection by prefixing a leading `'` when the value begins
+ * with a character a spreadsheet would treat as a formula (`= + - @`, tab, or CR).
+ * Shared by the contacts and deals export routes so they stay in sync.
+ */
+export function escapeCsv(value: string | null | undefined): string {
+  if (value == null) return "";
+  let str = String(value);
+  if (/^[=+\-@\t\r]/.test(str)) {
+    str = `'${str}`;
+  }
+  if (str.includes(",") || str.includes('"') || str.includes("\n") || str.includes("\r")) {
+    return `"${str.replace(/"/g, '""')}"`;
+  }
+  return str;
+}
+
 export interface ParsedRow {
   rowIndex: number;
   name: string;

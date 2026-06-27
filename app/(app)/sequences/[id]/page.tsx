@@ -12,6 +12,8 @@ import {
 } from "./enrollment-cards-mobile";
 import { getCrmSettings } from "@/lib/settings";
 import { SequenceStatusToggle } from "../sequence-status-toggle";
+import { SequenceTitle } from "./sequence-title";
+import DeleteSequenceButton from "./delete-sequence-button";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -235,10 +237,8 @@ export default async function SequenceDetailPage({
 
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-semibold text-[var(--ink-1)]">
-            {sequence.name}
-          </h2>
+        <div className="min-w-0">
+          <SequenceTitle id={numId} name={sequence.name} />
           <div className="mt-2 flex items-center gap-2">
             <span
               className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${statusMeta.className}`}
@@ -251,13 +251,16 @@ export default async function SequenceDetailPage({
             </span>
           </div>
         </div>
-        <div className="text-xs text-[var(--ink-3)]">
-          Created{" "}
-          {sequence.createdAt.toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-          })}
+        <div className="flex flex-col items-end gap-3">
+          <div className="text-xs text-[var(--ink-3)]">
+            Created{" "}
+            {sequence.createdAt.toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })}
+          </div>
+          <DeleteSequenceButton sequenceId={numId} />
         </div>
       </div>
 
