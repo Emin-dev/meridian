@@ -330,6 +330,9 @@ export async function extractActionItems(
 
   if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
 
+  const limited = await checkAiRateLimit();
+  if (limited) return { error: limited };
+
   const db = getDb();
   if (!db) return { noDb: true };
 
@@ -367,15 +370,22 @@ export async function extractActionItems(
     activitiesPromise,
   ]);
 
+  // The linked record may have been deleted concurrently (the read can return
+  // an empty array). Guard `record` before the `in` narrowing — `"x" in undefined`
+  // throws a TypeError.
+  if (!record) {
+    return { error: contactId ? "Contact not found." : "Deal not found." };
+  }
+
   let notes: string | null = null;
   let entityLabel = "";
 
   if (contactId) {
-    if (!record || !("name" in record)) return { error: "Contact not found." };
+    if (!("name" in record)) return { error: "Contact not found." };
     notes = record.notes ?? null;
     entityLabel = `Contact: ${record.name}`;
   } else {
-    if (!record || !("title" in record)) return { error: "Deal not found." };
+    if (!("title" in record)) return { error: "Deal not found." };
     notes = record.notes ?? null;
     entityLabel = `Deal: ${record.title}`;
   }

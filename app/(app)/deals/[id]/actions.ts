@@ -560,10 +560,21 @@ export async function scoreDeal(dealId: number): Promise<DealScoreState> {
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
       return { error: "AI returned an unexpected format. Please try again." };
     }
-    const score = Math.round(Number(parsed.score));
-    const reasoning = String(parsed.reasoning ?? "").trim();
 
-    if (!Number.isFinite(score) || score < 0 || score > 100) {
+    // Reject a non-numeric score and empty/non-string reasoning BEFORE storing:
+    // coercing with Number()/String() would turn a malformed model response
+    // (e.g. score "high", an object, or null) into persisted garbage.
+    if (typeof parsed.score !== "number" || !Number.isFinite(parsed.score)) {
+      return { error: "AI returned an invalid score." };
+    }
+    if (typeof parsed.reasoning !== "string" || !parsed.reasoning.trim()) {
+      return { error: "AI returned an invalid reasoning." };
+    }
+
+    const score = Math.round(parsed.score);
+    const reasoning = parsed.reasoning.trim();
+
+    if (!Number.isInteger(score) || score < 0 || score > 100) {
       return { error: "AI returned an invalid score." };
     }
 

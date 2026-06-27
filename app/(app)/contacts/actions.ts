@@ -1527,9 +1527,14 @@ export async function findDuplicateContacts(): Promise<FindDuplicatesState> {
 
     const rawPairs = Array.isArray(parsed.pairs) ? parsed.pairs : [];
     for (const p of rawPairs) {
-      if (!p || typeof p !== "object") continue;
-      const primaryId = Number(p.primaryId);
-      const secondaryId = Number(p.secondaryId);
+      // Validate each LLM pair is a plain object with integer id fields BEFORE
+      // use — never coerce. A malformed entry (array, null, string/float ids)
+      // is skipped so it can't map onto or merge away a real contact.
+      if (!p || typeof p !== "object" || Array.isArray(p)) continue;
+      if (typeof p.primaryId !== "number" || typeof p.secondaryId !== "number")
+        continue;
+      const primaryId = p.primaryId;
+      const secondaryId = p.secondaryId;
       if (
         !Number.isInteger(primaryId) ||
         !Number.isInteger(secondaryId) ||
