@@ -80,15 +80,38 @@ export default function DraftEmailPanel({ contactId, contactEmail }: Props) {
 
       {draftText && (
         <div className="space-y-1.5">
-          <p className="text-xs text-[var(--ink-3)]">
-            Edit the draft below before sending.
-          </p>
+          <div className="flex items-center justify-between gap-3">
+            <p className="min-w-0 text-xs text-[var(--ink-3)]">
+              Edit the draft below before sending.
+            </p>
+            <button
+              type="button"
+              onClick={handleCopy}
+              className="tap inline-flex shrink-0 items-center justify-center rounded-md px-2 text-caption text-[var(--ink-3)] hover:text-[var(--ink-1)] transition-colors"
+            >
+              {copied ? "Copied!" : "Copy"}
+            </button>
+          </div>
           <textarea
             rows={10}
             value={draftText}
             onChange={(e) => setDraftText(e.target.value)}
             className={textareaCls}
           />
+          <div className="pt-0.5">
+            {mailtoHref ? (
+              <a
+                href={mailtoHref}
+                target="_blank"
+                rel="noreferrer"
+                className="tap inline-flex items-center gap-1.5 rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 text-xs font-medium text-[var(--ink-1)] transition-colors hover:border-[var(--line-2)] hover:bg-[var(--surface-3)]"
+              >
+                Open in email client ↗
+              </a>
+            ) : (
+              <span className="text-caption text-[var(--ink-3)]">No email address on file</span>
+            )}
+          </div>
         </div>
       )}
     </div>

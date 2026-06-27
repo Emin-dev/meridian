@@ -185,7 +185,7 @@ export default async function ContactDetailPage({ params }: Props) {
         <ActionItemsPanel contactId={contact.id} />
       </div>
       <div className="card p-4 sm:p-5">
-        <DraftEmailPanel contactId={contact.id} />
+        <DraftEmailPanel contactId={contact.id} contactEmail={contact.email} />
       </div>
     </>
   );
