@@ -90,7 +90,7 @@ export default function PipelineChart({ data }: { data: StageData[] }) {
               axisLine={false}
               tickLine={false}
               allowDecimals={false}
-              domain={[0, "dataMax"]}
+              domain={[0, (max: number) => Math.max(2, Math.ceil(max * 1.2))]}
             />
             <Tooltip
               contentStyle={{
