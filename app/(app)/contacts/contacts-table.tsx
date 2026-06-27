@@ -11,7 +11,7 @@ import { bulkChangeStatus, bulkAddTag, bulkEnrollInSequence, bulkChangeOwner } f
 import { ContactsViewSwitcher, type ContactsView } from "./contacts-view-switcher";
 import MobileActionSheet from "@/components/mobile-action-sheet";
 import DetailField from "@/components/detail-field";
-import { formatShortDate } from "@/lib/format";
+import { formatDate, formatShortDate } from "@/lib/format";
 import {
   SOURCE_LABELS,
   STATUS_LABELS,
@@ -31,11 +31,7 @@ function getLastContactedMeta(dateStr: string | null): { text: string; dotClass:
         ? "bg-[var(--warn)]"
         : "bg-[var(--bad)]";
   const sameYear = date.getFullYear() === now.getFullYear();
-  const text = date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    ...(sameYear ? {} : { year: "numeric" }),
-  });
+  const text = formatDate(date, { year: !sameYear });
   return { text, dotClass };
 }
 

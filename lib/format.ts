@@ -21,18 +21,38 @@ export function formatCurrency(amount: number, currency = "USD"): string {
   }
 }
 
+const SHORT_MONTHS = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+] as const;
+
 /**
- * Formats a date (or ISO string) as "Mon D, YYYY" for record detail views,
+ * Formats a date (or ISO string) as a region-neutral "d MMM yyyy" — e.g.
+ * "27 Jun 2026" — instead of the US month-day order that Intl's "en-US" locale
+ * forces. The workspace is AZN/Azerbaijan, where day-first is the norm. Pass
+ * `{ year: false }` to drop the year for same-context lists ("27 Jun"). Returns
+ * an em dash for missing values and for a malformed/unparseable date. Built by
+ * hand (not Intl) so the order never depends on a locale string.
+ */
+export function formatDate(
+  d: string | Date | null | undefined,
+  opts: { year?: boolean } = {},
+): string {
+  if (d == null) return "—";
+  const date = d instanceof Date ? d : new Date(d);
+  if (Number.isNaN(date.getTime())) return "—";
+  const base = `${date.getDate()} ${SHORT_MONTHS[date.getMonth()]}`;
+  return opts.year === false ? base : `${base} ${date.getFullYear()}`;
+}
+
+/**
+ * Formats a date (or ISO string) as "d MMM yyyy" for record detail views,
  * returning an em dash for missing values. Shared by the deals and contacts
- * tables, which previously each defined a byte-identical helper.
+ * tables, which previously each defined a byte-identical helper. Thin alias over
+ * {@link formatDate} so call sites that always want the year read clearly.
  */
 export function formatShortDate(d: string | Date | null): string {
-  if (!d) return "—";
-  return new Date(d).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  return formatDate(d);
 }
 
 /**

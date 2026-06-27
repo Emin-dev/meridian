@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import TaskToggle from "./task-toggle";
 import MobileActionSheet from "@/components/mobile-action-sheet";
+import { formatDate } from "@/lib/format";
 
 export type TaskRowData = {
   id: number;
@@ -18,18 +19,11 @@ export type TaskRowData = {
 };
 
 function formatShort(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
+  return formatDate(iso, { year: false });
 }
 
 function formatLong(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  return formatDate(iso);
 }
 
 function DetailField({ label, value }: { label: string; value: string }) {

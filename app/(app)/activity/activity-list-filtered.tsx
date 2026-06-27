@@ -8,20 +8,17 @@ import MobileActionSheet from "@/components/mobile-action-sheet";
 import ActivityToggle from "./activity-toggle";
 import ActivityUndoButton from "./activity-undo-button";
 import ActivityDeleteButton from "./activity-delete-button";
+import { formatDate } from "@/lib/format";
 
 function formatCompletedAt(isoString: string): string {
   const d = new Date(isoString);
-  const dateStr = d.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+  const dateStr = formatDate(d, { year: false });
   const timeStr = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
   return `${dateStr} at ${timeStr}`;
 }
 
 function formatActivityDate(isoString: string): string {
-  return new Date(isoString).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  return formatDate(isoString);
 }
 
 function formatRelativeTime(isoString: string, nowMs: number): string {
@@ -36,10 +33,7 @@ function formatRelativeTime(isoString: string, nowMs: number): string {
   if (day < 7) return `${day}d ago`;
   const wk = Math.round(day / 7);
   if (wk < 5) return `${wk}w ago`;
-  return new Date(isoString).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
+  return formatDate(isoString, { year: false });
 }
 
 function DetailField({ label, value }: { label: string; value: string }) {
