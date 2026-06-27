@@ -124,7 +124,8 @@ export default async function ContactsPage({
                   eq(schema.activities.contactId, schema.contacts.id),
                   gte(schema.activities.createdAt, noActivityCutoff),
                 ),
-              ),
+              )
+              .limit(1),
           )
         : undefined,
     ];
