@@ -1,16 +1,18 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { draftOutreachEmail, type DraftEmailState } from "../actions";
 import AiPanelStatus from "@/components/ai-panel-status";
 
 interface Props {
   contactId: number;
+  contactEmail?: string | null;
 }
 
-export default function DraftEmailPanel({ contactId }: Props) {
+export default function DraftEmailPanel({ contactId, contactEmail }: Props) {
   const [result, setResult] = useState<DraftEmailState>({});
   const [draftText, setDraftText] = useState("");
+  const [copied, setCopied] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   function handleDraft() {
@@ -25,6 +27,25 @@ export default function DraftEmailPanel({ contactId }: Props) {
       }
     });
   }
+
+  // Reset the "Copied!" label after 2s, with cleanup so the timer can't fire
+  // on an unmounted component when the user navigates away mid-countdown.
+  useEffect(() => {
+    if (!copied) return;
+    const t = setTimeout(() => setCopied(false), 2000);
+    return () => clearTimeout(t);
+  }, [copied]);
+
+  function handleCopy() {
+    if (!draftText) return;
+    navigator.clipboard.writeText(draftText).then(() => {
+      setCopied(true);
+    });
+  }
+
+  const mailtoHref = contactEmail
+    ? `mailto:${contactEmail}?body=${encodeURIComponent(draftText)}`
+    : null;
 
   const textareaCls =
     "w-full rounded-lg border border-[var(--line-1)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--ink-1)] placeholder-[var(--ink-3)] focus:border-[var(--accent)] focus:outline-none resize-none leading-relaxed";
