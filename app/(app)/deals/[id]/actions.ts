@@ -655,6 +655,27 @@ export async function summarizeDeal(dealId: number): Promise<DealSummarizeState>
     }
   }
 
+  // Serve a previously-computed summary when the deal's relevant inputs (incl.
+  // recent activity) are unchanged — avoids a redundant DeepSeek call and
+  // survives cold starts that the in-memory LRU in lib/ai.ts does not.
+  const fingerprint = inputFingerprint(lines.join("\n"));
+  const cacheKey = `aiSummary:deal:${dealId}`;
+  const cached = await readAiResultCache<{ summary: string; summaryAt: string }>(
+    db,
+    cacheKey,
+    fingerprint
+  );
+  if (cached && typeof cached.summary === "string" && cached.summary.trim()) {
+    return { summary: cached.summary, summaryAt: cached.summaryAt };
+  }
+
+  if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
+
+  // Per-user burst cap on the paid AI path — cached results above are served
+  // freely; this guards against a stuck client forcing repeated DeepSeek calls.
+  const limited = await checkAiRateLimit();
+  if (limited) return { error: limited };
+
   try {
     const summary = await chat([
       {
@@ -676,6 +697,13 @@ export async function summarizeDeal(dealId: number): Promise<DealSummarizeState>
     }
 
     const summaryAt = new Date();
+
+    // Persist keyed on the input fingerprint so an unchanged deal is served from
+    // cache next time instead of re-calling DeepSeek (durable across restarts).
+    await writeAiResultCache(db, cacheKey, fingerprint, {
+      summary,
+      summaryAt: summaryAt.toISOString(),
+    });
 
     // Cache result to the deal row (best-effort — columns may not exist yet)
     try {
