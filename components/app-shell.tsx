@@ -162,7 +162,7 @@ export default function AppShell({ children, signedIn = false, overdueCount = 0,
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-auto px-4 pt-4 sm:px-6 sm:pt-6 pb-6">
+        <main className="flex-1 overflow-auto px-4 pt-4 sm:px-6 sm:pt-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
           {children}
         </main>
       </div>
