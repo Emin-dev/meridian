@@ -25,7 +25,7 @@ export default function ActivityToggle({
     useOptimistic(isCompleted);
 
   return (
-    <label className="tap flex shrink-0 cursor-pointer items-center justify-center">
+    <label className="tap flex min-h-[44px] shrink-0 cursor-pointer items-center justify-center">
       <input
         type="checkbox"
         checked={optimisticCompleted}

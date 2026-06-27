@@ -76,7 +76,7 @@ export default function AskForm({
         <button
           type="submit"
           disabled={isPending || !question.trim() || !canAsk}
-          className="tap flex shrink-0 items-center justify-center gap-2 rounded-[var(--r-md)] bg-[var(--accent)] px-4 text-body font-medium text-white transition active:scale-[0.98] disabled:opacity-40"
+          className="tap flex min-h-[44px] shrink-0 items-center justify-center gap-2 rounded-[var(--r-md)] bg-[var(--accent)] px-4 text-body font-medium text-white transition active:scale-[0.98] disabled:opacity-40"
         >
           {isPending ? (
             <span
@@ -100,7 +100,7 @@ export default function AskForm({
                 setQuestion(ex);
                 submit(ex);
               }}
-              className="tap inline-flex items-center rounded-[var(--r-pill)] border border-[var(--line-1)] bg-[var(--surface-1)] px-4 py-2 text-footnote text-[var(--ink-2)] transition hover:border-[var(--line-2)] hover:text-[var(--ink-1)]"
+              className="tap inline-flex min-h-[44px] items-center rounded-[var(--r-pill)] border border-[var(--line-1)] bg-[var(--surface-1)] px-4 py-2 text-footnote text-[var(--ink-2)] transition hover:border-[var(--line-2)] hover:text-[var(--ink-1)]"
             >
               {ex}
             </button>
