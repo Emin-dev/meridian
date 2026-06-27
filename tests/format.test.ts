@@ -38,13 +38,18 @@ describe("formatShortDate", () => {
     expect(formatShortDate(null)).toBe("—");
   });
 
-  it("formats an ISO date string as 'Mon D, YYYY'", () => {
+  it("formats an ISO date string as day-first 'D Mon YYYY'", () => {
     // Use a UTC-noon timestamp so the local-date conversion can't slip a day.
-    expect(formatShortDate("2026-06-26T12:00:00Z")).toBe("Jun 26, 2026");
+    // The workspace is AZN/Azerbaijan, where day-first ordering is the norm.
+    expect(formatShortDate("2026-06-26T12:00:00Z")).toBe("26 Jun 2026");
   });
 
-  it("formats a Date object", () => {
-    expect(formatShortDate(new Date("2026-01-05T12:00:00Z"))).toBe("Jan 5, 2026");
+  it("formats a Date object day-first", () => {
+    expect(formatShortDate(new Date("2026-01-05T12:00:00Z"))).toBe("5 Jan 2026");
+  });
+
+  it("returns an em dash for an unparseable date string", () => {
+    expect(formatShortDate("not-a-date")).toBe("—");
   });
 });
 
