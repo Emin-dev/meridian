@@ -135,7 +135,9 @@ export async function logAiTaskSuggestion(
       body: parsed.data.body,
       contactId: parsed.data.contactId,
       dealId: parsed.data.dealId,
-      dueAt: new Date(),
+      // Leave dueAt null (a no-due-date task) so AI suggestions aren't
+      // instantly "overdue" and don't flood the overdue queue/badges.
+      dueAt: null,
     });
   } catch {
     return { error: "Couldn't save the task. Please try again." };
