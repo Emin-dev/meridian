@@ -666,8 +666,8 @@ export default function ContactsTable({ contacts, sequences, hasActiveFilters, l
                           <span className="text-[var(--ink-2)]">—</span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-[var(--ink-2)]">{c.email ?? "—"}</td>
-                      <td className="px-4 py-3 text-[var(--ink-2)]">{c.phone ?? "—"}</td>
+                      <td className="whitespace-nowrap px-4 py-3 text-[var(--ink-2)]">{c.email ?? "—"}</td>
+                      <td className="whitespace-nowrap px-4 py-3 text-[var(--ink-2)]">{c.phone ?? "—"}</td>
                       <td className="whitespace-nowrap px-4 py-3 text-[var(--ink-2)]">{c.company ?? "—"}</td>
                       <td className="whitespace-nowrap px-4 py-3 text-[var(--ink-2)]">{c.title ?? "—"}</td>
                       <td className="whitespace-nowrap px-4 py-3 text-[var(--ink-2)]">
