@@ -17,6 +17,10 @@ export type SequenceFormState = {
 
 const idSchema = z.coerce.number().int().positive();
 
+// Cap a step delay to a sane bound, matching the edit path in
+// sequences/[id]/actions.ts. Non-exported: this file is "use server".
+const MAX_DELAY_DAYS = 365;
+
 export async function createSequence(
   _prev: SequenceFormState,
   formData: FormData
@@ -42,8 +46,10 @@ export async function createSequence(
 
     if (!subject) fieldErrors[`step_${i}_subject`] = ["Subject is required"];
     if (!body) fieldErrors[`step_${i}_body`] = ["Body is required"];
-    if (isNaN(delay) || delay < 0) {
-      fieldErrors[`step_${i}_delay`] = ["Delay must be 0 or more days"];
+    if (isNaN(delay) || delay < 0 || delay > MAX_DELAY_DAYS) {
+      fieldErrors[`step_${i}_delay`] = [
+        `Delay must be a whole number between 0 and ${MAX_DELAY_DAYS} days`,
+      ];
     } else {
       steps.push({ delayDays: delay, subjectTemplate: subject, bodyTemplate: body });
     }
