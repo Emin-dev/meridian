@@ -194,7 +194,7 @@ export default function KanbanBoard({
                   role="tab"
                   aria-selected={isActive}
                   onClick={() => setSelectedStage(stage.key)}
-                  className={`tap flex-none whitespace-nowrap rounded-[var(--r-pill)] px-3 text-footnote font-medium transition-colors active:scale-[0.97] ${
+                  className={`tap flex min-h-[44px] flex-none items-center whitespace-nowrap rounded-[var(--r-pill)] px-3 text-footnote font-medium transition-colors active:scale-[0.97] ${
                     isActive
                       ? "bg-[var(--accent)] text-[var(--accent-ink)]"
                       : "text-[var(--ink-2)] hover:text-[var(--ink-1)]"

@@ -152,7 +152,11 @@ const DealCsvRowSchema = z.object({
   }, z.enum(DEAL_STAGES)),
   currency: z.preprocess((v) => {
     const s = String(v ?? "").trim().toUpperCase();
-    return s === "" ? "USD" : s;
+    // Fall back to the default currency for blank OR unrecognised codes, so a bad
+    // currency cell never persists an invalid ISO code (which would later throw a
+    // RangeError in Intl.NumberFormat / break aggregation) and never skips the row
+    // outright — the deal still imports, just denominated in the default.
+    return (VALID_CURRENCIES as readonly string[]).includes(s) ? s : "USD";
   }, z.enum(VALID_CURRENCIES)),
   contactEmail: z.preprocess((v) => {
     const s = String(v ?? "").trim().toLowerCase();
