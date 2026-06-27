@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition, useEffect } from "react";
-import { updateDealDetails } from "./actions";
+import { updateDealDetails, triggerWinLossAnalysis } from "./actions";
 import type { Deal } from "@/db/schema";
 import { useToast } from "@/components/toaster";
 import type { DealFormUpdate } from "./deal-detail-top";
@@ -78,6 +78,13 @@ export default function EditDealForm({ deal, onSaved, onRollback }: Props) {
       probability:       probRaw === "" ? 0 : parseInt(probRaw, 10),
     };
 
+    // Detect a stage transition that newly closes the deal (won/lost). The AI
+    // win/loss insight is generated out-of-band so it can't block the save.
+    const isClosing =
+      (updates.stage === "won" || updates.stage === "lost") &&
+      snapshot.stage !== "won" &&
+      snapshot.stage !== "lost";
+
     // Optimistic: update the parent header immediately
     onSaved?.(updates);
     setFieldErrors({});
@@ -96,6 +103,12 @@ export default function EditDealForm({ deal, onSaved, onRollback }: Props) {
         toast("Database not connected — changes cannot be saved.", "error");
       } else if (result.success) {
         toast("Deal saved");
+        // Fire-and-forget: the save is already committed, so generate the
+        // win/loss insight in a separate request rather than holding the
+        // spinner (and risking a 10s timeout) on a blocking AI call.
+        if (isClosing) {
+          void triggerWinLossAnalysis(deal.id).catch(() => {});
+        }
       }
     });
   }

@@ -9,6 +9,7 @@ import { redirect } from "next/navigation";
 import { chat } from "@/lib/ai";
 import { parseAiJson } from "@/lib/ai-json";
 import { requireSession } from "@/lib/require-session";
+import { checkAiRateLimit } from "@/lib/ai-rate-limit";
 import { numericEqual } from "@/lib/format";
 import { dealValueSchema } from "../value-schema";
 import { DEAL_STAGES } from "../stages";
@@ -83,7 +84,7 @@ export async function updateDealDetails(
 
   // Read current state before updating so we can detect changes.
   const [current] = await db
-    .select({ stage: schema.deals.stage, notes: schema.deals.notes, value: schema.deals.value })
+    .select({ stage: schema.deals.stage, value: schema.deals.value })
     .from(schema.deals)
     .where(eq(schema.deals.id, id))
     .limit(1);
@@ -121,30 +122,11 @@ export async function updateDealDetails(
     return { error: "Couldn't save the deal. Please try again." };
   }
 
-  // Trigger AI win/loss analysis when the stage is newly changed to won or lost.
-  const newStage = parsed.data.stage;
-  const oldStage = current?.stage;
-  const isClosing =
-    (newStage === "won" || newStage === "lost") &&
-    oldStage !== "won" &&
-    oldStage !== "lost";
-
-  if (isClosing && process.env.DEEPSEEK_API_KEY) {
-    try {
-      const insight = await _generateWinLossInsight(db, id, newStage);
-      if (insight) {
-        const userNotes = extractUserNotes(current?.notes ?? null);
-        const newNotes = (userNotes ?? "") + WIN_LOSS_MARKER + insight;
-        await db
-          .update(schema.deals)
-          .set({ notes: newNotes, updatedAt: new Date() })
-          .where(eq(schema.deals.id, id));
-      }
-    } catch {
-      // Non-critical — don't fail the save if the AI call errors.
-    }
-  }
-
+  // The AI win/loss insight is generated OUT-OF-BAND, not inline here: a blocking
+  // DeepSeek call (up to ~9s) bracketed by these Neon round-trips could push the
+  // request past Vercel's 10s free-tier limit and 504 the save. The save now
+  // completes on DB writes alone; the client fires triggerWinLossAnalysis after
+  // this resolves when the stage newly flips to won/lost.
   revalidatePath(`/deals/${id}`);
   revalidatePath("/deals");
   return { success: true };
@@ -341,21 +323,43 @@ async function _generateWinLossInsight(
     }
   }
 
-  const insight = await chat([
-    {
-      role: "system",
-      content:
-        `You are a CRM analyst. A deal was just closed as ${closedAs.toUpperCase()}. ` +
-        "Based on all available context — notes, contact profile, activity history — write a concise 2–4 sentence insight explaining the key reason(s) this deal closed the way it did. " +
-        "Highlight patterns, decisive moments, or factors that made the difference. Be direct and specific.",
-    },
-    {
-      role: "user",
-      content: `Analyse why this deal was ${closedAs}:\n\n${lines.join("\n")}`,
-    },
-  ], { maxTokens: 384 });
+  // Serve a previously-computed insight when the deal's inputs (incl. activity
+  // history and close outcome) are unchanged — avoids a redundant DeepSeek call
+  // and survives cold starts that the in-memory LRU in lib/ai.ts does not.
+  const fingerprint = inputFingerprint(`${closedAs}\n${lines.join("\n")}`);
+  const cacheKey = `aiWinLoss:deal:${dealId}`;
+  const cached = await readAiResultCache<{ insight: string }>(
+    db,
+    cacheKey,
+    fingerprint
+  );
+  if (cached && typeof cached.insight === "string" && cached.insight.trim()) {
+    return cached.insight;
+  }
 
-  return insight.trim();
+  const insight = (
+    await chat([
+      {
+        role: "system",
+        content:
+          `You are a CRM analyst. A deal was just closed as ${closedAs.toUpperCase()}. ` +
+          "Based on all available context — notes, contact profile, activity history — write a concise 2–4 sentence insight explaining the key reason(s) this deal closed the way it did. " +
+          "Highlight patterns, decisive moments, or factors that made the difference. Be direct and specific.",
+      },
+      {
+        role: "user",
+        content: `Analyse why this deal was ${closedAs}:\n\n${lines.join("\n")}`,
+      },
+    ], { maxTokens: 384 })
+  ).trim();
+
+  // Persist keyed on the input fingerprint so an unchanged deal is served from
+  // cache next time instead of re-calling DeepSeek.
+  if (insight) {
+    await writeAiResultCache(db, cacheKey, fingerprint, { insight });
+  }
+
+  return insight;
 }
 
 // Exported action so the client can trigger win/loss analysis on demand
@@ -389,6 +393,11 @@ export async function triggerWinLossAnalysis(
   if (deal.stage !== "won" && deal.stage !== "lost") {
     return { error: "Analysis is only available for won/lost deals." };
   }
+
+  // Per-user burst cap on the paid AI path — a stuck client retry loop or an
+  // automated flow can't hammer DeepSeek and blow the monthly cost cap.
+  const limited = await checkAiRateLimit();
+  if (limited) return { error: limited };
 
   try {
     const insight = await _generateWinLossInsight(db, dealId, deal.stage);
@@ -525,6 +534,11 @@ export async function scoreDeal(dealId: number): Promise<DealScoreState> {
   }
 
   if (!process.env.DEEPSEEK_API_KEY) return { noKey: true };
+
+  // Per-user burst cap on the paid AI path — cached results above are served
+  // freely; this guards against a stuck client forcing repeated DeepSeek calls.
+  const limited = await checkAiRateLimit();
+  if (limited) return { error: limited };
 
   try {
     const raw = await chat(

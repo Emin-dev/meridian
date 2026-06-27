@@ -35,109 +35,121 @@ export async function sendAllDueSteps(
   const idsToProcess = enrollmentIds.slice(0, SEND_ALL_DUE_BATCH);
   const remaining = enrollmentIds.length - idsToProcess.length;
 
-  const enrollments = await db
-    .select({
-      id: schema.contactSequenceEnrollments.id,
-      contactId: schema.contactSequenceEnrollments.contactId,
-      sequenceId: schema.contactSequenceEnrollments.sequenceId,
-      currentStepPosition: schema.contactSequenceEnrollments.currentStepPosition,
-      contactName: schema.contacts.name,
-      contactEmail: schema.contacts.email,
-      contactCompany: schema.contacts.company,
-      contactOwner: schema.contacts.owner,
-    })
-    .from(schema.contactSequenceEnrollments)
-    .innerJoin(
-      schema.contacts,
-      eq(schema.contactSequenceEnrollments.contactId, schema.contacts.id),
-    )
-    .innerJoin(
-      schema.sequences,
-      eq(schema.contactSequenceEnrollments.sequenceId, schema.sequences.id),
-    )
-    .where(
-      and(
-        inArray(schema.contactSequenceEnrollments.id, idsToProcess),
-        eq(schema.contactSequenceEnrollments.status, "active"),
-        eq(schema.sequences.status, "active"),
-      ),
-    );
-
-  if (enrollments.length === 0) return { sent: 0, remaining };
-
-  const sequenceIds = [...new Set(enrollments.map((e) => e.sequenceId))];
-
-  const allSteps = await db
-    .select()
-    .from(schema.sequenceSteps)
-    .where(inArray(schema.sequenceSteps.sequenceId, sequenceIds))
-    .orderBy(asc(schema.sequenceSteps.position));
-
-  const stepsBySequence = new Map<number, typeof allSteps>();
-  for (const step of allSteps) {
-    const arr = stepsBySequence.get(step.sequenceId) ?? [];
-    arr.push(step);
-    stepsBySequence.set(step.sequenceId, arr);
-  }
-
   let sent = 0;
   const affectedContactIds = new Set<number>();
   const affectedSequenceIds = new Set<number>();
 
-  // Collect every insert/update across all due enrollments and issue them in a
-  // single batched write, so processing many due steps hits the DB once instead
-  // of once per enrollment and stays comfortably under the 10s limit. A Neon
-  // batch is atomic, so an activity can never be logged without its enrollment
-  // advancing.
-  const statements: BatchItem<"pg">[] = [];
+  // Wrap every DB read + the batched write so a transient Neon failure surfaces
+  // as the inline `error` the UI already renders (batchError), instead of throwing
+  // to the route error boundary. Matches the pattern used by every other mutating
+  // action (bulkChangeStatus, addActivity, bulkScoreContacts, …).
+  try {
+    const enrollments = await db
+      .select({
+        id: schema.contactSequenceEnrollments.id,
+        contactId: schema.contactSequenceEnrollments.contactId,
+        sequenceId: schema.contactSequenceEnrollments.sequenceId,
+        currentStepPosition: schema.contactSequenceEnrollments.currentStepPosition,
+        contactName: schema.contacts.name,
+        contactEmail: schema.contacts.email,
+        contactCompany: schema.contacts.company,
+        contactOwner: schema.contacts.owner,
+      })
+      .from(schema.contactSequenceEnrollments)
+      .innerJoin(
+        schema.contacts,
+        eq(schema.contactSequenceEnrollments.contactId, schema.contacts.id),
+      )
+      .innerJoin(
+        schema.sequences,
+        eq(schema.contactSequenceEnrollments.sequenceId, schema.sequences.id),
+      )
+      .where(
+        and(
+          inArray(schema.contactSequenceEnrollments.id, idsToProcess),
+          eq(schema.contactSequenceEnrollments.status, "active"),
+          eq(schema.sequences.status, "active"),
+        ),
+      );
 
-  for (const enrollment of enrollments) {
-    const steps = (stepsBySequence.get(enrollment.sequenceId) ?? []).sort(
-      (a, b) => a.position - b.position,
-    );
-    const totalSteps = steps.length;
-    if (enrollment.currentStepPosition >= totalSteps) continue;
+    if (enrollments.length === 0) return { sent: 0, remaining };
 
-    const currentStep = steps[enrollment.currentStepPosition];
-    const vars = {
-      ...contactToVars({
-        name: enrollment.contactName,
-        company: enrollment.contactCompany,
-        owner: enrollment.contactOwner,
-      }),
-      ownerName: enrollment.contactOwner ?? ownerFallback,
+    const sequenceIds = [...new Set(enrollments.map((e) => e.sequenceId))];
+
+    const allSteps = await db
+      .select()
+      .from(schema.sequenceSteps)
+      .where(inArray(schema.sequenceSteps.sequenceId, sequenceIds))
+      .orderBy(asc(schema.sequenceSteps.position));
+
+    const stepsBySequence = new Map<number, typeof allSteps>();
+    for (const step of allSteps) {
+      const arr = stepsBySequence.get(step.sequenceId) ?? [];
+      arr.push(step);
+      stepsBySequence.set(step.sequenceId, arr);
+    }
+
+    // Collect every insert/update across all due enrollments and issue them in a
+    // single batched write, so processing many due steps hits the DB once instead
+    // of once per enrollment and stays comfortably under the 10s limit. A Neon
+    // batch is atomic, so an activity can never be logged without its enrollment
+    // advancing.
+    const statements: BatchItem<"pg">[] = [];
+
+    for (const enrollment of enrollments) {
+      const steps = (stepsBySequence.get(enrollment.sequenceId) ?? []).sort(
+        (a, b) => a.position - b.position,
+      );
+      const totalSteps = steps.length;
+      if (enrollment.currentStepPosition >= totalSteps) continue;
+
+      const currentStep = steps[enrollment.currentStepPosition];
+      const vars = {
+        ...contactToVars({
+          name: enrollment.contactName,
+          company: enrollment.contactCompany,
+          owner: enrollment.contactOwner,
+        }),
+        ownerName: enrollment.contactOwner ?? ownerFallback,
+      };
+      const subject = interpolate(currentStep.subjectTemplate, vars);
+      const body = interpolate(currentStep.bodyTemplate, vars);
+      const newStepPosition = enrollment.currentStepPosition + 1;
+      const isCompleted = newStepPosition >= totalSteps;
+
+      statements.push(
+        db.insert(schema.activities).values({
+          type: "email",
+          subject,
+          body,
+          contactId: enrollment.contactId,
+          completedAt: new Date(),
+        }),
+        db
+          .update(schema.contactSequenceEnrollments)
+          .set({
+            currentStepPosition: newStepPosition,
+            ...(isCompleted ? { status: "completed" as const } : {}),
+          })
+          .where(eq(schema.contactSequenceEnrollments.id, enrollment.id)),
+      );
+
+      affectedContactIds.add(enrollment.contactId);
+      affectedSequenceIds.add(enrollment.sequenceId);
+      sent++;
+    }
+
+    if (statements.length > 0) {
+      await db.batch(
+        statements as [BatchItem<"pg">, ...BatchItem<"pg">[]],
+      );
+    }
+  } catch {
+    return {
+      error: "Couldn't log the due steps. Please try again.",
+      sent: 0,
+      remaining,
     };
-    const subject = interpolate(currentStep.subjectTemplate, vars);
-    const body = interpolate(currentStep.bodyTemplate, vars);
-    const newStepPosition = enrollment.currentStepPosition + 1;
-    const isCompleted = newStepPosition >= totalSteps;
-
-    statements.push(
-      db.insert(schema.activities).values({
-        type: "email",
-        subject,
-        body,
-        contactId: enrollment.contactId,
-        completedAt: new Date(),
-      }),
-      db
-        .update(schema.contactSequenceEnrollments)
-        .set({
-          currentStepPosition: newStepPosition,
-          ...(isCompleted ? { status: "completed" as const } : {}),
-        })
-        .where(eq(schema.contactSequenceEnrollments.id, enrollment.id)),
-    );
-
-    affectedContactIds.add(enrollment.contactId);
-    affectedSequenceIds.add(enrollment.sequenceId);
-    sent++;
-  }
-
-  if (statements.length > 0) {
-    await db.batch(
-      statements as [BatchItem<"pg">, ...BatchItem<"pg">[]],
-    );
   }
 
   for (const contactId of affectedContactIds) {

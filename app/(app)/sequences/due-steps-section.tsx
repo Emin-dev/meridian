@@ -40,12 +40,16 @@ export function DueStepsSection({ dueEnrollments, defaultOwnerName }: Props) {
     setBatchDone(null);
     const ids = dueEnrollments.map((e) => e.enrollmentId);
     startTransition(async () => {
-      const result = await sendAllDueSteps(ids);
-      if (result.error) {
-        setBatchError(result.error);
-      } else {
-        setBatchDone(result.sent);
-        setBatchRemaining(result.remaining);
+      try {
+        const result = await sendAllDueSteps(ids);
+        if (result.error) {
+          setBatchError(result.error);
+        } else {
+          setBatchDone(result.sent);
+          setBatchRemaining(result.remaining);
+        }
+      } catch {
+        setBatchError("Couldn't log the due steps. Please try again.");
       }
     });
   }
