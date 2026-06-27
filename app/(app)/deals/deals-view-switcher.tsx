@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const STORAGE_KEY = "deals-view";
 type View = "kanban" | "table";
@@ -16,6 +16,7 @@ export function DealsViewSwitcher({
   stageParam?: string;
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   function buildQuery(view: View) {
     const params = new URLSearchParams();
@@ -26,6 +27,10 @@ export function DealsViewSwitcher({
   }
 
   useEffect(() => {
+    // Respect an explicit ?view= deep link — never override a shared/bookmarked
+    // URL with the saved preference; only apply the preference when absent.
+    if (searchParams.get("view")) return;
+
     const saved = localStorage.getItem(STORAGE_KEY) as View | null;
     // Default < lg viewports to the cards (table) view on first visit — it reads
     // better on a phone than the Kanban. The toggle stays visible everywhere, so

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const STORAGE_KEY = "contacts-view";
 export type ContactsView = "cards" | "table";
@@ -14,8 +14,13 @@ export function ContactsViewSwitcher({
   allSearchParams: Record<string, string>;
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
+    // Respect an explicit ?view= deep link — never override a shared/bookmarked
+    // URL with the saved preference; only apply the preference when absent.
+    if (searchParams.get("view")) return;
+
     const saved = localStorage.getItem(STORAGE_KEY) as ContactsView | null;
     // Coerce below the `lg` breakpoint — the same point at which the table view
     // (and this toggle) is CSS-hidden and the page renders stacked cards. Using
