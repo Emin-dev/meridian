@@ -208,7 +208,9 @@ export default async function TodayAgenda() {
                         )}
                       </div>
                       <span className="shrink-0 text-xs font-medium text-[var(--bad)]">
-                        {daysOverdue <= 1
+                        {daysOverdue === 0
+                          ? "Today"
+                          : daysOverdue === 1
                           ? "1 day ago"
                           : `${daysOverdue}d ago`}
                       </span>
