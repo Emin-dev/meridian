@@ -1202,6 +1202,9 @@ export async function bulkChangeOwner(
 ): Promise<BulkActionState> {
   await requireSession();
 
+  const parsedIds = BulkIdsSchema.safeParse(ids);
+  if (!parsedIds.success) return { error: "Invalid contact IDs." };
+
   const parsedOwner = z
     .string()
     .trim()
@@ -1211,22 +1214,21 @@ export async function bulkChangeOwner(
 
   const db = getDb();
   if (!db) return { noDb: true };
-  if (ids.length === 0) return { count: 0 };
 
-  const missing = await missingContactsError(db, ids);
+  const missing = await missingContactsError(db, parsedIds.data);
   if (missing) return { error: missing };
 
   try {
     await db
       .update(schema.contacts)
       .set({ owner: parsedOwner.data || null, updatedAt: new Date() })
-      .where(inArray(schema.contacts.id, ids));
+      .where(inArray(schema.contacts.id, parsedIds.data));
   } catch {
     return { error: "Couldn't change the owner. Please try again." };
   }
 
   revalidatePath("/contacts");
-  return { success: true, count: ids.length };
+  return { success: true, count: parsedIds.data.length };
 }
 
 export async function bulkEnrollInSequence(
