@@ -267,14 +267,25 @@ export default async function AnalyticsBody({ days }: { days: string }) {
   const dominantCurrency =
     Object.entries(valueByCurrency).sort((a, b) => b[1] - a[1])[0]?.[0] ??
     defaultCurrency;
-  const otherCurrencyCount = Math.max(
-    Object.keys(valueByCurrency).length - 1,
-    0
-  );
+
+  // Reconcile the money totals: count exactly how many *valued* deals in
+  // non-dominant currencies are dropped from every money figure on the page
+  // (the stat cards + the stage-funnel value column), and across how many
+  // currencies, so the note ties out to what's actually excluded — mirroring
+  // the forecast note's deal-count form rather than a bare currency count.
+  let excludedValuedDeals = 0;
+  const excludedValueCurrencies = new Set<string>();
+  for (const r of stageAgg) {
+    if (r.currency === dominantCurrency || r.valueCount <= 0) continue;
+    excludedValuedDeals += r.valueCount;
+    if (r.currency) excludedValueCurrencies.add(r.currency);
+  }
   const mixedCurrencyNote =
-    otherCurrencyCount > 0
-      ? `Money totals shown in ${dominantCurrency}; deals in ${otherCurrencyCount} other currenc${
-          otherCurrencyCount === 1 ? "y are" : "ies are"
+    excludedValuedDeals > 0
+      ? `Money totals shown in ${dominantCurrency}; ${excludedValuedDeals} deal${
+          excludedValuedDeals !== 1 ? "s" : ""
+        } in ${excludedValueCurrencies.size} other currenc${
+          excludedValueCurrencies.size === 1 ? "y" : "ies"
         } excluded.`
       : null;
   const fmtMoney = (value: number) => formatCurrency(value, dominantCurrency);
