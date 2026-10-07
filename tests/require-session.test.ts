@@ -48,22 +48,33 @@ describe("requireSession", () => {
     expect(redirect).toHaveBeenCalledWith("/login");
   });
 
-  it("is a no-op when AUTH_ENABLED=false explicitly opts an un-seeded demo out", async () => {
+  it("rejects AUTH_ENABLED=false when a database is connected", async () => {
     process.env.AUTH_ENABLED = "false";
     process.env.AUTH_SECRET = "secret";
-    process.env.DATABASE_URL = "postgres://x";
+    process.env.DATABASE_URL = "postgres://synthetic.invalid/test";
 
-    await expect(requireSession()).resolves.toBeUndefined();
+    await expect(requireSession()).rejects.toThrow("AUTH_ENABLED=false");
     expect(getSession).not.toHaveBeenCalled();
     expect(redirect).not.toHaveBeenCalled();
   });
 
-  it("is a no-op when AUTH_SECRET is missing (app stays publicly demoable)", async () => {
+  it("rejects missing AUTH_SECRET before looking up a session", async () => {
     delete process.env.AUTH_ENABLED;
     delete process.env.AUTH_SECRET;
-    process.env.DATABASE_URL = "postgres://x";
+    process.env.DATABASE_URL = "postgres://synthetic.invalid/test";
+
+    await expect(requireSession()).rejects.toThrow("AUTH_SECRET is required");
+    expect(getSession).not.toHaveBeenCalled();
+    expect(redirect).not.toHaveBeenCalled();
+  });
+
+  it("allows an explicit no-database demo", async () => {
+    process.env.AUTH_ENABLED = "false";
+    delete process.env.AUTH_SECRET;
+    delete process.env.DATABASE_URL;
 
     await expect(requireSession()).resolves.toBeUndefined();
+    expect(getSession).not.toHaveBeenCalled();
     expect(redirect).not.toHaveBeenCalled();
   });
 

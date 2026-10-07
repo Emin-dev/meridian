@@ -50,7 +50,7 @@ export async function getSession(): Promise<{ userId: number; email: string } | 
     const jar = await cookies();
     const token = jar.get(COOKIE)?.value;
     if (!token) return null;
-    const { payload } = await jwtVerify(token, secret());
+    const { payload } = await jwtVerify(token, secret(), { algorithms: [ALG] });
     return payload as { userId: number; email: string };
   } catch {
     return null;

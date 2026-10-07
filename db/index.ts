@@ -1,5 +1,6 @@
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
+import { isAuthEnabled } from "@/lib/auth-config";
 import * as schema from "./schema";
 
 export { schema };
@@ -16,8 +17,12 @@ let _db: Db | null | undefined;
  * before the database is provisioned.
  */
 export function getDb(): Db | null {
-  if (_db !== undefined) return _db;
+  // Validate before returning even a cached client. This also protects direct
+  // Server Component reads when deployment configuration is incomplete.
+  isAuthEnabled();
   const url = process.env.DATABASE_URL;
-  _db = url ? _mk(url) : null;
+  if (!url) return null;
+  if (_db !== undefined) return _db;
+  _db = _mk(url);
   return _db;
 }
