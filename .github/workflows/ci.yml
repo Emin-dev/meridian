@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Tests, types and dependency audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DATABASE_URL: ""
+      AUTH_SECRET: ""
+      DEEPSEEK_API_KEY: ""
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: "24"
+      - name: Install pinned pnpm
+        run: npm install --global pnpm@11.19.0
+      - name: Frozen dependency install
+        run: pnpm install --frozen-lockfile
+      - name: TypeScript
+        run: pnpm typecheck
+      - name: Synthetic regression tests
+        run: pnpm test
+      - name: Audit production dependencies
+        run: pnpm audit --prod --audit-level moderate
+      - name: Audit all dependencies
+        # The remaining development-only esbuild advisory is documented in SECURITY.md.
+        run: pnpm audit --audit-level high
+      # No build/dev server or deployment: CLAUDE.md reserves those for the operator.

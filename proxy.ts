@@ -1,19 +1,23 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
-import { isAuthEnabled } from "@/lib/auth-config";
+import { AuthConfigurationError, isAuthEnabled } from "@/lib/auth-config";
 
 const COOKIE = "session";
 
-// Next 16 renamed the `middleware` file convention to `proxy`. Behavior is
-// identical to the former middleware.ts — only the file name and the exported
-// function name changed (middleware -> proxy); the matcher config is unchanged.
+// Next.js 16 request boundary. Server Actions and exports also enforce sessions.
 export async function proxy(req: NextRequest) {
-  // Default-secure: auth gates every matched route whenever a database and a
-  // signing secret are configured (see lib/auth-config.ts). A connected DB with
-  // real PII must never be served to unauthenticated requests. The only opt-out
-  // is an explicit AUTH_ENABLED=false for an un-seeded demo.
-  if (!isAuthEnabled()) return NextResponse.next();
+  // A missing secret or a legacy DB-connected demo opt-out is an outage,
+  // never permission to serve private data. Keep configuration details private.
+  try {
+    if (!isAuthEnabled()) return NextResponse.next();
+  } catch (error) {
+    if (!(error instanceof AuthConfigurationError)) throw error;
+    return NextResponse.json(
+      { error: "Service configuration unavailable." },
+      { status: 503, headers: { "Cache-Control": "no-store" } }
+    );
+  }
 
   const authSecret = process.env.AUTH_SECRET!;
 
@@ -23,7 +27,9 @@ export async function proxy(req: NextRequest) {
   }
 
   try {
-    await jwtVerify(token, new TextEncoder().encode(authSecret));
+    await jwtVerify(token, new TextEncoder().encode(authSecret), {
+      algorithms: ["HS256"],
+    });
     return NextResponse.next();
   } catch {
     const res = NextResponse.redirect(new URL("/login", req.url));
@@ -39,6 +45,6 @@ export const config = {
   // analytics, ask, search) and every /api route is matched so it cannot be
   // reached without a valid session.
   matcher: [
-    "/((?!login|api/health|_next/static|_next/image|favicon.ico).*)",
+    "/((?!login$|api/health$|_next/static/|_next/image$|favicon\\.ico$).*)",
   ],
 };
